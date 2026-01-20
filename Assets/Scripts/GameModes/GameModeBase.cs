@@ -55,7 +55,7 @@ public class GameModeBase : MonoBehaviour
     [SerializeField] public PhaseSystem phase_system;
     #endregion
 
-    private virtual void LaunchSession()
+    public virtual void LaunchSession()
     {
         phase_system.Step();
     }

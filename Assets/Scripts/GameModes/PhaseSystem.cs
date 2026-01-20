@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 public enum Phase
 {
+    PRELOAD,
     WARMUP,
     ACTIVE,
     ENDGAME
@@ -13,14 +14,13 @@ public enum Phase
 
 public class PhaseSystem : MonoBehaviour
 {
-    // Delegate
-    public event EventHandler<Phase> PhaseChanged;
-
     // List of phases
     private List<Phase> Phases = new List<Phase> { Phase.WARMUP, Phase.ACTIVE, Phase.ENDGAME };
 
     // Current phase
-    public Phase CurrentPhase;
+    public Phase CurrentPhase = Phase.PRELOAD;
+
+    private float Countdown;
 
 
     // Step phase forward
@@ -33,9 +33,41 @@ public class PhaseSystem : MonoBehaviour
         Phase next_phase = Phases[phase_count % index];
         CurrentPhase = next_phase;
 
-        OnPhaseChanged(next_phase);
-
         return Success;
+    }
+
+    private void PhaseChanged()
+    {
+        match CurrentPhase:
+            Phase.PRELOAD:
+                PreloadPhase()
+            Phase.WARMUP:
+                WarmupPhase()
+            Phase.ACTIVE:
+                ActivePhase()
+            Phase.ENDGAME:
+                EndgamePhase()
+
+    }
+
+
+    private void PreloadPhase()
+    {
+        // Nothing is needed here, its only purpose is to be an empty step before WARMUP
+    }
+
+    private void WarmupPhase()
+    {
+        // Disable all player damage
+        // Begin a countdown timer until game starts
+
+    }
+
+    private void ActivePhase()
+    {
+        // Enable all player damage
+        // Begin a countdown timer until game ends
+
     }
 
     // Bypass intended stepping and set Phase directly.
@@ -48,8 +80,4 @@ public class PhaseSystem : MonoBehaviour
         return Success;
     }
 
-    public virtual void OnPhaseChanged(Phase phase)
-    {
-        PhaseChanged?.Invoke(this, phase);
-    }
 }
