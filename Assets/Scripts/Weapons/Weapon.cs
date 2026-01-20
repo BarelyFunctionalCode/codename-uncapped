@@ -136,6 +136,7 @@ public class Weapon : MonoBehaviour
             GameObject newProjectileObj = Instantiate(projectilePrefabObj, projectileSpawnPoint.position, projectileSpawnPoint.rotation, projectileSpawnPoint);
             currentProjectile = newProjectileObj.GetComponent<Projectile>();
             currentProjectile.Fire(ownerTransform, damage);
+            PostFired();
         }
         if (currentProjectile.hasHoldModifier)
         {
@@ -147,6 +148,8 @@ public class Weapon : MonoBehaviour
         ammoCount--;
         canFire = false;
     }
+
+    protected virtual void PostFired() { }
 
     protected virtual void DoHoldModifierStart(Projectile currentProjectile) { }
 
