@@ -6,12 +6,12 @@ public class BoostGrenade : Throwable
 {
     [SerializeField] private Transform blastWaveObj;
     [SerializeField] private Transform coreObj;
+    [SerializeField, Range(1000, 10000)] private float maxBoostForce = 3000f;
+    [SerializeField, Range(1000, 10000)] private float minBoostForce = 1000f;
     private Color startColor;
     private Color endColor;
     private float blastWaveRadius = 10f;
     private float blastWaveRadiusIncreaseRate = 5f;
-    private float maxBoostForce = 3000f;
-    private float minBoostForce = 1000f;
     private float boostForceFactor = 1f;
 
     private float customGravity = 5f;

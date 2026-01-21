@@ -24,13 +24,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1645390600031970419}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6094598168877481428}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &410270889780057907
 MonoBehaviour:
@@ -46,7 +47,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ignoreLayers:
     serializedVersion: 2
-    m_Bits: 840
+    m_Bits: 776
   throwablePrefabObj: {fileID: 8182502780126453879, guid: 76389706857f1da4d8fe12645b8e07c9, type: 3}
   throwableUI: {fileID: 5812049836053744672}
 --- !u!1001 &2189542464778221722
@@ -54,6 +55,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 5469594561667563519}
     m_Modifications:
     - target: {fileID: 5401660912674080078, guid: e8c8376eb8f8e4e4f91872ee59249d62, type: 3}
@@ -145,12 +147,10 @@ PrefabInstance:
       value: ThrowableUI
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e8c8376eb8f8e4e4f91872ee59249d62, type: 3}
---- !u!224 &6094598168877481428 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 5401660912674080078, guid: e8c8376eb8f8e4e4f91872ee59249d62, type: 3}
-  m_PrefabInstance: {fileID: 2189542464778221722}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &5812049836053744672 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5677453415964538042, guid: e8c8376eb8f8e4e4f91872ee59249d62, type: 3}
@@ -162,3 +162,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0da8306675a3d1c479d97d5ffc7b0169, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!224 &6094598168877481428 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 5401660912674080078, guid: e8c8376eb8f8e4e4f91872ee59249d62, type: 3}
+  m_PrefabInstance: {fileID: 2189542464778221722}
+  m_PrefabAsset: {fileID: 0}
