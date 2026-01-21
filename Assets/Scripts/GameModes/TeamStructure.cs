@@ -1,6 +1,12 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+/*  TeamStructure handles teams of players
+*      - Maintains list of teams and each players' assigned team
+*      - Checks for friendly fire, which can be a toggled option for server hosts to allow/disallow friendly fire
+*      - Free-for-all games (no teams) = Each player is on its own team, where the team name = player name
+*/
+
 public class TeamStructure : MonoBehaviour
 {
     // Team names, "Red" vs "Blue" or empty for a free-for-all
@@ -30,7 +36,7 @@ public class TeamStructure : MonoBehaviour
 
     }
 
-    private string GetTeam (int player_id)
+    public string GetTeam (int player_id)
     {
         string result;
         team_assignment.TryGetValue(player_id, out result);

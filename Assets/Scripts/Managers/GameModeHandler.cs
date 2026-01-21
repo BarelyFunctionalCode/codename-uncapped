@@ -1,6 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// Owns the current GameMode.
+// Begins and ends the game.
+// Must be notified to begin or end it (signalled by admin).
+// GameModes will handle beginning/ending their own game session
+// through PhaseSystem, once it has begun.
 public class GameModeHandler : MonoBehaviour
 {	
     public GameModeBase current_game_mode;
