@@ -39,7 +39,7 @@ public class GameModeBase : MonoBehaviour
     [SerializeField] public PhaseSystem phase_system;
     #endregion
 
-
+    #region Public Methods
     public virtual void LaunchSession()
     {
         phase_system.Step();
@@ -54,4 +54,17 @@ public class GameModeBase : MonoBehaviour
 
     public bool GetIsInSession() { return isInSession; }
     public bool GetIsComplete() { return isComplete; }
+
+    public void Start() // Pseudo
+    {
+        phase_system.PhaseChanged += PhaseChangedEventHandler;
+    }
+    #endregion
+
+    #region Event Handlers
+    public void PhaseChangedEventHandler(object sender, EventArgsPhaseChanged e)
+    {
+
+    }
+    #endregion
 }

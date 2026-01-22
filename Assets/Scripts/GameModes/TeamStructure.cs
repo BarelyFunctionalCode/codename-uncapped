@@ -13,6 +13,12 @@ public class TeamStructure : MonoBehaviour
     [SerializeField]
     public List<string> teams = new List<string> {};
 
+    #region Delegates & Events
+    public event EventHandler? PlayerChangedTeam;
+    public delegate void PlayerChangedTeamEventHandler(object sender, EventArgsPhaseChanged e);
+    #endregion
+
+
     // Players are assigned here by PlayerHandler, referenced by their instance ID
     // Format: Dictionary[Player, TeamName]
     public Dictionary<int, string> team_assignment = new Dictionary<int, string>();
@@ -33,7 +39,6 @@ public class TeamStructure : MonoBehaviour
         }
 
         return result;
-
     }
 
     public string GetTeam (int player_id)
@@ -44,4 +49,29 @@ public class TeamStructure : MonoBehaviour
         return result;
     }
 
+    // pseudo
+    public void SetTeam (int player_id, string team)
+    {
+        team_assignment[team] = player_id;
+        OnPlayerChangedTeam(new OnPlayerChangedTeam(player_id, team));
+    }
+
+    #region Protected methods
+    protected virtual void OnPlayerChangedTeam(EventArgsPlayerChangedTeam e)
+    {
+        PhaseChanged?.Invoke(this, e);
+    }
+    #endregion
+}
+
+public class EventArgsPlayerChangedTeam : EventArgs
+{
+    public int      player_id   { get; set; }
+    public string   team        {get; set; }
+
+    public EventArgsPlayerChangedTeam(int lPlayerId, string lTeam)
+    {
+        player_id   = lPlayerId
+        team        = lTeam
+    }
 }

@@ -27,9 +27,12 @@ public enum Phase
 
 public class PhaseSystem : MonoBehaviour
 {
+    #region Delegates & Events
+    public event EventHandler? PhaseChanged;
+    public delegate void PhaseChangedEventHandler(object sender, EventArgsPhaseChanged e);
+    #endregion
+    
     #region Properties
-    // List of phases
-    private List<Phase> Phases = new List<Phase> { Phase.PRELOAD, Phase.WARMUP, Phase.ACTIVE, Phase.ENDGAME };
     // Current phase
     public Phase CurrentPhase = Phase.PRELOAD;
     private float Countdown;
@@ -39,45 +42,34 @@ public class PhaseSystem : MonoBehaviour
     // Step phase forward
     public bool Step()
     {
-        bool Success = true;
-
-        #region Psuedo
         // set the next phase
-        if ((Currentphase == Phase.PRELOAD) || (Currentphase == Phase.ENDGAME)):
-            next_phase = Phases[Phase.WARMUP];
-        if Currentphase == Phase.WARMUP:
-            next_phase = Phases[Phase.ACTIVE];
-        if (Currentphase == Phase.ACTIVE):
-            next_phase = Phases[Phase.ENDGAME];
-
-        CurrentPhase = next_phase;
-        PhaseChanged();
-        #endregion
-
-        return Success;
+        CurrentPhase switch
+        {
+            ( Phase.PRELOAD, Phase.ENDGAME )=> CurrentPhase = Phase.WARMUP,
+            ( Phase.WARMUP )                => CurrentPhase = Phase.ACTIVE,
+            ( Phase.ACTIVE )                => CurrentPhase = Phase.ENDGAME,
+        }
+            
+        OnPhaseChanged(new EventArgsPhaseChanged(next_phase));
     }
-
 
     // Bypass intended stepping and set Phase directly.
     // Used for restarting a match, or early ending a match.
-    public bool HardSet(Phase phase)
+    public void HardSet(Phase phase)
     {
-        bool Success = true;
-
-
-        return Success;
+        CurrentPhase = phase;
+        OnPhaseChanged(new EventArgsPhaseChanged(next_phase));
     }
 
     #region Pseudo
-    private void Update()
+    private void FixedUpdate()
     {
-        SetCountdown(GetCountdown() - Time.delta)
+        SetCountdown(GetCountdown() - Time.fixedDeltaTime)
     }
 
-    public void Start()
+    public void Awake()
     {
-        Countdown = 15.0f;
-
+        SetCountdown(15.0f);
     }
     #endregion
     #endregion
@@ -104,7 +96,6 @@ public class PhaseSystem : MonoBehaviour
         return Countdown;
     }
 
-    #region Pseudo
     private void SetCountdown(float f)
     {
         countdown = f;
@@ -114,19 +105,16 @@ public class PhaseSystem : MonoBehaviour
         }
 
     }
-    #endregion
 
-    private void PhaseChanged()
+    private void EnterNewPhase()
     {
-        match CurrentPhase:
-        Phase.PRELOAD:
-        PreloadPhase()
-        Phase.WARMUP:
-        WarmupPhase()
-        Phase.ACTIVE:
-        ActivePhase()
-        Phase.ENDGAME:
-        EndgamePhase()
+        CurrentPhase switch
+        {
+            ( Phase.PRELOAD )   => PreloadPhase(),
+            ( Phase.WARMUP )    => WarmupPhase(),
+            ( Phase.ACTIVE )    => ActivePhase(),
+            ( Phase.ENDGAME )   => EndgamePhase(),
+        }
     }
 
     private void PreloadPhase()
@@ -143,5 +131,16 @@ public class PhaseSystem : MonoBehaviour
     }
 
     #endregion
+    
+    #region Protected methods
+    protected virtual void OnPhaseChanged(EventArgsPhaseChanged e)
+    {
+        PhaseChanged?.Invoke(this, e);
+    }
+    #endregion
+}
 
+public class EventArgsPhaseChanged : EventArgs
+{
+    public Phase phase { get; set; }
 }
