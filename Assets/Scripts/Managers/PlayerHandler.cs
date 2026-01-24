@@ -6,7 +6,8 @@ public class PlayerHandler : MonoBehaviour
     [SerializeField] private GameObject player_prefab;
     [SerializeField] public List<int> players;
     GameObject spawn_point;
-    
+
+    // Pseudo
     void Awake()
     {
         spawn_point = GameObject.Find("SpawnPoint");

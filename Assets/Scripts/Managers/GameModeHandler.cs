@@ -22,11 +22,12 @@ public class GameModeHandler : MonoBehaviour
     
     public void OnComplete()
     {
-    
+
     }
     
     public void SelectNewMode(GameModeBase game_mode)
     {
+        current_game_mode?.StopGame();
     	current_game_mode = game_mode;
     	StartGame();
     }

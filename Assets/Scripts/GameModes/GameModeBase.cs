@@ -30,8 +30,9 @@ using System.Collections.Generic;
 public class GameModeBase : MonoBehaviour
 {
     #region State
-    private bool isInSession = false;
-    private bool isComplete = false;
+    private bool isInSession    = false;
+    private bool isComplete     = false;
+    private bool isDamageAllowed = false;
     #endregion
 
     #region Components
@@ -40,20 +41,24 @@ public class GameModeBase : MonoBehaviour
     #endregion
 
     #region Public Methods
-    public virtual void LaunchSession()
+    public void LaunchSession()
     {
         phase_system.Step();
     }
 
-
-
-    public virtual void EndSession()
+    public void EndSession()
     {
-    
+        phase_system.HardSet(PhaseSystem.Phase.ENDGAME);
     }
 
-    public bool GetIsInSession() { return isInSession; }
-    public bool GetIsComplete() { return isComplete; }
+    public bool GetIsInSession()        { return isInSession; }
+    public bool GetIsComplete()         { return isComplete; }
+    public bool GetIsDamageAllowed()    { return isDamageAllowed; }
+
+    public void SetIsDamageAllowed(bool b)
+    {
+        isDamageAllowed = b;
+    }
 
     public void Start() // Pseudo
     {
@@ -64,7 +69,20 @@ public class GameModeBase : MonoBehaviour
     #region Event Handlers
     public void PhaseChangedEventHandler(object sender, EventArgsPhaseChanged e)
     {
-
+		// if in active session, toggle state booleans appropriately
+        switch( e.phase )
+        {
+            case PhaseSystem.Phase.ACTIVE:
+				isInSession		= true;
+				isComplete		= false;
+				isDamageAllowed	= true;
+				break;
+            case _:
+				isInSession		= false;
+				isComplete		= true;
+				isDamageAllowed	= false;
+				break;
+        }
     }
     #endregion
 }
