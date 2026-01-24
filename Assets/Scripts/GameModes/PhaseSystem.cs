@@ -28,8 +28,7 @@ public enum Phase
 public class PhaseSystem : MonoBehaviour
 {
     #region Delegates & Events
-    public event EventHandler? PhaseChanged;
-    public delegate void PhaseChangedEventHandler(object sender, EventArgsPhaseChanged e);
+    public event EventHandler<EventArgsPhaseChanged> PhaseChanged;
     #endregion
     
     #region Properties
@@ -40,17 +39,26 @@ public class PhaseSystem : MonoBehaviour
 
     #region Public methods
     // Step phase forward
-    public bool Step()
+    public void Step()
     {
         // set the next phase
-        CurrentPhase switch
+        switch ( CurrentPhase )
         {
-            ( Phase.PRELOAD, Phase.ENDGAME )=> CurrentPhase = Phase.WARMUP,
-            ( Phase.WARMUP )                => CurrentPhase = Phase.ACTIVE,
-            ( Phase.ACTIVE )                => CurrentPhase = Phase.ENDGAME,
-        }
+            case Phase.PRELOAD:
+                CurrentPhase = Phase.WARMUP;
+                break;
+            case Phase.WARMUP:
+                CurrentPhase = Phase.ACTIVE;
+                break;
+            case Phase.ACTIVE:
+                CurrentPhase = Phase.ENDGAME;
+                break;
+            case Phase.ENDGAME:
+                CurrentPhase = Phase.WARMUP;
+                break;
+        };
             
-        OnPhaseChanged(new EventArgsPhaseChanged(next_phase));
+        OnPhaseChanged(new EventArgsPhaseChanged(CurrentPhase));
     }
 
     // Bypass intended stepping and set Phase directly.
@@ -58,13 +66,13 @@ public class PhaseSystem : MonoBehaviour
     public void HardSet(Phase phase)
     {
         CurrentPhase = phase;
-        OnPhaseChanged(new EventArgsPhaseChanged(next_phase));
+        OnPhaseChanged(new EventArgsPhaseChanged(CurrentPhase));
     }
 
     #region Pseudo
     private void FixedUpdate()
     {
-        SetCountdown(GetCountdown() - Time.fixedDeltaTime)
+        SetCountdown(GetCountdown() - Time.fixedDeltaTime);
     }
 
     public void Awake()
@@ -98,23 +106,31 @@ public class PhaseSystem : MonoBehaviour
 
     private void SetCountdown(float f)
     {
-        countdown = f;
-        if (countdown <= 0)
+        Countdown = f;
+        if (Countdown <= 0)
         {
-            Step()
+            Step();
         }
 
     }
 
     private void EnterNewPhase()
     {
-        CurrentPhase switch
+        switch(CurrentPhase )
         {
-            ( Phase.PRELOAD )   => PreloadPhase(),
-            ( Phase.WARMUP )    => WarmupPhase(),
-            ( Phase.ACTIVE )    => ActivePhase(),
-            ( Phase.ENDGAME )   => EndgamePhase(),
-        }
+            case Phase.PRELOAD:
+                PreloadPhase();
+                break;
+            case Phase.WARMUP:
+                WarmupPhase();
+                break;
+            case Phase.ACTIVE:
+                ActivePhase();
+                break;
+            case Phase.ENDGAME:
+                EndgamePhase();
+                break;
+        };
     }
 
     private void PreloadPhase()
@@ -133,7 +149,7 @@ public class PhaseSystem : MonoBehaviour
     #endregion
     
     #region Protected methods
-    protected virtual void OnPhaseChanged(EventArgsPhaseChanged e)
+    public virtual void OnPhaseChanged(EventArgsPhaseChanged e)
     {
         PhaseChanged?.Invoke(this, e);
     }
@@ -142,5 +158,6 @@ public class PhaseSystem : MonoBehaviour
 
 public class EventArgsPhaseChanged : EventArgs
 {
-    public Phase phase { get; set; }
+    public Phase phase;
+    public EventArgsPhaseChanged(Phase p) => phase = p;
 }

@@ -48,7 +48,7 @@ public class GameModeBase : MonoBehaviour
 
     public void EndSession()
     {
-        phase_system.HardSet(PhaseSystem.Phase.ENDGAME);
+        phase_system.HardSet(Phase.ENDGAME);
     }
 
     public bool GetIsInSession()        { return isInSession; }
@@ -62,27 +62,27 @@ public class GameModeBase : MonoBehaviour
 
     public void Start() // Pseudo
     {
-        phase_system.PhaseChanged += PhaseChangedEventHandler;
+        phase_system.PhaseChanged += OnPhaseChanged;
     }
     #endregion
 
     #region Event Handlers
-    public void PhaseChangedEventHandler(object sender, EventArgsPhaseChanged e)
+    public void OnPhaseChanged(object sender, EventArgsPhaseChanged e)
     {
 		// if in active session, toggle state booleans appropriately
         switch( e.phase )
         {
-            case PhaseSystem.Phase.ACTIVE:
+            case Phase.ACTIVE:
 				isInSession		= true;
 				isComplete		= false;
 				isDamageAllowed	= true;
 				break;
-            case _:
+            default:
 				isInSession		= false;
 				isComplete		= true;
 				isDamageAllowed	= false;
 				break;
-        }
+        };
     }
     #endregion
 }

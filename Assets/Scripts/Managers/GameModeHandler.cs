@@ -27,7 +27,7 @@ public class GameModeHandler : MonoBehaviour
     
     public void SelectNewMode(GameModeBase game_mode)
     {
-        current_game_mode?.StopGame();
+        current_game_mode?.EndSession();
     	current_game_mode = game_mode;
     	StartGame();
     }

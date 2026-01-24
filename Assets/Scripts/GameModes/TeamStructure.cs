@@ -1,5 +1,7 @@
 using UnityEngine;
+using System;
 using System.Collections.Generic;
+
 
 /*  TeamStructure handles teams of players
 *      - Maintains list of teams and each players' assigned team
@@ -14,8 +16,7 @@ public class TeamStructure : MonoBehaviour
     public List<string> teams = new List<string> {};
 
     #region Delegates & Events
-    public event EventHandler? PlayerChangedTeam;
-    public delegate void PlayerChangedTeamEventHandler(object sender, EventArgsPhaseChanged e);
+    public event EventHandler<EventArgsPlayerChangedTeam> PlayerChangedTeam;
     #endregion
 
 
@@ -52,14 +53,14 @@ public class TeamStructure : MonoBehaviour
     // pseudo
     public void SetTeam (int player_id, string team)
     {
-        team_assignment[team] = player_id;
-        OnPlayerChangedTeam(new OnPlayerChangedTeam(player_id, team));
+        team_assignment[player_id] = team;
+        OnPlayerChangedTeam(new EventArgsPlayerChangedTeam(player_id, team));
     }
 
-    #region Protected methods
-    protected virtual void OnPlayerChangedTeam(EventArgsPlayerChangedTeam e)
+    #region Event Handlers
+    public void OnPlayerChangedTeam(EventArgsPlayerChangedTeam e)
     {
-        PhaseChanged?.Invoke(this, e);
+        PlayerChangedTeam?.Invoke(this, e);
     }
     #endregion
 }
@@ -71,7 +72,7 @@ public class EventArgsPlayerChangedTeam : EventArgs
 
     public EventArgsPlayerChangedTeam(int lPlayerId, string lTeam)
     {
-        player_id   = lPlayerId
-        team        = lTeam
+        player_id   = lPlayerId;
+        team        = lTeam;
     }
 }
