@@ -1,7 +1,11 @@
 using System.Collections.Generic;
 using System.Reflection;
+using Steamworks;
+using Unity.Cinemachine;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class PlayerTelemetry
 {
@@ -74,11 +78,40 @@ public class PlayerTelemetry
 }
 
 
+public struct InputState : INetworkSerializable
+{
+    public double timestamp;
+    public Vector3 movementDirection;
+    public Vector3 rotationDelta;
+    public bool isJumping;
+    public bool isSkiing;
+    public bool isUpJetting;
+    public bool isDownJetting;
+    public bool isJetting;
+    public bool isMoving;
+    public bool isRunning;
+
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        serializer.SerializeValue(ref timestamp);
+        serializer.SerializeValue(ref movementDirection);
+        serializer.SerializeValue(ref rotationDelta);
+        serializer.SerializeValue(ref isJumping);
+        serializer.SerializeValue(ref isSkiing);
+        serializer.SerializeValue(ref isUpJetting);
+        serializer.SerializeValue(ref isDownJetting);
+        serializer.SerializeValue(ref isJetting);
+        serializer.SerializeValue(ref isMoving);
+        serializer.SerializeValue(ref isRunning);
+    }
+}
+
+
 public class PlayerController : Entity
 {
     [Space(20)]
     [SerializeField] private DevVectorRenderer devVectorRenderer;
-    [SerializeField] private HUD hud;
+    // [SerializeField] private HUD hud;
 
     
     public PlayerTelemetry playerTelemetry;
@@ -182,6 +215,7 @@ public class PlayerController : Entity
 
     Vector3 movementInput = Vector3.zero;
     Vector3 movementDirection = Vector3.zero;
+    Vector3 rotationDelta = Vector3.zero;
     bool isJumping = false;
     bool isSkiing = false;
     bool isUpJetting = false;
@@ -197,110 +231,303 @@ public class PlayerController : Entity
 
     public bool hasFocus = false;
 
-    [SerializeField] private Transform playerUI;
+
+
+
+
+
+
+    private List<InputState> inputBuffer = new();
+    private SteamId localId;
+    public SteamId PlayerSteamId { get { return localId; } }
+
+    [SerializeField] private GameObject playerCameraPrefabObj;
+    private GameObject playerCameraObj;
+    private CinemachineCamera cineCam;
+
+    [SerializeField] private Transform freeLookTargetObj;
+    private AudioListener audioListener;
+
+    // UI
+    [SerializeField] private GameObject playerUIPrefabObj;
+    public GameObject playerUIObj;
+
+    public bool isInitialized = false;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // [SerializeField] private Transform playerUI;
 
     [SerializeField] private Transform weaponMountPoint;
     [SerializeField] private Transform throwableMountPoint;
 
     private PlayerLoadout playerLoadout;
 
+
+
+
+
+
+
+
+
+
+    #region Lifecycle
     protected override void Awake()
     {
         base.Awake();
 
-        playerTelemetry = new PlayerTelemetry(devVectorRenderer);
-
-        playerControls = new PlayerControls();
         rb = GetComponent<Rigidbody>();
-        rb.sleepThreshold = 0.0f;
-        rb.mass = mass;
         playerCollider = GetComponent<CapsuleCollider>();
-        playerCollider.material = normalMaterial;
         animator = GetComponent<Animator>();
         playerLoadout = GetComponent<PlayerLoadout>();
-        playerLoadout.Initialize(this, weaponMountPoint, throwableMountPoint);
-        hud.Initialize(this);
     }
 
-    void Start()
-    {    
-        InitializePauseMenuElements();
+    public sealed override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        rb.sleepThreshold = 0.0f;
+        rb.mass = mass;
+        playerCollider.material = normalMaterial;
+
+        SceneManager.activeSceneChanged += ChangedActiveScene;
+
+        if (IsOwner)
+        {
+            // Capture the mouse cursor
+            Cursor.lockState = CursorLockMode.Locked;
+
+            // Set up the player controls
+            playerControls = new PlayerControls();
+
+            // Set up the input callbacks
+            playerControls.Enable();
+            playerControls.Equipment.NextWeapon.started += playerLoadout.NextWeapon;
+            playerControls.Equipment.PreviousWeapon.started += playerLoadout.PreviousWeapon;
+            playerControls.Movement.JumpJet.started += OnJumpStarted;
+
+            if (!IsHost) Initialize();
+        }
     }
 
-    void OnApplicationFocus(bool tempHasFocus)
+    public sealed override void OnNetworkDespawn()
     {
-        if (tempHasFocus) Cursor.lockState = CursorLockMode.Locked;
-        hasFocus = tempHasFocus;
-    }
+        base.OnNetworkDespawn();
 
-    void OnEnable()
-    {
-        playerControls.Enable();
-        playerControls.Equipment.NextWeapon.started += playerLoadout.NextWeapon;
-        playerControls.Equipment.PreviousWeapon.started += playerLoadout.PreviousWeapon;
-        playerControls.Movement.JumpJet.started += OnJumpStarted;
-    }
-    void OnDisable()
-    {
-        playerControls.Disable();
-        playerControls.Equipment.NextWeapon.started -= playerLoadout.NextWeapon;
-        playerControls.Equipment.PreviousWeapon.started -= playerLoadout.PreviousWeapon;
-        playerControls.Movement.JumpJet.started -= OnJumpStarted;
-    }
+        SceneManager.activeSceneChanged -= ChangedActiveScene;
 
-    private void OnJumpStarted(InputAction.CallbackContext _)
-    {
-        isJumping = true;
+        if (IsOwner)
+        {
+            // If the player is despawned, disable the inputs
+            playerControls.Disable();
+            playerControls.Equipment.NextWeapon.started -= playerLoadout.NextWeapon;
+            playerControls.Equipment.PreviousWeapon.started -= playerLoadout.PreviousWeapon;
+            playerControls.Movement.JumpJet.started -= OnJumpStarted;
+
+            // Disable audio listener
+            if (audioListener) audioListener.enabled = false;
+        }
     }
 
     protected override void Update()
     {
         base.Update();
+        if (!isInitialized) return;
 
-        HandleCollision();
-        HandleInputs();
-
-        bool tempSkiToggleInput = playerControls.Movement.ToggleSki.ReadValue<float>() > 0.0f;
-        if (tempSkiToggleInput && !skiToggleInput)
+        if (IsOwner || IsServer)
         {
-            skiToggle = !skiToggle;
+            HandleGroundDetection();
+            // Apply Drag
+            rb.linearDamping = distanceToSurface <= airCushionHeight ? airCushionDrag : drag;
         }
-        skiToggleInput = tempSkiToggleInput;
 
-        if (playerControls.UI.Pause.WasPressedThisFrame())
+        if (IsOwner)
         {
-            bool newMenuState = !playerUI.Find("PauseMenu").gameObject.activeSelf;
-            Cursor.lockState = newMenuState ? CursorLockMode.Confined : CursorLockMode.Locked;
-            Time.timeScale = newMenuState ? 0.0f : 1.0f;
-            if (newMenuState) {
-                playerControls.Disable();
-                playerControls.UI.Enable();
+            HandleInputs();
+            if (playerControls.UI.Pause.WasPressedThisFrame())
+            {
+                bool newMenuState = !playerUIObj.transform.Find("PauseMenu").gameObject.activeSelf;
+                Cursor.lockState = newMenuState ? CursorLockMode.Confined : CursorLockMode.Locked;
+                // Time.timeScale = newMenuState ? 0.0f : 1.0f;
+                if (newMenuState) {
+                    playerControls.Disable();
+                    playerControls.UI.Enable();
+                }
+                else playerControls.Enable();
+                playerUIObj.transform.Find("PauseMenu").gameObject.SetActive(newMenuState);
             }
-            else playerControls.Enable();
-            playerUI.Find("PauseMenu").gameObject.SetActive(newMenuState);
+
+            playerTelemetry.Update();
+
+            // Set friction based on whether player is skiing or not
+            UpdatePhysicsMaterialRpc(isSkiing);
         }
-
-        playerTelemetry.Update();
-
-        // Set friction based on whether player is skiing or not
+    }
+    [Rpc(SendTo.Server)]
+    private void UpdatePhysicsMaterialRpc(bool isSkiing)
+    {
         playerCollider.material = isSkiing ? skiMaterial : normalMaterial;
-
-        // Apply Drag
-        rb.linearDamping = distanceToSurface <= airCushionHeight ? airCushionDrag : drag;
     }
 
+
+
+    // FixedUpdate is called only on the owning client.
     void FixedUpdate()
     {
-        HandleMovement();
-        isJumping = false;
+        if (!IsOwner || !isInitialized) return;
 
-        if (hasFocus) HandleRotation();
+        // First, we collect all of the inputs that go into moving the player, and create an input state
+        InputState frameInputs = new()
+        {
+            timestamp = NetworkManager.LocalTime.Time,
+            movementDirection = movementDirection,
+            rotationDelta = rotationDelta,
+            isJumping = isJumping,
+            isSkiing = isSkiing,
+            isUpJetting = isUpJetting,
+            isDownJetting = isDownJetting,
+            isJetting = isJetting,
+            isMoving = isMoving,
+            isRunning = isRunning
+        };
+
+        // Next, we add the inputs to the input buffer for client-side prediction
+        if (!IsServer)
+        {
+            // inputBuffer.Add(frameInputs);
+            HandleMovement(frameInputs);
+        }
+
+        // Finally, we send the inputs to the server for authoritative movement
+        HandleMovementRpc(frameInputs);
+
+        isJumping = false;
         playerTelemetry.position = transform.position;
         playerTelemetry.velocity = rb.linearVelocity;
     }
+    #endregion
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    #region Initialization
+    public void Initialize()
+    {
+        if (IsOwner)
+        {
+            if (!playerUIObj) {
+                playerUIObj = Instantiate(playerUIPrefabObj);
+                playerUIObj.GetComponentInChildren<HUD>().Initialize(this);
+                playerTelemetry = new PlayerTelemetry(devVectorRenderer);
+                InitializePauseMenuElements();
+            }
+
+            if (!playerCameraObj)
+            {
+                playerCameraObj = Instantiate(playerCameraPrefabObj);
+                audioListener = playerCameraObj.GetComponentInChildren<AudioListener>();
+                cineCam = playerCameraObj.GetComponentInChildren<CinemachineCamera>();
+                cineCam.Follow = freeLookTargetObj;
+
+                // Enable audio listener
+                audioListener.enabled = true;
+
+                // Enable the camera
+                cineCam.Priority.Value = 1;
+            }
+
+            if (GameManager.Instance?.usingSteam == true)
+            {
+                localId = SteamClient.SteamId.Value;
+            }
+            InitializeRpc();
+        }
+        isInitialized = true;
+    }
+
+    [Rpc(SendTo.Server)]
+    private void InitializeRpc()
+    {
+        // PlayerManager.Instance.AddPlayer(this);
+        // playerStats.Initialize(OwnerClientId);
+        // playerStats.SetInventory();
+    }
+    #endregion
+
+    #region Cleanup
+    [Rpc(SendTo.Server)]
+    public void DisconnectCleanupRpc()
+    {
+        DisconnectCleanupOwnerRpc();
+    }
+
+    [Rpc(SendTo.Owner)]
+    private void DisconnectCleanupOwnerRpc()
+    {
+        // Disable the UI
+        // ui.Reset();
+    }
+    #endregion
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    #region Inputs
+    private void OnJumpStarted(InputAction.CallbackContext _)
+    {
+        isJumping = true;
+    }
+
+
 
     private void HandleInputs()
     {
+        // Get rotation input
+        Vector2 rotationInput = playerControls.Movement.Look.ReadValue<Vector2>();
+        Vector3 rotation = new(0f, rotationInput.x, 0f);
+        rotation *= horizontalRotationSpeed * Time.fixedDeltaTime;
+        rotationDelta = Vector3.ClampMagnitude(rotation, horizontalRotationLimit);
+
         // Get movement input
         Vector2 movement = playerControls.Movement.Move.ReadValue<Vector2>();
         movementInput = new Vector3(movement.x, 0f, movement.y);
@@ -334,8 +561,10 @@ public class PlayerController : Entity
         animator.SetBool("isSkiing", isSkiing && !isUpJetting && !isDownJetting);
         animator.SetBool("isJetting", isUpJetting || isDownJetting);
     }
+    #endregion
 
-    private void HandleCollision()
+    #region Movement
+    private void HandleGroundDetection()
     {
         lastGroundedTime += Time.deltaTime;
         isGrounded = false;
@@ -357,7 +586,7 @@ public class PlayerController : Entity
         );
         if (didHit)
         {
-            playerTelemetry.isGrounded = isGrounded;
+            if (playerTelemetry != null) playerTelemetry.isGrounded = isGrounded;
             
             // Surface too steep
             float slope = Vector3.Dot(hit.normal, Vector3.up);
@@ -365,8 +594,9 @@ public class PlayerController : Entity
 
             surfacePoint = hit.point;
             distanceToSurface = Mathf.Max(Vector3.Distance(surfacePoint, groundCheckPoint) - playerCollider.bounds.extents.y, 0.0f);
-            playerTelemetry.distanceToSurface = distanceToSurface;
-            playerTelemetry.surfacePoint = surfacePoint;
+
+            if (playerTelemetry != null) playerTelemetry.distanceToSurface = distanceToSurface;
+            if (playerTelemetry != null) playerTelemetry.surfacePoint = surfacePoint;
 
             // Breakaway vertical speed check
             if (rb.linearVelocity.y > 20.0f) return;
@@ -391,14 +621,33 @@ public class PlayerController : Entity
             }
 
         }
-        playerTelemetry.isGrounded = isGrounded;
-        playerTelemetry.surfaceNormal = surfaceNormal;
+
+        if (playerTelemetry != null) playerTelemetry.isGrounded = isGrounded;
+        if (playerTelemetry != null) playerTelemetry.surfaceNormal = surfaceNormal;
         
     }
 
 
-    private void HandleMovement()
+
+    [Rpc(SendTo.Server)]
+    private void HandleMovementRpc(InputState frameInputs)
     {
+        HandleMovement(frameInputs);
+    }
+
+    private void HandleMovement(InputState frameInputs)
+    {
+
+        Vector3 movementDirection = frameInputs.movementDirection;
+        Vector3 rotationDelta = frameInputs.rotationDelta;
+        bool isJumping = frameInputs.isJumping;
+        bool isSkiing = frameInputs.isSkiing;
+        bool isUpJetting = frameInputs.isUpJetting;
+        bool isDownJetting = frameInputs.isDownJetting;
+        bool isJetting = frameInputs.isJetting;
+        bool isMoving = frameInputs.isMoving;
+        bool isRunning = frameInputs.isRunning;
+
         Vector3 currentVelocity = rb.linearVelocity;
         Vector3 desiredAcc = Vector3.zero;
         Vector3 groundImpulse = Vector3.zero;
@@ -583,6 +832,11 @@ public class PlayerController : Entity
         rb.AddForce(velocityCappedExcess, ForceMode.VelocityChange);
         currentVelocity += velocityCappedExcess;
         // Debug.Log($"Current Velocity: {rb.linearVelocity:F2}\t Desired Acc: {desiredAcc:F2}\t Jet Resistance: {jetResistance:F2}\t Capped Excess: {velocityCappedExcess:F2}\t Final Velocity: {currentVelocity:F2}");
+    
+
+        // Apply Rotation
+        Quaternion newRot = Quaternion.Euler(rb.rotation.eulerAngles + rotationDelta);
+        rb.MoveRotation(newRot);
     }
 
     private Vector3 CalculateJetResistance(Vector3 currentVelocity, float desiredVerticalAcc, Vector3 desiredAcc)
@@ -654,15 +908,11 @@ public class PlayerController : Entity
 
     private void HandleRotation()
     {
-        Vector2 rotationInput = playerControls.Movement.Look.ReadValue<Vector2>();
-        Vector3 rotation = new(0f, rotationInput.x, 0f);
-        rotation *= horizontalRotationSpeed * Time.fixedDeltaTime;
-        rotation = Vector3.ClampMagnitude(rotation, horizontalRotationLimit);
+        
 
-        Quaternion newRot = Quaternion.Euler(rb.rotation.eulerAngles + rotation);
-
-        rb.MoveRotation(newRot);
+        
     }
+    #endregion
 
     private void InitializePauseMenuElements()
     {
@@ -720,4 +970,21 @@ public class PlayerController : Entity
     {
         print("Player Died");
     }
+
+    #region SceneManagement
+    private void ChangedActiveScene(Scene _, Scene next)
+    {
+        ChangedActiveSceneRpc(next.name);
+    }
+
+    [Rpc(SendTo.Owner)]
+    private void ChangedActiveSceneRpc(string sceneName)
+    {
+        if (GameManager.Instance?.debugMode == true) Debug.Log("Changed active scene for " + name + " " + NetworkManager.Singleton.LocalClientId);
+        if (playerUIObj) SceneManager.MoveGameObjectToScene(playerUIObj, SceneManager.GetSceneByName(sceneName));
+        if (playerCameraObj) SceneManager.MoveGameObjectToScene(playerCameraObj, SceneManager.GetSceneByName(sceneName));
+
+        if (sceneName == "Lobby") Initialize();
+    }
+    #endregion
 }
