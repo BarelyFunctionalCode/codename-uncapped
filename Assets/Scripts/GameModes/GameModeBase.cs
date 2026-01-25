@@ -21,6 +21,18 @@ public class GameModeBase : MonoBehaviour
     [SerializeField] public TeamStructure team_structure;
     [SerializeField] public PhaseSystem   phase_system;
     [SerializeField] public GameStats     game_stats;
+    [SerializeField] public WinConditions win_conditions;
+    #endregion
+
+
+
+    #region Private Methods
+    // Check score against win condition, complete the game if score is met.
+    private bool CheckScore()
+    {
+
+        return true;
+    }
     #endregion
 
     #region Public Methods
@@ -76,5 +88,11 @@ public class GameModeBase : MonoBehaviour
 
         game_stats.AddEntry(player_id, StatsGroup.PLAYER);
     }
+
+    public void OnGameStatsPointsChanged(object sender, EventArgs e)
+    {
+        bool result = false;
+    }
+
     #endregion
 }

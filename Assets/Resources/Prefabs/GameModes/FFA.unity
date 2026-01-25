@@ -195,6 +195,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameModeBase
   team_structure: {fileID: 17597212}
   phase_system: {fileID: 0}
+  win_conditions: {fileID: 3243201944256704781, guid: 60baa731360a02708a57f1d66eabb1f0, type: 3}
 --- !u!4 &735431291
 Transform:
   m_ObjectHideFlags: 0
