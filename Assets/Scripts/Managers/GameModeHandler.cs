@@ -7,28 +7,54 @@ using UnityEngine;
 // GameModes will handle beginning/ending their own game session
 // through PhaseSystem, once it has begun.
 public class GameModeHandler : MonoBehaviour
-{	
-    public GameModeBase current_game_mode;
+{
+
+    // Setting a new game mode will start the game automatically.
+    private GameModeBase _current_game_mode;
+    public GameModeBase CurrentGameMode
+    {
+        get
+        {
+            return _current_game_mode;
+        }
+        set
+        {
+            _current_game_mode = value;
+            StartGame();
+        }
+    }
+
+    // For debug/testing, automatically load a game mode selectable from in the inspector.
+    [SerializeField]
+    public GameModeBase default_game_mode;
+    [SerializeField]
+    public bool loadDefaultGameMode = true;
     
+    // Entry point for the game mode to begin its session.
     public void StartGame()
     {
-        current_game_mode.LaunchSession();
+        CurrentGameMode.LaunchSession();
     }
-    
+
+    // And to end a game mode session. Begin all cleanup, unloading operations.
     public void StopGame()
     {
-        current_game_mode.EndSession();
+        CurrentGameMode.EndSession();
     }
     
-    public void OnComplete()
+    // Game mode can be selected at any time. player voting, admin selection, in-game host selection should all call from here.
+    public void SelectNewMode(GameModeBase g)
     {
+        CurrentGameMode?.EndSession();
+    	CurrentGameMode = g;
+    }
 
-    }
-    
-    public void SelectNewMode(GameModeBase game_mode)
+    // For debug/testing, automatically load a game mode selectable from in the inspector.
+    void Start()
     {
-        current_game_mode?.EndSession();
-    	current_game_mode = game_mode;
-    	StartGame();
+        if ( loadDefaultGameMode )
+        {
+            CurrentGameMode = default_game_mode;
+        }
     }
 }

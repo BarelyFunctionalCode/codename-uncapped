@@ -1,28 +1,10 @@
 using UnityEngine;
+using System;
 using System.Collections.Generic;
 
 
 /*
  *  - Manages game session -
- *
- *
- *  GameStats handles all StatEvents
- *      - All events in game will be tracked as a "StatEvent"
- *        - Bullets fired count toward a players' hitrate/missrate
- *        - Flag captures, drops, recoveries
- *        - Kills, deaths, assists
- *      - All game modes are point based, where points are given based on a certain type of StatEvent
- *        - Kills award points for Death match
- *        - Flag captures award points for CTF
- *        - Flag hold duration award points for rabbit
- *      - Points are awarded to players
- *        - Points are also awarded to teams based on which team the player is on
- *        - Player points do nothing but track stats
- *        - Team points trigger state change/win condition
- *          - This is to prevent players switching teams and triggering win condition with player points
- *      - Points accumulate to Team the player is on, if team based
- *      - On point change, check win condition
- *      - GameStat
  *
  */
 
@@ -30,14 +12,15 @@ using System.Collections.Generic;
 public class GameModeBase : MonoBehaviour
 {
     #region State
-    private bool isInSession    = false;
-    private bool isComplete     = false;
+    private bool isInSession     = false;
+    private bool isComplete      = false;
     private bool isDamageAllowed = false;
     #endregion
 
     #region Components
     [SerializeField] public TeamStructure team_structure;
-    [SerializeField] public PhaseSystem phase_system;
+    [SerializeField] public PhaseSystem   phase_system;
+    [SerializeField] public GameStats     game_stats;
     #endregion
 
     #region Public Methods
@@ -83,6 +66,15 @@ public class GameModeBase : MonoBehaviour
 				isDamageAllowed	= false;
 				break;
         };
+    }
+
+    // Pseudo
+    // Need to update the EventArgs to make sure its sending player id
+    public void OnPlayerJoined(object sender, EventArgs e)
+    {
+        int player_id = 0; // e.player_id;
+
+        game_stats.AddEntry(player_id, StatsGroup.PLAYER);
     }
     #endregion
 }

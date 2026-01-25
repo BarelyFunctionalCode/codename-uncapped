@@ -57,6 +57,11 @@ public class TeamStructure : MonoBehaviour
         OnPlayerChangedTeam(new EventArgsPlayerChangedTeam(player_id, team));
     }
 
+    public List<string> GetTeams()
+    {
+        return teams;
+    }
+
     #region Event Handlers
     public void OnPlayerChangedTeam(EventArgsPlayerChangedTeam e)
     {
