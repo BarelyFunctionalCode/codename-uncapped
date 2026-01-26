@@ -14,20 +14,20 @@ public enum StatEventType
 public class StatEvent
 {
     // What kind of event happened?
-    public StatEventType type;
+    public StatEventType StatType;
 
     // What is the value of the event?
-    public float value;
+    public float Value;
 
     // Which player caused the event?
-    public int source;
+    public int Source;
 
     // Who received the event?
-    public int? target;
+    public int? Target;
 
     public StatEvent(StatEventType t, int v)
     {
-        type = t;
-        value = v;
+        StatType = t;
+        Value = v;
     }
 }

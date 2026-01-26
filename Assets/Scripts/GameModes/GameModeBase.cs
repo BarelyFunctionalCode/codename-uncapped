@@ -30,8 +30,12 @@ public class GameModeBase : MonoBehaviour
     // Check score against win condition, complete the game if score is met.
     private bool CheckScore()
     {
+        Dictionary<StatGroup, Dictionary<int, StatTracker>> points = game_stats.FetchStats();
+        Dictionary<int, StatTracker> team_points = points[StatGroup.TEAM];
 
-        return true;
+        bool result = win_conditions.CheckAll(team_points);
+
+        return result;
     }
     #endregion
 
@@ -91,7 +95,6 @@ public class GameModeBase : MonoBehaviour
 
     public void OnGameStatsPointsChanged(object sender, EventArgs e)
     {
-        bool result = false;
     }
 
     #endregion

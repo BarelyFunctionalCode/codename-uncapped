@@ -4,12 +4,20 @@ using System.Collections.Generic;
 
 public class StatTracker
 {
-    public int player_id;
+    // id = either Team_ID or Player_ID
+    public int id;
+
+    /* Dictionary<StatEventType, int> stats
+     * { StatEventType.KILLS:         5,
+     *   StatEventType.FLAG_CAPTURES: 1,
+     *   StatEventType.FLAG_RETURNS:  3,
+     * }
+     */
     public Dictionary<StatEventType, int> stats = new Dictionary<StatEventType, int>{};
 
     public StatTracker(int p)
     {
-        player_id = p;
+        id = p;
     }
 
     // Add to a stat value, check first if that stat has an entry. If not, add a default stat 0.

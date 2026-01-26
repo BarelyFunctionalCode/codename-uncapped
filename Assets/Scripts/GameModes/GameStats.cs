@@ -32,17 +32,16 @@ public enum StatsGroup
 public class GameStats
 {
     #region Properties
-    // Point tracking for each team
-    public Dictionary<int, StatTracker> team_points = new Dictionary<int, StatTracker>();
+    // Point tracking for teams & players
+    public Dictionary<StatGroup, Dictionary<int, StatTracker>> points = new Dictionary<StatGroup, Dictionary<int, StatTracker>>();
 
-    // Point tracking for each player
-    public Dictionary<int, StatTracker> player_points = new Dictionary<int, StatTracker>();
     #endregion
 
     #region Public Methods
     public void AddEntry(int id, StatsGroup group)
     {
-        Dictionary<int, StatTracker> stat_group = FetchStats(group);
+        Dictionary<StatGroup, Dictionary<int, StatTracker>> points = FetchStats();
+        Dictionary<int, StatTracker> stat_group = points[group];
 
         if (!stat_group.ContainsKey(id))
         {
@@ -53,14 +52,32 @@ public class GameStats
     // Add to a stat value, check first if that stat has an entry. If not, add a default stat 0.
     public void AddToStat(StatEvent s)
     {
+        Dictionary<StatGroup, Dictionary<int, StatTracker>> points = FetchStats();
+        Dictionary<int, StatTracker> stat_group;
         // Add to players' stats first
+        stat_group = points[StatGroup.PLAYER];
+        StatTracker source_player_stat = stat_group[s.Source]
+        source_player_stat.AddToStat(s.StatType, s.Value);
 
         // Then add to the teams' stats
+        stat_group = points[StatGroup.TEAM];
+        // Fetch the players' team
+
+        source_player_stat.AddToStat(s.Value);
+
     }
 
 
-    public Dictionary<int, StatTracker> FetchStats(StatsGroup group)
+    public Dictionary<StatGroup, Dictionary<int, StatTracker>> FetchStats()
     {
+        /*            int = player_id or team_id
+         *             |
+         * Dictionary<int, StatTracker>
+         * {
+         *  1 = StatTracker,
+         *  2 = StatTracker,
+         * }
+         */
         Dictionary<int, StatTracker> stat_group = new Dictionary<int, StatTracker>{};
 
         switch (group)
