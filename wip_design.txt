@@ -12,35 +12,35 @@ Singletons
 		+ List<PlayerID> Players
         - Listen to player inputs
 		- Send/Receive chat between players
-        Select player loadout
-            Classes
-                Light
-                Medium
-                Heavy
-                Engineer
-            Weapons
-                Rocketlauncher
-                Grenade launcher
-                Chaingun
-            Accessories
-                Cores
-                Grenades
+        - Select player loadout
+            - Classes
+                - Light
+                - Medium
+                - Heavy
+                - Engineer
+            - Weapons
+                - Rocketlauncher
+                - Grenade launcher
+                - Chaingun
+            - Accessories
+                - Cores
+                - Grenades
     EntityManager - Manages entities
-        Loading entities
-            Characters
-            Projectiles
-            Flags
-            Vehicles
-        Interactions between entities
-            Damage
-            Collision
+        - Loading entities
+            - Characters
+            - Projectiles
+            - Flags
+            - Vehicles
+        - Interactions between entities
+            - Damage checks
+            - Collision checks
     LevelManager - Manage level geometry
 		+ Scene CurrentLevel
         - Load/Unload level
     GameManager - Manages game mode
 		+ GameModeBase CurrentGameMode
-        -Load game mode
-        -Track stats
+        - Load game mode
+        - Track stats
             - Kill count
             - Deaths
             - Flag captures
@@ -117,10 +117,84 @@ Classes
 	|-> Rocket: Projectile
 	\-> Grenade:Projectile
 	
-	GameMode
 	
+	GameModeBase
+	|	State:	Component
+	|		isInSession
+	|		isComplete
+	|	
+	|	TeamStructure:	Component
+	|	PhaseSystem:	Component
+	|	GameStats:		Component
+	|	WinConditions:	Component
+	|	
+	|->FFA
+	|->CTF
+	\->Rabbit
 
+
+	TeamStructure
+		List<string>			TeamNames
+		Dictionary<int, string> TeamAssignments
+		
+		EventHandler			OnPlayerChangedTeam
+		Event					PlayerChangedteam
+		
+		
+	PhaseSystem
+	/*
+	*  Game mode session state, such as WARMUP, ACTIVE, ENDGAME
+	*/
+		enum Phase
+		
+		Event PhaseChanged
+		Phase CurrentPhase
+		float CountDown
+		
+		
+	GameStats
+	/* 
+	*  Owns all events in the game mode, such as kills, flag captures,
+	*  deaths. Stats are accumulated to be queried for other purposes 
+	*  such as displaying players' kill count, checking win conditions,
+	*  etc.
+	*/ 
+		enum StatsGroup
+		Dictionary<StatGroup, Dictionary> stats
+		
+		
+	WinConditions
+	/*
+	*  A list of win conditions related to a game mode
+	*/
+		List<WinConditionItem> win_conditions
+		
 	
+	WinConditionItem
+	/* 
+	*  A single win condition, such as FLAG_CAPTURES, to be met for the game mode to be complete.
+	*/ 
+		StatEventType	stat_type
+		int				value
+		
+	
+	StatTracker
+	/*
+	*  Collection of stat events for a given team or player
+	*/
+		int ID
+		Dictionary<StatEventType, int> stats
+		
+	StatEvent
+	/*
+	*  A single event that occurred, such as a kill or a flag capture
+	*/
+		enum			StatEventType
+		
+		StatEventType	StatType
+		float	Value
+		int		Source
+		int		Target
 	
 =============================
 	CURRENT DESIGN
