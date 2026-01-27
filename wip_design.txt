@@ -1,15 +1,27 @@
 =============================
-	FUTURE DESIGN
+
+
+		FUTURE DESIGN
+
+
 =============================
 
 
+Legend
+
+-  Design Notes
++  Properties, Methods
+-> Extends
+
 Singletons
     NetworkManager - Manage network peers
-		+ Dictionary<PeerID, PlayerID> Peers
         - Accepts/Rejects connections
         - Authentication
+
+		+ Dictionary<PeerID, PlayerID> Peers
+
+
     PlayerManager - Manage players
-		+ List<PlayerID> Players
         - Listen to player inputs
 		- Send/Receive chat between players
         - Select player loadout
@@ -25,7 +37,11 @@ Singletons
             - Accessories
                 - Cores
                 - Grenades
-    EntityManager - Manages entities
+
+		+ List<PlayerID> Players
+
+
+	EntityManager - Manages entities
         - Loading entities
             - Characters
             - Projectiles
@@ -34,84 +50,98 @@ Singletons
         - Interactions between entities
             - Damage checks
             - Collision checks
+
+
     LevelManager - Manage level geometry
+	    - Load/Unload level
+
 		+ Scene CurrentLevel
-        - Load/Unload level
+
+
     GameManager - Manages game mode
-		+ GameModeBase CurrentGameMode
-        - Load game mode
+        - Assign players to teams
+		- Load game mode
         - Track stats
             - Kill count
             - Deaths
             - Flag captures
-        - Assign players to teams
+
+		+ GameModeBase CurrentGameMode
 
 
 Classes
 
 	Entity
-	|	Mesh:		Component
-	|		Material
-	|	Animations: Component
-	|	Attributes: Component
-	|		Health
-	|		Energy
-	|		Speed
-	|	Collider
+	|	+ Mesh:		  Component
+	|		+ Material
+	|	+ Animations: Component
+	|	+ Attributes: Component
+	|		+ float Health
+	|		+ float Energy
+	|		+ float Speed
+	|	+ Collider
 	|
-	|	OnHit:		Event
+	|	+ OnHit:	Event
 	|
-	|-> Static: 	Entity (Such as, destructible barriers, base prefabs, bridges, walls, towers)		
-	|-> Item:		Entity (Such as, pickups, thrown grenades, does this overlap with 'projectiles'?)
-	\-> Character:	Entity (Such as, player characters)
-			PlayerController: Component
-				Camera
-					Cinemachine Brain
-					Audio Listener
-				HUD
-					Canvas
-					Scaler
-					Raycaster
-					ChatBox: UI
-				Attributes: Component
-					PlayerID
-					Latency
+	|-> Static: 	Entity
+	|		- Barriers
+	|		- Bridges
+	|		- Walls
+	|		- Towers
+	|-> Item:		Entity
+	|		- Pickups
+	|		- Thrown Grenades
+	\-> Character:	Entity
+			- PlayerCharacters
+
+			+ PlayerController: Component
+				+ Camera
+					+ Cinemachine Brain
+					+ Audio Listener
+				+ HUD
+					+ Canvas
+					+ Scaler
+					+ Raycaster
+					+ ChatBox: UI
+				+ Attributes: Component
+					+ PlayerID
+					+ Latency
 					
-				OnSendChat:	Event
-				OnRcvChat:	Event
+				+ OnSendChat:	Event
+				+ OnRcvChat:	Event
 
 
 	Weapon
-	|	Mesh:		Component
-	|		Material
-	|	Animations:	Component
-	|	Projectile:	Component
-	|	Reticle:	Component
-	|		Sprite
-	|	UI:			Component
-	|		Sprite?
-	|	Attributes:	Component
-	|		Ammo Count
+	|	+ Mesh:			Component
+	|		+ Material
+	|	+ Animations:	Component
+	|	+ Projectile:	Component
+	|	+ Reticle:		Component
+	|		+ Sprite
+	|	+ UI:			Component
+	|		+ Sprite?
+	|	+ Attributes:	Component
+	|		+ int AmmoCount
 	|
-	|	OnFired:	Event
+	|	+ OnFired:	Event
 	|
 	|-> RocketLauncher: Weapon
 	\-> GrenadeLauncher: Weapon
 		
 		
 	Projectile
-	|	Mesh: 		Component
-	|		Material
-	|	Animations: Component
-	|	Impact:		Component
-	|		Material
-	|			Animation
-	|	Attributes: Component
-	|		Damage
-	|		Speed
-	|		Impulse
+	|	+ Mesh: 		Component
+	|		+ Material
+	|	+ Animations: Component
+	|	+ Impact:		Component
+	|		+ Material
+	|			+ Animation
+	|	+ Attributes: Component
+	|		+ float Damage
+	|		+ float Speed
+	|		+ float Impulse
 	|
-	|	OnImpact:	Event
+	|	+ OnImpact:	Event
 	|
 	|-> Bullet: Projectile
 	|-> Rocket: Projectile
@@ -128,9 +158,9 @@ Classes
 	|	GameStats:		Component
 	|	WinConditions:	Component
 	|	
-	|->FFA
-	|->CTF
-	\->Rabbit
+	|-> FFA
+	|-> CTF
+	\-> Rabbit
 
 
 	TeamStructure
@@ -142,59 +172,65 @@ Classes
 		
 		
 	PhaseSystem
-	/*
-	*  Game mode session state, such as WARMUP, ACTIVE, ENDGAME
-	*/
-		enum Phase
+	- Game mode session state
+		- WARMUP
+		- ACTIVE
+		- ENDGAME
+
+		+ enum Phase
 		
-		Event PhaseChanged
-		Phase CurrentPhase
-		float CountDown
+		+ Event PhaseChanged
+		+ Phase CurrentPhase
+		+ float CountDown
 		
 		
 	GameStats
-	/* 
-	*  Owns all events in the game mode, such as kills, flag captures,
-	*  deaths. Stats are accumulated to be queried for other purposes 
-	*  such as displaying players' kill count, checking win conditions,
-	*  etc.
-	*/ 
+	- Owns all events in the game mode
+		- KILLS
+		- FLAG_CAPTURES
+		- DEATHS
+	- Stats are accumulated to be queried for other purposes
+		- displaying players' kill count
+		- checking win conditions
+
 		enum StatsGroup
 		Dictionary<StatGroup, Dictionary> stats
 		
 		
 	WinConditions
-	/*
-	*  A list of win conditions related to a game mode
-	*/
-		List<WinConditionItem> win_conditions
+	- A list of win conditions related to a game mode
+
+		+ List<WinConditionItem> win_conditions
 		
 	
 	WinConditionItem
-	/* 
-	*  A single win condition, such as FLAG_CAPTURES, to be met for the game mode to be complete.
-	*/ 
-		StatEventType	stat_type
-		int				value
+	- A single win condition
+		- FLAG_CAPTURES
+		- KILLS
+
+		+ StatEventType	stat_type
+		+ int			value
 		
 	
 	StatTracker
-	/*
-	*  Collection of stat events for a given team or player
-	*/
-		int ID
-		Dictionary<StatEventType, int> stats
+	- Collection of stat events for a given team or player
+
+		+ int ID
+		+ Dictionary<StatEventType, int> stats
 		
+
 	StatEvent
-	/*
-	*  A single event that occurred, such as a kill or a flag capture
-	*/
-		enum			StatEventType
+	- A single event that occurred
+		- KILL
+		- FLAG_CAPTURE
+
+		+ enum			StatEventType
 		
-		StatEventType	StatType
-		float	Value
-		int		Source
-		int		Target
+		+ StatEventType	StatType
+		+ float		Value
+		+ int		Source
+		+ int		Target
+
 	
 =============================
 	CURRENT DESIGN
