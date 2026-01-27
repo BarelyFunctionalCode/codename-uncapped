@@ -6,12 +6,18 @@
 
 =============================
 
-
-Legend
+=============================
+		  Legend
+=============================
 
 -  Design Notes
 +  Properties, Methods
 -> Extends
+
+=============================
+		  Legend
+=============================
+
 
 Singletons
     NetworkManager - Manage network peers
@@ -20,23 +26,13 @@ Singletons
 
 		+ Dictionary<PeerID, PlayerID> Peers
 
+		+ Func	CreatePlayer
+
 
     PlayerManager - Manage players
         - Listen to player inputs
 		- Send/Receive chat between players
-        - Select player loadout
-            - Classes
-                - Light
-                - Medium
-                - Heavy
-                - Engineer
-            - Weapons
-                - Rocketlauncher
-                - Grenade launcher
-                - Chaingun
-            - Accessories
-                - Cores
-                - Grenades
+
 
 		+ List<PlayerID> Players
 
@@ -50,6 +46,15 @@ Singletons
         - Interactions between entities
             - Damage checks
             - Collision checks
+
+		+ List<Projectiles> Projectiles
+		+ List<Characters>  Characters
+		+ List<Flags>		Flags
+		+ List<Vehicles>	Vehicles
+		+ Func	Spawn
+		+ Func	SpawnRPC
+		+ Func	Despawn
+		+ Func	DespawnRPC
 
 
     LevelManager - Manage level geometry
@@ -92,7 +97,7 @@ Classes
 	|		- Pickups
 	|		- Thrown Grenades
 	\-> Character:	Entity
-			- PlayerCharacters
+			- PlayerCharacter scene
 
 			+ PlayerController: Component
 				+ Camera
@@ -106,9 +111,25 @@ Classes
 				+ Attributes: Component
 					+ PlayerID
 					+ Latency
-					
+				+ PlayerControls: Component
+				+ PlayerLoadout:  Component
+					+ Class
+						- Light
+						- Medium
+						- Heavy
+						- Engineer
+					+ Weapons
+						- Rocket Launcher
+						- Grenade Launcher
+					+ Accessories
+						- Cores
+						- Grenades
+				+ TerrainDetector:Component
+				+ PlayerInfo:	  Component
+
 				+ OnSendChat:	Event
 				+ OnRcvChat:	Event
+				        - Select player loadout
 
 
 	Weapon
@@ -231,7 +252,9 @@ Classes
 		+ int		Source
 		+ int		Target
 
-	
+	Player
+
+
 =============================
 	CURRENT DESIGN
 =============================
