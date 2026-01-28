@@ -33,7 +33,6 @@ Singletons
         - Listen to player inputs
 		- Send/Receive chat between players
 
-
 		+ List<PlayerID> Players
 
 
