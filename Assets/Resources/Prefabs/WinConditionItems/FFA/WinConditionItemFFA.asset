@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2554d85c23cad1241bad87dd3db62140, type: 3}
   m_Name: WinConditionItemFFA
   m_EditorClassIdentifier: Assembly-CSharp::WinConditionItem
-  type: 1
-  value: 10
+  StatType: 1
+  Value: 10

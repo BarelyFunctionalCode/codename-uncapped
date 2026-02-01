@@ -50,6 +50,11 @@ public class TeamStructure : MonoBehaviour
         return result;
     }
 
+    public int GetTeamIndex(string team_name)
+    {
+        return GetTeams().IndexOf(team_name);
+    }
+
     // pseudo
     public void SetTeam (int player_id, string team)
     {

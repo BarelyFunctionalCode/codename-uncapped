@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 public enum StatsGroup
 {
@@ -29,19 +30,19 @@ public enum StatsGroup
 */
 
 
-public class GameStats
+public class GameStats : MonoBehaviour
 {
     #region Properties
     // Point tracking for teams & players
-    public Dictionary<StatGroup, Dictionary<int, StatTracker>> points = new Dictionary<StatGroup, Dictionary<int, StatTracker>>();
+    private Dictionary<StatsGroup, Dictionary<int, StatTracker>> points = new Dictionary<StatsGroup, Dictionary<int, StatTracker>>();
 
     #endregion
 
     #region Public Methods
-    public void AddEntry(int id, StatsGroup group)
+    public void CheckAddEntry(int id, StatsGroup stat_group_id)
     {
-        Dictionary<StatGroup, Dictionary<int, StatTracker>> points = FetchStats();
-        Dictionary<int, StatTracker> stat_group = points[group];
+        Dictionary<StatsGroup, Dictionary<int, StatTracker>> points = FetchStats();
+        Dictionary<int, StatTracker> stat_group = points[stat_group_id];
 
         if (!stat_group.ContainsKey(id))
         {
@@ -52,47 +53,37 @@ public class GameStats
     // Add to a stat value, check first if that stat has an entry. If not, add a default stat 0.
     public void AddToStat(StatEvent s)
     {
-        Dictionary<StatGroup, Dictionary<int, StatTracker>> points = FetchStats();
+        Dictionary<StatsGroup, Dictionary<int, StatTracker>> points = FetchStats();
         Dictionary<int, StatTracker> stat_group;
+        int player_id = s.Source;
+        string team_name = gameObject.GetComponent<TeamStructure>().GetTeam(player_id);
+
         // Add to players' stats first
-        stat_group = points[StatGroup.PLAYER];
-        StatTracker source_player_stat = stat_group[s.Source]
-        source_player_stat.AddToStat(s.StatType, s.Value);
+        stat_group = points[StatsGroup.PLAYER];
+        CheckAddEntry(player_id, StatsGroup.PLAYER);
 
-        // Then add to the teams' stats
-        stat_group = points[StatGroup.TEAM];
-        // Fetch the players' team
+        StatTracker source_player_stats = stat_group[player_id];
+        source_player_stats.AddToStat(s.StatType, s.Value);
 
-        source_player_stat.AddToStat(s.Value);
+        // Then add to the teams' stats only if the stat is being tracked by winconditions
+        List<StatEventType> win_condition_stats = gameObject.GetComponent<WinConditions>().GetWinConditionStats();
+        if (win_condition_stats.Contains(s.StatType))
+        {
+            stat_group = points[StatsGroup.TEAM];
+            int team_index = gameObject.GetComponent<TeamStructure>().GetTeamIndex(team_name);
+
+            // Fetch the players' team
+            CheckAddEntry(team_index, StatsGroup.TEAM);
+            StatTracker source_team_stats = stat_group[team_index];
+            source_team_stats.AddToStat(s.StatType, s.Value);
+        }
 
     }
 
 
-    public Dictionary<StatGroup, Dictionary<int, StatTracker>> FetchStats()
+    public Dictionary<StatsGroup, Dictionary<int, StatTracker>> FetchStats()
     {
-        /*            int = player_id or team_id
-         *             |
-         * Dictionary<int, StatTracker>
-         * {
-         *  1 = StatTracker,
-         *  2 = StatTracker,
-         * }
-         */
-        Dictionary<int, StatTracker> stat_group = new Dictionary<int, StatTracker>{};
-
-        switch (group)
-        {
-            case StatsGroup.TEAM:
-                stat_group = team_points;
-                break;
-            case StatsGroup.PLAYER:
-                stat_group = player_points;
-                break;
-            default:
-                break;
-        }
-
-        return stat_group;
+         return points;
     }
     #endregion
 }

@@ -24,14 +24,12 @@ public class GameModeBase : MonoBehaviour
     [SerializeField] public WinConditions win_conditions;
     #endregion
 
-
-
     #region Private Methods
     // Check score against win condition, complete the game if score is met.
     private bool CheckScore()
     {
-        Dictionary<StatGroup, Dictionary<int, StatTracker>> points = game_stats.FetchStats();
-        Dictionary<int, StatTracker> team_points = points[StatGroup.TEAM];
+        Dictionary<StatsGroup, Dictionary<int, StatTracker>> points = game_stats.FetchStats();
+        Dictionary<int, StatTracker> team_points = points[StatsGroup.TEAM];
 
         bool result = win_conditions.CheckAll(team_points);
 
@@ -90,11 +88,12 @@ public class GameModeBase : MonoBehaviour
     {
         int player_id = 0; // e.player_id;
 
-        game_stats.AddEntry(player_id, StatsGroup.PLAYER);
+        game_stats.CheckAddEntry(player_id, StatsGroup.PLAYER);
     }
 
     public void OnGameStatsPointsChanged(object sender, EventArgs e)
     {
+        CheckScore();
     }
 
     #endregion
