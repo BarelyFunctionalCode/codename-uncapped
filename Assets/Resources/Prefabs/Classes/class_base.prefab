@@ -928,7 +928,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3976519191360012513}
-  - component: {fileID: 3976519191360012518}
   m_Layer: 3
   m_Name: CameraAimTarget
   m_TagString: Untagged
@@ -951,19 +950,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 7768043932259214961}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3976519191360012518
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3976519191360012512}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba531fc3662ecde40b3888de042a94a3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerController: {fileID: 7551887640761236581}
 --- !u!1 &4294404232319298866
 GameObject:
   m_ObjectHideFlags: 0
@@ -1587,9 +1573,13 @@ GameObject:
   - component: {fileID: 4408335844676320267}
   - component: {fileID: 7802235330488925726}
   - component: {fileID: 7802235330488925727}
+  - component: {fileID: 7337997520650464389}
   - component: {fileID: 7551887640761236581}
   - component: {fileID: 8017805232163561616}
   - component: {fileID: 4034910302823530355}
+  - component: {fileID: 6503820929209365369}
+  - component: {fileID: 3478769614841560124}
+  - component: {fileID: 5001059631770423585}
   m_Layer: 3
   m_Name: class_base
   m_TagString: Player
@@ -1686,6 +1676,31 @@ CapsuleCollider:
   m_Height: 2.3
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7337997520650464389
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6955372432089693387}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 1518157095
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!114 &7551887640761236581
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1698,42 +1713,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c81ef0786c961e4409e3a01370a95198, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   health: 0
   maxHealth: 0
   energy: 0
   maxEnergy: 0
-  regenFactor: 1
+  energyRegenFactor: 1
   devVectorRenderer: {fileID: 4034910302823530355}
-  hud: {fileID: 0}
+  playerCameraPrefabObj: {fileID: 7378525201259159580, guid: 5d6ee420863db4f7bbd33642b61f0978, type: 3}
+  freeLookTargetTransform: {fileID: 3976519191360012513}
   horizontalRotationSpeed: 20
   verticalRotationSpeed: 24
   verticalRotationLimit: 100
+  playerUIPrefabObj: {fileID: 1576205389831411256, guid: 0ab52eef5ee0c7540a8cbb0c08a02f33, type: 3}
+  playerUIObj: {fileID: 0}
   skiMaterial: {fileID: 13400000, guid: 5d01f8d4ca43e524696e30c3ba230525, type: 2}
   normalMaterial: {fileID: 13400000, guid: 3c46edcb0e00fb14d9c600ca066c4007, type: 2}
-  hoverHeightMax: 0.4
-  upJetForce: 7656.25
-  downJetForce: 5625
-  jetAirMoveMinSpeed: 5
-  jetAirMoveMaxSpeed: 1000
-  jetAirMoveMaxAccelFactor: 1.5
-  jetDirectionalForceXY: 3125
-  upJettingEnergyDrain: 22.5
-  downJettingEnergyDrain: 21.875
-  jetSkateEnergyDrain: 4
-  runForce: 10000
-  maxRunSpeed: 20
-  jumpForce: 2000
-  minJumpSpeed: 10
-  maxJumpSpeed: 15
-  jumpSurfaceAngle: 80
-  airControl: 1
-  ignoreLayers:
-    serializedVersion: 2
-    m_Bits: 8
-  hasFocus: 0
-  playerUI: {fileID: 0}
   weaponMountPoint: {fileID: 6369755560196872741}
   throwableMountPoint: {fileID: 1088541900309485744}
+  isInitialized: 0
 --- !u!114 &8017805232163561616
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1766,6 +1764,141 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   material: {fileID: 2100000, guid: f62f9bce33aaff34ebce7448e10c49d5, type: 2}
+--- !u!114 &6503820929209365369
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6955372432089693387}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5abfce83aadd948498d4990c645a017b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.Components.AnticipatedNetworkTransform
+  ShowTopMostFoldoutHeaderGroup: 1
+  NetworkTransformExpanded: 1
+  AutoOwnerAuthorityTickOffset: 1
+  PositionInterpolationType: 0
+  RotationInterpolationType: 0
+  ScaleInterpolationType: 0
+  PositionLerpSmoothing: 1
+  PositionMaxInterpolationTime: 0.1
+  RotationLerpSmoothing: 1
+  RotationMaxInterpolationTime: 0.1
+  ScaleLerpSmoothing: 1
+  ScaleMaxInterpolationTime: 0.1
+  AuthorityMode: 0
+  TickSyncChildren: 1
+  UseUnreliableDeltas: 0
+  SyncPositionX: 1
+  SyncPositionY: 1
+  SyncPositionZ: 1
+  SyncRotAngleX: 1
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 1
+  SyncScaleX: 0
+  SyncScaleY: 0
+  SyncScaleZ: 0
+  PositionThreshold: 0.001
+  RotAngleThreshold: 0.01
+  ScaleThreshold: 0.01
+  UseQuaternionSynchronization: 0
+  UseQuaternionCompression: 0
+  UseHalfFloatPrecision: 0
+  InLocalSpace: 0
+  SwitchTransformSpaceWhenParented: 0
+  Interpolate: 0
+  SlerpPosition: 0
+  StaleDataHandling: 1
+--- !u!114 &3478769614841560124
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6955372432089693387}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6c0be61502bb534f922ebb746851216, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.Components.NetworkRigidbody
+  ShowTopMostFoldoutHeaderGroup: 1
+  NetworkRigidbodyBaseExpanded: 0
+  UseRigidBodyForMotion: 1
+  AutoUpdateKinematicState: 0
+  AutoSetKinematicOnDespawn: 1
+--- !u!114 &5001059631770423585
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6955372432089693387}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8d0727d5ae3244e3b569694d3912374, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.Components.NetworkAnimator
+  ShowTopMostFoldoutHeaderGroup: 1
+  NetworkAnimatorExpanded: 0
+  AuthorityMode: 0
+  m_Animator: {fileID: 4408335844676320267}
+  TransitionStateInfoList:
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 1052184534
+    DestinationState: -601574123
+    TransitionDuration: 0.25
+    TriggerNameHash: -1944514264
+    TransitionIndex: 0
+  AnimatorParameterEntries:
+    ParameterEntries:
+    - name: xDir
+      NameHash: -228019571
+      Synchronize: 1
+      ParameterType: 1
+    - name: yDir
+      NameHash: 1255462376
+      Synchronize: 1
+      ParameterType: 1
+    - name: zDir
+      NameHash: 1482783238
+      Synchronize: 1
+      ParameterType: 1
+    - name: yVel
+      NameHash: 63754393
+      Synchronize: 1
+      ParameterType: 1
+    - name: isRunning
+      NameHash: 1239866031
+      Synchronize: 1
+      ParameterType: 4
+    - name: isSkiing
+      NameHash: 981362878
+      Synchronize: 1
+      ParameterType: 4
+    - name: isJetting
+      NameHash: 200618565
+      Synchronize: 1
+      ParameterType: 4
+    - name: isGrounded
+      NameHash: 1360771445
+      Synchronize: 1
+      ParameterType: 4
+    - name: triggerJump
+      NameHash: 1322349180
+      Synchronize: 1
+      ParameterType: 9
+    - name: triggerOverdrive
+      NameHash: -846790630
+      Synchronize: 1
+      ParameterType: 9
+    - name: triggerStopOverdrive
+      NameHash: -1944514264
+      Synchronize: 1
+      ParameterType: 9
+  AnimatorParametersExpanded: 0
 --- !u!1 &7353381267807926599
 GameObject:
   m_ObjectHideFlags: 0

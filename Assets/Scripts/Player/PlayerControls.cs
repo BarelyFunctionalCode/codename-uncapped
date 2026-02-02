@@ -94,21 +94,21 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             ""actions"": [
                 {
                     ""name"": ""Ski"",
-                    ""type"": ""Button"",
+                    ""type"": ""Value"",
                     ""id"": ""182b61a9-3bf2-490a-9939-db84190f4686"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
-                    ""initialStateCheck"": false
+                    ""initialStateCheck"": true
                 },
                 {
                     ""name"": ""Jump / Jet"",
-                    ""type"": ""Button"",
+                    ""type"": ""Value"",
                     ""id"": ""5c147ef4-a771-41bc-a0da-5d22345a88cc"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
-                    ""initialStateCheck"": false
+                    ""initialStateCheck"": true
                 },
                 {
                     ""name"": ""Move"",
@@ -130,12 +130,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": ""Down Jet"",
-                    ""type"": ""Button"",
+                    ""type"": ""Value"",
                     ""id"": ""f1ed069d-0b72-480f-beda-e9259634b5ca"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
-                    ""initialStateCheck"": false
+                    ""initialStateCheck"": true
                 },
                 {
                     ""name"": ""Time Slow"",

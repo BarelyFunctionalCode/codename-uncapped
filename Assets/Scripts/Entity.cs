@@ -1,11 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
 public class Entity : NetworkBehaviour
 {
-    private const float energyRegenRate = 6.875f;
     private const float groundEnergyRegenRate = 12.5f;
     
     [Header("Entity Attributes")]
@@ -14,6 +11,7 @@ public class Entity : NetworkBehaviour
 
     [SerializeField] private float energy = 0.0f;
     [SerializeField] private float maxEnergy;
+    [SerializeField] private float energyRegenRate;
     [Range(0.0f, 2.0f)]
     [SerializeField] private float energyRegenFactor = 1.0f;
 
@@ -30,7 +28,7 @@ public class Entity : NetworkBehaviour
 
     protected virtual void Update()
     {
-        if (isDead) return;
+        if (!IsServer || isDead) return;
 		
         ApplyEnergyDelta((GetIsGrounded() ? groundEnergyRegenRate : energyRegenRate) * energyRegenFactor * Time.deltaTime);
     }
@@ -51,6 +49,7 @@ public class Entity : NetworkBehaviour
     
     public void ApplyhealthDelta(float amount)
     {
+        if (!IsServer) return;
         health += amount;
         health = Mathf.Clamp(health, 0, maxHealth);
     }
@@ -59,13 +58,14 @@ public class Entity : NetworkBehaviour
     public float GetEnergyPercentage() { return energy / maxEnergy; }
     public void ApplyEnergyDelta(float amount)
     {
+        if (!IsServer) return;
         energy += amount;
-        energy = Mathf.Clamp(energy, 0, maxEnergy);
+        energy = Mathf.Min(energy, maxEnergy);
     }
 
     private void Die()
     {
-        if (isDead) return;
+        if (!IsServer ||isDead) return;
         isDead = true;
         OnDie();
         Destroy(gameObject);

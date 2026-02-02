@@ -12,6 +12,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Outrider
       objectReference: {fileID: 0}
+    - target: {fileID: 7337997520650464389, guid: 3fa16d938dcaf43da8ffee5ad932a77b, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 3910738156
+      objectReference: {fileID: 0}
     - target: {fileID: 7551887640761236581, guid: 3fa16d938dcaf43da8ffee5ad932a77b, type: 3}
       propertyPath: maxEnergy
       value: 33
@@ -19,6 +23,10 @@ PrefabInstance:
     - target: {fileID: 7551887640761236581, guid: 3fa16d938dcaf43da8ffee5ad932a77b, type: 3}
       propertyPath: maxHealth
       value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 7551887640761236581, guid: 3fa16d938dcaf43da8ffee5ad932a77b, type: 3}
+      propertyPath: energyRegenRate
+      value: 5.625
       objectReference: {fileID: 0}
     - target: {fileID: 7768043932259214961, guid: 3fa16d938dcaf43da8ffee5ad932a77b, type: 3}
       propertyPath: m_LocalPosition.x
