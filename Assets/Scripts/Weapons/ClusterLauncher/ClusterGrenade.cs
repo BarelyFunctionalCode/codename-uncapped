@@ -1,10 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public class ClusterGrenade : Projectile
 {
-    private GameObject grenadePrefabObj;
+    private static GameObject grenadePrefabObj;
     private int clusterCount = 1;
     private float clusterModeDebounceTimer = 0.5f;
     public bool isClusterMode = false;
@@ -14,7 +13,7 @@ public class ClusterGrenade : Projectile
     {
         base.Awake();
 
-        grenadePrefabObj = Resources.Load<GameObject>("Prefabs/Weapons/ClusterLauncher/ClusterGrenade");
+        if (grenadePrefabObj == null) grenadePrefabObj = Resources.Load<GameObject>("Prefabs/Weapons/ClusterLauncher/ClusterGrenade");
     }
 
     protected override void FixedUpdate()
@@ -32,6 +31,7 @@ public class ClusterGrenade : Projectile
 
     protected override bool DoImpactCheck(Collision collision)
     {
+        if (!IsServer) return false;
         if (!isClusterMode && clusterModeDebounceTimer <= 0) return true;
         if (doExplodeCluster) return true;
         return false;
@@ -39,30 +39,28 @@ public class ClusterGrenade : Projectile
 
     public void SetToClusterMode(int clusterCount)
     {
+        if (!IsServer) return;
         this.clusterCount = clusterCount;
         if (clusterModeDebounceTimer <= 0 && !isClusterMode) isClusterMode = true;
     }
 
     public void SetToExplodeCluster()
     {
+        if (!IsServer) return;
         if (isClusterMode && !doExplodeCluster) doExplodeCluster = true;
     }
 
-    public void SetSubCluster(int clusterCount, float maxImpactForce)
+    private void SetSubCluster(int clusterCount, float maxImpactForce)
     {
         this.clusterCount = clusterCount;
         this.maxImpactForce = maxImpactForce;
         launchForce = 0;
         doExplodeCluster = true;
     }
-
     
     private void ExplodeCluster()
     {
-        Vector3 firedParticlesScale = firedParticleObj.transform.localScale;
-        firedParticleObj.transform.parent = null;
-        firedParticleObj.transform.localScale = firedParticlesScale;
-        firedParticleObj.GetComponent<ParticleSystem>().Stop();
+        ExplodeClusterRpc();
 
         RaycastHit hit;
         bool didHit = Physics.Raycast(
@@ -83,6 +81,8 @@ public class ClusterGrenade : Projectile
             if (isGrounded) spawnPos += Vector3.up * 0.5f;
 
             GameObject newGrenadeObj = Instantiate(grenadePrefabObj, spawnPos, transform.rotation, transform);
+            NetworkObject networkObj = newGrenadeObj.GetComponent<NetworkObject>();
+            networkObj.Spawn(true);
             int newClusterCount = Mathf.Max(clusterCount - 2, 1);
             newGrenadeObj.GetComponent<ClusterGrenade>().SetSubCluster(newClusterCount, maxImpactForce / newClusterCount);
             newGrenadeObj.GetComponent<ClusterGrenade>().Fire(
@@ -94,5 +94,13 @@ public class ClusterGrenade : Projectile
         }
 
         Destroy(gameObject);
+    }
+    [Rpc(SendTo.Everyone)]
+    private void ExplodeClusterRpc()
+    {
+        Vector3 firedParticlesScale = firedParticleObj.transform.localScale;
+        firedParticleObj.transform.parent = null;
+        firedParticleObj.transform.localScale = firedParticlesScale;
+        firedParticleObj.GetComponent<ParticleSystem>().Stop();
     }
 }

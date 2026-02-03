@@ -8,10 +8,8 @@ public class Dummy : Entity
 
     [SerializeField] private GameObject explodeParticleObj;
 
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
-
         material = GetComponent<MeshRenderer>().materials[0];
     }
 

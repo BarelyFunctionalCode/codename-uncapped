@@ -1570,10 +1570,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7768043932259214961}
+  - component: {fileID: 7337997520650464389}
   - component: {fileID: 4408335844676320267}
   - component: {fileID: 7802235330488925726}
   - component: {fileID: 7802235330488925727}
-  - component: {fileID: 7337997520650464389}
   - component: {fileID: 7551887640761236581}
   - component: {fileID: 8017805232163561616}
   - component: {fileID: 4034910302823530355}
@@ -1604,6 +1604,31 @@ Transform:
   - {fileID: 7310545844845389094}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7337997520650464389
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6955372432089693387}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 1518157095
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!95 &4408335844676320267
 Animator:
   serializedVersion: 7
@@ -1676,31 +1701,6 @@ CapsuleCollider:
   m_Height: 2.3
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &7337997520650464389
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6955372432089693387}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1518157095
-  InScenePlacedSourceGlobalObjectIdHash: 0
-  DeferredDespawnTick: 0
-  Ownership: 1
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
-  SyncOwnerTransformWhenParented: 1
-  AllowOwnerToParent: 0
 --- !u!114 &7551887640761236581
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1714,10 +1714,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  health: 0
+  health:
+    m_InternalValue: 0
   maxHealth: 0
-  energy: 0
+  energy:
+    m_InternalValue: 0
   maxEnergy: 0
+  energyRegenRate: 0
   energyRegenFactor: 1
   devVectorRenderer: {fileID: 4034910302823530355}
   playerCameraPrefabObj: {fileID: 7378525201259159580, guid: 5d6ee420863db4f7bbd33642b61f0978, type: 3}
@@ -1744,6 +1747,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8229aa74ff0657c469fb0953d17bd86e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   weaponPrefabObjList:
   - {fileID: 4289124731927348451, guid: 05fd925f10bafb443b0d648cfbe3c989, type: 3}
   - {fileID: 7989789997054726880, guid: 360a2460a206aa44f90f3a2bba44afb5, type: 3}
@@ -1801,7 +1805,7 @@ MonoBehaviour:
   SyncScaleY: 0
   SyncScaleZ: 0
   PositionThreshold: 0.001
-  RotAngleThreshold: 0.01
+  RotAngleThreshold: 0.00001
   ScaleThreshold: 0.01
   UseQuaternionSynchronization: 0
   UseQuaternionCompression: 0

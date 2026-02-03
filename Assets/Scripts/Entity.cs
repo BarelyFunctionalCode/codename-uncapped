@@ -6,10 +6,10 @@ public class Entity : NetworkBehaviour
     private const float groundEnergyRegenRate = 12.5f;
     
     [Header("Entity Attributes")]
-    [SerializeField] private float health;
+    [SerializeField] private NetworkVariable<float> health;
     [SerializeField] private float maxHealth;
 
-    [SerializeField] private float energy = 0.0f;
+    [SerializeField] private NetworkVariable<float> energy = new NetworkVariable<float>(0.0f);
     [SerializeField] private float maxEnergy;
     [SerializeField] private float energyRegenRate;
     [Range(0.0f, 2.0f)]
@@ -20,10 +20,14 @@ public class Entity : NetworkBehaviour
 
 
     #region Virtual Overrides
-    protected virtual void Awake()
+    public override void OnNetworkSpawn()
     {
-        health = maxHealth;
-        energy = maxEnergy;
+        base.OnNetworkSpawn();
+
+        if (!IsServer) return;
+
+        health.Value = maxHealth;
+        energy.Value = maxEnergy;
     }
 
     protected virtual void Update()
@@ -35,8 +39,8 @@ public class Entity : NetworkBehaviour
     #endregion
     
     #region Getters
-    public float GetHealth()				{ return health; }
-    public float GetHealthPercentage()	{ return health / maxHealth; }
+    public float GetHealth()				{ return health.Value; }
+    public float GetHealthPercentage()	{ return health.Value / maxHealth; }
     public bool GetIsGrounded() 			{ return isGrounded; }
     #endregion
     
@@ -44,23 +48,23 @@ public class Entity : NetworkBehaviour
     public void TakeDamage(float damage)
     {
         ApplyhealthDelta(-damage);
-        if (health <= 0) Die();
+        if (health.Value <= 0) Die();
     }
     
     public void ApplyhealthDelta(float amount)
     {
         if (!IsServer) return;
-        health += amount;
-        health = Mathf.Clamp(health, 0, maxHealth);
+        health.Value += amount;
+        health.Value = Mathf.Clamp(health.Value, 0, maxHealth);
     }
 
-    public float GetEnergy() { return energy; }
-    public float GetEnergyPercentage() { return energy / maxEnergy; }
+    public float GetEnergy() { return energy.Value; }
+    public float GetEnergyPercentage() { return energy.Value / maxEnergy; }
     public void ApplyEnergyDelta(float amount)
     {
         if (!IsServer) return;
-        energy += amount;
-        energy = Mathf.Min(energy, maxEnergy);
+        energy.Value += amount;
+        energy.Value = Mathf.Min(energy.Value, maxEnergy);
     }
 
     private void Die()

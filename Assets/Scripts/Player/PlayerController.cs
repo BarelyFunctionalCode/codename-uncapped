@@ -23,6 +23,7 @@ public struct InputState
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(CapsuleCollider))]
 [RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(NetworkAnimator))]
 [RequireComponent(typeof(PlayerLoadout))]
 [RequireComponent(typeof(AnticipatedNetworkTransform))]
 [RequireComponent(typeof(NetworkRigidbody))]
@@ -138,10 +139,8 @@ public class PlayerController : Entity
 
 
     #region Lifecycle
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
-
         rb = GetComponent<Rigidbody>();
         playerCollider = GetComponent<CapsuleCollider>();
         animator = GetComponent<Animator>();
@@ -187,10 +186,12 @@ public class PlayerController : Entity
             playerControls.Movement.JumpJet.canceled += ctx => JetInput(ctx.ReadValue<float>());
             playerControls.Movement.DownJet.performed += ctx => DownJetInput(ctx.ReadValue<float>());
             playerControls.Movement.DownJet.canceled += ctx => DownJetInput(ctx.ReadValue<float>());
-
-            playerControls.Equipment.NextWeapon.started += playerLoadout.NextWeapon;
-            playerControls.Equipment.PreviousWeapon.started += playerLoadout.PreviousWeapon;
             playerControls.Movement.JumpJet.started += ctx => JumpInput();
+
+            playerControls.Equipment.NextWeapon.started += ctx => playerLoadout.NextWeaponRpc();
+            playerControls.Equipment.PreviousWeapon.started += ctx => playerLoadout.PreviousWeaponRpc();
+            playerControls.Equipment.PrimaryFire.started += ctx => playerLoadout.OnPrimaryFireStartedRpc();
+            playerControls.Equipment.PrimaryFire.canceled += ctx => playerLoadout.OnPrimaryFireCanceledRpc();
 
             if (!IsHost) Initialize();
         }
@@ -216,10 +217,12 @@ public class PlayerController : Entity
             playerControls.Movement.JumpJet.canceled -= ctx => JetInput(ctx.ReadValue<float>());
             playerControls.Movement.DownJet.performed -= ctx => DownJetInput(ctx.ReadValue<float>());
             playerControls.Movement.DownJet.canceled -= ctx => DownJetInput(ctx.ReadValue<float>());
-
-            playerControls.Equipment.NextWeapon.started -= playerLoadout.NextWeapon;
-            playerControls.Equipment.PreviousWeapon.started -= playerLoadout.PreviousWeapon;
             playerControls.Movement.JumpJet.started -= ctx => JumpInput();
+
+            playerControls.Equipment.NextWeapon.started -= ctx => playerLoadout.NextWeaponRpc();
+            playerControls.Equipment.PreviousWeapon.started -= ctx => playerLoadout.PreviousWeaponRpc();
+            playerControls.Equipment.PrimaryFire.started -= ctx => playerLoadout.OnPrimaryFireStartedRpc();
+            playerControls.Equipment.PrimaryFire.canceled -= ctx => playerLoadout.OnPrimaryFireCanceledRpc();
 
             // Disable audio listener
             if (audioListener) audioListener.enabled = false;
@@ -343,6 +346,7 @@ public class PlayerController : Entity
     private void InitializeRpc()
     {
         // TODO: Server-side one-time initialization goes here
+        playerLoadout.Initialize(this, weaponMountPoint, throwableMountPoint);
 
         isInitialized = true;
     }
