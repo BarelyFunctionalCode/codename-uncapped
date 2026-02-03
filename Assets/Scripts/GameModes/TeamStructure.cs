@@ -9,21 +9,30 @@ using System.Collections.Generic;
 *      - Free-for-all games (no teams) = Each player is on its own team, where the team name = player name
 */
 
-public class TeamStructure : MonoBehaviour
+public class TeamStructure : NetworkBehaviour
 {
-    // Team names, "Red" vs "Blue" or empty for a free-for-all
-    [SerializeField]
-    public List<string> teams = new List<string> {};
-
     #region Delegates & Events
     public event EventHandler<EventArgsPlayerChangedTeam> PlayerChangedTeam;
     #endregion
 
+    #region Properties
+    // Team names, "Red" vs "Blue" for example.
+    public NetworkList<FixedString128Bytes> teams;
 
     // Players are assigned here by PlayerHandler, referenced by their instance ID
-    // Format: Dictionary[Player, TeamName]
+    // Format: Dictionary[PlayerID, TeamName]
     public Dictionary<int, string> team_assignment = new Dictionary<int, string>();
 
+    // Players may select a new team
+    public bool AllowChangeTeams = true;
+
+    // Players may change teams by being assigned by a captain
+    public bool ForceCaptainChangeTeams = false;
+    #endregion
+
+    /*
+     * IsEnemies should be moved to EntityManager, where TeamStructure
+     * can provide Team information to it with `GetTeam()`
     // Check if the acting player is on the enemy team of receiving player.
     // By default, a FFA match has no teams and therefore will always return true.
     public bool IsEnemies (int acting_player_id, int receiving_player_id)
@@ -41,6 +50,12 @@ public class TeamStructure : MonoBehaviour
 
         return result;
     }
+    */
+
+    private void Awake()
+    {
+        teams = new NetworkList<FixedString128Bytes>(readPerm: NetworkVariableReadPermission.Everyone);
+    }
 
     public string GetTeam (int player_id)
     {
@@ -55,16 +70,41 @@ public class TeamStructure : MonoBehaviour
         return GetTeams().IndexOf(team_name);
     }
 
+    public List<string> GetTeams()
+    {
+        return teams;
+    }
+
+    [Rpc(Send.NotServer)]
+    public void SyncTeamNamesRPC(List<string> new_teams_list)
+    {
+        WipeTeams();
+        for (string t in new_teams_list)
+        {
+            AddNewTeam(t);
+        }
+    }
+
     // pseudo
-    public void SetTeam (int player_id, string team)
+    public void SetPlayerTeam (int player_id, string team)
     {
         team_assignment[player_id] = team;
         OnPlayerChangedTeam(new EventArgsPlayerChangedTeam(player_id, team));
     }
 
-    public List<string> GetTeams()
+    public void AddNewTeam(string team)
     {
-        return teams;
+        teams.Add(team);
+    }
+
+    public void RemoveTeam(string team)
+    {
+        if (teams.Contains(team)) { teams.Remove(team); }
+    }
+
+    public void WipeTeams()
+    {
+        teams.Clear();
     }
 
     #region Event Handlers

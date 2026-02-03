@@ -33,7 +33,14 @@ public enum StatsGroup
 public class GameStats : MonoBehaviour
 {
     #region Properties
-    // Point tracking for teams & players
+    /*  Point tracking for teams & players
+     * {
+     *   StatsGroup.TEAM:   { 0: StatTracker},
+     *   StatsGroup.PLAYER: {0: StatTracker,
+     *                       1: StatTracker,
+     * }}
+     *
+     */
     private Dictionary<StatsGroup, Dictionary<int, StatTracker>> points = new Dictionary<StatsGroup, Dictionary<int, StatTracker>>();
 
     #endregion
