@@ -21,6 +21,7 @@ public class Projectile : NetworkBehaviour
     [SerializeField] public bool hasHoldModifier = false;
 
     protected NetworkBehaviourReference ownerRef;
+    protected NetworkBehaviourReference weaponRef;
     protected Rigidbody rb;
     private Vector3 previousPosition;
     private List<Collider> damagedReceivers = new();
@@ -86,11 +87,12 @@ public class Projectile : NetworkBehaviour
         if (!damagedReceivers.Contains(receiverCollider)) damagedReceivers.Add(receiverCollider);
     }
 
-    public void Fire(NetworkBehaviourReference ownerRef, float maxDamage)
+    public void Fire(NetworkBehaviourReference ownerRef, NetworkBehaviourReference weaponRef, float maxDamage)
     {
         if (!IsServer || isFired) return;
 
         this.ownerRef = ownerRef;
+        this.weaponRef = weaponRef;
         this.maxDamage = maxDamage;
 
         Vector3 intialVelocity = Vector3.Dot(transform.parent.GetComponentInParent<Rigidbody>().linearVelocity, transform.forward) * transform.forward;
@@ -177,6 +179,6 @@ public class Projectile : NetworkBehaviour
     {
         if (!IsServer) return;
         // print("Applying " + damage + " damage to " + target.name);
-        if (target.GetComponent<Entity>() != null) target.GetComponent<Entity>().TakeDamage(damage);
+        if (target.GetComponent<Entity>() != null) target.GetComponent<Entity>().TakeDamage(damage, ownerRef, weaponRef);
     }
 }

@@ -166,7 +166,7 @@ public class Weapon : NetworkBehaviour
             networkObj.Spawn(true);
             networkObj.TrySetParent(projectileSpawnPoint.GetComponentInParent<NetworkObject>());
             currentProjectile = newProjectileObj.GetComponent<Projectile>();
-            currentProjectile.Fire(playerRef.Value, damage);
+            currentProjectile.Fire(playerRef.Value, this, damage);
         }
         if (currentProjectile.hasHoldModifier)
         {

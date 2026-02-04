@@ -45,10 +45,19 @@ public class Entity : NetworkBehaviour
     #endregion
     
 
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damage, NetworkBehaviourReference attackerRef = default, NetworkBehaviourReference weaponRef = default)
     {
         ApplyhealthDelta(-damage);
         if (health.Value <= 0) Die();
+
+        attackerRef.TryGet(out PlayerController attacker);
+        weaponRef.TryGet(out Weapon weapon);
+        if (attacker != null && weapon != null)
+        {
+            // TODO: Call stats manager singleton to log damage dealt
+            // StatsManager.Instance.LogDamageDealt(ulong attackerClientId, ulong victimClientId, string weaponName, float damageAmount, bool isFatal);
+            // StatsManager.Instance.LogDamageDealt(attacker.OwnerClientId, OwnerClientId, weapon.Name, damage, health.Value <= 0);
+        }
     }
     
     public void ApplyhealthDelta(float amount)

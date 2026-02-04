@@ -1,9 +1,9 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using Unity.Netcode;
+using Unity.Netcode.Components;
 
+[RequireComponent(typeof(NetworkTransform))]
 public class ThrowableManager : NetworkBehaviour
 {
     public static List<string> interactionTags = new() { "Terrain", "Player", "Projectile" };
@@ -12,116 +12,155 @@ public class ThrowableManager : NetworkBehaviour
     [SerializeField] private GameObject throwablePrefabObj;
     [SerializeField] private ThrowableUI throwableUI;
 
-    private float ammoCount = 50;
     private float maxAmmo = 50;
-
     private float fireRate = 2;
-    private float fireRateTimer = 2;
 
-    private Transform ownerTransform;
-    private PlayerControls playerControls;
     protected Camera playerCamera;
+    protected NetworkObject originalParentNetworkObject;
+    private NetworkVariable<NetworkBehaviourReference> playerRef = new();
 
     private bool canThrow = true;
-    private bool isThrowing = false;
     private bool startedThrow = false;
 
     private float holdThrowDebounce = 0.05f;
     private float holdThrowDebounceTimer = 0f;
-
-    private float throwForceFactor = 0f;
     private float throwForceFactorIncreaseRate = 0.01f;
 
+    private NetworkVariable<float> throwForceFactor = new();
+    private NetworkVariable<float> ammoCount = new();
+    private NetworkVariable<float> fireRateTimer = new();
 
-    private void Awake()
+    private bool isInitialized = false;
+
+    public sealed override void OnNetworkSpawn()
     {
-        playerCamera = Camera.main;
-    }
+        base.OnNetworkSpawn();
 
-    public void Initialize(Transform ownerTransform)
-    {
-        this.ownerTransform = ownerTransform;
-        playerControls = ownerTransform.GetComponent<PlayerController>().playerControls;
+        if (isInitialized) return;
 
-        playerControls.Equipment.Throwable.started += OnThrowableStarted;
-        playerControls.Equipment.Throwable.canceled += OnThrowableCanceled;
+        if (IsServer)
+        {
+            playerRef.Value = null;
+            ammoCount.Value = maxAmmo;
+            fireRateTimer.Value = 0;
+        }
 
-        throwableUI.Initialize(maxAmmo);
-    }
-
-    private void OnDisable()
-    {
-        playerControls.Equipment.Throwable.started -= OnThrowableStarted;
-        playerControls.Equipment.Throwable.canceled -= OnThrowableCanceled;
-    }
-
-    private void OnThrowableStarted(InputAction.CallbackContext _)
-    {
-        isThrowing = true;
-    }
-
-    private void OnThrowableCanceled(InputAction.CallbackContext _)
-    {
-        isThrowing = false;
+        // This is very important. This makes sure that when a late client joins, they get initialized properly.
+        if (playerRef.Value.TryGet(out PlayerController playerController)) InitializeRpc(playerController, RpcTarget.Me);
     }
 
     private void Update()
     {
-        Vector3 newWeaponAimPosition = playerCamera.transform.position + playerCamera.transform.forward * 1000f;
+        if (!isInitialized) return;
 
-        Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-        RaycastHit hitInfo;
-        if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity, ~ignoreLayers))
-            newWeaponAimPosition = hitInfo.point;
-
-        transform.LookAt(newWeaponAimPosition);
-
-        if (isThrowing) StartThrow();
-        if (!isThrowing) ReleaseThrow();
-
-        if (!canThrow)
+        if (IsOwner)
         {
-            fireRateTimer += Time.deltaTime;
+            Vector3 newWeaponAimPosition = playerCamera.transform.position + playerCamera.transform.forward * 1000f;
 
-            if (ammoCount > 0 && fireRateTimer >= fireRate)
+            Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+            RaycastHit hitInfo;
+            if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity, ~ignoreLayers))
+                newWeaponAimPosition = hitInfo.point;
+
+            throwableUI.UpdateUI(ammoCount.Value, throwForceFactor.Value);
+
+            ThrowableLookRpc(newWeaponAimPosition);
+        }
+
+        if (IsServer)
+        {
+            if (startedThrow)
             {
-                fireRateTimer = 0;
-                canThrow = true;
+                holdThrowDebounceTimer += Time.deltaTime;
+
+                if (holdThrowDebounceTimer >= holdThrowDebounce)
+                {
+                    throwForceFactor.Value += Mathf.Clamp01(throwForceFactorIncreaseRate);
+                }
+            }
+
+            if (!canThrow)
+            {
+                fireRateTimer.Value += Time.deltaTime;
+
+                if (ammoCount.Value > 0 && fireRateTimer.Value >= fireRate)
+                {
+                    fireRateTimer.Value = 0;
+                    canThrow = true;
+                }
             }
         }
-
-        throwableUI.UpdateUI(ammoCount, throwForceFactor);
+    }
+    [Rpc(SendTo.Server)]
+    private void ThrowableLookRpc(Vector3 lookPosition)
+    {
+        transform.LookAt(lookPosition);
     }
 
-    private void StartThrow()
+    public void Initialize(PlayerController playerController)
     {
-        if (!canThrow) return;
+        if (!IsServer) return;
+        playerRef.Value = new NetworkBehaviourReference(playerController);
 
-        holdThrowDebounceTimer += Time.fixedDeltaTime;
+        InitializeRpc(playerRef.Value);
+        isInitialized = true;
+    }
+    [Rpc(SendTo.Everyone, AllowTargetOverride = true)]
+    public void InitializeRpc(NetworkBehaviourReference playerRef, RpcParams rpcParams = default)
+    {
+        if (isInitialized) return;
 
-        if (holdThrowDebounceTimer >= holdThrowDebounce)
+        playerRef.TryGet(out PlayerController playerController);
+        originalParentNetworkObject = GetComponentInParent<NetworkObject>();
+        transform.parent = playerController.throwableMountPoint;
+        if (IsOwner)
         {
-            throwForceFactor += Mathf.Clamp01(throwForceFactorIncreaseRate);
+            playerCamera = Camera.main;
+            throwableUI.Initialize(maxAmmo);
         }
+        else Destroy(throwableUI.gameObject);
 
-        startedThrow = true;
+        isInitialized = true;
     }
 
-    private void ReleaseThrow()
+    public void Deinitialize()
     {
-        if (!canThrow || !startedThrow) return;
-
-        GameObject throwableObj = Instantiate(throwablePrefabObj, transform.position + transform.forward, transform.rotation);
-        throwableObj.GetComponent<Throwable>().Throw(ownerTransform, throwForceFactor);
-        ammoCount--;
-        canThrow = false;
-        startedThrow = false;
-        throwForceFactor = 0;
-        holdThrowDebounceTimer = 0;
+        if (!IsServer) return;
+        DeinitializeRpc();
+        isInitialized = false;
+    }
+    [Rpc(SendTo.Everyone)]
+    public void DeinitializeRpc()
+    {
+        transform.parent = originalParentNetworkObject.transform;
+        isInitialized = false;
     }
 
     public void refillAmmo()
     {
-        ammoCount = maxAmmo;
+        if (!IsServer) return;
+        ammoCount.Value = maxAmmo;
+    }
+
+    public void StartThrow()
+    {
+        if (!IsServer || !canThrow) return;
+        startedThrow = true;
+    }
+
+    public void ReleaseThrow()
+    {
+        if (!IsServer || !canThrow || !startedThrow) return;
+
+        GameObject throwableObj = Instantiate(throwablePrefabObj, transform.position + transform.forward, transform.rotation);
+        NetworkObject networkObj = throwableObj.GetComponent<NetworkObject>();
+        networkObj.Spawn(true);
+        networkObj.TrySetParent(transform.GetComponentInParent<NetworkObject>());
+        throwableObj.GetComponent<Throwable>().Throw(playerRef.Value, throwForceFactor.Value);
+        ammoCount.Value--;
+        canThrow = false;
+        startedThrow = false;
+        throwForceFactor.Value = 0;
+        holdThrowDebounceTimer = 0;
     }
 }

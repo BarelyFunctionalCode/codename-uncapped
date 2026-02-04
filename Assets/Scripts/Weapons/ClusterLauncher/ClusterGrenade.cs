@@ -88,6 +88,7 @@ public class ClusterGrenade : Projectile
             newGrenadeObj.GetComponent<ClusterGrenade>().SetSubCluster(newClusterCount, maxImpactForce / newClusterCount);
             newGrenadeObj.GetComponent<ClusterGrenade>().Fire(
                 ownerRef,
+                weaponRef,
                 maxDamage / (clusterCount-1)
             );
 

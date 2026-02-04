@@ -5,12 +5,13 @@ using Unity.Netcode;
 public class PlayerLoadout : NetworkBehaviour
 {
     [SerializeField] private List<GameObject> weaponPrefabObjList;
-    [SerializeField] private GameObject throwablePrefabObj;
     private List<GameObject> currentWeaponsObjList;
     private int currentWeaponIndex = 0;
     private Weapon equippedPrimaryWeapon;
-
     private bool isPrimaryFiring = false;
+
+    [SerializeField] private GameObject throwablePrefabObj;
+    private ThrowableManager throwableManager;
 
     protected virtual void Update()
     {
@@ -36,7 +37,7 @@ public class PlayerLoadout : NetworkBehaviour
         currentWeaponsObjList[0].GetComponent<Weapon>().EquipRpc();
         equippedPrimaryWeapon = currentWeaponsObjList[0].GetComponent<Weapon>();
 
-        // AddThrowable(throwablePrefabObj, playerController);
+        AddThrowable(throwablePrefabObj, playerController);
     }
 
     public void Deinitialize()
@@ -53,6 +54,15 @@ public class PlayerLoadout : NetworkBehaviour
         currentWeaponsObjList.Clear();
         currentWeaponIndex = 0;
         equippedPrimaryWeapon = null;
+
+        if (throwableManager != null)
+        {
+            throwableManager.Deinitialize();
+            NetworkObject networkObj = throwableManager.GetComponentInParent<NetworkObject>();
+            networkObj.Despawn();
+            Destroy(throwableManager.gameObject);
+            throwableManager = null;
+        }
     }
 
 
@@ -75,19 +85,21 @@ public class PlayerLoadout : NetworkBehaviour
         currentWeaponsObjList.Add(newWeapon);
     }
 
-    private void AddThrowable(GameObject throwablePrefabObj, Transform throwableMountPoint)
+    private void AddThrowable(GameObject throwablePrefabObj, PlayerController playerController)
     {
         if (!IsServer) return;
 
         GameObject newThrowable = Instantiate(
             throwablePrefabObj,
-            throwableMountPoint.position,
-            throwableMountPoint.rotation,
-            throwableMountPoint
+            playerController.throwableMountPoint.position,
+            playerController.throwableMountPoint.rotation
         );
         NetworkObject networkObj = newThrowable.GetComponent<NetworkObject>();
         networkObj.Spawn(true);
-        newThrowable.GetComponent<ThrowableManager>().Initialize(transform);
+        networkObj.TrySetParent(playerController.NetworkObject);
+        networkObj.ChangeOwnership(playerController.OwnerClientId);
+        throwableManager = newThrowable.GetComponentInChildren<ThrowableManager>();
+        throwableManager.Initialize(playerController);
     }
 
     [Rpc(SendTo.Server)]
@@ -111,4 +123,8 @@ public class PlayerLoadout : NetworkBehaviour
     public void OnPrimaryFireStartedRpc() => isPrimaryFiring = true;
     [Rpc(SendTo.Server)]
     public void OnPrimaryFireCanceledRpc() => isPrimaryFiring = false;
+    [Rpc(SendTo.Server)]
+    public void OnThrowableStartedRpc() => throwableManager.StartThrow();
+    [Rpc(SendTo.Server)]
+    public void OnThrowableCanceledRpc() => throwableManager.ReleaseThrow();
 }

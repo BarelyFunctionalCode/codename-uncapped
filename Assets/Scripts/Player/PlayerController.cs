@@ -192,6 +192,8 @@ public class PlayerController : Entity
             playerControls.Equipment.PreviousWeapon.started += ctx => playerLoadout.PreviousWeaponRpc();
             playerControls.Equipment.PrimaryFire.started += ctx => playerLoadout.OnPrimaryFireStartedRpc();
             playerControls.Equipment.PrimaryFire.canceled += ctx => playerLoadout.OnPrimaryFireCanceledRpc();
+            playerControls.Equipment.Throwable.started += ctx => playerLoadout.OnThrowableStartedRpc();
+            playerControls.Equipment.Throwable.canceled += ctx => playerLoadout.OnThrowableCanceledRpc();
 
             if (!IsHost) Initialize();
         }
@@ -223,6 +225,8 @@ public class PlayerController : Entity
             playerControls.Equipment.PreviousWeapon.started -= ctx => playerLoadout.PreviousWeaponRpc();
             playerControls.Equipment.PrimaryFire.started -= ctx => playerLoadout.OnPrimaryFireStartedRpc();
             playerControls.Equipment.PrimaryFire.canceled -= ctx => playerLoadout.OnPrimaryFireCanceledRpc();
+            playerControls.Equipment.Throwable.started -= ctx => playerLoadout.OnThrowableStartedRpc();
+            playerControls.Equipment.Throwable.canceled -= ctx => playerLoadout.OnThrowableCanceledRpc();
 
             // Disable audio listener
             if (audioListener) audioListener.enabled = false;
