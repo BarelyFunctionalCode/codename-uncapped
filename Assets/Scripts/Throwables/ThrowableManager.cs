@@ -2,10 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Unity.Netcode;
 
-public class ThrowableManager : MonoBehaviour
+public class ThrowableManager : NetworkBehaviour
 {
-    public static List<string> interactionTags = new List<string>() { "Terrain", "Player", "Projectile" };
+    public static List<string> interactionTags = new() { "Terrain", "Player", "Projectile" };
 
     [SerializeField] private LayerMask ignoreLayers;
     [SerializeField] private GameObject throwablePrefabObj;

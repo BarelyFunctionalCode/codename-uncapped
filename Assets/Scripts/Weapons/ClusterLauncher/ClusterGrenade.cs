@@ -80,13 +80,14 @@ public class ClusterGrenade : Projectile
             Vector3 spawnPos = GetComponent<Rigidbody>().position + Quaternion.Euler(0, angle, 0) * transform.forward * 0.1f;
             if (isGrounded) spawnPos += Vector3.up * 0.5f;
 
-            GameObject newGrenadeObj = Instantiate(grenadePrefabObj, spawnPos, transform.rotation, transform);
+            GameObject newGrenadeObj = Instantiate(grenadePrefabObj, spawnPos, transform.rotation);
             NetworkObject networkObj = newGrenadeObj.GetComponent<NetworkObject>();
             networkObj.Spawn(true);
+            networkObj.TrySetParent(NetworkObject);
             int newClusterCount = Mathf.Max(clusterCount - 2, 1);
             newGrenadeObj.GetComponent<ClusterGrenade>().SetSubCluster(newClusterCount, maxImpactForce / newClusterCount);
             newGrenadeObj.GetComponent<ClusterGrenade>().Fire(
-                ownerTransform,
+                ownerRef,
                 maxDamage / (clusterCount-1)
             );
 

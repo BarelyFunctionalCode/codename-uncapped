@@ -29,18 +29,30 @@ public class Weapon : NetworkBehaviour
     
     protected Camera playerCamera;
 
-    protected Transform ownerTransform;
+    protected NetworkObject originalParentNetworkObject;
+    private NetworkVariable<NetworkBehaviourReference> playerRef = new();
 
-    public NetworkVariable<bool> isEquiped = new(true);
-    private NetworkVariable<float> ammoCount = new(0);
-    private NetworkVariable<float> fireRateTimer = new(0);
+    public NetworkVariable<bool> isEquiped = new();
+    private NetworkVariable<float> ammoCount = new();
+    private NetworkVariable<float> fireRateTimer = new();
     private bool isInitialized = false;
 
     public sealed override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
-        if (IsServer) ammoCount.Value = maxAmmo;
+        if (isInitialized) return;
+
+        if (IsServer)
+        {
+            playerRef.Value = null;
+            isEquiped.Value = false;
+            ammoCount.Value = maxAmmo;
+            fireRateTimer.Value = 0;
+        }
+
+        // This is very important. This makes sure that when a late client joins, they get initialized properly.
+        if (playerRef.Value.TryGet(out PlayerController playerController)) InitializeRpc(playerController, RpcTarget.Me);
     }
 
     protected virtual void Update()
@@ -73,10 +85,6 @@ public class Weapon : NetworkBehaviour
                 }
             }
         }
-
-        // Debug.DrawRay(ray.origin, ray.direction * 1000f, Color.red);
-        // Debug.DrawRay(transform.position, transform.forward * 1000, Color.green);
-        // Debug.DrawLine(transform.position, newWeaponAimPosition, Color.blue);
     }
     [Rpc(SendTo.Server)]
     private void WeaponLookRpc(Vector3 lookPosition)
@@ -87,30 +95,54 @@ public class Weapon : NetworkBehaviour
     public void Initialize(PlayerController playerController)
     {
         if (!IsServer) return;
-        ownerTransform = playerController.transform;
+        playerRef.Value = new NetworkBehaviourReference(playerController);
 
-        InitializeRpc();
+        InitializeRpc(playerController);
         isInitialized = true;
     }
-
-    [Rpc(SendTo.Owner)]
-    public void InitializeRpc()
+    [Rpc(SendTo.Everyone, AllowTargetOverride = true)]
+    public void InitializeRpc(NetworkBehaviourReference playerRef, RpcParams rpcParams = default)
     {
-        playerCamera = Camera.main;
-        weaponUI.Initialize(maxAmmo, reticleSprite);
+        if (isInitialized) return;
+
+        playerRef.TryGet(out PlayerController playerController);
+        originalParentNetworkObject = GetComponentInParent<NetworkObject>();
+        transform.parent = playerController.weaponMountPoint;
+        if (IsOwner)
+        {
+            playerCamera = Camera.main;
+            weaponUI.Initialize(maxAmmo, reticleSprite);
+        }
+        else Destroy(weaponUI.gameObject);
+
+        if (isEquiped.Value) EquipRpc(RpcTarget.Me);
+        else UnequipRpc(RpcTarget.Me);
         isInitialized = true;
     }
 
+    public void Deinitialize()
+    {
+        if (!IsServer) return;
+        DeinitializeRpc();
+        isInitialized = false;
+    }
     [Rpc(SendTo.Everyone)]
-    public void EquipRpc()
+    public void DeinitializeRpc()
+    {
+        transform.parent = originalParentNetworkObject.transform;
+        isInitialized = false;
+    }
+
+    [Rpc(SendTo.Everyone, AllowTargetOverride = true)]
+    public void EquipRpc(RpcParams rpcParams = default)
     {
         modelObj.SetActive(true);
         if (IsOwner) weaponUI.gameObject.SetActive(true);
         if (IsServer) isEquiped.Value = true;
     }
 
-    [Rpc(SendTo.Everyone)]
-    public void UnequipRpc()
+    [Rpc(SendTo.Everyone, AllowTargetOverride = true)]
+    public void UnequipRpc(RpcParams rpcParams = default)
     {
         modelObj.SetActive(false);
 
@@ -134,7 +166,7 @@ public class Weapon : NetworkBehaviour
             networkObj.Spawn(true);
             networkObj.TrySetParent(projectileSpawnPoint.GetComponentInParent<NetworkObject>());
             currentProjectile = newProjectileObj.GetComponent<Projectile>();
-            currentProjectile.Fire(ownerTransform, damage);
+            currentProjectile.Fire(playerRef.Value, damage);
         }
         if (currentProjectile.hasHoldModifier)
         {

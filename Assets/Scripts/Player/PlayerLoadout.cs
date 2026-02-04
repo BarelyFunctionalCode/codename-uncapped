@@ -24,46 +24,55 @@ public class PlayerLoadout : NetworkBehaviour
         }
     }
 
-    public void Initialize(PlayerController playerController, Transform weaponMountPoint, Transform throwableMountPoint)
+    public void Initialize(PlayerController playerController)
     {
         if (!IsServer) return;
 
         currentWeaponsObjList = new List<GameObject>();
         foreach (GameObject weaponPrefabObj in weaponPrefabObjList)
         {
-            AddWeapon(weaponPrefabObj, playerController, weaponMountPoint);
+            AddWeapon(weaponPrefabObj, playerController);
         }
+        currentWeaponsObjList[0].GetComponent<Weapon>().EquipRpc();
+        equippedPrimaryWeapon = currentWeaponsObjList[0].GetComponent<Weapon>();
 
-        // AddThrowable(throwablePrefabObj, throwableMountPoint);
+        // AddThrowable(throwablePrefabObj, playerController);
+    }
+
+    public void Deinitialize()
+    {
+        if (!IsServer) return;
+
+        foreach (GameObject weaponObj in currentWeaponsObjList)
+        {
+            weaponObj.GetComponent<Weapon>().Deinitialize();
+            NetworkObject networkObj = weaponObj.GetComponentInParent<NetworkObject>();
+            networkObj.Despawn();
+            Destroy(weaponObj);
+        }
+        currentWeaponsObjList.Clear();
+        currentWeaponIndex = 0;
+        equippedPrimaryWeapon = null;
     }
 
 
-    private void AddWeapon(GameObject weaponPrefabObj, PlayerController playerController, Transform weaponMountPoint)
+    private void AddWeapon(GameObject weaponPrefabObj, PlayerController playerController)
     {
         if (!IsServer) return;
 
         GameObject newWeapon = Instantiate(
             weaponPrefabObj,
-            weaponMountPoint.position,
-            weaponMountPoint.rotation
+            playerController.weaponMountPoint.position,
+            playerController.weaponMountPoint.rotation
         );
         NetworkObject networkObj = newWeapon.GetComponent<NetworkObject>();
         networkObj.Spawn(true);
-        networkObj.TrySetParent(weaponMountPoint.GetComponentInParent<NetworkObject>());
+        networkObj.TrySetParent(playerController.NetworkObject);
         networkObj.ChangeOwnership(playerController.OwnerClientId);
         newWeapon = newWeapon.transform.GetComponentInChildren<Weapon>().gameObject;
-        newWeapon.transform.parent = weaponMountPoint;
-        // TODO: track weapon network object for despawn on player death or removal.
         newWeapon.GetComponent<Weapon>().Initialize(playerController);
 
         currentWeaponsObjList.Add(newWeapon);
-
-        if (currentWeaponsObjList.Count - 1 != currentWeaponIndex) newWeapon.GetComponent<Weapon>().UnequipRpc();
-        else
-        {
-            newWeapon.GetComponent<Weapon>().EquipRpc();
-            equippedPrimaryWeapon = newWeapon.GetComponent<Weapon>();
-        }
     }
 
     private void AddThrowable(GameObject throwablePrefabObj, Transform throwableMountPoint)

@@ -92,8 +92,8 @@ public class PlayerController : Entity
 
     // Weapons and Gear
     [Header("Weapons and Gear")]
-    [SerializeField] private Transform weaponMountPoint;
-    [SerializeField] private Transform throwableMountPoint;
+    [SerializeField] public Transform weaponMountPoint;
+    [SerializeField] public Transform throwableMountPoint;
     private PlayerLoadout playerLoadout;
 
     // Movement Parameters
@@ -345,8 +345,7 @@ public class PlayerController : Entity
     [Rpc(SendTo.Server)]
     private void InitializeRpc()
     {
-        // TODO: Server-side one-time initialization goes here
-        playerLoadout.Initialize(this, weaponMountPoint, throwableMountPoint);
+        playerLoadout.Initialize(this);
 
         isInitialized = true;
     }
@@ -357,13 +356,23 @@ public class PlayerController : Entity
     [Rpc(SendTo.Server)]
     public void DisconnectCleanupRpc()
     {
+        playerLoadout.Deinitialize();
         DisconnectCleanupOwnerRpc();
+
+        isInitialized = false;
     }
 
     [Rpc(SendTo.Owner)]
     private void DisconnectCleanupOwnerRpc()
     {
         // Disable the UI
+        if (playerUIObj)
+        {
+            Destroy(playerUIObj);
+            playerUIObj = null;
+        }
+
+        isInitialized = false;
     }
     #endregion
 

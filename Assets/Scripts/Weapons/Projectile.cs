@@ -20,7 +20,7 @@ public class Projectile : NetworkBehaviour
     [SerializeField] protected float armingTimer = 0f;
     [SerializeField] public bool hasHoldModifier = false;
 
-    protected Transform ownerTransform;
+    protected NetworkBehaviourReference ownerRef;
     protected Rigidbody rb;
     private Vector3 previousPosition;
     private List<Collider> damagedReceivers = new();
@@ -59,7 +59,6 @@ public class Projectile : NetworkBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         if (!IsServer) return;
-        if (collision.gameObject == ownerTransform.gameObject) return;
         if (!Weapon.interactionTags.Contains(collision.gameObject.tag)) return;
 
         if (!DoImpactCheck(collision)) return;
@@ -81,16 +80,17 @@ public class Projectile : NetworkBehaviour
 
     private void AddDamageReceiver(Collider receiverCollider)
     {
+        // TODO: Need to add some logic to disregard anything passing through the trigger while the projectile is still in flight.
         if (!IsServer) return;
         if (!receiverCollider.gameObject.CompareTag("Player")) return;
         if (!damagedReceivers.Contains(receiverCollider)) damagedReceivers.Add(receiverCollider);
     }
 
-    public void Fire(Transform ownerTransform, float maxDamage)
+    public void Fire(NetworkBehaviourReference ownerRef, float maxDamage)
     {
         if (!IsServer || isFired) return;
 
-        this.ownerTransform = ownerTransform;
+        this.ownerRef = ownerRef;
         this.maxDamage = maxDamage;
 
         Vector3 intialVelocity = Vector3.Dot(transform.parent.GetComponentInParent<Rigidbody>().linearVelocity, transform.forward) * transform.forward;
