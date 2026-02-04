@@ -1,4 +1,4 @@
-# Legions Uncapped
+# Codename Uncapped
 This project is meant to be a community-driven spiritual successor to the game Legions: Fallen Empire (later re-released as Legions: Overdrive) in the Unity engine.
 This means that we are taking the core game mechanics (movement, weapons, game modes), applying them to a completely new visual setting, and then adding much more new content that align with the original vibes of Legions. 
 
@@ -6,7 +6,7 @@ This means that we are taking the core game mechanics (movement, weapons, game m
 
 ## How to run
 ### Just run the damn game
-Go to the latest release found [here](https://github.com/ArtimosPenguidor/legions-uncapped/releases) and download the zip file. Extract it and run the executable.
+Go to the latest release found [here](https://github.com/BarelyFunctionalCode/codename-uncapped/releases) and download the zip file. Extract it and run the executable.
 
 ### Run in Unity
 1. Install Unity Hub [here](https://unity.com/download).
@@ -17,6 +17,7 @@ Go to the latest release found [here](https://github.com/ArtimosPenguidor/legion
 6. Click the triangle play button at the top of the screen.
 
 ## Contributing
+
 If you would like you get involved, there are two main ways to contribute.
 
 ### Providing Feedback
