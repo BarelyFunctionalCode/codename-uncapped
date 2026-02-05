@@ -13,6 +13,7 @@ public class PauseMenu : MonoBehaviour
     public bool devMode { get; private set; } = true;
     [SerializeField] private Button quitButton;
     [SerializeField] private Button leaveButton;
+    [SerializeField] private Button testLevelButton;
 
     [SerializeField] private Button lobbiesTabButton;
     [SerializeField] private GameObject lobbiesContainerObj;
@@ -49,6 +50,7 @@ public class PauseMenu : MonoBehaviour
 
         quitButton.onClick.AddListener( delegate { OnQuitButtonClicked(); } );
         leaveButton.onClick.AddListener( delegate { OnLeaveButtonClicked(); } );
+        testLevelButton.onClick.AddListener( delegate { OnTestLevelButtonClicked(); } );
         lobbiesTabButton.onClick.AddListener( delegate { OnLobbiesTabButtonClicked(); } );
         optionsTabButton.onClick.AddListener( delegate { OnOptionsTabButtonClicked(); } );
         controlsTabButton.onClick.AddListener( delegate { OnControlsTabButtonClicked(); } );
@@ -61,11 +63,18 @@ public class PauseMenu : MonoBehaviour
 
         debugTabButton.gameObject.SetActive(devMode);
         leaveButton.gameObject.SetActive(!NetworkManager.Singleton.IsHost);
+        testLevelButton.gameObject.SetActive(NetworkManager.Singleton.IsHost);
     }
 
     private void OnQuitButtonClicked() { Application.Quit(); }
 
     private void OnLeaveButtonClicked() { if (!NetworkManager.Singleton.IsHost) GameManager.Instance.PrepGoToOwnLobby(); }
+
+    private void OnTestLevelButtonClicked()
+    {
+        testLevelButton.gameObject.SetActive(false);
+        if (NetworkManager.Singleton.IsHost) GameManager.Instance.LoadLevel("MultiplayerTestLevel");
+    }
 
     private void OnLobbiesTabButtonClicked()
     {

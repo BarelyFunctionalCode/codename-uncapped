@@ -15,7 +15,7 @@ public class Entity : NetworkBehaviour
     [Range(0.0f, 2.0f)]
     [SerializeField] private float energyRegenFactor = 1.0f;
 
-    private bool isDead = false;
+    protected NetworkVariable<bool> isDead = new(false);
     protected bool isGrounded = false;
 
 
@@ -32,7 +32,7 @@ public class Entity : NetworkBehaviour
 
     protected virtual void Update()
     {
-        if (!IsServer || isDead) return;
+        if (!IsServer || isDead.Value) return;
 		
         ApplyEnergyDelta((GetIsGrounded() ? groundEnergyRegenRate : energyRegenRate) * energyRegenFactor * Time.deltaTime);
     }
@@ -78,11 +78,21 @@ public class Entity : NetworkBehaviour
 
     private void Die()
     {
-        if (!IsServer ||isDead) return;
-        isDead = true;
+        if (!IsServer || isDead.Value) return;
+        isDead.Value = true;
         OnDie();
-        Destroy(gameObject);
+        // Destroy(gameObject);
+        Invoke(nameof(Respawn), 3f);
     }
-
     protected virtual void OnDie() {}
+
+    private void Respawn()
+    {
+        if (!IsServer) return;
+        OnRespawn();
+        health.Value = maxHealth;
+        energy.Value = maxEnergy;
+        isDead.Value = false;
+    }
+    protected virtual void OnRespawn() {}
 }

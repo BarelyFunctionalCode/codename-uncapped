@@ -237,13 +237,6 @@ public class PlayerController : Entity
     {
         base.Update();
         if (!isInitialized || !(IsServer || IsOwner)) return;
-
-        HandleGroundDetection();
-
-        // Apply Drag and Friction
-        rb.linearDamping = distanceToSurface <= airCushionHeight ? airCushionDrag : drag;
-        playerCollider.material = isSkiing ? skiMaterial : normalMaterial;
-
         if (IsOwner)
         {
             if (playerControls.UI.Pause.WasPressedThisFrame())
@@ -260,11 +253,21 @@ public class PlayerController : Entity
 
             playerTelemetry.Update();
         }
+
+        if (isDead.Value) return;
+
+        HandleGroundDetection();
+
+        // Apply Drag and Friction
+        rb.linearDamping = distanceToSurface <= airCushionHeight ? airCushionDrag : drag;
+        playerCollider.material = isSkiing ? skiMaterial : normalMaterial;
     }
 
     void LateUpdate()
     {
         if (!isInitialized || !IsOwner) return;
+
+        if (isDead.Value) return;
 
         // Handle camera pitch rotation on local client
         HandleCamera();
@@ -273,6 +276,10 @@ public class PlayerController : Entity
     void FixedUpdate()
     {
         if (!isInitialized || !(IsServer || IsOwner)) return;
+        if (isDead.Value) {
+            if (inputBuffer.Count > 0) inputBuffer.Clear();
+            return;
+        }
 
         // First, we collect all of the inputs that go into moving the player, and create an input state
         HandleInputs();
@@ -889,7 +896,40 @@ public class PlayerController : Entity
     #region Player State
     protected override void OnDie()
     {
+        if (!IsServer) return;
+
+        rb.isKinematic = true;
+        GetComponent<NetworkRigidbody>().UseRigidBodyForMotion = false;
+        playerCollider.enabled = false;
+        transform.Find("Model").gameObject.SetActive(false); // TODO: Move to client RPC
+
         print("Player Died");
+    }
+    protected override void OnRespawn()
+    {
+        if (!IsServer) return;
+
+        print("Player Respawned");
+        // Find an object tagged "Respawn" to respawn at
+        GameObject respawnPoint = GameObject.FindGameObjectWithTag("Respawn");
+
+        if (respawnPoint)
+        {
+            Debug.Log($"Respawning player {name} at {respawnPoint.transform.position} {respawnPoint.name}");
+            transform.position = respawnPoint.transform.position;
+            anticipatedNetworkTransform.AnticipateState(new AnticipatedNetworkTransform.TransformState
+            {
+                Position = respawnPoint.transform.position,
+                Rotation = respawnPoint.transform.rotation,
+                Scale = transform.localScale
+            });
+        }
+        playerCollider.enabled = true;
+        GetComponent<NetworkRigidbody>().UseRigidBodyForMotion = true;
+        transform.Find("Model").gameObject.SetActive(true);
+        playerLoadout.Deinitialize();
+        playerLoadout.Initialize(this);
+        rb.isKinematic = false;
     }
     #endregion
 
