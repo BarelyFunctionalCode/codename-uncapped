@@ -1,10 +1,10 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
 using System;
+using Unity.Netcode;
+using UnityEngine.SceneManagement;
 
 public class PauseMenu : MonoBehaviour
 {
@@ -12,7 +12,10 @@ public class PauseMenu : MonoBehaviour
 
     public bool devMode { get; private set; } = true;
     [SerializeField] private Button quitButton;
-    [SerializeField] private Button restartButton;
+    [SerializeField] private Button leaveButton;
+
+    [SerializeField] private Button lobbiesTabButton;
+    [SerializeField] private GameObject lobbiesContainerObj;
 
     [SerializeField] private Button optionsTabButton;
     [SerializeField] private Transform optionsListObj;
@@ -45,23 +48,36 @@ public class PauseMenu : MonoBehaviour
         } 
 
         quitButton.onClick.AddListener( delegate { OnQuitButtonClicked(); } );
-        restartButton.onClick.AddListener( delegate { OnRestartButtonClicked(); } );
+        leaveButton.onClick.AddListener( delegate { OnLeaveButtonClicked(); } );
+        lobbiesTabButton.onClick.AddListener( delegate { OnLobbiesTabButtonClicked(); } );
         optionsTabButton.onClick.AddListener( delegate { OnOptionsTabButtonClicked(); } );
         controlsTabButton.onClick.AddListener( delegate { OnControlsTabButtonClicked(); } );
         debugTabButton.onClick.AddListener( delegate { OnDebugTabButtonClicked(); } );
+        lobbiesContainerObj.SetActive(true);
+        optionsContainerObj.SetActive(false);
         controlsContainerObj.SetActive(false);
         debugContainerObj.SetActive(false);
         gameObject.SetActive(false);
 
         debugTabButton.gameObject.SetActive(devMode);
+        leaveButton.gameObject.SetActive(!NetworkManager.Singleton.IsHost);
     }
 
     private void OnQuitButtonClicked() { Application.Quit(); }
 
-    private void OnRestartButtonClicked() { SceneManager.LoadScene(SceneManager.GetActiveScene().name); }
+    private void OnLeaveButtonClicked() { if (!NetworkManager.Singleton.IsHost) GameManager.Instance.PrepGoToOwnLobby(); }
+
+    private void OnLobbiesTabButtonClicked()
+    {
+        lobbiesContainerObj.SetActive(true);
+        optionsContainerObj.SetActive(false);
+        controlsContainerObj.SetActive(false);
+        debugContainerObj.SetActive(false);
+    }
 
     private void OnOptionsTabButtonClicked()
     {
+        lobbiesContainerObj.SetActive(false);
         optionsContainerObj.SetActive(true);
         controlsContainerObj.SetActive(false);
         debugContainerObj.SetActive(false);
@@ -69,6 +85,7 @@ public class PauseMenu : MonoBehaviour
 
     private void OnControlsTabButtonClicked()
     {
+        lobbiesContainerObj.SetActive(false);
         optionsContainerObj.SetActive(false);
         controlsContainerObj.SetActive(true);
         debugContainerObj.SetActive(false);
@@ -76,6 +93,7 @@ public class PauseMenu : MonoBehaviour
 
     private void OnDebugTabButtonClicked()
     {
+        lobbiesContainerObj.SetActive(false);
         optionsContainerObj.SetActive(false);
         controlsContainerObj.SetActive(false);
         debugContainerObj.SetActive(true);
