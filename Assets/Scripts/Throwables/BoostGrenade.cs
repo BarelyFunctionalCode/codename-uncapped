@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public class BoostGrenade : Throwable
@@ -16,9 +17,10 @@ public class BoostGrenade : Throwable
 
     private float customGravity = 5f;
 
-    protected override void Awake()
+    public sealed override void OnNetworkSpawn()
     {
-        base.Awake();
+        base.OnNetworkSpawn();
+
         startColor = blastWaveObj.GetComponent<MeshRenderer>().material.color;
         endColor = startColor;
         endColor.a = 0;
@@ -39,15 +41,20 @@ public class BoostGrenade : Throwable
 
             blastWaveObj.localScale = Vector3.Lerp(Vector3.one * blastWaveRadius, Vector3.zero, boostForceFactor);
             effectRadius = 1 + blastWaveRadius * (1 - boostForceFactor);
-            blastWaveObj.GetComponent<MeshRenderer>().material.color = Color.Lerp(endColor, startColor, boostForceFactor);
+            VisualRpc(boostForceFactor);
         }
         else
         {
             isFinished = true;
         }
     }
+    [Rpc(SendTo.Everyone)]
+    private void VisualRpc(float boostForceFactor)
+    {
+        blastWaveObj.GetComponent<MeshRenderer>().material.color = Color.Lerp(endColor, startColor, boostForceFactor);
+    }
 
-    protected override void DoThrowableEffect(Transform receiverTransform, float effectFactor)
+    protected override void DoThrowableEffect(NetworkBehaviourReference _ownerRef, Transform receiverTransform, float effectFactor)
     {
         Vector3 boostDirection = (receiverTransform.position - transform.position).normalized;
         float boostForce = Mathf.Lerp(minBoostForce, maxBoostForce, boostForceFactor) * effectFactor;
@@ -57,9 +64,15 @@ public class BoostGrenade : Throwable
 
     protected override void OnDetonate()
     {
-        coreObj.gameObject.SetActive(false);
+        OnDetonateRpc();
+
         GetComponent<Rigidbody>().collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
         GetComponent<Rigidbody>().isKinematic = true;
         throwableCollider.enabled = false;
+    }
+    [Rpc(SendTo.Everyone)]
+    private void OnDetonateRpc()
+    {
+        coreObj.gameObject.SetActive(false);
     }
 }
