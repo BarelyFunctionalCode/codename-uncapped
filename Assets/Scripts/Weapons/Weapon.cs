@@ -1,11 +1,12 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
+using Unity.Netcode;
+using Unity.Netcode.Components;
 
-public class Weapon : MonoBehaviour
+[RequireComponent(typeof(NetworkTransform))]
+public class Weapon : NetworkBehaviour
 {
-    public static List<string> interactionTags = new List<string>() { "Terrain", "Player", "Throwable" };
+    public static List<string> interactionTags = new() { "Terrain", "Player", "Throwable" };
     [Header("Visuals")]
     [SerializeField] private Transform projectileSpawnPoint;
     [SerializeField] private GameObject modelObj;
@@ -14,7 +15,6 @@ public class Weapon : MonoBehaviour
     [SerializeField] private WeaponUI weaponUI;
     
     [Header("Attributes")]
-    [SerializeField] private float ammoCount = 10000;
     [SerializeField] private float maxAmmo = 10000;
     [SerializeField] private float damage = 1;
     [SerializeField] private float fireRate = 0.05f;
@@ -22,121 +22,152 @@ public class Weapon : MonoBehaviour
     [Header("Collision")]
     [SerializeField] private LayerMask ignoreLayers;
 
-    private float fireRateTimer = 0;
 
     [SerializeField] private bool canFire = true;
 
     private Projectile currentProjectile;
     
-    protected PlayerControls playerControls;
     protected Camera playerCamera;
 
-    protected Transform ownerTransform;
+    protected NetworkObject originalParentNetworkObject;
+    private NetworkVariable<NetworkBehaviourReference> playerRef = new();
 
-    protected bool isFiring = false;
+    public NetworkVariable<bool> isEquiped = new();
+    private NetworkVariable<float> ammoCount = new();
+    private NetworkVariable<float> fireRateTimer = new();
+    private bool isInitialized = false;
 
-    public bool isEquiped = true;
-
-
-
-    private void Awake()
+    public sealed override void OnNetworkSpawn()
     {
-        playerCamera = Camera.main;
-    }
+        base.OnNetworkSpawn();
 
-    private void OnDisable()
-    {
-        playerControls.Equipment.PrimaryFire.started -= OnPrimaryFireStarted;
-        playerControls.Equipment.PrimaryFire.canceled -= OnPrimaryFireCanceled;
+        if (isInitialized) return;
 
-        isFiring = false;
+        if (IsServer)
+        {
+            playerRef.Value = null;
+            isEquiped.Value = false;
+            ammoCount.Value = maxAmmo;
+            fireRateTimer.Value = 0;
+        }
+
+        // This is very important. This makes sure that when a late client joins, they get initialized properly.
+        if (playerRef.Value.TryGet(out PlayerController playerController)) InitializeRpc(playerController, RpcTarget.Me);
     }
 
     protected virtual void Update()
     {
-        Vector3 newWeaponAimPosition = playerCamera.transform.position + playerCamera.transform.forward * 1000f;
+        if (!isInitialized || !isEquiped.Value) return;
 
-        Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-        RaycastHit hitInfo;
-        if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity, ~ignoreLayers))
-            newWeaponAimPosition = hitInfo.point;
-
-        transform.LookAt(newWeaponAimPosition);
-
-        // Debug.DrawRay(ray.origin, ray.direction * 1000f, Color.red);
-        // Debug.DrawRay(transform.position, transform.forward * 1000, Color.green);
-        // Debug.DrawLine(transform.position, newWeaponAimPosition, Color.blue);
-
-        if (isFiring) Fire();
-        if (!isFiring) StopFire();
-
-        if (!canFire)
+        if (IsOwner)
         {
-            fireRateTimer += Time.deltaTime;
-            if (ammoCount > 0 && fireRateTimer >= fireRate)
-            {
-                fireRateTimer = 0;
-                canFire = true;
-            }
+            Vector3 newWeaponAimPosition = playerCamera.transform.position + playerCamera.transform.forward * 1000f;
+
+            Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+            RaycastHit hitInfo;
+            if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity, ~ignoreLayers))
+                newWeaponAimPosition = hitInfo.point;
+
+            if (weaponUI.gameObject.activeSelf) weaponUI.UpdateUI(ammoCount.Value, fireRateTimer.Value, fireRate);
+
+            WeaponLookRpc(newWeaponAimPosition);
         }
 
-        if (weaponUI.gameObject.activeSelf) weaponUI.UpdateUI(ammoCount, fireRateTimer, fireRate);
+        if (IsServer)
+        {
+            if (!canFire)
+            {
+                fireRateTimer.Value += Time.deltaTime;
+                if (ammoCount.Value > 0 && fireRateTimer.Value >= fireRate)
+                {
+                    fireRateTimer.Value = 0;
+                    canFire = true;
+                }
+            }
+        }
     }
-
-    private void OnPrimaryFireStarted(InputAction.CallbackContext _)
+    [Rpc(SendTo.Server)]
+    private void WeaponLookRpc(Vector3 lookPosition)
     {
-        isFiring = true;
-    }
-
-    private void OnPrimaryFireCanceled(InputAction.CallbackContext _)
-    {
-        isFiring = false;
+        transform.LookAt(lookPosition);
     }
 
     public void Initialize(PlayerController playerController)
     {
-        ownerTransform = playerController.transform;
-        playerControls = playerController.playerControls;
+        if (!IsServer) return;
+        playerRef.Value = new NetworkBehaviourReference(playerController);
 
-        weaponUI.Initialize(maxAmmo, reticleSprite);
+        InitializeRpc(playerController);
+        isInitialized = true;
+    }
+    [Rpc(SendTo.Everyone, AllowTargetOverride = true)]
+    public void InitializeRpc(NetworkBehaviourReference playerRef, RpcParams rpcParams = default)
+    {
+        if (isInitialized) return;
+
+        playerRef.TryGet(out PlayerController playerController);
+        originalParentNetworkObject = GetComponentInParent<NetworkObject>();
+        transform.parent = playerController.weaponMountPoint;
+        if (IsOwner)
+        {
+            playerCamera = Camera.main;
+            weaponUI.Initialize(maxAmmo, reticleSprite);
+        }
+        else Destroy(weaponUI.gameObject);
+
+        if (isEquiped.Value) EquipRpc(RpcTarget.Me);
+        else UnequipRpc(RpcTarget.Me);
+        isInitialized = true;
     }
 
-    public void Equip()
+    public void Deinitialize()
+    {
+        if (!IsServer) return;
+        DeinitializeRpc();
+        isInitialized = false;
+    }
+    [Rpc(SendTo.Everyone)]
+    public void DeinitializeRpc()
+    {
+        transform.parent = originalParentNetworkObject.transform;
+        isInitialized = false;
+    }
+
+    [Rpc(SendTo.Everyone, AllowTargetOverride = true)]
+    public void EquipRpc(RpcParams rpcParams = default)
     {
         modelObj.SetActive(true);
-        playerControls.Equipment.PrimaryFire.started += OnPrimaryFireStarted;
-        playerControls.Equipment.PrimaryFire.canceled += OnPrimaryFireCanceled;
-
-        weaponUI.gameObject.SetActive(true);
-        isEquiped = true;
+        if (IsOwner) weaponUI.gameObject.SetActive(true);
+        if (IsServer) isEquiped.Value = true;
     }
 
-    public void Unequip()
+    [Rpc(SendTo.Everyone, AllowTargetOverride = true)]
+    public void UnequipRpc(RpcParams rpcParams = default)
     {
         modelObj.SetActive(false);
-        playerControls.Equipment.PrimaryFire.started -= OnPrimaryFireStarted;
-        playerControls.Equipment.PrimaryFire.canceled -= OnPrimaryFireCanceled;
 
-        isFiring = false;
-
-        weaponUI.gameObject.SetActive(false);
-        isEquiped = false;
+        if (IsOwner) weaponUI.gameObject.SetActive(false);
+        if (IsServer) isEquiped.Value = false;
     }
 
     public void refillAmmo()
     {
-        ammoCount = maxAmmo;
+        if (!IsServer) return;
+        ammoCount.Value = maxAmmo;
     }
 
-    protected virtual void Fire()
+    public virtual void Fire()
     {
-        if (!canFire) return;
+        if (!IsServer || !canFire) return;
         if (currentProjectile == null)
         {
-            GameObject newProjectileObj = Instantiate(projectilePrefabObj, projectileSpawnPoint.position, projectileSpawnPoint.rotation, projectileSpawnPoint);
+            GameObject newProjectileObj = Instantiate(projectilePrefabObj, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
+            NetworkObject networkObj = newProjectileObj.GetComponent<NetworkObject>();
+            networkObj.Spawn(true);
+            networkObj.TrySetParent(projectileSpawnPoint.GetComponentInParent<NetworkObject>());
             currentProjectile = newProjectileObj.GetComponent<Projectile>();
-            currentProjectile.Fire(ownerTransform, damage);
-            PostFired();
+            currentProjectile.Fire(playerRef.Value, this, damage);
+            PostFiredRpc();
         }
         if (currentProjectile.hasHoldModifier)
         {
@@ -145,22 +176,24 @@ public class Weapon : MonoBehaviour
         };
 
         currentProjectile = null;
-        ammoCount--;
+        ammoCount.Value--;
         canFire = false;
     }
 
-    protected virtual void PostFired() { }
+    [Rpc(SendTo.Everyone)]
+    protected virtual void PostFiredRpc() { }
 
     protected virtual void DoHoldModifierStart(Projectile currentProjectile) { }
 
-    protected virtual void StopFire()
+    public virtual void StopFire()
     {
+        if (!IsServer) return;
         if (currentProjectile == null || !currentProjectile.hasHoldModifier) return;
 
         DoHoldModifierEnd(currentProjectile);
 
         currentProjectile = null;
-        ammoCount--;
+        ammoCount.Value--;
         canFire = false;
     }
 

@@ -1,8 +1,11 @@
-using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
+using Unity.Netcode.Components;
 using UnityEngine;
 
-public class Throwable : MonoBehaviour
+[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(NetworkRigidbody))]
+public class Throwable : NetworkBehaviour
 {
     [SerializeField] protected SphereCollider throwableCollider;
     [SerializeField] protected CapsuleCollider effectRadiusTrigger;
@@ -12,7 +15,7 @@ public class Throwable : MonoBehaviour
     [SerializeField] protected float effectRadius = 1f;
     [SerializeField] private float selfDestructTimer = 1.5f;
 
-    protected Transform ownerTransform;
+    protected NetworkBehaviourReference ownerRef;
     private Vector3 previousPosition;
     private List<Collider> affectedEntities = new List<Collider>();
 
@@ -29,7 +32,8 @@ public class Throwable : MonoBehaviour
 
     protected virtual void FixedUpdate()
     {
-        if (!isThrown) return;
+        if (!IsServer || !isThrown) return;
+
         selfDestructTimer -= Time.fixedDeltaTime;
         if (selfDestructTimer <= 0)
         {
@@ -55,7 +59,7 @@ public class Throwable : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject == ownerTransform.gameObject) return;
+        if (!IsServer) return;
         if (!ThrowableManager.interactionTags.Contains(collision.gameObject.tag)) return;
 
         selfDestructTimer /= 2.0f;
@@ -69,7 +73,7 @@ public class Throwable : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!isThrown || !isDetonating) return;
+        if (!IsServer || !isThrown || !isDetonating) return;
         if (!other.gameObject.CompareTag("Player")) return;
         if (!affectedEntities.Contains(other))
         {
@@ -84,20 +88,25 @@ public class Throwable : MonoBehaviour
             //     radius = 3, distance = 2.75 -> (3 - 2.75) / 3 = .25 / 3 = .083
             float effectFactor = Mathf.Clamp01((1 + effectRadius - distance) / effectRadius);
 
-            DoThrowableEffect(other.transform, effectFactor);
+            DoThrowableEffect(ownerRef, other.transform, effectFactor);
             affectedEntities.Add(other);
         }
     }
 
-    protected virtual void DoThrowableEffect(Transform receiverTransform, float effectFactor) {}
+    protected virtual void DoThrowableEffect(NetworkBehaviourReference ownerRef, Transform receiverTransform, float effectFactor) {}
 
-    public void Throw(Transform ownerTransform, float throwForceFactor)
+    public void Throw(NetworkBehaviourReference ownerRef, float throwForceFactor)
     {
-        this.ownerTransform = ownerTransform;
+        if (!IsServer) return;
 
-        transform.parent = null;
+        this.ownerRef = ownerRef;
+
+        Vector3 intialVelocity = Vector3.Dot(transform.parent.GetComponentInParent<Rigidbody>().linearVelocity, transform.forward) * transform.forward;
+
+        NetworkObject.TryRemoveParent();
         GetComponent<Rigidbody>().isKinematic = false;
         GetComponent<Rigidbody>().collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+        GetComponent<Rigidbody>().AddForce(intialVelocity, ForceMode.VelocityChange);
         GetComponent<Rigidbody>().AddForce(transform.forward * Mathf.Lerp(throwMinForce, throwMaxForce, throwForceFactor), ForceMode.Impulse);
 
         throwableCollider.enabled = true;
@@ -106,14 +115,20 @@ public class Throwable : MonoBehaviour
 
     private void Detonate(Collider impactCollider = null)
     {
+        if (!IsServer) return;
         if (isDetonating) return;
         if (impactCollider != null) 
         {
-            DoThrowableEffect(impactCollider.transform, 1);
+            DoThrowableEffect(ownerRef, impactCollider.transform, 1);
             affectedEntities.Add(impactCollider);
         }
-        isDetonating = true;
+        DetonateRpc();
         OnDetonate();
+    }
+    [Rpc(SendTo.Everyone)]
+    private void DetonateRpc()
+    {
+        isDetonating = true;
     }
 
     protected virtual void OnDetonate() {}

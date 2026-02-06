@@ -4894,6 +4894,179 @@ ParticleSystemRenderer:
   m_MeshWeighting1: 1
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
+--- !u!1 &2478520505244460603
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4568595372777821569}
+  - component: {fileID: 7773360477755916025}
+  - component: {fileID: 4208766565837827118}
+  - component: {fileID: 631072955746057078}
+  - component: {fileID: 3647014172846940472}
+  m_Layer: 0
+  m_Name: GrenadeLauncher
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4568595372777821569
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2478520505244460603}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 7053101878330708289}
+  - {fileID: 31968502425875243}
+  m_Father: {fileID: 3441636807916873101}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7773360477755916025
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2478520505244460603}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d322596a5650224a835a551c0977a5f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  projectileSpawnPoint: {fileID: 7053101878330708289}
+  modelObj: {fileID: 809033310396754321}
+  projectilePrefabObj: {fileID: 7666252333429008558, guid: 73e8b5ed4afdf3e4a824bff50d465bcc, type: 3}
+  reticleSprite: {fileID: 7839025787504956628, guid: 550fb64ed426f1e44a8ae001f13ca548, type: 3}
+  weaponUI: {fileID: 5343614388368727526}
+  maxAmmo: 8
+  damage: 70
+  fireRate: 2
+  ignoreLayers:
+    serializedVersion: 2
+    m_Bits: 776
+  canFire: 1
+  isEquiped:
+    m_InternalValue: 0
+  shellEjectPoint: {fileID: 8526960823157325130}
+  grenadeShellPrefab: {fileID: 7911883938864016753, guid: d3327f7daa3cbbd488a7419e8a99858f, type: 3}
+  shellEjectForce: 7.5
+  shellSpinForce: 150
+  animator: {fileID: 631072955746057078}
+  ejectParticles:
+  - {fileID: 4556633541989798397}
+  - {fileID: 4668114394431660140}
+  - {fileID: 750424474569038497}
+  - {fileID: 8233461771006551175}
+--- !u!114 &4208766565837827118
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2478520505244460603}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.Components.NetworkTransform
+  ShowTopMostFoldoutHeaderGroup: 1
+  NetworkTransformExpanded: 0
+  AutoOwnerAuthorityTickOffset: 1
+  PositionInterpolationType: 0
+  RotationInterpolationType: 0
+  ScaleInterpolationType: 0
+  PositionLerpSmoothing: 1
+  PositionMaxInterpolationTime: 0.1
+  RotationLerpSmoothing: 1
+  RotationMaxInterpolationTime: 0.1
+  ScaleLerpSmoothing: 1
+  ScaleMaxInterpolationTime: 0.1
+  AuthorityMode: 0
+  TickSyncChildren: 1
+  UseUnreliableDeltas: 0
+  SyncPositionX: 1
+  SyncPositionY: 1
+  SyncPositionZ: 1
+  SyncRotAngleX: 1
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 1
+  SyncScaleX: 0
+  SyncScaleY: 0
+  SyncScaleZ: 0
+  PositionThreshold: 0.001
+  RotAngleThreshold: 0.00001
+  ScaleThreshold: 0.01
+  UseQuaternionSynchronization: 0
+  UseQuaternionCompression: 0
+  UseHalfFloatPrecision: 0
+  InLocalSpace: 0
+  SwitchTransformSpaceWhenParented: 1
+  Interpolate: 0
+  SlerpPosition: 0
+--- !u!95 &631072955746057078
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2478520505244460603}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 3660dff15dc2fc647a57b0ce93c01918, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &3647014172846940472
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2478520505244460603}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8d0727d5ae3244e3b569694d3912374, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.Components.NetworkAnimator
+  ShowTopMostFoldoutHeaderGroup: 1
+  NetworkAnimatorExpanded: 0
+  AuthorityMode: 0
+  m_Animator: {fileID: 631072955746057078}
+  TransitionStateInfoList:
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 1805245548
+    DestinationState: -1564249540
+    TransitionDuration: 0.25
+    TriggerNameHash: 1427026889
+    TransitionIndex: 0
+  AnimatorParameterEntries:
+    ParameterEntries:
+    - name: Eject
+      NameHash: 1427026889
+      Synchronize: 1
+      ParameterType: 9
+  AnimatorParametersExpanded: 0
 --- !u!1 &2568347402315667333
 GameObject:
   m_ObjectHideFlags: 0
@@ -9817,7 +9990,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 3441636807916873101}
+  m_Father: {fileID: 4568595372777821569}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5600182896950481145
 GameObject:
@@ -9828,8 +10001,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3441636807916873101}
-  - component: {fileID: 8550666442326380805}
-  - component: {fileID: 1264153068666357961}
+  - component: {fileID: 5536840749473345357}
   m_Layer: 0
   m_Name: GrenadeLauncher
   m_TagString: Weapon
@@ -9850,12 +10022,11 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 7053101878330708289}
+  - {fileID: 4568595372777821569}
   - {fileID: 1813400618357876472}
-  - {fileID: 31968502425875243}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8550666442326380805
+--- !u!114 &5536840749473345357
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -9864,55 +10035,22 @@ MonoBehaviour:
   m_GameObject: {fileID: 5600182896950481145}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d322596a5650224a835a551c0977a5f, type: 3}
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
-  projectileSpawnPoint: {fileID: 7053101878330708289}
-  modelObj: {fileID: 809033310396754321}
-  projectilePrefabObj: {fileID: 7666252333429008558, guid: 73e8b5ed4afdf3e4a824bff50d465bcc, type: 3}
-  reticleSprite: {fileID: 7839025787504956628, guid: 550fb64ed426f1e44a8ae001f13ca548, type: 3}
-  weaponUI: {fileID: 5343614388368727526}
-  ammoCount: 8
-  maxAmmo: 8
-  damage: 70
-  fireRate: 2
-  ignoreLayers:
-    serializedVersion: 2
-    m_Bits: 776
-  canFire: 1
-  isEquiped: 1
-  shellEjectPoint: {fileID: 8526960823157325130}
-  grenadeShellPrefab: {fileID: 7911883938864016753, guid: d3327f7daa3cbbd488a7419e8a99858f, type: 3}
-  shellEjectForce: 7.5
-  shellSpinForce: 150
-  animator: {fileID: 1264153068666357961}
-  ejectParticles:
-  - {fileID: 4556633541989798397}
-  - {fileID: 4668114394431660140}
-  - {fileID: 750424474569038497}
-  - {fileID: 8233461771006551175}
---- !u!95 &1264153068666357961
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5600182896950481145}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 3660dff15dc2fc647a57b0ce93c01918, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 1969094637
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!1 &6137238702755258326
 GameObject:
   m_ObjectHideFlags: 0
@@ -19738,7 +19876,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 3441636807916873101}
+    m_TransformParent: {fileID: 4568595372777821569}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 716e60b063900334b94bb5e20d716d0a, type: 3}
       propertyPath: m_LocalScale.x
@@ -19770,15 +19908,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 716e60b063900334b94bb5e20d716d0a, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 716e60b063900334b94bb5e20d716d0a, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 716e60b063900334b94bb5e20d716d0a, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 716e60b063900334b94bb5e20d716d0a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
