@@ -1,7 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode.Components;
+using Unity.Netcode;
 
+[RequireComponent(typeof(NetworkAnimator))]
 public class GrenadeLauncher : Weapon
 {
     [SerializeField] private Transform shellEjectPoint;
@@ -11,22 +12,25 @@ public class GrenadeLauncher : Weapon
     [SerializeField] private Animator animator;
     [SerializeField] private ParticleSystem[] ejectParticles;
 
-    protected override void PostFired()
+    protected override void PostFiredRpc()
     {
         foreach (ParticleSystem system in ejectParticles)
         {
             system.Play();
         }
 
-        if (animator != null) animator.SetTrigger("Eject");
+        if (IsServer && animator != null) animator.SetTrigger("Eject");
     }
 
     private void EjectShell()
     {
+        if (!IsServer) return;
         if (grenadeShellPrefab != null)
         {
             GameObject newShell = Instantiate(grenadeShellPrefab, shellEjectPoint.position, shellEjectPoint.rotation);
-            newShell.transform.SetParent(null);
+            NetworkObject newNetworkObject = newShell.GetComponent<NetworkObject>();
+            newNetworkObject.Spawn();
+            newNetworkObject.TryRemoveParent();
             newShell.GetComponentInChildren<Rigidbody>().AddForce((-newShell.transform.forward + Vector3.up) * shellEjectForce, ForceMode.VelocityChange);
             newShell.GetComponentInChildren<Rigidbody>().AddTorque(newShell.transform.right * shellSpinForce, ForceMode.Force);
             Destroy(newShell, 2.5f);
