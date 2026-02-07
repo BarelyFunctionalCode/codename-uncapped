@@ -1,5 +1,14 @@
 {
   "dependencies": {
+    "com.community.netcode.transport.facepunch": {
+      "version": "https://github.com/Unity-Technologies/multiplayer-community-contributions.git?path=/Transports/com.community.netcode.transport.facepunch",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.netcode.gameobjects": "1.0.0-pre.4"
+      },
+      "hash": "5cea8f048cc16f3575fabcf03af3ebafbc390499"
+    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 0,
@@ -110,16 +119,6 @@
         "com.unity.modules.uielements": "1.0.0"
       }
     },
-    "com.unity.multiplayer.center.quickstart": {
-      "version": "1.1.1",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.modules.uielements": "1.0.0",
-        "com.unity.multiplayer.center": "1.0.0"
-      },
-      "url": "https://packages.unity.com"
-    },
     "com.unity.multiplayer.playmode": {
       "version": "2.0.1",
       "depth": 0,
@@ -145,7 +144,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.netcode.gameobjects": {
-      "version": "2.9.1",
+      "version": "2.8.0",
       "depth": 0,
       "source": "registry",
       "dependencies": {
