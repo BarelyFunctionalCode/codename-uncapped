@@ -13,6 +13,10 @@ using System.Collections.Generic;
 
 public class TeamStructure : NetworkBehaviour
 {
+    #region Delegates & Events
+    public event EventHandler<EventArgsPlayerChangedTeam> PlayerChangedTeam;
+    #endregion
+
     #region Properties
     // Team names, "Red" vs "Blue" for example.
     public NetworkList<FixedString128Bytes> teams;
@@ -50,14 +54,11 @@ public class TeamStructure : NetworkBehaviour
     }
     */
 
-    #region Private methods
-    private void EmitPlayerChangedTeam(EventArgsPlayerChangedTeam e)
+    private void Awake()
     {
-        gameObject.BroadcastMessage("OnPlayerChangedTeam", e);
+        teams = new NetworkList<FixedString128Bytes>(readPerm: NetworkVariableReadPermission.Everyone);
     }
-    #endregion
 
-    #region public methods
     public string GetTeam (int player_id)
     {
         string result;
@@ -82,11 +83,12 @@ public class TeamStructure : NetworkBehaviour
         return x;
     }
 
+
     // pseudo
     public void SetPlayerTeam (int player_id, string team)
     {
         team_assignment[player_id] = team;
-        EmitPlayerChangedTeam(new EventArgsPlayerChangedTeam(player_id, team));
+        OnPlayerChangedTeam(new EventArgsPlayerChangedTeam(player_id, team));
     }
 
     public void AddNewTeam(string team)
@@ -103,12 +105,11 @@ public class TeamStructure : NetworkBehaviour
     {
         teams.Clear();
     }
-    #endregion
 
-    #region Message Receivers
-    private void Awake()
+    #region Event Handlers
+    public void OnPlayerChangedTeam(EventArgsPlayerChangedTeam e)
     {
-        teams = new NetworkList<FixedString128Bytes>(readPerm: NetworkVariableReadPermission.Everyone);
+        PlayerChangedTeam?.Invoke(this, e);
     }
     #endregion
 }

@@ -14,7 +14,6 @@ public class GameModeHandler : MonoBehaviour
     private bool isComplete		   = true;
     private bool isDamageAllowed   = false;
     #endregion
-
     private static GameModeHandler _instance;
     public static GameModeHandler Instance
     {
@@ -44,20 +43,18 @@ public class GameModeHandler : MonoBehaviour
         {
             _instance = this;
         }
+
     }
     #endregion
     
 
     #region Private Methods
-    // For debugging, artificially increment kill count
-    private void FixedUpdate()
-    {
-
-    }
-
     // Check score against win condition, complete the game if score is met.
-    private bool CheckScore(Dictionary<int, StatTracker> team_points)
+    private bool CheckScore()
     {
+        Dictionary<StatsGroup, Dictionary<int, StatTracker>> points = game_stats.FetchStats();
+        Dictionary<int, StatTracker> team_points = points[StatsGroup.TEAM];
+
         bool result = win_conditions.CheckAll(team_points);
 
         return result;
@@ -65,15 +62,6 @@ public class GameModeHandler : MonoBehaviour
     #endregion
 
     #region Public Methods
-    public void StatEventReceiver(StatEvent s)
-    {
-        // Stats should only accumulate during active game session.
-        if (phase_system.GetCurrentPhase() == Phase.ACTIVE)
-        {
-            game_stats.AddToStat(s);
-        }
-    }
-
     // Entry point for the game mode to begin its session.
     public void StartGame()
     {
@@ -107,7 +95,7 @@ public class GameModeHandler : MonoBehaviour
     }
     #endregion
 
-    #region Message Receivers
+    #region Event Handlers
     public void OnPhaseChanged(object sender, EventArgsPhaseChanged e)
     {
         // if in active session, toggle state booleans appropriately
@@ -135,11 +123,10 @@ public class GameModeHandler : MonoBehaviour
         game_stats.CheckAddEntry(player_id, StatsGroup.PLAYER);
     }
 
-    public void OnPointsChanged(Dictionary<StatsGroup, Dictionary<int, StatTracker>> points)
+    public void OnGameStatsPointsChanged(object sender, EventArgs e)
     {
-        Dictionary<int, StatTracker> team_points = points[StatsGroup.TEAM];
-
-        CheckScore(team_points);
+        CheckScore();
     }
+
     #endregion
 }

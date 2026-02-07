@@ -15,10 +15,10 @@ public class WinConditionItem : ScriptableObject
     private StatEventType StatType;
     // Required score
     [SerializeField]
-    private float Value;
+    private int Value;
 
     // Is the current score greater than or equal to the required score?
-    public bool Check(float v)
+    public bool Check(int v)
     {
         return v >= Value;
     }
@@ -28,7 +28,7 @@ public class WinConditionItem : ScriptableObject
         return StatType;
     }
 
-    public float GetStatValue()
+    public int GetStatValue()
     {
         return Value;
     }

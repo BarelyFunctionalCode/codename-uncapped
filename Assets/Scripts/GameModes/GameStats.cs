@@ -42,13 +42,7 @@ public class GameStats : MonoBehaviour
      *
      */
     private Dictionary<StatsGroup, Dictionary<int, StatTracker>> points = new Dictionary<StatsGroup, Dictionary<int, StatTracker>>();
-    #endregion
 
-    #region Private methods
-    private void EmitPointsChanged()
-    {
-        gameObject.BroadcastMessage("OnPointsChanged", FetchStats());
-    }
     #endregion
 
     #region Public Methods
@@ -71,13 +65,14 @@ public class GameStats : MonoBehaviour
         int player_id = s.Source;
         string team_name = gameObject.GetComponent<TeamStructure>().GetTeam(player_id);
 
-        // Check if player's stats has this stat added yet
+        // Add to players' stats first
         stat_group = points[StatsGroup.PLAYER];
         CheckAddEntry(player_id, StatsGroup.PLAYER);
-        // Add to the players' stats
-        stat_group[player_id].AddToStat(s.StatType, s.Value);
 
-        // Then add to the teams' stats ONLY IF the stat is being tracked by winconditions
+        StatTracker source_player_stats = stat_group[player_id];
+        source_player_stats.AddToStat(s.StatType, s.Value);
+
+        // Then add to the teams' stats only if the stat is being tracked by winconditions
         List<StatEventType> win_condition_stats = gameObject.GetComponent<WinConditions>().GetWinConditionStats();
         if (win_condition_stats.Contains(s.StatType))
         {
@@ -89,7 +84,9 @@ public class GameStats : MonoBehaviour
             StatTracker source_team_stats = stat_group[team_index];
             source_team_stats.AddToStat(s.StatType, s.Value);
         }
+
     }
+
 
     public Dictionary<StatsGroup, Dictionary<int, StatTracker>> FetchStats()
     {

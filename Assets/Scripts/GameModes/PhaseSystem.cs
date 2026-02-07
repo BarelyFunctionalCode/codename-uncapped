@@ -27,6 +27,10 @@ public enum Phase
 
 public class PhaseSystem : MonoBehaviour
 {
+    #region Delegates & Events
+    public event EventHandler<EventArgsPhaseChanged> PhaseChanged;
+    #endregion
+    
     #region Properties
     // Current phase
     public Phase CurrentPhase = Phase.PRELOAD;
@@ -35,11 +39,6 @@ public class PhaseSystem : MonoBehaviour
     #endregion
 
     #region Public methods
-    public Phase GetCurrentPhase()
-    {
-        return CurrentPhase;
-    }
-
     // Step phase forward
     public void Step()
     {
@@ -59,8 +58,8 @@ public class PhaseSystem : MonoBehaviour
                 CurrentPhase = Phase.WARMUP;
                 break;
         };
-
-        EmitPhaseChanged(new EventArgsPhaseChanged(CurrentPhase));
+            
+        OnPhaseChanged(new EventArgsPhaseChanged(CurrentPhase));
     }
 
     // Bypass intended stepping and set Phase directly.
@@ -68,16 +67,23 @@ public class PhaseSystem : MonoBehaviour
     public void HardSet(Phase phase)
     {
         CurrentPhase = phase;
-        EmitPhaseChanged(new EventArgsPhaseChanged(CurrentPhase));
+        OnPhaseChanged(new EventArgsPhaseChanged(CurrentPhase));
     }
 
+    #region Pseudo
+    private void FixedUpdate()
+    {
+        SetCountdown(GetCountdown() - Time.fixedDeltaTime);
+    }
+
+    public void Awake()
+    {
+        SetCountdown(15.0f);
+    }
+    #endregion
     #endregion
 
     #region Private methods
-    private void EmitPhaseChanged(EventArgsPhaseChanged e)
-    {
-        gameObject.BroadcastMessage("OnPhaseChanged", e);
-    }
 
     private void ActivePhase()
     {
@@ -143,15 +149,10 @@ public class PhaseSystem : MonoBehaviour
 
     #endregion
     
-    #region Message Receivers
-    private void FixedUpdate()
+    #region Protected methods
+    public virtual void OnPhaseChanged(EventArgsPhaseChanged e)
     {
-        SetCountdown(GetCountdown() - Time.fixedDeltaTime);
-    }
-
-    public void Awake()
-    {
-        SetCountdown(15.0f);
+        PhaseChanged?.Invoke(this, e);
     }
     #endregion
 }

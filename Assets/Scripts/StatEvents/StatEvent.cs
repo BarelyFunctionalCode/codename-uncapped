@@ -17,7 +17,7 @@ public class StatEvent
     public StatEventType StatType;
 
     // What is the value of the event?
-    public float Value;
+    public int Value;
 
     // Which player caused the event?
     public int Source;
@@ -25,10 +25,9 @@ public class StatEvent
     // Who received the event?
     public int? Target;
 
-    public StatEvent(StatEventType t, float v, int s)
+    public StatEvent(StatEventType t, int v)
     {
         StatType = t;
         Value = v;
-        Source = s;
     }
 }
