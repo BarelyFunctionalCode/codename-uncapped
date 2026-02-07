@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 // Owns the current GameMode.
@@ -8,33 +9,17 @@ using UnityEngine;
 // through PhaseSystem, once it has begun.
 public class GameModeHandler : MonoBehaviour
 {
-    // For debug/testing, automatically load a game mode selectable from in the inspector.
-    [SerializeField]
-    public GameModeBase default_game_mode;
-    [SerializeField]
-    public bool loadDefaultGameMode = true;
-
-    // Setting a new game mode will start the game automatically.
-    private GameModeBase _current_game_mode;
-    public GameModeBase CurrentGameMode
-    {
-        get
-        {
-            return _current_game_mode;
-        }
-        set
-        {
-            _current_game_mode = value;
-            StartGame();
-        }
-    }
-
-    private static GameModeHandler _instance
+    #region State
+    private bool isInSession	   = false;
+    private bool isComplete		   = true;
+    private bool isDamageAllowed   = false;
+    #endregion
+    private static GameModeHandler _instance;
     public static GameModeHandler Instance
     {
         get
         {
-            return _instance
+            return _instance;
         }
     }
 
@@ -59,14 +44,6 @@ public class GameModeHandler : MonoBehaviour
             _instance = this;
         }
 
-        // Cache references
-        team_structure  = gameObject.GetComponent<TeamStructure>();
-        phase_system    = gameObject.GetComponent<PhaseSystem>();
-        game_stats      = gameObject.GetComponent<GameStats>();
-        win_conditions  = gameObject.GetComponent<WinConditions>();
-
-        // Connect signals
-        phase_system.PhaseChanged += OnPhaseChanged;
     }
     #endregion
     
@@ -99,10 +76,22 @@ public class GameModeHandler : MonoBehaviour
     }
     
     // Game mode can be selected at any time. player voting, admin selection, in-game host selection should all call from here.
-    public void SelectNewMode(GameModeBase g)
+    public void SelectNewMode(GameObject g)
     {
-        CurrentGameMode?.EndSession();
-    	CurrentGameMode = g;
+        // CurrentGameMode?.EndSession();
+    	// CurrentGameMode = g;
+
+
+        /*
+         / /* Cache references
+         team_structure  = gameObject.GetComponent<TeamStructure>();
+         phase_system    = gameObject.GetComponent<PhaseSystem>();
+         game_stats      = gameObject.GetComponent<GameStats>();
+         win_conditions  = gameObject.GetComponent<WinConditions>();
+
+         // Connect signals
+         phase_system.PhaseChanged += OnPhaseChanged;
+         */
     }
     #endregion
 

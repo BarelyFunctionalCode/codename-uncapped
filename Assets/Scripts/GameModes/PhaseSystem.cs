@@ -34,6 +34,7 @@ public class PhaseSystem : MonoBehaviour
     #region Properties
     // Current phase
     public Phase CurrentPhase = Phase.PRELOAD;
+    [SerializeField]
     private float Countdown;
     #endregion
 

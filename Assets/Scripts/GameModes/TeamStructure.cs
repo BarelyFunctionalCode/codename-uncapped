@@ -1,4 +1,6 @@
 using UnityEngine;
+using Unity.Netcode;
+using Unity.Collections;
 using System;
 using System.Collections.Generic;
 
@@ -72,18 +74,15 @@ public class TeamStructure : NetworkBehaviour
 
     public List<string> GetTeams()
     {
-        return teams;
+        List<string> x = new List<string>();
+        foreach (FixedString128Bytes f in teams)
+        {
+            x.Add(f.ToString());
+        }
+
+        return x;
     }
 
-    [Rpc(Send.NotServer)]
-    public void SyncTeamNamesRPC(List<string> new_teams_list)
-    {
-        WipeTeams();
-        for (string t in new_teams_list)
-        {
-            AddNewTeam(t);
-        }
-    }
 
     // pseudo
     public void SetPlayerTeam (int player_id, string team)
