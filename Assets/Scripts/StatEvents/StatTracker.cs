@@ -13,7 +13,7 @@ public class StatTracker
      *   StatEventType.FLAG_RETURNS:  3,
      * }
      */
-    public Dictionary<StatEventType, int> stats = new Dictionary<StatEventType, int>{};
+    public Dictionary<StatEventType, float> stats = new Dictionary<StatEventType, float>{};
 
     public StatTracker(int p)
     {
@@ -21,7 +21,7 @@ public class StatTracker
     }
 
     // Add to a stat value, check first if that stat has an entry. If not, add a default stat 0.
-    public void AddToStat(StatEventType s, int v)
+    public void AddToStat(StatEventType s, float v)
     {
         if (!stats.ContainsKey(s))
         {
@@ -32,9 +32,9 @@ public class StatTracker
     }
 
     // Lookup what the current value of a stat is, given a stat type.
-    public int FetchStatValue(StatEventType s)
+    public float FetchStatValue(StatEventType s)
     {
-        int value = 0;
+        float value = 0f;
         stats.TryGetValue(s, out value);
 
         return value;
