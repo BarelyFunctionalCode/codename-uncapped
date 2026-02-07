@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Resources/Prefabs/GameModes.meta
 guid: 0b6724804879c57db967064b5c3aedd6
+========
+guid: 50dbbac2fba5cc11ebae8a64df42c24e
+>>>>>>>> main:Assets/Resources/Prefabs/UI/LobbyMenu.meta
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}
