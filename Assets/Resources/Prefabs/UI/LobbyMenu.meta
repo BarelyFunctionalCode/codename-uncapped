@@ -1,9 +1,5 @@
 fileFormatVersion: 2
-<<<<<<<< HEAD:Assets/Resources/Prefabs/UI/LobbyMenu.meta
-guid: 50dbbac2fba5cc11ebae8a64df42c24e
-========
-guid: f84ab0c639a395a8084ab44fb1a4bb7a
->>>>>>>> main:Assets/Scenes/TerrainData.meta
+guid: cccd8f821bc9b2f5ab5630596aadbe1a
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}

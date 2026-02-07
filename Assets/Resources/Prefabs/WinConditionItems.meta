@@ -1,9 +1,5 @@
 fileFormatVersion: 2
-<<<<<<<< HEAD:Assets/Resources/Prefabs/WinConditionItems.meta
-guid: 91213d98ef558506d94fbcb7f5ef34eb
-========
-guid: 283319b503777d3d0b08318527b1b9ce
->>>>>>>> main:Assets/Scenes/Transitions.meta
+guid: 9603bb815cc1d5d7d9bb695a786650b1
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}

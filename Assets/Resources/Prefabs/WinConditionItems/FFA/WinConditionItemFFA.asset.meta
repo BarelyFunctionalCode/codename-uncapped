@@ -1,15 +1,8 @@
 fileFormatVersion: 2
-<<<<<<<< HEAD:Assets/Resources/Prefabs/WinConditionItems/FFA/WinConditionItemFFA.asset.meta
-guid: 7b09da376297714f89dcde235d7abe07
-NativeFormatImporter:
-  externalObjects: {}
-  mainObjectFileID: 11400000
-========
-guid: fd149f9ca0b086916a6ffdef221699f7
+guid: 43b27625ed79fa8cd8f0760f016a3a07
 NativeFormatImporter:
   externalObjects: {}
   mainObjectFileID: 8574412962073106934
->>>>>>>> main:Assets/Scalable Grid Prototype Materials/Materials/NewLayer 1.terrainlayer.meta
   userData: 
   assetBundleName: 
   assetBundleVariant: 
