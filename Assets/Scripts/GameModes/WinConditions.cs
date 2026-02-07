@@ -15,11 +15,11 @@ public class WinConditions : MonoBehaviour
         foreach (WinConditionItem w in win_conditions)
         {
             StatEventType stat_type = w.GetStatType();
-            int stat_value = w.GetStatValue();
+            float stat_value = w.GetStatValue();
 
             foreach (KeyValuePair<int, StatTracker> t in team_points)
             {
-                int team_point_value = t.Value.FetchStatValue(stat_type);
+                float team_point_value = t.Value.FetchStatValue(stat_type);
                 if (team_point_value >= stat_value)
                 {
                     result = true;
