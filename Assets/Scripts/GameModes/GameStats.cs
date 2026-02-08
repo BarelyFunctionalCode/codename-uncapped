@@ -41,21 +41,23 @@ public class GameStats : MonoBehaviour
      * }}
      *
      */
-    private Dictionary<StatsGroup, Dictionary<int, StatTracker>> points = new Dictionary<StatsGroup, Dictionary<int, StatTracker>>();
+    [SerializeField]
+    private Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> points = new Dictionary<StatsGroup, Dictionary<ulong, StatTracker>>();
     #endregion
 
     #region Private methods
     private void EmitPointsChanged()
     {
+        print("Emitting points changed");
         gameObject.BroadcastMessage("OnPointsChanged", FetchStats());
     }
     #endregion
 
     #region Public Methods
-    public void CheckAddEntry(int id, StatsGroup stat_group_id)
+    public void CheckAddEntry(ulong id, StatsGroup stat_group_id)
     {
-        Dictionary<StatsGroup, Dictionary<int, StatTracker>> points = FetchStats();
-        Dictionary<int, StatTracker> stat_group = points[stat_group_id];
+        Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> points = FetchStats();
+        Dictionary<ulong, StatTracker> stat_group = points[stat_group_id];
 
         if (!stat_group.ContainsKey(id))
         {
@@ -66,9 +68,10 @@ public class GameStats : MonoBehaviour
     // Add to a stat value, check first if that stat has an entry. If not, add a default stat 0.
     public void AddToStat(StatEvent s)
     {
-        Dictionary<StatsGroup, Dictionary<int, StatTracker>> points = FetchStats();
-        Dictionary<int, StatTracker> stat_group;
-        int player_id = s.Source;
+        print("Adding to stat");
+        Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> points = FetchStats();
+        Dictionary<ulong, StatTracker> stat_group;
+        ulong player_id = s.Source;
         string team_name = gameObject.GetComponent<TeamStructure>().GetTeam(player_id);
 
         // Check if player's stats has this stat added yet
@@ -85,15 +88,26 @@ public class GameStats : MonoBehaviour
             int team_index = gameObject.GetComponent<TeamStructure>().GetTeamIndex(team_name);
 
             // Fetch the players' team
-            CheckAddEntry(team_index, StatsGroup.TEAM);
-            StatTracker source_team_stats = stat_group[team_index];
+            CheckAddEntry((ulong)team_index, StatsGroup.TEAM);
+            StatTracker source_team_stats = stat_group[(ulong)team_index];
             source_team_stats.AddToStat(s.StatType, s.Value);
         }
+
+        EmitPointsChanged();
     }
 
-    public Dictionary<StatsGroup, Dictionary<int, StatTracker>> FetchStats()
+    public Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> FetchStats()
     {
          return points;
+    }
+    #endregion
+
+    #region Message Receivers
+    private void Start()
+    {
+        points[StatsGroup.PLAYER] = new Dictionary<ulong, StatTracker>();
+        points[StatsGroup.TEAM] = new Dictionary<ulong, StatTracker>();
+        points[StatsGroup.NONE] = new Dictionary<ulong, StatTracker>();
     }
     #endregion
 }

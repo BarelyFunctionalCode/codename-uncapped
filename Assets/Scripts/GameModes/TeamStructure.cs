@@ -19,7 +19,7 @@ public class TeamStructure : NetworkBehaviour
 
     // Players are assigned here by PlayerHandler, referenced by their instance ID
     // Format: Dictionary[PlayerID, TeamName]
-    public Dictionary<int, string> team_assignment = new Dictionary<int, string>();
+    public Dictionary<ulong, string> team_assignment = new Dictionary<ulong, string>();
 
     // Players may select a new team
     public bool AllowChangeTeams = true;
@@ -33,7 +33,7 @@ public class TeamStructure : NetworkBehaviour
      * can provide Team information to it with `GetTeam()`
     // Check if the acting player is on the enemy team of receiving player.
     // By default, a FFA match has no teams and therefore will always return true.
-    public bool IsEnemies (int acting_player_id, int receiving_player_id)
+    public bool IsEnemies (ulong acting_player_id, ulong receiving_player_id)
     {
         bool result = true;
 
@@ -58,7 +58,7 @@ public class TeamStructure : NetworkBehaviour
     #endregion
 
     #region public methods
-    public string GetTeam (int player_id)
+    public string GetTeam (ulong player_id)
     {
         string result;
         team_assignment.TryGetValue(player_id, out result);
@@ -83,7 +83,7 @@ public class TeamStructure : NetworkBehaviour
     }
 
     // pseudo
-    public void SetPlayerTeam (int player_id, string team)
+    public void SetPlayerTeam (ulong player_id, string team)
     {
         team_assignment[player_id] = team;
         EmitPlayerChangedTeam(new EventArgsPlayerChangedTeam(player_id, team));
@@ -115,10 +115,10 @@ public class TeamStructure : NetworkBehaviour
 
 public class EventArgsPlayerChangedTeam : EventArgs
 {
-    public int      player_id   { get; set; }
+    public ulong      player_id   { get; set; }
     public string   team        {get; set; }
 
-    public EventArgsPlayerChangedTeam(int lPlayerId, string lTeam)
+    public EventArgsPlayerChangedTeam(ulong lPlayerId, string lTeam)
     {
         player_id   = lPlayerId;
         team        = lTeam;

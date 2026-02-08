@@ -31,23 +31,6 @@ public class GameModeHandler : MonoBehaviour
     private WinConditions win_conditions;
     #endregion
 
-    #region Message Callbacks
-    private void Start()
-    {
-        // Init singleton logic
-        if (_instance != null && _instance != this)
-        {
-            Destroy(this.gameObject);
-        }
-
-        else
-        {
-            _instance = this;
-        }
-    }
-    #endregion
-    
-
     #region Private Methods
     // For debugging, artificially increment kill count
     private void FixedUpdate()
@@ -56,17 +39,17 @@ public class GameModeHandler : MonoBehaviour
     }
 
     // Check score against win condition, complete the game if score is met.
-    private bool CheckScore(Dictionary<int, StatTracker> team_points)
+    private void CheckScore(Dictionary<ulong, StatTracker> team_points)
     {
-        bool result = win_conditions.CheckAll(team_points);
-
-        return result;
+        print("Checking score");
+        win_conditions.CheckAll(team_points);
     }
     #endregion
 
     #region Public Methods
     public void StatEventReceiver(StatEvent s)
     {
+        print("Receiving stat event");
         // Stats should only accumulate during active game session.
         if (phase_system.GetCurrentPhase() == Phase.ACTIVE)
         {
@@ -108,7 +91,26 @@ public class GameModeHandler : MonoBehaviour
     #endregion
 
     #region Message Receivers
-    public void OnPhaseChanged(object sender, EventArgsPhaseChanged e)
+    private void Start()
+    {
+        // Init singleton logic
+        if (_instance != null && _instance != this)
+        {
+            Destroy(this.gameObject);
+        }
+
+        else
+        {
+            _instance = this;
+
+            team_structure = gameObject.GetComponent<TeamStructure>();
+            phase_system = gameObject.GetComponent<PhaseSystem>();
+            game_stats = gameObject.GetComponent<GameStats>();
+            win_conditions = gameObject.GetComponent<WinConditions>();
+        }
+    }
+
+    public void OnPhaseChanged(EventArgsPhaseChanged e)
     {
         // if in active session, toggle state booleans appropriately
         switch( e.phase )
@@ -130,16 +132,20 @@ public class GameModeHandler : MonoBehaviour
     // Need to update the EventArgs to make sure its sending player id
     public void OnPlayerJoined(object sender, EventArgs e)
     {
-        int player_id = 0; // e.player_id;
+        ulong player_id = 0; // e.player_id;
 
         game_stats.CheckAddEntry(player_id, StatsGroup.PLAYER);
     }
 
-    public void OnPointsChanged(Dictionary<StatsGroup, Dictionary<int, StatTracker>> points)
+    public void OnPointsChanged(Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> points)
     {
-        Dictionary<int, StatTracker> team_points = points[StatsGroup.TEAM];
+        print("On points changed");
+        CheckScore(points[StatsGroup.TEAM]);
+    }
 
-        CheckScore(team_points);
+    public void OnGameWon()
+    {
+        print("Game won!");
     }
     #endregion
 }

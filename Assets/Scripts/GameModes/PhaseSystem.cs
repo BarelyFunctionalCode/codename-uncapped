@@ -60,6 +60,7 @@ public class PhaseSystem : MonoBehaviour
                 break;
         };
 
+        EnterNewPhase();
         EmitPhaseChanged(new EventArgsPhaseChanged(CurrentPhase));
     }
 
@@ -126,6 +127,8 @@ public class PhaseSystem : MonoBehaviour
                 EndgamePhase();
                 break;
         };
+
+        print("Switching phase: " + CurrentPhase);
     }
 
     private void PreloadPhase()
@@ -137,7 +140,7 @@ public class PhaseSystem : MonoBehaviour
     {
         // Disable all player damage
         // Begin a countdown timer until game starts
-        SetCountdown(30.0f);
+        SetCountdown(1.0f);
         // Enable voting for next map?
     }
 
@@ -151,7 +154,12 @@ public class PhaseSystem : MonoBehaviour
 
     public void Awake()
     {
-        SetCountdown(15.0f);
+        SetCountdown(1.0f);
+    }
+
+    public void OnGameWon()
+    {
+        HardSet(Phase.ENDGAME);
     }
     #endregion
 }

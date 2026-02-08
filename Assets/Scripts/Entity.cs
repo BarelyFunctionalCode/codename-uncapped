@@ -48,16 +48,7 @@ public class Entity : NetworkBehaviour
     public void TakeDamage(float damage, NetworkBehaviourReference attackerRef = default, NetworkBehaviourReference weaponRef = default)
     {
         ApplyhealthDelta(-damage);
-        if (health.Value <= 0) Die();
-
-        attackerRef.TryGet(out PlayerController attacker);
-        weaponRef.TryGet(out Weapon weapon);
-        if (attacker != null && weapon != null)
-        {
-            // TODO: Call stats manager singleton to log damage dealt
-            // StatsManager.Instance.LogDamageDealt(ulong attackerClientId, ulong victimClientId, string weaponName, float damageAmount, bool isFatal);
-            // StatsManager.Instance.LogDamageDealt(attacker.OwnerClientId, OwnerClientId, weapon.Name, damage, health.Value <= 0);
-        }
+        if (health.Value <= 0) Die(attackerRef, weaponRef);
     }
     
     public void ApplyhealthDelta(float amount)
@@ -76,9 +67,21 @@ public class Entity : NetworkBehaviour
         energy.Value = Mathf.Min(energy.Value, maxEnergy);
     }
 
-    private void Die()
+    private void Die(NetworkBehaviourReference attackerRef, NetworkBehaviourReference weaponRef)
     {
         if (!IsServer || isDead.Value) return;
+        attackerRef.TryGet(out PlayerController attacker);
+        weaponRef.TryGet(out Weapon weapon);
+        if (attacker != null && weapon != null)
+        {
+            // TODO: Call stats manager singleton to log damage dealt
+            // StatsManager.Instance.LogDamageDealt(ulong attackerClientId, ulong victimClientId, string weaponName, float damageAmount, bool isFatal);
+            // StatsManager.Instance.LogDamageDealt(attacker.OwnerClientId, OwnerClientId, weapon.Name, damage, health.Value <= 0);
+            print("Sending stat event");
+            GameModeHandler.Instance.StatEventReceiver(new StatEvent(StatEventType.KILL, 1.0f, (ulong)0));
+        }
+
+
         isDead.Value = true;
         OnDie();
         // Destroy(gameObject);

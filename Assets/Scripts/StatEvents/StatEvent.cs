@@ -20,12 +20,12 @@ public class StatEvent
     public float Value;
 
     // Which player caused the event?
-    public int Source;
+    public ulong Source;
 
     // Who received the event?
-    public int? Target;
+    public ulong? Target;
 
-    public StatEvent(StatEventType t, float v, int s)
+    public StatEvent(StatEventType t, float v, ulong s)
     {
         StatType = t;
         Value = v;

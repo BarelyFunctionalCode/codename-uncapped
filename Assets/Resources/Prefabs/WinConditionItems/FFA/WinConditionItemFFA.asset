@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: WinConditionItemFFA
   m_EditorClassIdentifier: Assembly-CSharp::WinConditionItem
   StatType: 1
-  Value: 10
+  Value: 2

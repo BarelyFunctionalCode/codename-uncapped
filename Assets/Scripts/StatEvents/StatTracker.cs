@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class StatTracker
 {
     // id = either Team_ID or Player_ID
-    public int id;
+    public ulong id;
 
     /* Dictionary<StatEventType, int> stats
      * { StatEventType.KILLS:         5,
@@ -15,7 +15,7 @@ public class StatTracker
      */
     public Dictionary<StatEventType, float> stats = new Dictionary<StatEventType, float>{};
 
-    public StatTracker(int p)
+    public StatTracker(ulong p)
     {
         id = p;
     }

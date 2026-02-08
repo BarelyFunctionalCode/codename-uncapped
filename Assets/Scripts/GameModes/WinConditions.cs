@@ -7,8 +7,9 @@ public class WinConditions : MonoBehaviour
 {
     public List<WinConditionItem> win_conditions;
 
-    public bool CheckAll(Dictionary<int, StatTracker> team_points)
+    public void CheckAll(Dictionary<ulong, StatTracker> team_points)
     {
+        print("checking all conditions");
         bool result = false;
 
         // Does any winconditionitem indicate that the game has won?
@@ -17,9 +18,10 @@ public class WinConditions : MonoBehaviour
             StatEventType stat_type = w.GetStatType();
             float stat_value = w.GetStatValue();
 
-            foreach (KeyValuePair<int, StatTracker> t in team_points)
+            foreach (KeyValuePair<ulong, StatTracker> t in team_points)
             {
                 float team_point_value = t.Value.FetchStatValue(stat_type);
+                print("team point value : stat value -- [" + team_point_value + " : " + stat_value + "]");
                 if (team_point_value >= stat_value)
                 {
                     result = true;
@@ -30,12 +32,15 @@ public class WinConditions : MonoBehaviour
             // We already found a winner
             if ( result )
             {
+                EmitGameWon();
                 break;
             }
-
         }
+    }
 
-        return result;
+    public void EmitGameWon()
+    {
+        gameObject.BroadcastMessage("OnGameWon");
     }
 
     // Fetch Stats that are required to win the game
