@@ -28,10 +28,47 @@ public enum Phase
 public class PhaseSystem : MonoBehaviour
 {
     #region Properties
-    // Current phase
-    public Phase CurrentPhase = Phase.PRELOAD;
     [SerializeField]
-    private float Countdown;
+    private Phase _currentphase = Phase.PRELOAD;
+    public Phase CurrentPhase
+    {
+        get => _currentphase;
+        set
+        {
+            _currentphase = value;
+            // Phase duration is set at the same time as we're setting current phase
+            switch ( value )
+            {
+                case Phase.PRELOAD:
+                    SetCountdown(1.0f);
+                    break;
+                case Phase.WARMUP:
+                    SetCountdown(600.0f);
+                    break;
+                case Phase.ACTIVE:
+                    SetCountdown(5.0f);
+                    break;
+                case Phase.ENDGAME:
+                    SetCountdown(1.0f);
+                    break;
+            };
+        }
+    }
+
+    [SerializeField]
+    private float _countdown;
+    private float Countdown
+    {
+        get => _countdown;
+        set
+        {
+            _countdown = value;
+            if (Countdown <= 0)
+            {
+                Step();
+            }
+        }
+    }
     #endregion
 
     #region Public methods
@@ -60,7 +97,6 @@ public class PhaseSystem : MonoBehaviour
                 break;
         };
 
-        EnterNewPhase();
         EmitPhaseChanged(new EventArgsPhaseChanged(CurrentPhase));
     }
 
@@ -80,21 +116,6 @@ public class PhaseSystem : MonoBehaviour
         gameObject.BroadcastMessage("OnPhaseChanged", e);
     }
 
-    private void ActivePhase()
-    {
-        // Enable all player damage
-        // Begin a countdown timer until game ends
-        SetCountdown(600.0f);
-        // Signal to load players to spawn points
-    }
-
-    private void EndgamePhase()
-    {
-        // Disable all player damage
-        // Begin a countdown timer until next warmup phase
-        SetCountdown(30.0f);
-    }
-
     private float GetCountdown()
     {
         return Countdown;
@@ -102,48 +123,8 @@ public class PhaseSystem : MonoBehaviour
 
     private void SetCountdown(float f)
     {
-        Countdown = f;
-        if (Countdown <= 0)
-        {
-            Step();
-        }
 
     }
-
-    private void EnterNewPhase()
-    {
-        switch(CurrentPhase )
-        {
-            case Phase.PRELOAD:
-                PreloadPhase();
-                break;
-            case Phase.WARMUP:
-                WarmupPhase();
-                break;
-            case Phase.ACTIVE:
-                ActivePhase();
-                break;
-            case Phase.ENDGAME:
-                EndgamePhase();
-                break;
-        };
-
-        print("Switching phase: " + CurrentPhase);
-    }
-
-    private void PreloadPhase()
-    {
-        // Nothing is needed here, its only purpose is to be an empty step before WARMUP
-    }
-
-    private void WarmupPhase()
-    {
-        // Disable all player damage
-        // Begin a countdown timer until game starts
-        SetCountdown(1.0f);
-        // Enable voting for next map?
-    }
-
     #endregion
     
     #region Message Receivers

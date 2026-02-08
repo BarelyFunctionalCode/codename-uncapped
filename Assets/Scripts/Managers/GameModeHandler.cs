@@ -31,6 +31,11 @@ public class GameModeHandler : MonoBehaviour
     private WinConditions win_conditions;
     #endregion
 
+    #region Gamemode prefab cache
+    [SerializeField]
+    public List<GameObject> game_mode_cache;
+    #endregion
+
     #region Private Methods
     // For debugging, artificially increment kill count
     private void FixedUpdate()
@@ -61,7 +66,7 @@ public class GameModeHandler : MonoBehaviour
     public void StartGame()
     {
         team_structure.WipeTeams();
-        phase_system.Step();
+        phase_system.HardSet(Phase.PRELOAD);
     }
 
     // And to end a game mode session. Begin all cleanup, unloading operations.
@@ -73,20 +78,37 @@ public class GameModeHandler : MonoBehaviour
     // Game mode can be selected at any time. player voting, admin selection, in-game host selection should all call from here.
     public void SelectNewMode(GameObject g)
     {
-        // CurrentGameMode?.EndSession();
-    	// CurrentGameMode = g;
+        if (g.TryGetComponent<TeamStructure>(out TeamStructure c))
+        {
+            TeamStructure old_component = gameObject.GetComponent<TeamStructure>();
+            Destroy(old_component);
+            gameObject.AddComponent(Instantiate(c));
+            team_structure = c;
+        }
 
+        if (g.TryGetComponent<PhaseSystem>(out PhaseSystem c))
+        {
+            PhaseSystem old_component = gameObject.GetComponent<PhaseSystem>();
+            Destroy(old_component);
+            gameObject.AddComponent(Instantiate(c));
+            phase_system = c;
+        }
 
-        /*
-         / /* Cache references
-         team_structure  = gameObject.GetComponent<TeamStructure>();
-         phase_system    = gameObject.GetComponent<PhaseSystem>();
-         game_stats      = gameObject.GetComponent<GameStats>();
-         win_conditions  = gameObject.GetComponent<WinConditions>();
+        if (g.TryGetComponent<GameStats>(out GameStats c))
+        {
+            GameStats old_component = gameObject.GetComponent<GameStats>();
+            Destroy(old_component);
+            gameObject.AddComponent(Instantiate(c));
+            game_stats = c;
+        }
 
-         // Connect signals
-         phase_system.PhaseChanged += OnPhaseChanged;
-         */
+        if (g.TryGetComponent<WinConditions>(out WinConditions c))
+        {
+            WinConditions old_component = gameObject.GetComponent<WinConditions>();
+            Destroy(old_component);
+            gameObject.AddComponent(Instantiate(c));
+            win_conditions = c;
+        }
     }
     #endregion
 
@@ -102,11 +124,6 @@ public class GameModeHandler : MonoBehaviour
         else
         {
             _instance = this;
-
-            team_structure = gameObject.GetComponent<TeamStructure>();
-            phase_system = gameObject.GetComponent<PhaseSystem>();
-            game_stats = gameObject.GetComponent<GameStats>();
-            win_conditions = gameObject.GetComponent<WinConditions>();
         }
     }
 

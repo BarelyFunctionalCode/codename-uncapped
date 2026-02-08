@@ -11,10 +11,6 @@ GameObject:
   - component: {fileID: 8603225059801169389}
   - component: {fileID: 1556409527600758557}
   - component: {fileID: 711270743045365591}
-  - component: {fileID: -5158174419014608742}
-  - component: {fileID: 4634236084034367672}
-  - component: {fileID: 7964905360402459429}
-  - component: {fileID: 3221533794978691938}
   m_Layer: 0
   m_Name: GameModeHandler
   m_TagString: Untagged
@@ -74,57 +70,3 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &-5158174419014608742
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2640576069660163739}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bec41120e10c6a067a4f070788d8e604, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TeamStructure
-  ShowTopMostFoldoutHeaderGroup: 1
-  AllowChangeTeams: 1
-  ForceCaptainChangeTeams: 0
---- !u!114 &4634236084034367672
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2640576069660163739}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 63c963ea24eb59b62b63eec99471067e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PhaseSystem
-  CurrentPhase: 0
-  Countdown: 0
---- !u!114 &7964905360402459429
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2640576069660163739}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 305fc0a2ed26f0d56a83f58b90f2b761, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameStats
---- !u!114 &3221533794978691938
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2640576069660163739}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c3aac6f8dbf7fd87da298e3307a69965, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WinConditions
-  win_conditions: []
