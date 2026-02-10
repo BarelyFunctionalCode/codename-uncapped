@@ -48,7 +48,6 @@ public class GameStats : MonoBehaviour
     #region Private methods
     private void EmitPointsChanged()
     {
-        print("Emitting points changed");
         gameObject.BroadcastMessage("OnPointsChanged", FetchStats());
     }
     #endregion
@@ -68,7 +67,6 @@ public class GameStats : MonoBehaviour
     // Add to a stat value, check first if that stat has an entry. If not, add a default stat 0.
     public void AddToStat(StatEvent s)
     {
-        print("Adding to stat");
         Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> points = FetchStats();
         Dictionary<ulong, StatTracker> stat_group;
         ulong player_id = s.Source;
