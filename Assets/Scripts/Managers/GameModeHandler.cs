@@ -32,9 +32,9 @@ public class GameModeHandler : MonoBehaviour
     #region Gamemode prefab cache
     // Pseudo
     [SerializeField]
-    public IReadOnlyDictionary<GameModes, GameObject> game_mode_cache = new Dictionary<GameModes, GameObject>()
+    public IReadOnlyDictionary<GameModes, int> game_mode_cache = new Dictionary<GameModes, int>()
     {
-        { GameModes.FFA, GameObject }
+        { GameModes.FFA, 0 }
     };
 
     #endregion
@@ -47,14 +47,15 @@ public class GameModeHandler : MonoBehaviour
     }
     
     // Game mode can be selected at any time. player voting, admin selection, in-game host selection should all call from here.
-    public void SelectNewMode(GamesModes g)
+    // Psuedo
+    public void SelectNewMode(GameModes g)
     {
         // Delete the current one
         Destroy(current_game_mode);
 
         // Fetch the new one and assign it
-        GameObject game_mode = game_mode_cache.TryGet(g);
-        current_game_mode = game_mode.Instantiate();
+        int game_mode = game_mode_cache[g];
+        //current_game_mode = game_mode.Instantiate();
     }
     #endregion
 
