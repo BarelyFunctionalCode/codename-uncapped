@@ -13,6 +13,18 @@ public class Dummy : Entity
         material = GetComponent<MeshRenderer>().materials[0];
     }
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        // if (IsLocalPlayer && EntityIdentifierManager.Instance != null) EntityIdentifierManager.Instance.RegisterEntity(this);
+    }
+
+    private void Start()
+    {
+        EntityIdentifierManager.Instance.RegisterEntity(this);    
+    }
+
     // Update is called once per frame
     protected override void Update()
     {
