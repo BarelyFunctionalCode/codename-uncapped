@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Dummy : Entity
@@ -7,6 +5,8 @@ public class Dummy : Entity
     private Material material;
 
     [SerializeField] private GameObject explodeParticleObj;
+
+    private bool setupDone = false;
 
     private void Awake()
     {
@@ -16,19 +16,24 @@ public class Dummy : Entity
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-
-        // if (IsLocalPlayer && EntityIdentifierManager.Instance != null) EntityIdentifierManager.Instance.RegisterEntity(this);
     }
 
-    private void Start()
+    private void Setup()
     {
-        EntityIdentifierManager.Instance.RegisterEntity(this);    
+        if (setupDone) return;
+
+        if (EntityIdentifierManager.Instance == null) return;
+        EntityIdentifierManager.Instance.RegisterEntity(this);
+
+        setupDone = true;
     }
 
     // Update is called once per frame
     protected override void Update()
     {
         base.Update();
+
+        Setup();
 
         material.color = Color.Lerp(Color.green, Color.red, 1.0f - GetHealthPercentage());
     }
