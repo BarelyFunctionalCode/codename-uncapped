@@ -417,18 +417,18 @@ TextureImporter:
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":true,"gridCellCount":{"x":4.0,"y":4.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      EntityIdentifier_0: -1881509287
-      EntityIdentifier_1: -309513421
-      EntityIdentifier_10: -733191281
-      EntityIdentifier_11: -982322916
-      EntityIdentifier_2: 1224543714
-      EntityIdentifier_3: -32528110
-      EntityIdentifier_4: -1537487078
-      EntityIdentifier_5: 953131907
-      EntityIdentifier_6: -1335841694
-      EntityIdentifier_7: 453905370
-      EntityIdentifier_8: 631143729
-      EntityIdentifier_9: -554883764
+      EntityIdentifier_0: 149357714
+      EntityIdentifier_1: -1570217532
+      EntityIdentifier_10: -1259105644
+      EntityIdentifier_11: 1434114220
+      EntityIdentifier_2: 476883607
+      EntityIdentifier_3: -545352541
+      EntityIdentifier_4: -1350646058
+      EntityIdentifier_5: 193273770
+      EntityIdentifier_6: 1487068327
+      EntityIdentifier_7: 1050533593
+      EntityIdentifier_8: -245177260
+      EntityIdentifier_9: 1490115679
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

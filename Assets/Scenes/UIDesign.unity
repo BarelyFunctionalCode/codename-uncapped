@@ -2085,7 +2085,7 @@ Transform:
   m_GameObject: {fileID: 1980856316}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1720, y: 0, z: -0.7}
+  m_LocalPosition: {x: 1749, y: 0, z: 40}
   m_LocalScale: {x: 1, y: 3.3852, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2131,11 +2131,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Dummy
   ShowTopMostFoldoutHeaderGroup: 1
-  identifier: 
-  teamId: 0
+  identifier: Cock Rock
+  teamId: 3
   health:
     m_InternalValue: 0
-  maxHealth: 0
+  maxHealth: 5
   energy:
     m_InternalValue: 0
   maxEnergy: 0

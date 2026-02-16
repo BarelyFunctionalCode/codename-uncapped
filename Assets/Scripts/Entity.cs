@@ -44,7 +44,7 @@ public class Entity : NetworkBehaviour
     public string GetIdentifier()       { return identifier; }
     public uint GetTeamId()			    { return teamId; }
     public float GetHealth()		    { return health.Value; }
-    public float GetHealthPercentage()	{ return health.Value / maxHealth; }
+    public float GetHealthPercentage()	{ return maxHealth > 0f ? health.Value / maxHealth : 0f; }
     public bool GetIsGrounded() 	    { return isGrounded; }
     #endregion
     
