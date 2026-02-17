@@ -15,8 +15,6 @@ public enum GameModes
 // GameModes will handle beginning/ending their own game session
 // through PhaseSystem, once it has begun.
 public class GameModeHandler : MonoBehaviour
-    where T: StatEvent<U>
-    where U: struct
 {
 
 
@@ -43,7 +41,7 @@ public class GameModeHandler : MonoBehaviour
 
 
     #region Public Methods
-    public void StatEventReceiver<T>(T s)
+    public void StatEventReceiver(StatEvent s)
     {
         current_game_mode.StatEventReceiver(s);
     }
