@@ -2,7 +2,8 @@ using System;
 using System.Collections.Generic;
 
 
-public class StatTracker
+public class StatTracker<T>
+    where T : struct
 {
     // id = either Team_ID or Player_ID
     public ulong id;
@@ -15,13 +16,14 @@ public class StatTracker
      */
     public Dictionary<StatEventType, float> stats = new Dictionary<StatEventType, float>{};
 
-    public StatTracker(ulong p)
+    public StatTracker<T>(ulong p)
     {
         id = p;
     }
 
     // Add to a stat value, check first if that stat has an entry. If not, add a default stat 0.
-    public void AddToStat(StatEventType s, float v)
+    public void AddToStat<V>(StatEventType s, V v)
+        where V : T
     {
         if (!stats.ContainsKey(s))
         {

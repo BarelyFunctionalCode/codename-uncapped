@@ -29,8 +29,9 @@ public enum StatsGroup
  *      - GameStat
 */
 
-
-public class GameStats : MonoBehaviour
+public class GameStats<T, U> : MonoBehaviour
+    where T : StatEvent<U>
+    where U : struct
 {
     #region Properties
     /*  Point tracking for teams & players
@@ -65,7 +66,9 @@ public class GameStats : MonoBehaviour
     }
 
     // Add to a stat value, check first if that stat has an entry. If not, add a default stat 0.
-    public void AddToStat(StatEvent s)
+    public void AddToStat<T, U>(T s)
+        where T : StatEvent<U>
+        where U : struct
     {
         Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> points = FetchStats();
         Dictionary<ulong, StatTracker> stat_group;
@@ -76,7 +79,7 @@ public class GameStats : MonoBehaviour
         stat_group = points[StatsGroup.PLAYER];
         CheckAddEntry(player_id, StatsGroup.PLAYER);
         // Add to the players' stats
-        stat_group[player_id].AddToStat(s.StatType, s.Value);
+        stat_group[player_id].AddToStat<U>(s.StatType, s.FetchInnerValue());
 
         // Then add to the teams' stats ONLY IF the stat is being tracked by winconditions
         List<StatEventType> win_condition_stats = gameObject.GetComponent<WinConditions>().GetWinConditionStats();

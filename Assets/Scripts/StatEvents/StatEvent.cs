@@ -11,13 +11,13 @@ public enum StatEventType
     FLAG_HELD,
 }
 
-public class StatEvent
+public class StatEvent<T> : struct
 {
     // What kind of event happened?
     public StatEventType StatType;
 
     // What is the value of the event?
-    public float Value;
+    private T Value;
 
     // Which player caused the event?
     public ulong Source;
@@ -25,10 +25,15 @@ public class StatEvent
     // Who received the event?
     public ulong? Target;
 
-    public StatEvent(StatEventType t, float v, ulong s)
+    public StatEvent(StatEventType t, T v, ulong s)
     {
         StatType = t;
         Value = v;
         Source = s;
+    }
+
+    public T FetchInnerValue()
+    {
+        return Value;
     }
 }

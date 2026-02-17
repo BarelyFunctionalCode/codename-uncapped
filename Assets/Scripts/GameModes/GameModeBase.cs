@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 
 public class GameModeBase : MonoBehaviour
+    where T: StatEvent<U>
+    where U: struct
 {
     #region Component references
     private GameModeBase  game_mode_base;
@@ -20,7 +22,7 @@ public class GameModeBase : MonoBehaviour
     #endregion
 
     #region Public Methods
-    public void StatEventReceiver(StatEvent s)
+    public void StatEventReceiver<T>(T s)
     {
         // Stats should only accumulate during active game session.
         if (phase_system.GetCurrentPhase() == Phase.ACTIVE)
