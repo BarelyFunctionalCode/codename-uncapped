@@ -1,12 +1,10 @@
 using UnityEngine;
 
-public class Dummy : Entity
+public class Dummy : Entity, IIdentifiable
 {
     private Material material;
 
     [SerializeField] private GameObject explodeParticleObj;
-
-    private bool setupDone = false;
 
     private void Awake()
     {
@@ -18,22 +16,10 @@ public class Dummy : Entity
         base.OnNetworkSpawn();
     }
 
-    private void Setup()
-    {
-        if (setupDone) return;
-
-        if (EntityIdentifierManager.Instance == null) return;
-        EntityIdentifierManager.Instance.RegisterEntity(this);
-
-        setupDone = true;
-    }
-
     // Update is called once per frame
     protected override void Update()
     {
         base.Update();
-
-        Setup();
 
         material.color = Color.Lerp(Color.green, Color.red, 1.0f - GetHealthPercentage());
     }
@@ -42,5 +28,15 @@ public class Dummy : Entity
     {
         explodeParticleObj.transform.parent = null;
         explodeParticleObj.SetActive(true);
+    }
+
+    public IdentifierData GetIdentifierData()
+    {
+        return new IdentifierData
+        {
+            color = IdentifierManager.TempTeamColors[GetTeamId()],
+            topText = GetIdentifier(),
+            bottomText = $"{Mathf.CeilToInt(GetHealthPercentage() * 100f)}%"
+        };
     }
 }

@@ -152,10 +152,17 @@ public class ThrowableManager : NetworkBehaviour
     {
         if (!IsServer || !canThrow || !startedThrow) return;
 
-        GameObject throwableObj = Instantiate(throwablePrefabObj, transform.position + transform.forward, transform.rotation);
-        NetworkObject networkObj = throwableObj.GetComponent<NetworkObject>();
-        networkObj.Spawn(true);
-        networkObj.TrySetParent(transform.GetComponentInParent<NetworkObject>());
+        GameObject throwableObj = SpawnManager.Spawn(
+            throwablePrefabObj,
+            true,
+            transform.position + transform.forward,
+            transform.rotation,
+            transform
+        );
+        // GameObject throwableObj = Instantiate(throwablePrefabObj, transform.position + transform.forward, transform.rotation);
+        // NetworkObject networkObj = throwableObj.GetComponent<NetworkObject>();
+        // networkObj.Spawn(true);
+        // networkObj.TrySetParent(transform.GetComponentInParent<NetworkObject>());
         throwableObj.GetComponent<Throwable>().Throw(playerRef.Value, throwForceFactor.Value);
         ammoCount.Value--;
         canThrow = false;

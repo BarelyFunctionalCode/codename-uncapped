@@ -161,10 +161,17 @@ public class Weapon : NetworkBehaviour
         if (!IsServer || !canFire) return;
         if (currentProjectile == null)
         {
-            GameObject newProjectileObj = Instantiate(projectilePrefabObj, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
-            NetworkObject networkObj = newProjectileObj.GetComponent<NetworkObject>();
-            networkObj.Spawn(true);
-            networkObj.TrySetParent(projectileSpawnPoint.GetComponentInParent<NetworkObject>());
+            GameObject newProjectileObj = SpawnManager.Spawn(
+                projectilePrefabObj,
+                true,
+                projectileSpawnPoint.position,
+                projectileSpawnPoint.rotation,
+                projectileSpawnPoint
+            );
+            // GameObject newProjectileObj = Instantiate(projectilePrefabObj, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
+            // NetworkObject networkObj = newProjectileObj.GetComponent<NetworkObject>();
+            // networkObj.Spawn(true);
+            // networkObj.TrySetParent(projectileSpawnPoint.GetComponentInParent<NetworkObject>());
             currentProjectile = newProjectileObj.GetComponent<Projectile>();
             currentProjectile.Fire(playerRef.Value, this, damage);
         }

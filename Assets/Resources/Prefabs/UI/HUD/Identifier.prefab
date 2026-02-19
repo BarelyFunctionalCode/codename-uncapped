@@ -87,7 +87,7 @@ GameObject:
   - component: {fileID: 4013630414735205823}
   - component: {fileID: 3547154679342048902}
   m_Layer: 5
-  m_Name: Health
+  m_Name: BottomText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -224,7 +224,7 @@ GameObject:
   - component: {fileID: 7943668204989702993}
   - component: {fileID: 4812535573050622554}
   m_Layer: 5
-  m_Name: Identifier
+  m_Name: TopText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -362,7 +362,7 @@ GameObject:
   - component: {fileID: 7151798794826638893}
   - component: {fileID: 881094938000368606}
   m_Layer: 5
-  m_Name: EntityIdentifier
+  m_Name: Identifier
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -387,7 +387,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -14.71109, y: -9.629089}
+  m_AnchoredPosition: {x: -14.71106, y: -9.629089}
   m_SizeDelta: {x: 170.5778, y: 180.7419}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2136924278770637783
@@ -440,7 +440,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c108be7b351f8d078a46e299d1411979, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EntityIdentifierUI
-  identifierText: {fileID: 4812535573050622554}
-  healthText: {fileID: 3547154679342048902}
+  identifierTopText: {fileID: 4812535573050622554}
+  identifierBottomText: {fileID: 3547154679342048902}
   mainIndicator: {fileID: 7151798794826638893}
   offscreenIndicator: {fileID: 9083716242882522365}
