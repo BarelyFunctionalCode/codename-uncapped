@@ -444,3 +444,7 @@ MonoBehaviour:
   identifierBottomText: {fileID: 3547154679342048902}
   mainIndicator: {fileID: 7151798794826638893}
   offscreenIndicator: {fileID: 9083716242882522365}
+  raycastLayerMask:
+    serializedVersion: 2
+    m_Bits: 256
+  identifiableObject: {fileID: 0}

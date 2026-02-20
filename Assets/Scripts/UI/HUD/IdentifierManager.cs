@@ -7,6 +7,7 @@ public struct IdentifierData
     public Color color;
     public string topText;
     public string bottomText;
+    public bool isActive;
 }
 
 public interface IIdentifiable
@@ -63,7 +64,7 @@ public class IdentifierManager : MonoBehaviour
         SceneManager.activeSceneChanged += (_, _) => RegisterSweep();
         SpawnManager.objectSpawnedEvent.AddListener(obj =>
         {
-            if (obj.TryGetComponent<IIdentifiable>(out var identifiable)) RegisterEntity(identifiable);
+            if (obj.TryGetComponent<IIdentifiable>(out var identifiable)) RegisterIdentifier(identifiable);
         });
     }
 
@@ -72,11 +73,11 @@ public class IdentifierManager : MonoBehaviour
         GameObject[] existingIdentifiables = FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         foreach (GameObject obj in existingIdentifiables)
         {
-            if (obj.TryGetComponent<IIdentifiable>(out var identifiable)) RegisterEntity(identifiable);
+            if (obj.TryGetComponent<IIdentifiable>(out var identifiable)) RegisterIdentifier(identifiable);
         }
     }
 
-    public void RegisterEntity(IIdentifiable identifiable)
+    public void RegisterIdentifier(IIdentifiable identifiable)
     {
         if (activeIdentifiers.Exists(identifier => identifier.identifiable == identifiable)) return;
 
@@ -87,7 +88,7 @@ public class IdentifierManager : MonoBehaviour
         activeIdentifiers.Add(identifierUI);
     }
 
-    public void UnregisterEntity(IIdentifiable identifiable)
+    public void UnregisterIdentifier(IIdentifiable identifiable)
     {
         IdentifierUI identifierToRemove = activeIdentifiers.Find(identifier => identifier.identifiable == identifiable);
         if (identifierToRemove != null)

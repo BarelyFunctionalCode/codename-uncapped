@@ -1,3 +1,4 @@
+using Unity.Netcode;
 using UnityEngine;
 
 public class Dummy : Entity, IIdentifiable
@@ -26,8 +27,26 @@ public class Dummy : Entity, IIdentifiable
 
     protected override void OnDie()
     {
-        explodeParticleObj.transform.parent = null;
+        OnDieRPC();
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void OnDieRPC()
+    {
+        GetComponent<MeshRenderer>().enabled = false;
         explodeParticleObj.SetActive(true);
+    }
+
+    protected override void OnRespawn()
+    {
+        OnRespawnRPC();
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void OnRespawnRPC()
+    {
+        GetComponent<MeshRenderer>().enabled = true;
+        explodeParticleObj.SetActive(false);
     }
 
     public IdentifierData GetIdentifierData()
@@ -36,7 +55,8 @@ public class Dummy : Entity, IIdentifiable
         {
             color = IdentifierManager.TempTeamColors[GetTeamId()],
             topText = GetIdentifier(),
-            bottomText = $"{Mathf.CeilToInt(GetHealthPercentage() * 100f)}%"
+            bottomText = $"{Mathf.CeilToInt(GetHealthPercentage() * 100f)}%",
+            isActive = GetHealth() > 0
         };
     }
 }

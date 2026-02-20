@@ -183,10 +183,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  health: 0
+  identifier: 
+  teamId: 0
+  health:
+    m_InternalValue: 0
   maxHealth: 0
-  energy: 0
+  energy:
+    m_InternalValue: 0
   maxEnergy: 0
+  energyRegenRate: 0
   energyRegenFactor: 1
   explodeParticleObj: {fileID: 4263086704108371467}
 --- !u!114 &7800112957262979857
@@ -295,7 +300,7 @@ ParticleSystem:
   serializedVersion: 8
   lengthInSec: 0.3
   simulationSpeed: 1
-  stopAction: 2
+  stopAction: 0
   cullingMode: 0
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}

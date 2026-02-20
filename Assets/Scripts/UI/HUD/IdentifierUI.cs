@@ -64,6 +64,11 @@ public class IdentifierUI : MonoBehaviour
         
         Transform objectTransform = identifiableObject.transform;
         IdentifierData identifierData = identifiable.GetIdentifierData();
+        if (!identifierData.isActive)
+        {
+            if (isEnabled) FullReset(identifierData.color);
+            return;
+        }
 
         // Basic screen and object information
         Vector3 screenCenter = new(Screen.width / 2f, Screen.height / 2f, 0f);
@@ -71,7 +76,7 @@ public class IdentifierUI : MonoBehaviour
         Vector3 objectDirectionToCamera = (Camera.main.transform.position - objectTransform.position).normalized;
         float distanceToObject = Vector3.Distance(Camera.main.transform.position, objectTransform.position);
 
-        if (!isEnabled)
+        if (!isEnabled && identifierData.isActive)
         {
             // Check if the object is in front of the camera
             if (Vector3.Dot(objectDirectionToCamera, Camera.main.transform.forward) > 0)
@@ -264,7 +269,7 @@ public class IdentifierUI : MonoBehaviour
 
         // Perform a raycast to check if there are any obstacles between the camera and the object
         Ray ray = new(Camera.main.transform.position, (objectTransform.position - Camera.main.transform.position).normalized);
-        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity))
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
         {
             isVisible = hit.collider.gameObject == identifiableObject || hit.collider.gameObject.transform.IsChildOf(identifiableObject.transform);
         }
