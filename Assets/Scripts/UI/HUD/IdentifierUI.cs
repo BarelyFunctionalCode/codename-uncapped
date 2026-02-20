@@ -118,6 +118,7 @@ public class IdentifierUI : MonoBehaviour
         {
             // On Screen
             // Check if the object is visible at a given interval
+            // TODO: Possible performance issues
             ObjectVisibilityCheckTimer += Time.deltaTime;
             if (ObjectVisibilityCheckTimer >= ObjectVisibilityCheckInterval)
             {
