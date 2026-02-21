@@ -10,18 +10,13 @@ public class GrenadeLauncher : Weapon
     [SerializeField] private float shellEjectForce = 200;
     [SerializeField] private float shellSpinForce = 1000;
     [SerializeField] private Animator animator;
-    [SerializeField] private ParticleSystem[] ejectParticles;
 
     protected override void PostFiredRpc()
     {
-        foreach (ParticleSystem system in ejectParticles)
-        {
-            system.Play();
-        }
-
-        if (IsServer && animator != null) animator.SetTrigger("Eject");
+        if (IsServer && animator != null) animator.SetTrigger("Shoot");
     }
 
+    // This is called by an animation event
     private void EjectShell()
     {
         if (!IsServer) return;
