@@ -8,6 +8,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 6503820929209365369, guid: 3fa16d938dcaf43da8ffee5ad932a77b, type: 3}
+      propertyPath: RotAngleThreshold
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 6955372432089693387, guid: 3fa16d938dcaf43da8ffee5ad932a77b, type: 3}
       propertyPath: m_Name
       value: Outrider
