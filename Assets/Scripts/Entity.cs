@@ -1,7 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
 
-public class Entity : NetworkBehaviour
+public class Entity : NetworkBehaviour, IDamageable
 {
     private const float groundEnergyRegenRate = 12.5f;
     
