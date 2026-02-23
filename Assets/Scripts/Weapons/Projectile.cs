@@ -2,13 +2,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using Unity.Netcode.Components;
+using System.Linq;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(NetworkRigidbody))]
+[RequireComponent(typeof(AudioSource))]
 public class Projectile : NetworkBehaviour
 {
     [SerializeField] private SphereCollider projectileCollider;
     [SerializeField] protected CapsuleCollider damageRadiusTrigger;
+    [SerializeField] protected AudioClip impactSound;
+    [SerializeField] [Range(0, 1000)] private float soundMinDistance = 100;
+    [SerializeField] [Range(0, 1000)] private float soundMaxDistance = 1000;
     [SerializeField] protected GameObject firedParticleObj;
     [SerializeField] private GameObject impactParticleObj;
     [SerializeField] private Material firedMaterial;
@@ -23,17 +28,29 @@ public class Projectile : NetworkBehaviour
     protected NetworkBehaviourReference ownerRef;
     protected NetworkBehaviourReference weaponRef;
     protected Rigidbody rb;
+    protected AudioSource audioSource;
     private Vector3 previousPosition;
     private List<Collider> damagedReceivers = new();
     protected float maxDamage;
 
     public bool isFired = false;
+    private bool hasImpacted = false;
 
     protected virtual void Awake()
     {
         rb = GetComponent<Rigidbody>();
         previousPosition = rb.position;
         if (damageRadiusTrigger != null) damageRadiusTrigger.radius = damageRadius * 2;
+    }
+
+    public sealed override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        audioSource = GetComponent<AudioSource>();
+        audioSource.spatialBlend = 1;
+        audioSource.minDistance = soundMinDistance;
+        audioSource.maxDistance = soundMaxDistance;
     }
 
     protected virtual void FixedUpdate()
@@ -95,7 +112,7 @@ public class Projectile : NetworkBehaviour
         this.weaponRef = weaponRef;
         this.maxDamage = maxDamage;
 
-        Vector3 intialVelocity = Vector3.Dot(transform.parent.GetComponentInParent<Rigidbody>().linearVelocity, transform.forward) * transform.forward;
+        Vector3 intialVelocity = Vector3.Project(transform.parent.GetComponentInParent<Rigidbody>().linearVelocity, transform.forward);
 
         NetworkObject.TryRemoveParent();
         rb.isKinematic = false;
@@ -123,7 +140,10 @@ public class Projectile : NetworkBehaviour
     }
 
     private void Impact(Collider directImpactCollider = null) {
-        if (!IsServer) return;
+        if (!IsServer || hasImpacted) return;
+        hasImpacted = true;
+        
+        GetComponentsInChildren<Collider>(true).ToList().ForEach(c => c.enabled = false);
 
         ImpactRpc();
 
@@ -154,16 +174,20 @@ public class Projectile : NetworkBehaviour
             );
         }
 
-        Destroy(gameObject);
+        Destroy(gameObject, impactSound != null ? impactSound.length : 0);
     }
     [Rpc(SendTo.Everyone)]
     private void ImpactRpc()
     {
+        GetComponentsInChildren<MeshRenderer>(true).ToList().ForEach(r => r.enabled = false);
+
         if (impactParticleObj != null)
         {
             impactParticleObj.transform.parent = null;
             impactParticleObj.SetActive(true);
         }
+        if (impactSound != null) audioSource.PlayOneShot(impactSound);
+
         if (firedParticleObj != null)
         {
             Vector3 firedParticlesScale = firedParticleObj.transform.localScale;
