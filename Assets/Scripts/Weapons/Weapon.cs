@@ -4,6 +4,7 @@ using Unity.Netcode;
 using Unity.Netcode.Components;
 
 [RequireComponent(typeof(NetworkTransform))]
+[RequireComponent(typeof(AudioSource))]
 public class Weapon : NetworkBehaviour
 {
     public static List<string> interactionTags = new() { "Terrain", "Player", "Throwable" };
@@ -12,6 +13,7 @@ public class Weapon : NetworkBehaviour
     [SerializeField] private GameObject modelObj;
     [SerializeField] private GameObject projectilePrefabObj;
     [SerializeField] private Sprite reticleSprite;
+    [SerializeField] protected AudioClip fireSound;
     [SerializeField] private WeaponUI weaponUI;
     
     [Header("Attributes")]
@@ -26,7 +28,7 @@ public class Weapon : NetworkBehaviour
     [SerializeField] private bool canFire = true;
 
     private Projectile currentProjectile;
-    
+    protected AudioSource audioSource;
     protected Camera playerCamera;
 
     protected NetworkObject originalParentNetworkObject;
@@ -37,11 +39,14 @@ public class Weapon : NetworkBehaviour
     private NetworkVariable<float> fireRateTimer = new();
     private bool isInitialized = false;
 
+
     public sealed override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
         if (isInitialized) return;
+        audioSource = GetComponent<AudioSource>();
+        audioSource.spatialBlend = 1;
 
         if (IsServer)
         {
@@ -89,7 +94,7 @@ public class Weapon : NetworkBehaviour
     [Rpc(SendTo.Server)]
     private void WeaponLookRpc(Vector3 lookPosition)
     {
-        transform.LookAt(lookPosition);
+        projectileSpawnPoint.LookAt(lookPosition);
     }
 
     public void Initialize(PlayerController playerController)
@@ -167,6 +172,8 @@ public class Weapon : NetworkBehaviour
             networkObj.TrySetParent(projectileSpawnPoint.GetComponentInParent<NetworkObject>());
             currentProjectile = newProjectileObj.GetComponent<Projectile>();
             currentProjectile.Fire(playerRef.Value, this, damage);
+            FireRpc();
+            PostFiredRpc();
         }
         if (currentProjectile.hasHoldModifier)
         {
@@ -178,6 +185,15 @@ public class Weapon : NetworkBehaviour
         ammoCount.Value--;
         canFire = false;
     }
+
+    [Rpc(SendTo.Everyone)]
+    protected void FireRpc()
+    {
+        if (fireSound != null) audioSource.PlayOneShot(fireSound);
+    }
+
+    [Rpc(SendTo.Everyone)]
+    protected virtual void PostFiredRpc() { }
 
     protected virtual void DoHoldModifierStart(Projectile currentProjectile) { }
 

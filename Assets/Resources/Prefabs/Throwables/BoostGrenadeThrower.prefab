@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5469594561667563519}
-  - component: {fileID: -8738069336166917102}
+  - component: {fileID: 3990362075455226996}
   m_Layer: 0
   m_Name: BoostGrenadeThrower
   m_TagString: Untagged
@@ -30,11 +30,11 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2333322489073512170}
+  - {fileID: 6203068389122202638}
   - {fileID: 6094598168877481428}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &-8738069336166917102
+--- !u!114 &3990362075455226996
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1590503307
+  GlobalObjectIdHash: 524243888
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -59,7 +59,7 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!1 &8488066994402648025
+--- !u!1 &8574069863234011055
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -67,9 +67,9 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 2333322489073512170}
-  - component: {fileID: 7204092459473172917}
-  - component: {fileID: 8824354476088492330}
+  - component: {fileID: 6203068389122202638}
+  - component: {fileID: 3888271954074026447}
+  - component: {fileID: 4811201367111635685}
   m_Layer: 0
   m_Name: BoostGrenadeThrower
   m_TagString: Untagged
@@ -77,13 +77,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &2333322489073512170
+--- !u!4 &6203068389122202638
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8488066994402648025}
+  m_GameObject: {fileID: 8574069863234011055}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -92,13 +92,13 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5469594561667563519}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7204092459473172917
+--- !u!114 &3888271954074026447
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8488066994402648025}
+  m_GameObject: {fileID: 8574069863234011055}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cccd5585ada5fd34e81799f37c45e839, type: 3}
@@ -107,16 +107,16 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   ignoreLayers:
     serializedVersion: 2
-    m_Bits: 840
+    m_Bits: 776
   throwablePrefabObj: {fileID: 8182502780126453879, guid: 76389706857f1da4d8fe12645b8e07c9, type: 3}
   throwableUI: {fileID: 5812049836053744672}
---- !u!114 &8824354476088492330
+--- !u!114 &4811201367111635685
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8488066994402648025}
+  m_GameObject: {fileID: 8574069863234011055}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
