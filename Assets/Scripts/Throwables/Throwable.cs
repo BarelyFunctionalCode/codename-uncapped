@@ -80,7 +80,13 @@ public class Throwable : NetworkBehaviour
             float distance = Vector3.Distance(transform.position, other.ClosestPoint(transform.position));
 
             // TODO: This is not at all right
-            float effectFactor = Mathf.Clamp01(1 - distance / effectRadius);
+            //float effectFactor = Mathf.Clamp01(1 - distance / effectRadius);
+
+            // Isn't it just this?
+            // The "1 +" is just to guarentee a larger area where the max effect happens
+            // Ex: radius = 3, distance = 1 -> (3 - 1) / 3 = .66
+            //     radius = 3, distance = 2.75 -> (3 - 2.75) / 3 = .25 / 3 = .083
+            float effectFactor = Mathf.Clamp01((1 + effectRadius - distance) / effectRadius);
 
             DoThrowableEffect(ownerRef, other.transform, effectFactor);
             affectedEntities.Add(other);

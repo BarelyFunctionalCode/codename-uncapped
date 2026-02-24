@@ -42,6 +42,10 @@ public class PlayerController : Entity
     private Animator animator;
     private Vector3 animMovementDirection = Vector3.zero;
 
+    // Audio
+    [SerializeField] private AudioSource hoverAudioSource;
+    [SerializeField] private AudioSource windAudioSource;
+
     // Camera
     [SerializeField] private GameObject playerCameraPrefabObj;
     private GameObject playerCameraObj;
@@ -477,6 +481,22 @@ public class PlayerController : Entity
             playerTelemetry.isSkiing = isSkiing;
             playerTelemetry.isUpJetting = isUpJetting;
             playerTelemetry.isDownJetting = isDownJetting;
+        }
+
+        // Set audio values
+        if (hoverAudioSource)
+        {
+            float maxVolume = 0.3f;
+            hoverAudioSource.volume = Mathf.Lerp(hoverAudioSource.volume, isSkiing ? maxVolume : 0f, Time.fixedDeltaTime * 5f);
+            hoverAudioSource.pitch = 0.9f + 0.05f * (rb.linearVelocity.magnitude / 20f);
+        }
+        if (windAudioSource)
+        {
+            float cappedSpeed = (rb.linearVelocity.magnitude - 20f) / 80f;
+            float targetVolume = Mathf.Lerp(0f, 0.02f, cappedSpeed);
+            float targetPitch = Mathf.Lerp(0.9f, 1.5f, cappedSpeed);
+            windAudioSource.volume = Mathf.Lerp(windAudioSource.volume, targetVolume, Time.fixedDeltaTime * 20f);
+            windAudioSource.pitch = Mathf.Lerp(windAudioSource.pitch, targetPitch, Time.fixedDeltaTime * 20f);
         }
 
         // Set animator values

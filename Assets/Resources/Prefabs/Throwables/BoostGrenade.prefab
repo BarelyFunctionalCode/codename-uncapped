@@ -5241,8 +5241,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4078899693271445885}
-  - component: {fileID: 3493554232043970579}
   - component: {fileID: -8309842828673649587}
+  - component: {fileID: 3493554232043970579}
   - component: {fileID: 6688472904138222396}
   - component: {fileID: 6563641314957008029}
   - component: {fileID: 8517454707662591070}
@@ -5270,6 +5270,31 @@ Transform:
   - {fileID: 8736229652682754362}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-8309842828673649587
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8182502780126453879}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 1425841983
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!54 &3493554232043970579
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -5297,31 +5322,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &-8309842828673649587
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8182502780126453879}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1567082210
-  InScenePlacedSourceGlobalObjectIdHash: 0
-  DeferredDespawnTick: 0
-  Ownership: 1
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
-  SyncOwnerTransformWhenParented: 1
-  AllowOwnerToParent: 0
 --- !u!114 &6688472904138222396
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5337,13 +5337,15 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   throwableCollider: {fileID: 574145515595246469}
   effectRadiusTrigger: {fileID: 4951675795652045067}
-  throwMaxForce: 60
-  throwMinForce: 1
+  throwMaxForce: 20
+  throwMinForce: 5
   effectRadius: 1
   selfDestructTimer: 1
   isThrown: 0
   blastWaveObj: {fileID: 5192207323381064966}
   coreObj: {fileID: 2950654607416016533}
+  maxBoostForce: 4000
+  minBoostForce: 2000
 --- !u!114 &6563641314957008029
 MonoBehaviour:
   m_ObjectHideFlags: 0
