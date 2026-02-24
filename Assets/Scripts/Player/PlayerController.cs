@@ -180,24 +180,24 @@ public class PlayerController : Entity
 
             // Set up the input callbacks
             playerControls.Enable();
-            playerControls.Movement.Move.performed += ctx => MoveInput(ctx.ReadValue<Vector2>());
-            playerControls.Movement.Move.canceled += ctx => MoveInput(ctx.ReadValue<Vector2>());
-            playerControls.Movement.Look.performed += ctx => LookInput(ctx.ReadValue<Vector2>());
-            playerControls.Movement.Look.canceled += ctx => LookInput(ctx.ReadValue<Vector2>());
-            playerControls.Movement.Ski.performed += ctx => SkiInput(ctx.ReadValue<float>());
-            playerControls.Movement.Ski.canceled += ctx => SkiInput(ctx.ReadValue<float>());
-            playerControls.Movement.JumpJet.performed += ctx => JetInput(ctx.ReadValue<float>());
-            playerControls.Movement.JumpJet.canceled += ctx => JetInput(ctx.ReadValue<float>());
-            playerControls.Movement.DownJet.performed += ctx => DownJetInput(ctx.ReadValue<float>());
-            playerControls.Movement.DownJet.canceled += ctx => DownJetInput(ctx.ReadValue<float>());
-            playerControls.Movement.JumpJet.started += ctx => JumpInput();
+            playerControls.Character.Move.performed += ctx => MoveInput(ctx.ReadValue<Vector2>());
+            playerControls.Character.Move.canceled += ctx => MoveInput(ctx.ReadValue<Vector2>());
+            playerControls.Character.Look.performed += ctx => LookInput(ctx.ReadValue<Vector2>());
+            playerControls.Character.Look.canceled += ctx => LookInput(ctx.ReadValue<Vector2>());
+            playerControls.Character.PrimaryFire.started += ctx => playerLoadout.OnPrimaryFireStartedRpc();
+            playerControls.Character.PrimaryFire.canceled += ctx => playerLoadout.OnPrimaryFireCanceledRpc();
+            playerControls.Character.Throwable.started += ctx => playerLoadout.OnThrowableStartedRpc();
+            playerControls.Character.Throwable.canceled += ctx => playerLoadout.OnThrowableCanceledRpc();
+            playerControls.Character.NextWeapon.started += ctx => playerLoadout.NextWeaponRpc();
+            playerControls.Character.PreviousWeapon.started += ctx => playerLoadout.PreviousWeaponRpc();
+            playerControls.Character.Ski.performed += ctx => SkiInput(ctx.ReadValue<float>());
+            playerControls.Character.Ski.canceled += ctx => SkiInput(ctx.ReadValue<float>());
+            playerControls.Character.JumpJet.performed += ctx => JetInput(ctx.ReadValue<float>());
+            playerControls.Character.JumpJet.canceled += ctx => JetInput(ctx.ReadValue<float>());
+            playerControls.Character.DownJet.performed += ctx => DownJetInput(ctx.ReadValue<float>());
+            playerControls.Character.DownJet.canceled += ctx => DownJetInput(ctx.ReadValue<float>());
+            playerControls.Character.JumpJet.started += ctx => JumpInput();
 
-            playerControls.Equipment.NextWeapon.started += ctx => playerLoadout.NextWeaponRpc();
-            playerControls.Equipment.PreviousWeapon.started += ctx => playerLoadout.PreviousWeaponRpc();
-            playerControls.Equipment.PrimaryFire.started += ctx => playerLoadout.OnPrimaryFireStartedRpc();
-            playerControls.Equipment.PrimaryFire.canceled += ctx => playerLoadout.OnPrimaryFireCanceledRpc();
-            playerControls.Equipment.Throwable.started += ctx => playerLoadout.OnThrowableStartedRpc();
-            playerControls.Equipment.Throwable.canceled += ctx => playerLoadout.OnThrowableCanceledRpc();
 
             if (!IsHost) Initialize();
         }
@@ -213,24 +213,23 @@ public class PlayerController : Entity
         {
             // If the player is despawned, disable the inputs
             playerControls.Disable();
-            playerControls.Movement.Move.performed -= ctx => MoveInput(ctx.ReadValue<Vector2>());
-            playerControls.Movement.Move.canceled -= ctx => MoveInput(ctx.ReadValue<Vector2>());
-            playerControls.Movement.Look.performed -= ctx => LookInput(ctx.ReadValue<Vector2>());
-            playerControls.Movement.Look.canceled -= ctx => LookInput(ctx.ReadValue<Vector2>());
-            playerControls.Movement.Ski.performed -= ctx => SkiInput(ctx.ReadValue<float>());
-            playerControls.Movement.Ski.canceled -= ctx => SkiInput(ctx.ReadValue<float>());
-            playerControls.Movement.JumpJet.performed -= ctx => JetInput(ctx.ReadValue<float>());
-            playerControls.Movement.JumpJet.canceled -= ctx => JetInput(ctx.ReadValue<float>());
-            playerControls.Movement.DownJet.performed -= ctx => DownJetInput(ctx.ReadValue<float>());
-            playerControls.Movement.DownJet.canceled -= ctx => DownJetInput(ctx.ReadValue<float>());
-            playerControls.Movement.JumpJet.started -= ctx => JumpInput();
-
-            playerControls.Equipment.NextWeapon.started -= ctx => playerLoadout.NextWeaponRpc();
-            playerControls.Equipment.PreviousWeapon.started -= ctx => playerLoadout.PreviousWeaponRpc();
-            playerControls.Equipment.PrimaryFire.started -= ctx => playerLoadout.OnPrimaryFireStartedRpc();
-            playerControls.Equipment.PrimaryFire.canceled -= ctx => playerLoadout.OnPrimaryFireCanceledRpc();
-            playerControls.Equipment.Throwable.started -= ctx => playerLoadout.OnThrowableStartedRpc();
-            playerControls.Equipment.Throwable.canceled -= ctx => playerLoadout.OnThrowableCanceledRpc();
+            playerControls.Character.Move.performed -= ctx => MoveInput(ctx.ReadValue<Vector2>());
+            playerControls.Character.Move.canceled -= ctx => MoveInput(ctx.ReadValue<Vector2>());
+            playerControls.Character.Look.performed -= ctx => LookInput(ctx.ReadValue<Vector2>());
+            playerControls.Character.Look.canceled -= ctx => LookInput(ctx.ReadValue<Vector2>());
+            playerControls.Character.PrimaryFire.started -= ctx => playerLoadout.OnPrimaryFireStartedRpc();
+            playerControls.Character.PrimaryFire.canceled -= ctx => playerLoadout.OnPrimaryFireCanceledRpc();
+            playerControls.Character.Throwable.started -= ctx => playerLoadout.OnThrowableStartedRpc();
+            playerControls.Character.Throwable.canceled -= ctx => playerLoadout.OnThrowableCanceledRpc();
+            playerControls.Character.NextWeapon.started -= ctx => playerLoadout.NextWeaponRpc();
+            playerControls.Character.PreviousWeapon.started -= ctx => playerLoadout.PreviousWeaponRpc();
+            playerControls.Character.Ski.performed -= ctx => SkiInput(ctx.ReadValue<float>());
+            playerControls.Character.Ski.canceled -= ctx => SkiInput(ctx.ReadValue<float>());
+            playerControls.Character.JumpJet.performed -= ctx => JetInput(ctx.ReadValue<float>());
+            playerControls.Character.JumpJet.canceled -= ctx => JetInput(ctx.ReadValue<float>());
+            playerControls.Character.DownJet.performed -= ctx => DownJetInput(ctx.ReadValue<float>());
+            playerControls.Character.DownJet.canceled -= ctx => DownJetInput(ctx.ReadValue<float>());
+            playerControls.Character.JumpJet.started -= ctx => JumpInput();
 
             // Disable audio listener
             if (audioListener) audioListener.enabled = false;
@@ -393,6 +392,17 @@ public class PlayerController : Entity
 
 
     #region Inputs
+    [Rpc(SendTo.Owner)]
+    public void SetPlayerControlsRpc(bool enabled)
+    {
+        if (enabled) playerControls.Character.Enable();
+        else
+        {
+            inputBuffer.Clear();
+            playerControls.Character.Disable();
+        }
+    }
+
     private void MoveInput(Vector2 movementInput)
     {
         this.movementInput = new Vector3(movementInput.x, 0f, movementInput.y);
@@ -515,6 +525,28 @@ public class PlayerController : Entity
 
 
     #region Movement
+    public void Teleport(Vector3 destination, Quaternion rotation = default)
+    {
+        if (!IsServer) return;
+
+        SetPlayerControlsRpc(false);
+        rb.isKinematic = true;
+        playerCollider.enabled = false;
+
+        transform.position = destination;
+        anticipatedNetworkTransform.AnticipateState(new AnticipatedNetworkTransform.TransformState
+        {
+            Position = destination,
+            Rotation = rotation == default ? transform.rotation : rotation,
+            Scale = transform.localScale
+        });
+        Physics.SyncTransforms();
+
+        playerCollider.enabled = true;
+        rb.isKinematic = false;
+        SetPlayerControlsRpc(true);
+    }
+
     private void HandleCamera()
     {
         // Get pitch rotation from inputs and rotate the camera look target
@@ -893,14 +925,21 @@ public class PlayerController : Entity
         inputBuffer.RemoveAll(item => item.timestamp < authorityTime);
 
         // This prevents small amounts of wobble from slight differences.
-        var sqDist = Vector3.SqrMagnitude(previousState.Position - anticipatedNetworkTransform.AnticipatedState.Position);
-        if (sqDist <= 0.1f)
+        float angleDist = Quaternion.Angle(previousState.Rotation, anticipatedNetworkTransform.AnticipatedState.Rotation) * Mathf.Deg2Rad;
+        float sqDist = Vector3.SqrMagnitude(previousState.Position - anticipatedNetworkTransform.AnticipatedState.Position) +
+             angleDist * angleDist;
+
+        float smallDist = 0.25f;
+        float mediumDist = 6f;
+        if (sqDist <= smallDist * smallDist)
         {
+            Debug.Log("Small change, reverting to previous anticipated state");
             anticipatedNetworkTransform.AnticipateState(previousState);
-            Physics.SyncTransforms();
+            // Physics.SyncTransforms();
         }
-        else if (sqDist < 3f * 3f)
+        else if (sqDist < mediumDist * mediumDist)
         {
+            Debug.Log("Moderate change, smoothing to new anticipated state");
             // Server updates are not necessarily smooth, so applying reanticipation can also result in
             // hitchy, unsmooth animations. To compensate for that, we call this to smooth from the previous
             // anticipated state (stored in "anticipatedValue") to the new state (which, because we have used
@@ -908,6 +947,10 @@ public class PlayerController : Entity
             // transform anticipated state)
             anticipatedNetworkTransform.Smooth(previousState, anticipatedNetworkTransform.AnticipatedState, 0.1f);
             Physics.SyncTransforms();
+        }
+        else
+        {
+            Debug.Log("Large change, accepting new anticipated state");
         }
     }
     #endregion
@@ -918,38 +961,53 @@ public class PlayerController : Entity
     {
         if (!IsServer) return;
 
+        SetPlayerControlsRpc(false);
         rb.isKinematic = true;
-        GetComponent<NetworkRigidbody>().UseRigidBodyForMotion = false;
         playerCollider.enabled = false;
-        transform.Find("Model").gameObject.SetActive(false); // TODO: Move to client RPC
-
-        print("Player Died");
+        OnDieRpc();
     }
+    [Rpc(SendTo.Everyone)]
+    private void OnDieRpc()
+    {
+        if (IsOwner)
+        {
+            // Disable the camera
+            if (cineCam) cineCam.Priority.Value = 0;
+
+            // TODO: Go to some other camera angle?
+        }
+
+        transform.Find("Model").gameObject.SetActive(false);
+    }
+
     protected override void OnRespawn()
     {
         if (!IsServer) return;
 
-        print("Player Respawned");
-        // Find an object tagged "Respawn" to respawn at
-        GameObject respawnPoint = GameObject.FindGameObjectWithTag("Respawn");
+        Transform respawnPoint = LevelManager.Instance.GetSpawnPoint(0); // TODO: Pass in team index when we have teams
 
         if (respawnPoint)
         {
-            Debug.Log($"Respawning player {name} at {respawnPoint.transform.position} {respawnPoint.name}");
-            transform.position = respawnPoint.transform.position;
-            anticipatedNetworkTransform.AnticipateState(new AnticipatedNetworkTransform.TransformState
-            {
-                Position = respawnPoint.transform.position,
-                Rotation = respawnPoint.transform.rotation,
-                Scale = transform.localScale
-            });
+            Teleport(respawnPoint.position, respawnPoint.rotation);
         }
+
         playerCollider.enabled = true;
-        GetComponent<NetworkRigidbody>().UseRigidBodyForMotion = true;
-        transform.Find("Model").gameObject.SetActive(true);
+        rb.isKinematic = false;
         playerLoadout.Deinitialize();
         playerLoadout.Initialize(this);
-        rb.isKinematic = false;
+
+        OnRespawnRpc();
+        SetPlayerControlsRpc(true);
+    }
+    [Rpc(SendTo.Everyone)]
+    private void OnRespawnRpc()
+    {
+        if (IsOwner)
+        {
+            // Enable the camera
+            if (cineCam) cineCam.Priority.Value = 99;
+        }
+        transform.Find("Model").gameObject.SetActive(true);
     }
     #endregion
 
