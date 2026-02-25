@@ -62,7 +62,7 @@ public class LevelManager : NetworkBehaviour
             Transform spawnPoint = GetSpawnPoint(teamId);
             if (spawnPoint == null) continue;
             
-            playerController.Teleport(spawnPoint.position, spawnPoint.rotation);
+            playerController.TeleportRpc(spawnPoint.position, spawnPoint.rotation);
             playerController.SetPlayerControlsRpc(false);
         }
 
