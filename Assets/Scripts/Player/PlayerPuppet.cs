@@ -14,7 +14,7 @@ public class PlayerPuppet : MonoBehaviour
 
     private void Awake()
     {
-        rb = playerController.GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody>();
     }
 
     private void Update()
@@ -22,8 +22,8 @@ public class PlayerPuppet : MonoBehaviour
         if (playerController != null)
         {
             // Sync the puppet's position and rotation with the player's transform
-            // transform.position = Vector3.Lerp(transform.position, playerController.transform.position, 0.5f);
-            // Physics.SyncTransforms();
+            rb.position = Vector3.Lerp(rb.position, authoritativeRb.position, 0.5f);
+            rb.PublishTransform();
         }
     }
 
