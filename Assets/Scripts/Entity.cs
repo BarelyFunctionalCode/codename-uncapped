@@ -81,7 +81,7 @@ public class Entity : NetworkBehaviour, IDamageable
         if (!IsServer || isDead.Value) return;
         isDead.Value = true;
         OnDie();
-        // Destroy(gameObject);
+        
         Invoke(nameof(Respawn), 3f);
     }
     protected virtual void OnDie() {}

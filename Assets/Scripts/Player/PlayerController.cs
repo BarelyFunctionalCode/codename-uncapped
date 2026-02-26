@@ -7,25 +7,13 @@ using Unity.Netcode.Components;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public struct InputState
-{
-    public double timestamp;
-    public Vector3 movementDirection;
-    public Vector3 rotationDeltaYaw;
-    public bool isJumping;
-    public bool isSkiing;
-    public bool isUpJetting;
-    public bool isDownJetting;
-    public bool isJetting;
-    public bool isRunning;
-}
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(CapsuleCollider))]
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(NetworkAnimator))]
 [RequireComponent(typeof(PlayerLoadout))]
-[RequireComponent(typeof(AnticipatedNetworkTransform))]
+[RequireComponent(typeof(PlayerNetworkTransform))]
 [RequireComponent(typeof(NetworkRigidbody))]
 public class PlayerController : Entity
 {
@@ -34,12 +22,17 @@ public class PlayerController : Entity
     [SerializeField] private DevVectorRenderer devVectorRenderer;
     public PlayerTelemetry playerTelemetry;
 
+    public Transform localTransform;
+
+    [SerializeField] private GameObject playerPuppetPrefabObj;
+    public GameObject playerPuppetObj;
+
     // ID
     private SteamId localId;
     public SteamId PlayerSteamId { get { return localId; } }
 
     // Animation
-    private Animator animator;
+    private Animator localAnimator;
     private Vector3 animMovementDirection = Vector3.zero;
 
     // Audio
@@ -66,6 +59,7 @@ public class PlayerController : Entity
     // Inputs
     public PlayerControls playerControls;
     Vector3 movementInput = Vector3.zero;
+    Vector3 newMovementDirection = Vector3.zero;
     Vector3 movementDirection = Vector3.zero;
     float rotationInputX = 0f;
     float rotationInputY = 0f;
@@ -85,10 +79,8 @@ public class PlayerController : Entity
     [Header("Physics")]
     [SerializeField] private PhysicsMaterial skiMaterial;
     [SerializeField] private PhysicsMaterial normalMaterial;
-    private Rigidbody rb;
-    private CapsuleCollider playerCollider;
-    private AnticipatedNetworkTransform anticipatedNetworkTransform;
-    private List<InputState> inputBuffer = new();
+    public Rigidbody localRb;
+    private CapsuleCollider localPlayerCollider;
     Vector3 surfaceNormal = Vector3.up;
     Vector3 surfacePoint = Vector3.zero;
     float distanceToSurface = Mathf.Infinity;
@@ -145,30 +137,24 @@ public class PlayerController : Entity
     #region Lifecycle
     private void Awake()
     {
-        rb = GetComponent<Rigidbody>();
-        playerCollider = GetComponent<CapsuleCollider>();
-        animator = GetComponent<Animator>();
         playerLoadout = GetComponent<PlayerLoadout>();
-
-        anticipatedNetworkTransform = GetComponent<AnticipatedNetworkTransform>();
-        anticipatedNetworkTransform.StaleDataHandling = StaleDataHandling.Reanticipate;
     }
 
     public sealed override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
-        rb.sleepThreshold = 0.0f;
-        rb.mass = mass;
-        playerCollider.material = normalMaterial;
+        localTransform = transform;
+        localRb = GetComponent<Rigidbody>();
+        localPlayerCollider = GetComponent<CapsuleCollider>();
+        localAnimator = GetComponent<Animator>();
 
-        if (!IsServer && !IsOwner) 
-        {
-            GetComponent<NetworkRigidbody>().UseRigidBodyForMotion = false;
-            rb.isKinematic = true;
-        }
+        localRb.sleepThreshold = 0.0f;
+        localRb.mass = mass;
+        localPlayerCollider.material = normalMaterial;
 
         SceneManager.activeSceneChanged += ChangedActiveScene;
+
 
         if (IsOwner)
         {
@@ -180,24 +166,24 @@ public class PlayerController : Entity
 
             // Set up the input callbacks
             playerControls.Enable();
-            playerControls.Movement.Move.performed += ctx => MoveInput(ctx.ReadValue<Vector2>());
-            playerControls.Movement.Move.canceled += ctx => MoveInput(ctx.ReadValue<Vector2>());
-            playerControls.Movement.Look.performed += ctx => LookInput(ctx.ReadValue<Vector2>());
-            playerControls.Movement.Look.canceled += ctx => LookInput(ctx.ReadValue<Vector2>());
-            playerControls.Movement.Ski.performed += ctx => SkiInput(ctx.ReadValue<float>());
-            playerControls.Movement.Ski.canceled += ctx => SkiInput(ctx.ReadValue<float>());
-            playerControls.Movement.JumpJet.performed += ctx => JetInput(ctx.ReadValue<float>());
-            playerControls.Movement.JumpJet.canceled += ctx => JetInput(ctx.ReadValue<float>());
-            playerControls.Movement.DownJet.performed += ctx => DownJetInput(ctx.ReadValue<float>());
-            playerControls.Movement.DownJet.canceled += ctx => DownJetInput(ctx.ReadValue<float>());
-            playerControls.Movement.JumpJet.started += ctx => JumpInput();
+            playerControls.Character.Move.performed += ctx => MoveInput(ctx.ReadValue<Vector2>());
+            playerControls.Character.Move.canceled += ctx => MoveInput(ctx.ReadValue<Vector2>());
+            playerControls.Character.Look.performed += ctx => LookInput(ctx.ReadValue<Vector2>());
+            playerControls.Character.Look.canceled += ctx => LookInput(ctx.ReadValue<Vector2>());
+            playerControls.Character.PrimaryFire.started += ctx => playerLoadout.OnPrimaryFireStartedRpc();
+            playerControls.Character.PrimaryFire.canceled += ctx => playerLoadout.OnPrimaryFireCanceledRpc();
+            playerControls.Character.Throwable.started += ctx => playerLoadout.OnThrowableStartedRpc();
+            playerControls.Character.Throwable.canceled += ctx => playerLoadout.OnThrowableCanceledRpc();
+            playerControls.Character.NextWeapon.started += ctx => playerLoadout.NextWeaponRpc();
+            playerControls.Character.PreviousWeapon.started += ctx => playerLoadout.PreviousWeaponRpc();
+            playerControls.Character.Ski.performed += ctx => SkiInput(ctx.ReadValue<float>());
+            playerControls.Character.Ski.canceled += ctx => SkiInput(ctx.ReadValue<float>());
+            playerControls.Character.JumpJet.performed += ctx => JetInput(ctx.ReadValue<float>());
+            playerControls.Character.JumpJet.canceled += ctx => JetInput(ctx.ReadValue<float>());
+            playerControls.Character.DownJet.performed += ctx => DownJetInput(ctx.ReadValue<float>());
+            playerControls.Character.DownJet.canceled += ctx => DownJetInput(ctx.ReadValue<float>());
+            playerControls.Character.JumpJet.started += ctx => JumpInput();
 
-            playerControls.Equipment.NextWeapon.started += ctx => playerLoadout.NextWeaponRpc();
-            playerControls.Equipment.PreviousWeapon.started += ctx => playerLoadout.PreviousWeaponRpc();
-            playerControls.Equipment.PrimaryFire.started += ctx => playerLoadout.OnPrimaryFireStartedRpc();
-            playerControls.Equipment.PrimaryFire.canceled += ctx => playerLoadout.OnPrimaryFireCanceledRpc();
-            playerControls.Equipment.Throwable.started += ctx => playerLoadout.OnThrowableStartedRpc();
-            playerControls.Equipment.Throwable.canceled += ctx => playerLoadout.OnThrowableCanceledRpc();
 
             if (!IsHost) Initialize();
         }
@@ -213,24 +199,23 @@ public class PlayerController : Entity
         {
             // If the player is despawned, disable the inputs
             playerControls.Disable();
-            playerControls.Movement.Move.performed -= ctx => MoveInput(ctx.ReadValue<Vector2>());
-            playerControls.Movement.Move.canceled -= ctx => MoveInput(ctx.ReadValue<Vector2>());
-            playerControls.Movement.Look.performed -= ctx => LookInput(ctx.ReadValue<Vector2>());
-            playerControls.Movement.Look.canceled -= ctx => LookInput(ctx.ReadValue<Vector2>());
-            playerControls.Movement.Ski.performed -= ctx => SkiInput(ctx.ReadValue<float>());
-            playerControls.Movement.Ski.canceled -= ctx => SkiInput(ctx.ReadValue<float>());
-            playerControls.Movement.JumpJet.performed -= ctx => JetInput(ctx.ReadValue<float>());
-            playerControls.Movement.JumpJet.canceled -= ctx => JetInput(ctx.ReadValue<float>());
-            playerControls.Movement.DownJet.performed -= ctx => DownJetInput(ctx.ReadValue<float>());
-            playerControls.Movement.DownJet.canceled -= ctx => DownJetInput(ctx.ReadValue<float>());
-            playerControls.Movement.JumpJet.started -= ctx => JumpInput();
-
-            playerControls.Equipment.NextWeapon.started -= ctx => playerLoadout.NextWeaponRpc();
-            playerControls.Equipment.PreviousWeapon.started -= ctx => playerLoadout.PreviousWeaponRpc();
-            playerControls.Equipment.PrimaryFire.started -= ctx => playerLoadout.OnPrimaryFireStartedRpc();
-            playerControls.Equipment.PrimaryFire.canceled -= ctx => playerLoadout.OnPrimaryFireCanceledRpc();
-            playerControls.Equipment.Throwable.started -= ctx => playerLoadout.OnThrowableStartedRpc();
-            playerControls.Equipment.Throwable.canceled -= ctx => playerLoadout.OnThrowableCanceledRpc();
+            playerControls.Character.Move.performed -= ctx => MoveInput(ctx.ReadValue<Vector2>());
+            playerControls.Character.Move.canceled -= ctx => MoveInput(ctx.ReadValue<Vector2>());
+            playerControls.Character.Look.performed -= ctx => LookInput(ctx.ReadValue<Vector2>());
+            playerControls.Character.Look.canceled -= ctx => LookInput(ctx.ReadValue<Vector2>());
+            playerControls.Character.PrimaryFire.started -= ctx => playerLoadout.OnPrimaryFireStartedRpc();
+            playerControls.Character.PrimaryFire.canceled -= ctx => playerLoadout.OnPrimaryFireCanceledRpc();
+            playerControls.Character.Throwable.started -= ctx => playerLoadout.OnThrowableStartedRpc();
+            playerControls.Character.Throwable.canceled -= ctx => playerLoadout.OnThrowableCanceledRpc();
+            playerControls.Character.NextWeapon.started -= ctx => playerLoadout.NextWeaponRpc();
+            playerControls.Character.PreviousWeapon.started -= ctx => playerLoadout.PreviousWeaponRpc();
+            playerControls.Character.Ski.performed -= ctx => SkiInput(ctx.ReadValue<float>());
+            playerControls.Character.Ski.canceled -= ctx => SkiInput(ctx.ReadValue<float>());
+            playerControls.Character.JumpJet.performed -= ctx => JetInput(ctx.ReadValue<float>());
+            playerControls.Character.JumpJet.canceled -= ctx => JetInput(ctx.ReadValue<float>());
+            playerControls.Character.DownJet.performed -= ctx => DownJetInput(ctx.ReadValue<float>());
+            playerControls.Character.DownJet.canceled -= ctx => DownJetInput(ctx.ReadValue<float>());
+            playerControls.Character.JumpJet.started -= ctx => JumpInput();
 
             // Disable audio listener
             if (audioListener) audioListener.enabled = false;
@@ -254,8 +239,14 @@ public class PlayerController : Entity
                 else playerControls.Enable();
                 playerUIObj.transform.Find("PauseMenu").gameObject.SetActive(newMenuState);
             }
-
             playerTelemetry.Update();
+            
+            // TODO: Move this to a better place
+            Vector3 newMovementDirection = localTransform.TransformDirection(movementInput); // NOT SUPPOSED TO BE NORMALIZED
+            bool changed = false;
+            if (newMovementDirection != this.newMovementDirection) changed = true;
+            this.newMovementDirection = newMovementDirection;
+            if (changed) MoveDirectionRpc(newMovementDirection);
         }
 
         if (isDead.Value) return;
@@ -263,8 +254,14 @@ public class PlayerController : Entity
         HandleGroundDetection();
 
         // Apply Drag and Friction
-        rb.linearDamping = distanceToSurface <= airCushionHeight ? airCushionDrag : drag;
-        playerCollider.material = isSkiing ? skiMaterial : normalMaterial;
+        localRb.linearDamping = distanceToSurface <= airCushionHeight ? airCushionDrag : drag;
+        localPlayerCollider.material = isSkiing ? skiMaterial : normalMaterial;
+    }
+
+    [Rpc(SendTo.Server)]
+    private void MoveDirectionRpc(Vector3 newMovementDirection)
+    {
+        this.newMovementDirection = newMovementDirection;
     }
 
     void LateUpdate()
@@ -280,40 +277,19 @@ public class PlayerController : Entity
     void FixedUpdate()
     {
         if (!isInitialized || !(IsServer || IsOwner)) return;
-        if (isDead.Value) {
-            if (inputBuffer.Count > 0) inputBuffer.Clear();
-            return;
-        }
+        if (isDead.Value) return;
 
         // First, we collect all of the inputs that go into moving the player, and create an input state
         HandleInputs();
-        InputState frameInputs = new()
-        {
-            timestamp = NetworkManager.LocalTime.Time,
-            movementDirection = movementDirection,
-            rotationDeltaYaw = rotationDeltaYaw,
-            isJumping = isJumping,
-            isSkiing = isSkiing,
-            isUpJetting = isUpJetting,
-            isDownJetting = isDownJetting,
-            isJetting = isJetting,
-            isRunning = isRunning
-        };
-
-        // Next, we add the inputs to the input buffer for client-side prediction
-        if (!IsServer)
-        {
-            inputBuffer.Add(frameInputs);
-        }
 
         // Finally, we process the inputs to move the player locally and on the server
-        HandleMovement(frameInputs);
+        HandleMovement();
 
         isJumping = false;
         if (playerTelemetry != null)
         {
-            playerTelemetry.position = transform.position;
-            playerTelemetry.velocity = rb.linearVelocity;
+            playerTelemetry.position = localTransform.position;
+            playerTelemetry.velocity = localRb.linearVelocity;
         }
     }
     #endregion
@@ -324,6 +300,42 @@ public class PlayerController : Entity
     {
         if (IsOwner)
         {
+            if (!IsHost && !playerPuppetObj)
+            {
+                // Hide all visuals on authoritative player object
+                foreach (Renderer r in GetComponentsInChildren<Renderer>())
+                {
+                    r.enabled = false;
+                }
+
+                // Disable audio sources
+                foreach (AudioSource a in GetComponentsInChildren<AudioSource>())
+                {
+                    a.enabled = false;
+                }
+
+                // Disable the collider on the authoritative player object so it doesn't interfere with the puppet's collider
+                localPlayerCollider.enabled = false;
+
+                // Spawn a non-authoritative puppet on local client for predicting the player's position and rotation before the server updates it
+                playerPuppetObj = Instantiate(playerPuppetPrefabObj, localTransform.position, localTransform.rotation);
+                playerPuppetObj.GetComponent<PlayerPuppet>().Initialize(this);
+
+                // Set the local player's transform, collider, and rigidbody references to the puppet's so that the rest of the
+                // player controller code can work as normal regardless of whether it's running on the server or client
+                localTransform = playerPuppetObj.transform;
+                localPlayerCollider = playerPuppetObj.GetComponent<CapsuleCollider>();
+                localRb = playerPuppetObj.GetComponent<Rigidbody>();
+                localAnimator = playerPuppetObj.GetComponent<Animator>();
+
+                // Get the free look target transform from the puppet so that the camera can follow it
+                freeLookTargetTransform = playerPuppetObj.GetComponent<PlayerPuppet>().freeLookTargetTransform;
+
+                // Set Audio Sources
+                hoverAudioSource = playerPuppetObj.GetComponent<PlayerPuppet>().hoverAudioSource;
+                windAudioSource = playerPuppetObj.GetComponent<PlayerPuppet>().windAudioSource;
+            }
+
             // Initialize Player UI
             if (!playerUIObj) {
                 playerUIObj = Instantiate(playerUIPrefabObj);
@@ -386,6 +398,11 @@ public class PlayerController : Entity
             Destroy(playerUIObj);
             playerUIObj = null;
         }
+        if (playerPuppetObj)
+        {
+            Destroy(playerPuppetObj);
+            playerPuppetObj = null;
+        }
 
         isInitialized = false;
     }
@@ -393,15 +410,22 @@ public class PlayerController : Entity
 
 
     #region Inputs
-    private void MoveInput(Vector2 movementInput)
+    [Rpc(SendTo.Owner)]
+    public void SetPlayerControlsRpc(bool enabled)
     {
-        this.movementInput = new Vector3(movementInput.x, 0f, movementInput.y);
+        if (enabled) playerControls.Character.Enable();
+        else playerControls.Character.Disable();
+    }
+
+    private void MoveInput(Vector2 rawMovementInput)
+    {
+        movementInput = new(rawMovementInput.x, 0f, rawMovementInput.y);
         MoveInputRpc(movementInput);
     }
     [Rpc(SendTo.Server)]
-    private void MoveInputRpc(Vector2 movementInput)
+    private void MoveInputRpc(Vector3 movementInput)
     {
-        this.movementInput = new Vector3(movementInput.x, 0f, movementInput.y);
+        this.movementInput = movementInput;
     }
     private void LookInput(Vector2 lookInput)
     {
@@ -466,7 +490,7 @@ public class PlayerController : Entity
 
         // Get direction of movement relative to player rotation
         Vector3 movement = movementInput;
-        movementDirection = transform.TransformDirection(movement); // NOT SUPPOSED TO BE NORMALIZED
+        movementDirection = newMovementDirection;
 
         // Get input for skiing, jumping, and down jetting
         isUpJetting = upJettingInput && isSkiing;
@@ -488,11 +512,11 @@ public class PlayerController : Entity
         {
             float maxVolume = 0.3f;
             hoverAudioSource.volume = Mathf.Lerp(hoverAudioSource.volume, isSkiing ? maxVolume : 0f, Time.fixedDeltaTime * 5f);
-            hoverAudioSource.pitch = 0.9f + 0.05f * (rb.linearVelocity.magnitude / 20f);
+            hoverAudioSource.pitch = 0.9f + 0.05f * (localRb.linearVelocity.magnitude / 20f);
         }
         if (windAudioSource)
         {
-            float cappedSpeed = (rb.linearVelocity.magnitude - 20f) / 80f;
+            float cappedSpeed = (localRb.linearVelocity.magnitude - 20f) / 80f;
             float targetVolume = Mathf.Lerp(0f, 0.02f, cappedSpeed);
             float targetPitch = Mathf.Lerp(0.9f, 1.5f, cappedSpeed);
             windAudioSource.volume = Mathf.Lerp(windAudioSource.volume, targetVolume, Time.fixedDeltaTime * 20f);
@@ -502,19 +526,37 @@ public class PlayerController : Entity
         // Set animator values
         Vector3 animMovementDirectionNewY = Vector3.up * (isDownJetting ? -1f : (isUpJetting ? 1f : 0f));
         animMovementDirection = Vector3.Lerp(animMovementDirection, movement.normalized + animMovementDirectionNewY, Time.fixedDeltaTime * 10f);
-        animator.SetFloat("xDir", animMovementDirection.x);
-        animator.SetFloat("yDir", animMovementDirection.y);
-        animator.SetFloat("zDir", animMovementDirection.z);
-        animator.SetFloat("yVel", rb.linearVelocity.normalized.y);
-        animator.SetBool("isGrounded", isGrounded);
-        animator.SetBool("isRunning", isRunning);
-        animator.SetBool("isSkiing", isSkiing && !isUpJetting && !isDownJetting);
-        animator.SetBool("isJetting", isUpJetting || isDownJetting);
+        localAnimator.SetFloat("xDir", animMovementDirection.x);
+        localAnimator.SetFloat("yDir", animMovementDirection.y);
+        localAnimator.SetFloat("zDir", animMovementDirection.z);
+        localAnimator.SetFloat("yVel", localRb.linearVelocity.normalized.y);
+        localAnimator.SetBool("isGrounded", isGrounded);
+        localAnimator.SetBool("isRunning", isRunning);
+        localAnimator.SetBool("isSkiing", isSkiing && !isUpJetting && !isDownJetting);
+        localAnimator.SetBool("isJetting", isUpJetting || isDownJetting);
     }
     #endregion
 
 
     #region Movement
+    public void Teleport(Vector3 destination, Quaternion rotation = default)
+    {
+        if (!IsServer) return;
+
+        SetPlayerControlsRpc(false);
+        localRb.isKinematic = true;
+        localPlayerCollider.enabled = false;
+
+        // localRb.position = destination;
+        // if (rotation != default) localRb.rotation = rotation;
+        // localRb.PublishTransform();
+        GetComponent<NetworkTransform>().Teleport(destination, rotation, localTransform.lossyScale);
+
+        localPlayerCollider.enabled = true;
+        localRb.isKinematic = false;
+        SetPlayerControlsRpc(true);
+    }
+
     private void HandleCamera()
     {
         // Get pitch rotation from inputs and rotate the camera look target
@@ -536,7 +578,7 @@ public class PlayerController : Entity
         surfacePoint = Vector3.zero;
 
         // Raycast down...
-        Vector3 groundCheckPoint = playerCollider.bounds.center;
+        Vector3 groundCheckPoint = localPlayerCollider.bounds.center;
         RaycastHit hit;
         bool didHit = Physics.Raycast(
             new Ray(
@@ -555,13 +597,13 @@ public class PlayerController : Entity
             if (slope <= 0.1f) return;
 
             surfacePoint = hit.point;
-            distanceToSurface = Mathf.Max(Vector3.Distance(surfacePoint, groundCheckPoint) - playerCollider.bounds.extents.y, 0.0f);
+            distanceToSurface = Mathf.Max(Vector3.Distance(surfacePoint, groundCheckPoint) - localPlayerCollider.bounds.extents.y, 0.0f);
 
             if (playerTelemetry != null) playerTelemetry.distanceToSurface = distanceToSurface;
             if (playerTelemetry != null) playerTelemetry.surfacePoint = surfacePoint;
 
             // Breakaway vertical speed check
-            if (rb.linearVelocity.y > 20.0f) return;
+            if (localRb.linearVelocity.y > 20.0f) return;
 
             if (distanceToSurface <= 0.25f)
             {
@@ -579,17 +621,9 @@ public class PlayerController : Entity
         
     }
 
-    private void HandleMovement(InputState frameInputs)
+    private void HandleMovement()
     {
-        Vector3 movementDirection = frameInputs.movementDirection;
-        Vector3 rotationDeltaYaw = frameInputs.rotationDeltaYaw;
-        bool isJumping = frameInputs.isJumping;
-        bool isSkiing = frameInputs.isSkiing;
-        bool isUpJetting = frameInputs.isUpJetting;
-        bool isDownJetting = frameInputs.isDownJetting;
-        bool isJetting = frameInputs.isJetting;
-        bool isRunning = frameInputs.isRunning;
-        Vector3 currentVelocity = rb.linearVelocity;
+        Vector3 currentVelocity = localRb.linearVelocity;
         Vector3 desiredAcc = Vector3.zero;
         Vector3 groundImpulse = Vector3.zero;
         float desiredVerticalAcc = 0f;
@@ -622,8 +656,8 @@ public class PlayerController : Entity
 
             Vector3 jumpDirection = movementDirection.normalized;
 
-            float playerScaleFactor = transform.localScale.y * 0.25f + 0.75f;
-            float jumpForceFinal = jumpForce / rb.mass;
+            float playerScaleFactor = localTransform.localScale.y * 0.25f + 0.75f;
+            float jumpForceFinal = jumpForce / localRb.mass;
 
             float surfaceNormalDotJumpDirection = Vector3.Dot(jumpDirection, surfaceNormal);
 
@@ -638,7 +672,7 @@ public class PlayerController : Entity
                 Vector3.zero;
             desiredVerticalAcc = jumpSurfaceNormal.y * playerScaleFactor * jumpForceFinal * jumpScale;
             lastGroundedTime = 1f;
-            animator.SetTrigger("triggerJump");
+            localAnimator.SetTrigger("triggerJump");
         }
         // Running Movement
         else if (isRunning)
@@ -764,22 +798,14 @@ public class PlayerController : Entity
         // Debug.Log($"Current Velocity: {rb.linearVelocity:F2}\t Desired Acc: {desiredAcc:F2}\t Jet Resistance: {jetResistance:F2}\t Capped Excess: {velocityCappedExcess:F2}\t Final Velocity: {currentVelocity:F2}");
     
         // Calculate final change in velocity to apply
-        Vector3 finalVelocityChange = currentVelocity - rb.linearVelocity;
+        Vector3 finalVelocityChange = currentVelocity - localRb.linearVelocity;
 
         // Calculate rotation to apply
-        Quaternion newRot = Quaternion.Euler(rb.rotation.eulerAngles + rotationDeltaYaw);
+        Quaternion newRot = Quaternion.Euler(localRb.rotation.eulerAngles + rotationDeltaYaw);
 
         // Apply velocity and rotation updates to rigidbody
-        rb.AddForce(finalVelocityChange, ForceMode.VelocityChange);
-        rb.MoveRotation(newRot);
-
-        // Update Anticipated Network Transform for client-side prediction and reconciliation
-        anticipatedNetworkTransform.AnticipateState(new AnticipatedNetworkTransform.TransformState
-        {
-            Position = rb.position,
-            Rotation = rb.rotation,
-            Scale = transform.localScale
-        });
+        localRb.AddForce(finalVelocityChange, ForceMode.VelocityChange);
+        localRb.MoveRotation(newRot);
         // Debug.Log($"{(IsServer ? "Server" : "Client")} {OwnerClientId} Authoritative State: {anticipatedNetworkTransform.AuthoritativeState.Position}, {anticipatedNetworkTransform.AuthoritativeState.Rotation.eulerAngles} Should Reanticipate: {anticipatedNetworkTransform.ShouldReanticipate}");
     }
 
@@ -849,67 +875,6 @@ public class PlayerController : Entity
 
         return cappedVelocity - currentVelocity;
     }
-
-    // https://github.com/Unity-Technologies/com.unity.multiplayer.samples.bitesize/blob/022594f453adf5bd26f7cc40dd3ee27b06002738/Experimental/Anticipation%20Sample/Assets/Scripts/PlayerMovableObject.cs#L109
-    public override void OnReanticipate(double lastRoundTripTime)
-    {
-        // Debug.Log("Reanticipating");
-        // Get previous client-side state and the time that the server sent this authoritative state
-        var previousState = anticipatedNetworkTransform.PreviousAnticipatedState;
-        var authorityTime = NetworkManager.LocalTime.Time - lastRoundTripTime;
-
-        // Sync physics after server overwrites the transform
-        Physics.SyncTransforms();
-
-        // Replay inputs between last round trip time and now
-        var now = NetworkManager.LocalTime.Time;
-        var lastInputTime = authorityTime;
-        int count = 0;
-        foreach (var input in inputBuffer)
-        {
-            if (inputBuffer.Count > count + 1 && input.timestamp == inputBuffer[count + 1].timestamp) continue;
-            if (input.timestamp > authorityTime)
-            {
-                if ((float)(input.timestamp - lastInputTime) > 0.0f)
-                {
-                    Physics.simulationMode = SimulationMode.Script;
-                    Physics.Simulate((float)(input.timestamp - lastInputTime));
-                    Physics.simulationMode = SimulationMode.FixedUpdate;
-                }
-
-                HandleMovement(input);
-
-                lastInputTime = input.timestamp;
-                count++;
-            }
-        }
-        if ((float)(now - lastInputTime) > 0.0f)
-        {
-            Physics.simulationMode = SimulationMode.Script;
-            Physics.Simulate((float)(now - lastInputTime));
-            Physics.simulationMode = SimulationMode.FixedUpdate;
-        }
-
-        inputBuffer.RemoveAll(item => item.timestamp < authorityTime);
-
-        // This prevents small amounts of wobble from slight differences.
-        var sqDist = Vector3.SqrMagnitude(previousState.Position - anticipatedNetworkTransform.AnticipatedState.Position);
-        if (sqDist <= 0.1f)
-        {
-            anticipatedNetworkTransform.AnticipateState(previousState);
-            Physics.SyncTransforms();
-        }
-        else if (sqDist < 3f * 3f)
-        {
-            // Server updates are not necessarily smooth, so applying reanticipation can also result in
-            // hitchy, unsmooth animations. To compensate for that, we call this to smooth from the previous
-            // anticipated state (stored in "anticipatedValue") to the new state (which, because we have used
-            // the "Move" method that updates the anticipated state of the transform, is now the current
-            // transform anticipated state)
-            anticipatedNetworkTransform.Smooth(previousState, anticipatedNetworkTransform.AnticipatedState, 0.1f);
-            Physics.SyncTransforms();
-        }
-    }
     #endregion
 
 
@@ -918,38 +883,59 @@ public class PlayerController : Entity
     {
         if (!IsServer) return;
 
-        rb.isKinematic = true;
-        GetComponent<NetworkRigidbody>().UseRigidBodyForMotion = false;
-        playerCollider.enabled = false;
-        transform.Find("Model").gameObject.SetActive(false); // TODO: Move to client RPC
-
-        print("Player Died");
+        SetPlayerControlsRpc(false);
+        localRb.isKinematic = true;
+        localPlayerCollider.enabled = false;
+        OnDieRpc();
     }
+    [Rpc(SendTo.Everyone)]
+    private void OnDieRpc()
+    {
+        if (IsOwner)
+        {
+            localRb.isKinematic = true;
+            localPlayerCollider.enabled = false;
+
+            // Disable the camera
+            if (cineCam) cineCam.Priority.Value = 0;
+
+            // TODO: Go to some other camera angle?
+        }
+
+        localTransform.Find("Model").gameObject.SetActive(false);
+    }
+
     protected override void OnRespawn()
     {
         if (!IsServer) return;
 
-        print("Player Respawned");
-        // Find an object tagged "Respawn" to respawn at
-        GameObject respawnPoint = GameObject.FindGameObjectWithTag("Respawn");
+        Transform respawnPoint = LevelManager.Instance.GetSpawnPoint(0); // TODO: Pass in team index when we have teams
 
         if (respawnPoint)
         {
-            Debug.Log($"Respawning player {name} at {respawnPoint.transform.position} {respawnPoint.name}");
-            transform.position = respawnPoint.transform.position;
-            anticipatedNetworkTransform.AnticipateState(new AnticipatedNetworkTransform.TransformState
-            {
-                Position = respawnPoint.transform.position,
-                Rotation = respawnPoint.transform.rotation,
-                Scale = transform.localScale
-            });
+            Teleport(respawnPoint.position, respawnPoint.rotation);
         }
-        playerCollider.enabled = true;
-        GetComponent<NetworkRigidbody>().UseRigidBodyForMotion = true;
-        transform.Find("Model").gameObject.SetActive(true);
+
+        localPlayerCollider.enabled = true;
+        localRb.isKinematic = false;
         playerLoadout.Deinitialize();
         playerLoadout.Initialize(this);
-        rb.isKinematic = false;
+
+        OnRespawnRpc();
+        SetPlayerControlsRpc(true);
+    }
+    [Rpc(SendTo.Everyone)]
+    private void OnRespawnRpc()
+    {
+        if (IsOwner)
+        {
+            // Enable the camera
+            if (cineCam) cineCam.Priority.Value = 99;
+
+            localRb.isKinematic = false;
+            localPlayerCollider.enabled = true;
+        }
+        localTransform.Find("Model").gameObject.SetActive(true);
     }
     #endregion
 
@@ -1019,6 +1005,7 @@ public class PlayerController : Entity
     private void ChangedActiveSceneRpc(string sceneName)
     {
         if (GameManager.Instance?.debugMode == true) Debug.Log(GetType() + ": Changed active scene for " + name + " " + NetworkManager.Singleton.LocalClientId);
+        if (playerPuppetObj) SceneManager.MoveGameObjectToScene(playerPuppetObj, SceneManager.GetSceneByName(sceneName));
         if (playerUIObj) SceneManager.MoveGameObjectToScene(playerUIObj, SceneManager.GetSceneByName(sceneName));
         if (playerCameraObj) SceneManager.MoveGameObjectToScene(playerCameraObj, SceneManager.GetSceneByName(sceneName));
 

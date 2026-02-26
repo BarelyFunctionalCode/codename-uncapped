@@ -34,7 +34,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 7053101878330708289}
   - {fileID: 31968502425875243}
   m_Father: {fileID: 3441636807916873101}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -276,7 +275,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7053101878330708289}
-  - component: {fileID: 5140791283059558030}
   m_Layer: 0
   m_Name: ProjectileSpawnPoint
   m_TagString: Untagged
@@ -293,58 +291,12 @@ Transform:
   m_GameObject: {fileID: 2725417437988823394}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -3.1401849e-16, z: 3.1401849e-16, w: 1}
-  m_LocalPosition: {x: -0, y: 0.003, z: 1.273}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: 0.008571429, z: 3.637143}
+  m_LocalScale: {x: 2.857143, y: 2.857143, z: 2.857143}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 4568595372777821569}
+  m_Father: {fileID: 31968502425875243}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5140791283059558030
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2725417437988823394}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.Components.NetworkTransform
-  ShowTopMostFoldoutHeaderGroup: 1
-  NetworkTransformExpanded: 0
-  AutoOwnerAuthorityTickOffset: 1
-  PositionInterpolationType: 0
-  RotationInterpolationType: 0
-  ScaleInterpolationType: 0
-  PositionLerpSmoothing: 1
-  PositionMaxInterpolationTime: 0.1
-  RotationLerpSmoothing: 1
-  RotationMaxInterpolationTime: 0.1
-  ScaleLerpSmoothing: 1
-  ScaleMaxInterpolationTime: 0.1
-  AuthorityMode: 0
-  TickSyncChildren: 0
-  UseUnreliableDeltas: 0
-  SyncPositionX: 0
-  SyncPositionY: 0
-  SyncPositionZ: 0
-  SyncRotAngleX: 1
-  SyncRotAngleY: 1
-  SyncRotAngleZ: 1
-  SyncScaleX: 0
-  SyncScaleY: 0
-  SyncScaleZ: 0
-  PositionThreshold: 0.001
-  RotAngleThreshold: 0.01
-  ScaleThreshold: 0.01
-  UseQuaternionSynchronization: 0
-  UseQuaternionCompression: 0
-  UseHalfFloatPrecision: 0
-  InLocalSpace: 1
-  SwitchTransformSpaceWhenParented: 0
-  Interpolate: 0
-  SlerpPosition: 0
 --- !u!1 &5600182896950481145
 GameObject:
   m_ObjectHideFlags: 0
@@ -508,6 +460,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 048d7ecbc2544a1449b0034e64959fd6, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1518291778265757106}
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 048d7ecbc2544a1449b0034e64959fd6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7053101878330708289}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 048d7ecbc2544a1449b0034e64959fd6, type: 3}
 --- !u!4 &31968502425875243 stripped

@@ -3,9 +3,63 @@
     "name": "PlayerControls",
     "maps": [
         {
-            "name": "Movement",
+            "name": "Character",
             "id": "1b35036c-9fa3-4b75-bf32-7725165b6a39",
             "actions": [
+                {
+                    "name": "Look",
+                    "type": "Value",
+                    "id": "69d04e48-5c2c-4185-9024-8ee2eb8d07b0",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Move",
+                    "type": "Value",
+                    "id": "5f954712-d352-4f46-84b8-df597f27b69b",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Primary Fire",
+                    "type": "Button",
+                    "id": "e4d864ee-5fcf-4f03-8214-1a6daa7d1893",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Hold",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Throwable",
+                    "type": "Button",
+                    "id": "ba23aa3a-856c-4dae-81b4-74e1b78b4bd7",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Previous Weapon",
+                    "type": "Button",
+                    "id": "8683dfa9-c9ba-465b-bc56-9669e43ea5cb",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Next Weapon",
+                    "type": "Button",
+                    "id": "6b6c4e97-fa25-42dc-9a35-73a353238db3",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
                 {
                     "name": "Ski",
                     "type": "Value",
@@ -25,24 +79,6 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Move",
-                    "type": "Value",
-                    "id": "5f954712-d352-4f46-84b8-df597f27b69b",
-                    "expectedControlType": "Vector2",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
-                },
-                {
-                    "name": "Look",
-                    "type": "Value",
-                    "id": "69d04e48-5c2c-4185-9024-8ee2eb8d07b0",
-                    "expectedControlType": "Vector2",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
-                },
-                {
                     "name": "Down Jet",
                     "type": "Value",
                     "id": "f1ed069d-0b72-480f-beda-e9259634b5ca",
@@ -50,24 +86,6 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
-                },
-                {
-                    "name": "Time Slow",
-                    "type": "Button",
-                    "id": "6faec846-c61a-4b4a-8cec-bc4c6d20197f",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Toggle Ski",
-                    "type": "Button",
-                    "id": "8aeb1a7d-0d65-4b7b-9ded-fcd0806676c4",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -79,6 +97,50 @@
                     "processors": "",
                     "groups": "",
                     "action": "Ski",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7abf3dc3-cb7c-4c79-8289-360ff29db954",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Throwable",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "36971091-6b32-4490-9c26-fe52579b4be6",
+                    "path": "<Keyboard>/2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Previous Weapon",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4dfa588a-6055-4438-9890-b8a3df9ce1bb",
+                    "path": "<Keyboard>/1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Next Weapon",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "6fff2e6b-09f7-4f2e-9726-5dafd418aa59",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Primary Fire",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -169,28 +231,6 @@
                     "action": "Down Jet",
                     "isComposite": false,
                     "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "07e9e91c-b557-45a1-b8ac-6ea2632e6265",
-                    "path": "<Mouse>/forwardButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Time Slow",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "fafa3d25-a9e9-4ae1-9ba7-98d5a3c8c613",
-                    "path": "<Keyboard>/x",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Toggle Ski",
-                    "isComposite": false,
-                    "isPartOfComposite": false
                 }
             ]
         },
@@ -202,7 +242,7 @@
                     "name": "Pause",
                     "type": "Button",
                     "id": "07028ae3-1ad2-4a9f-ab57-c0d17623d3a2",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -228,94 +268,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "Pause",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                }
-            ]
-        },
-        {
-            "name": "Equipment",
-            "id": "37aceb1a-34fd-49e6-a1d5-318f660aef61",
-            "actions": [
-                {
-                    "name": "Primary Fire",
-                    "type": "Button",
-                    "id": "c7ada4ac-cfea-475b-88ab-55e7778770b4",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "Hold",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Next Weapon",
-                    "type": "Button",
-                    "id": "a8dd11b4-d233-4e43-b9c2-77e0a4f617c7",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Previous Weapon",
-                    "type": "Button",
-                    "id": "8fda191e-e5cc-49af-a1bb-e5bc457030f6",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Throwable",
-                    "type": "Button",
-                    "id": "b7eedb3a-73d9-4467-810a-7f5fdc190db7",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                }
-            ],
-            "bindings": [
-                {
-                    "name": "",
-                    "id": "fa19f955-da88-4183-bcd4-fec438c34fd7",
-                    "path": "<Mouse>/leftButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Primary Fire",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "e8ef93c9-1a8a-45dd-8d72-99f4e9d2092e",
-                    "path": "<Keyboard>/1",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Next Weapon",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "78af021a-57e9-43e1-b356-c0697ee88b42",
-                    "path": "<Keyboard>/2",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Previous Weapon",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "c4c1b539-1e8b-48c1-b510-ebbda51995a2",
-                    "path": "<Keyboard>/e",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Throwable",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

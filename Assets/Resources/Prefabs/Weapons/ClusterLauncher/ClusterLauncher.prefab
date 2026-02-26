@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4015101778137679434}
-  - component: {fileID: 6766003682169283107}
   m_Layer: 0
   m_Name: ProjectileSpawnPoint
   m_TagString: Untagged
@@ -25,59 +24,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2659004687588271022}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -3.1401849e-16, z: 3.1401849e-16, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.895}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0.7071068, y: -0, z: 4.440892e-16, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 1.0259272, z: 0}
+  m_LocalScale: {x: 2.8617215, y: 2.8617213, z: 2.1462905}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 498715018256884765}
+  m_Father: {fileID: 8802086071775939338}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6766003682169283107
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2659004687588271022}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.Components.NetworkTransform
-  ShowTopMostFoldoutHeaderGroup: 1
-  NetworkTransformExpanded: 0
-  AutoOwnerAuthorityTickOffset: 1
-  PositionInterpolationType: 0
-  RotationInterpolationType: 0
-  ScaleInterpolationType: 0
-  PositionLerpSmoothing: 1
-  PositionMaxInterpolationTime: 0.1
-  RotationLerpSmoothing: 1
-  RotationMaxInterpolationTime: 0.1
-  ScaleLerpSmoothing: 1
-  ScaleMaxInterpolationTime: 0.1
-  AuthorityMode: 0
-  TickSyncChildren: 0
-  UseUnreliableDeltas: 0
-  SyncPositionX: 0
-  SyncPositionY: 0
-  SyncPositionZ: 0
-  SyncRotAngleX: 1
-  SyncRotAngleY: 1
-  SyncRotAngleZ: 1
-  SyncScaleX: 0
-  SyncScaleY: 0
-  SyncScaleZ: 0
-  PositionThreshold: 0.001
-  RotAngleThreshold: 0.01
-  ScaleThreshold: 0.01
-  UseQuaternionSynchronization: 0
-  UseQuaternionCompression: 0
-  UseHalfFloatPrecision: 0
-  InLocalSpace: 1
-  SwitchTransformSpaceWhenParented: 0
-  Interpolate: 0
-  SlerpPosition: 0
 --- !u!1 &2705026678208644562
 GameObject:
   m_ObjectHideFlags: 0
@@ -201,6 +154,7 @@ Transform:
   m_Children:
   - {fileID: 8590801980182581106}
   - {fileID: 1015522556541479979}
+  - {fileID: 4015101778137679434}
   m_Father: {fileID: 498715018256884765}
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!33 &8594105033777008166
@@ -293,7 +247,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8802086071775939338}
-  - {fileID: 4015101778137679434}
   m_Father: {fileID: 4285828080451445056}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4962517912745424349
