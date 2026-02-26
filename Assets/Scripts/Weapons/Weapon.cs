@@ -115,13 +115,13 @@ public class Weapon : NetworkBehaviour
         transform.localRotation = Quaternion.identity;
         if (IsOwner)
         {
-            if (!IsHost)
+            if (!IsHost && playerController.playerPuppetObj)
             {
-                GameObject weaponModel = transform.GetChild(0).gameObject;
-                Vector3 localPosition = weaponModel.transform.localPosition;
-                weaponModel.transform.parent = playerController.playerPuppetObj.GetComponent<PlayerPuppet>().weaponMountPoint;
-                weaponModel.transform.localPosition = localPosition;
-                weaponModel.transform.localRotation = Quaternion.identity;
+                Vector3 localPosition = modelObj.transform.localPosition;
+                Quaternion localRotation = modelObj.transform.localRotation;
+                modelObj.transform.parent = playerController.playerPuppetObj.GetComponent<PlayerPuppet>().weaponMountPoint;
+                modelObj.transform.localPosition = localPosition;
+                modelObj.transform.localRotation = localRotation;
             }
             
             playerCamera = Camera.main;
@@ -143,6 +143,7 @@ public class Weapon : NetworkBehaviour
     [Rpc(SendTo.Everyone)]
     public void DeinitializeRpc()
     {
+        modelObj.transform.parent = transform;
         transform.parent = originalParentNetworkObject.transform;
         isInitialized = false;
     }

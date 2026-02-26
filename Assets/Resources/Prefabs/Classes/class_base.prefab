@@ -1580,8 +1580,8 @@ GameObject:
   - component: {fileID: 5001059631770423585}
   - component: {fileID: 4365519263761304235}
   - component: {fileID: 3105670337336224375}
-  - component: {fileID: 3522038510448508165}
-  - component: {fileID: 1159352929936451236}
+  - component: {fileID: 7680226033847222509}
+  - component: {fileID: 7219783322743969792}
   m_Layer: 3
   m_Name: class_base
   m_TagString: Player
@@ -1725,6 +1725,9 @@ MonoBehaviour:
   energyRegenRate: 0
   energyRegenFactor: 1
   devVectorRenderer: {fileID: 4034910302823530355}
+  localTransform: {fileID: 0}
+  playerPuppetPrefabObj: {fileID: 0}
+  playerPuppetObj: {fileID: 0}
   hoverAudioSource: {fileID: 4365519263761304235}
   windAudioSource: {fileID: 3105670337336224375}
   playerCameraPrefabObj: {fileID: 7378525201259159580, guid: 5d6ee420863db4f7bbd33642b61f0978, type: 3}
@@ -1736,6 +1739,7 @@ MonoBehaviour:
   playerUIObj: {fileID: 0}
   skiMaterial: {fileID: 13400000, guid: 5d01f8d4ca43e524696e30c3ba230525, type: 2}
   normalMaterial: {fileID: 13400000, guid: 3c46edcb0e00fb14d9c600ca066c4007, type: 2}
+  localRb: {fileID: 0}
   weaponMountPoint: {fileID: 6369755560196872741}
   throwableMountPoint: {fileID: 1088541900309485744}
   isInitialized: 0
@@ -2037,7 +2041,7 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &3522038510448508165
+--- !u!114 &7680226033847222509
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2046,11 +2050,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 6955372432089693387}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
+  m_Script: {fileID: 11500000, guid: 1f6e6c2f30eb7cfbab28c682c05be527, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.Components.NetworkTransform
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerNetworkTransform
   ShowTopMostFoldoutHeaderGroup: 1
-  NetworkTransformExpanded: 0
+  NetworkTransformExpanded: 1
   AutoOwnerAuthorityTickOffset: 1
   PositionInterpolationType: 1
   RotationInterpolationType: 1
@@ -2083,7 +2087,7 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
---- !u!114 &1159352929936451236
+--- !u!114 &7219783322743969792
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

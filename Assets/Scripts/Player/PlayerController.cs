@@ -13,7 +13,7 @@ using UnityEngine.SceneManagement;
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(NetworkAnimator))]
 [RequireComponent(typeof(PlayerLoadout))]
-[RequireComponent(typeof(NetworkTransform))]
+[RequireComponent(typeof(PlayerNetworkTransform))]
 [RequireComponent(typeof(NetworkRigidbody))]
 public class PlayerController : Entity
 {
@@ -280,15 +280,6 @@ public class PlayerController : Entity
             playerTelemetry.velocity = localRb.linearVelocity;
         }
     }
-
-    private void OnDrawGizmos()
-    {
-        // Draw Debug Gizmo showing a capsule of the authoritative player's collider for testing and debugging purposes
-        if (IsOwner && !IsHost)
-        {
-            Gizmos.DrawWireCube(transform.position, localPlayerCollider.bounds.size);
-        }    
-    }
     #endregion
 
 
@@ -297,7 +288,7 @@ public class PlayerController : Entity
     {
         if (IsOwner)
         {
-            if (!IsHost)
+            if (!IsHost && !playerPuppetObj)
             {
                 // Hide all visuals on authoritative player object
                 foreach (Renderer r in GetComponentsInChildren<Renderer>())
@@ -394,6 +385,11 @@ public class PlayerController : Entity
         {
             Destroy(playerUIObj);
             playerUIObj = null;
+        }
+        if (playerPuppetObj)
+        {
+            Destroy(playerPuppetObj);
+            playerPuppetObj = null;
         }
 
         isInitialized = false;
@@ -537,22 +533,22 @@ public class PlayerController : Entity
 
 
     #region Movement
-    [Rpc(SendTo.Everyone)]
-    public void TeleportRpc(Vector3 destination, Quaternion rotation = default)
+    public void Teleport(Vector3 destination, Quaternion rotation = default)
     {
-        if (!(IsServer || IsOwner)) return;
+        if (!IsServer) return;
 
-        if (IsServer) SetPlayerControlsRpc(false);
+        SetPlayerControlsRpc(false);
         localRb.isKinematic = true;
         localPlayerCollider.enabled = false;
 
-        localRb.position = destination;
-        if (rotation != default) localRb.rotation = rotation;
-        localRb.PublishTransform();
+        // localRb.position = destination;
+        // if (rotation != default) localRb.rotation = rotation;
+        // localRb.PublishTransform();
+        GetComponent<NetworkTransform>().Teleport(destination, rotation, localTransform.lossyScale);
 
         localPlayerCollider.enabled = true;
         localRb.isKinematic = false;
-        if (IsServer) SetPlayerControlsRpc(true);
+        SetPlayerControlsRpc(true);
     }
 
     private void HandleCamera()
@@ -911,7 +907,7 @@ public class PlayerController : Entity
 
         if (respawnPoint)
         {
-            TeleportRpc(respawnPoint.position, respawnPoint.rotation);
+            Teleport(respawnPoint.position, respawnPoint.rotation);
         }
 
         localPlayerCollider.enabled = true;
