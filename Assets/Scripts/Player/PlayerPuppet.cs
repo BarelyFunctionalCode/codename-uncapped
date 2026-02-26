@@ -10,13 +10,13 @@ public class PlayerPuppet : MonoBehaviour
     [SerializeField] public AudioSource hoverAudioSource;
     [SerializeField] public AudioSource windAudioSource;
     private PlayerController playerController;
-    // private Transform authoritativeTransform;
     private Rigidbody rb;
     private CapsuleCollider playerCollider;
 
     Vector3 lastReceivedPosition;
 
     private float smoothThreshold = 0.1f;
+    private float smoothAmount = 100f;
     private float snapThreshold = 10f;
 
     bool isInitialized = false;
@@ -31,11 +31,11 @@ public class PlayerPuppet : MonoBehaviour
     {
         if (playerController != null)
         {
-            // Sync the puppet's position with the player's transform
+            // Smoothly interpolate towards the last received position from the authoritative player, if it's not too far away
             float syncDistance = Vector3.Distance(rb.position, lastReceivedPosition);
             if (syncDistance > smoothThreshold)
             {
-                rb.MovePosition(lastReceivedPosition);
+                rb.position = Vector3.Lerp(rb.position, lastReceivedPosition, Time.fixedDeltaTime * smoothAmount * syncDistance / snapThreshold);
             }
         }
     }
@@ -55,7 +55,6 @@ public class PlayerPuppet : MonoBehaviour
     {
         this.playerController = playerController;
         playerController.GetComponent<PlayerNetworkTransform>().onNewLocalTransformState.AddListener(OnNewLocalTransformState);
-        // authoritativeTransform = playerController.transform;
         isInitialized = true;
     }
 
@@ -65,6 +64,8 @@ public class PlayerPuppet : MonoBehaviour
 
         Vector3 newPosition = newState.GetPosition();
         float syncDistance = Vector3.Distance(transform.position, newPosition);
+
+        // Desync is either too big or you are teleporting, snap to the new position immediately
         if (syncDistance > snapThreshold || newState.IsTeleportingNextFrame)
         {
             rb.isKinematic = true;

@@ -58,7 +58,7 @@ MonoBehaviour:
   weaponUI: {fileID: 257280393015764630}
   maxAmmo: 24
   damage: 50
-  fireRate: 2
+  fireRate: 1.5
   ignoreLayers:
     serializedVersion: 2
     m_Bits: 840
@@ -339,7 +339,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1722680198
+  GlobalObjectIdHash: 510578569
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1

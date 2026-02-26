@@ -239,8 +239,14 @@ public class PlayerController : Entity
                 else playerControls.Enable();
                 playerUIObj.transform.Find("PauseMenu").gameObject.SetActive(newMenuState);
             }
-
             playerTelemetry.Update();
+            
+            // TODO: Move this to a better place
+            Vector3 newMovementDirection = localTransform.TransformDirection(movementInput); // NOT SUPPOSED TO BE NORMALIZED
+            bool changed = false;
+            if (newMovementDirection != this.newMovementDirection) changed = true;
+            this.newMovementDirection = newMovementDirection;
+            if (changed) MoveDirectionRpc(newMovementDirection);
         }
 
         if (isDead.Value) return;
@@ -250,6 +256,12 @@ public class PlayerController : Entity
         // Apply Drag and Friction
         localRb.linearDamping = distanceToSurface <= airCushionHeight ? airCushionDrag : drag;
         localPlayerCollider.material = isSkiing ? skiMaterial : normalMaterial;
+    }
+
+    [Rpc(SendTo.Server)]
+    private void MoveDirectionRpc(Vector3 newMovementDirection)
+    {
+        this.newMovementDirection = newMovementDirection;
     }
 
     void LateUpdate()
@@ -407,19 +419,13 @@ public class PlayerController : Entity
 
     private void MoveInput(Vector2 rawMovementInput)
     {
-        bool changed = false;
-        Vector3 newMovementInput = new(rawMovementInput.x, 0f, rawMovementInput.y);
-
-        if (newMovementInput != movementInput) changed = true;
-        movementInput = newMovementInput;
-        newMovementDirection = localTransform.TransformDirection(movementInput); // NOT SUPPOSED TO BE NORMALIZED
-        if (changed) MoveInputRpc(movementInput, newMovementDirection);
+        movementInput = new(rawMovementInput.x, 0f, rawMovementInput.y);
+        MoveInputRpc(movementInput);
     }
     [Rpc(SendTo.Server)]
-    private void MoveInputRpc(Vector3 movementInput, Vector3 newMovementDirection)
+    private void MoveInputRpc(Vector3 movementInput)
     {
         this.movementInput = movementInput;
-        this.newMovementDirection = newMovementDirection;
     }
     private void LookInput(Vector2 lookInput)
     {
