@@ -8,6 +8,7 @@ public class IdentifierUI : MonoBehaviour
     [SerializeField] private TMP_Text identifierBottomText;
     [SerializeField] private Image mainIndicator;
     [SerializeField] private Image offscreenIndicator;
+    private RectTransform offscreenIndicatorContainer;
     private float offscreenIndicatorOriginalAlpha;
     private float mainIndicatorOriginalAlpha;
 
@@ -40,6 +41,8 @@ public class IdentifierUI : MonoBehaviour
 
     private bool isInitialized = false;
 
+    Canvas parentCanvas;
+
 
     #region Lifecycle
     private void Awake()
@@ -52,6 +55,8 @@ public class IdentifierUI : MonoBehaviour
         offscreenIndicator.enabled = false;
         identifierTopText.enabled = false;
         identifierBottomText.enabled = false;
+
+        parentCanvas = GetComponentInParent<Canvas>();
     }
 
     private void Update()
@@ -71,7 +76,7 @@ public class IdentifierUI : MonoBehaviour
         }
 
         // Basic screen and object information
-        Vector3 screenCenter = new(Screen.width / 2f, Screen.height / 2f, 0f);
+        Vector3 screenCenter = new(Screen.width * parentCanvas.scaleFactor / 2f, Screen.height * parentCanvas.scaleFactor / 2f, 0f);
         Vector3 objectScreenCenterPos = Camera.main.WorldToScreenPoint(objectTransform.position);
         Vector3 objectDirectionToCamera = (Camera.main.transform.position - objectTransform.position).normalized;
         float distanceToObject = Vector3.Distance(Camera.main.transform.position, objectTransform.position);
@@ -95,8 +100,8 @@ public class IdentifierUI : MonoBehaviour
         }
 
         // Check if the object is on screen
-        bool isOnScreen = !(objectScreenCenterPos.x < 0 || objectScreenCenterPos.x > Screen.width ||
-                            objectScreenCenterPos.y < 0 || objectScreenCenterPos.y > Screen.height) &&
+        bool isOnScreen = !(objectScreenCenterPos.x < 0 || objectScreenCenterPos.x > Screen.width * parentCanvas.scaleFactor ||
+                            objectScreenCenterPos.y < 0 || objectScreenCenterPos.y > Screen.height * parentCanvas.scaleFactor) &&
                             Vector3.Dot(objectDirectionToCamera, Camera.main.transform.forward) < 0;
 
         // Toggle various elements based on on-screen status
@@ -109,7 +114,7 @@ public class IdentifierUI : MonoBehaviour
         if (!isOnScreen)
         {
             // Off Screen
-            rectPosition = CalculateOffscreenIndicatorPosition(objectTransform, objectScreenCenterPos, screenCenter);
+            rectPosition = CalculateOffscreenIndicatorPosition(objectTransform);
             
             // Handle off-screen indicator fading and hiding
             FadeOutOffscreenIndicator(identifierData.color);
@@ -147,7 +152,7 @@ public class IdentifierUI : MonoBehaviour
 
 
     #region Initialization
-    public void Initialize(IIdentifiable identifiable)
+    public void Initialize(IIdentifiable identifiable, Transform offscreenIndicatorContainer)
     {
         this.identifiable = identifiable;
         identifiableObject = ((Component)identifiable).gameObject;
@@ -155,6 +160,8 @@ public class IdentifierUI : MonoBehaviour
         objectCollider = identifiableObject.GetComponent<Collider>();
         if (objectCollider == null) objectCollider = identifiableObject.GetComponentInChildren<Collider>();
         objectColliderExtents = objectCollider.bounds.extents + new Vector3(1f, 1f, 1f); // Add some padding to ensure the identifier fully encompasses the object
+        offscreenIndicator.transform.SetParent(offscreenIndicatorContainer, false);
+        this.offscreenIndicatorContainer = offscreenIndicatorContainer.GetComponent<RectTransform>();
         
         IdentifierData identifierData = identifiable.GetIdentifierData();
         FullReset(identifierData.color);
@@ -172,7 +179,7 @@ public class IdentifierUI : MonoBehaviour
         Vector3 objectScreenCornerPos = Camera.main.WorldToScreenPoint(
             objectTransform.position +
             objectColliderExtents.y * Camera.main.transform.up +
-            objectColliderExtents.x * Mathf.Sign(objectScreenCenterPos.x - Screen.width / 2f) * objectToCameraSideVector);
+            objectColliderExtents.x * Mathf.Sign(objectScreenCenterPos.x - Screen.width * parentCanvas.scaleFactor / 2f) * objectToCameraSideVector);
 
         // Calculate the size of the identifier based on the distance between the center and corner positions
         Vector3 objectScreenExtents = objectScreenCornerPos - objectScreenCenterPos;
@@ -208,14 +215,14 @@ public class IdentifierUI : MonoBehaviour
         SetElementAlpha(mainIndicator, teamColor, 0f);
         SetElementAlpha(identifierTopText, teamColor, 0f);
         SetElementAlpha(identifierBottomText, teamColor, 0f);
-        identifierRect.sizeDelta = new Vector2(Screen.width * 2f, Screen.height * 2f);
+        identifierRect.sizeDelta = new Vector2(Screen.width * parentCanvas.scaleFactor * 2f, Screen.height * parentCanvas.scaleFactor * 2f);
         mainInfoShowTimer = 0f;
     }
     #endregion
 
 
     #region Offscreen Indicator
-    private Vector3 CalculateOffscreenIndicatorPosition(Transform objectTransform, Vector3 objectScreenCenterPos, Vector3 screenCenter)
+    private Vector3 CalculateOffscreenIndicatorPosition(Transform objectTransform)
     {
         // Position the off-screen indicator at the edge of the screen in the direction of the object
         float indicatorDistanceFromCenter = 210f;
@@ -227,7 +234,10 @@ public class IdentifierUI : MonoBehaviour
         );
         float angle = Mathf.Atan2(directionToObject.y, directionToObject.x) * Mathf.Rad2Deg - 90f;
         offscreenIndicator.rectTransform.rotation = Quaternion.Euler(0f, 0f, angle);
-        Vector3 desiredPosition = screenCenter + directionToObject * indicatorDistanceFromCenter;
+        Vector3 center = new (offscreenIndicatorContainer.rect.center.x, offscreenIndicatorContainer.rect.center.y, 0f);
+        Vector2 containerRatio = offscreenIndicatorContainer.rect.size.normalized;
+        // Map indicator to oval-sized container to ensure it stays within bounds while still pointing in the correct direction
+        Vector3 desiredPosition = center + new Vector3(directionToObject.x * containerRatio.x, directionToObject.y * containerRatio.y, 0f).normalized * indicatorDistanceFromCenter;
         return Vector3.Lerp(identifierRect.anchoredPosition, desiredPosition, 0.3f);
     }
 

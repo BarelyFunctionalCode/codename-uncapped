@@ -23,6 +23,9 @@ public class IdentifierManager : MonoBehaviour
     [SerializeField] private GameObject identifierPrefab;
     private Canvas parentCanvas;
 
+    [SerializeField] private Transform identifierContainer;
+    [SerializeField] private Transform offscreenIdentifierRadarContainer;
+
     private List<IdentifierUI> activeIdentifiers = new();
 
     private float cleanupInterval = 5f;
@@ -81,10 +84,9 @@ public class IdentifierManager : MonoBehaviour
     {
         if (activeIdentifiers.Exists(identifier => identifier.identifiable == identifiable)) return;
 
-        GameObject identifierObj = Instantiate(identifierPrefab, parentCanvas.transform);
+        GameObject identifierObj = Instantiate(identifierPrefab, identifierContainer);
         IdentifierUI identifierUI = identifierObj.GetComponent<IdentifierUI>();
-        identifierUI.Initialize(identifiable);
-        identifierObj.transform.SetSiblingIndex(0); // Ensure the identifier is rendered behind other UI elements
+        identifierUI.Initialize(identifiable, offscreenIdentifierRadarContainer);
         activeIdentifiers.Add(identifierUI);
     }
 
