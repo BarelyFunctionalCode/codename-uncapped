@@ -88,8 +88,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerPuppet
   freeLookTargetTransform: {fileID: 6108106143311741763}
+  weaponMountPoint: {fileID: 4291613652230429063}
+  throwableMountPoint: {fileID: 7849899603328539410}
   hoverAudioSource: {fileID: 6881013877542078729}
   windAudioSource: {fileID: 5256470120881416661}
+--- !u!4 &4291613652230429063 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4372994227278182123, guid: da14beeee0b6ba97682f70a3aa02b16c, type: 3}
+  m_PrefabInstance: {fileID: 513728066314743660}
+  m_PrefabAsset: {fileID: 0}
 --- !u!82 &5256470120881416661 stripped
 AudioSource:
   m_CorrespondingSourceObject: {fileID: 5752111907322578617, guid: da14beeee0b6ba97682f70a3aa02b16c, type: 3}
@@ -103,5 +110,10 @@ Transform:
 --- !u!82 &6881013877542078729 stripped
 AudioSource:
   m_CorrespondingSourceObject: {fileID: 6367919853847406181, guid: da14beeee0b6ba97682f70a3aa02b16c, type: 3}
+  m_PrefabInstance: {fileID: 513728066314743660}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &7849899603328539410 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7769082010407416958, guid: da14beeee0b6ba97682f70a3aa02b16c, type: 3}
   m_PrefabInstance: {fileID: 513728066314743660}
   m_PrefabAsset: {fileID: 0}

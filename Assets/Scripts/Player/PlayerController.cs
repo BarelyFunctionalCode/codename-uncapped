@@ -7,18 +7,6 @@ using Unity.Netcode.Components;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public struct InputState
-{
-    public double timestamp;
-    public Vector3 movementDirection;
-    public Vector3 rotationDeltaYaw;
-    public bool isJumping;
-    public bool isSkiing;
-    public bool isUpJetting;
-    public bool isDownJetting;
-    public bool isJetting;
-    public bool isRunning;
-}
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(CapsuleCollider))]
@@ -37,14 +25,14 @@ public class PlayerController : Entity
     public Transform localTransform;
 
     [SerializeField] private GameObject playerPuppetPrefabObj;
-    private GameObject playerPuppetObj;
+    public GameObject playerPuppetObj;
 
     // ID
     private SteamId localId;
     public SteamId PlayerSteamId { get { return localId; } }
 
     // Animation
-    private Animator animator;
+    private Animator localAnimator;
     private Vector3 animMovementDirection = Vector3.zero;
 
     // Audio
@@ -71,6 +59,7 @@ public class PlayerController : Entity
     // Inputs
     public PlayerControls playerControls;
     Vector3 movementInput = Vector3.zero;
+    Vector3 newMovementDirection = Vector3.zero;
     Vector3 movementDirection = Vector3.zero;
     float rotationInputX = 0f;
     float rotationInputY = 0f;
@@ -92,7 +81,6 @@ public class PlayerController : Entity
     [SerializeField] private PhysicsMaterial normalMaterial;
     public Rigidbody localRb;
     private CapsuleCollider localPlayerCollider;
-    private List<InputState> inputBuffer = new();
     Vector3 surfaceNormal = Vector3.up;
     Vector3 surfacePoint = Vector3.zero;
     float distanceToSurface = Mathf.Infinity;
@@ -149,16 +137,17 @@ public class PlayerController : Entity
     #region Lifecycle
     private void Awake()
     {
-        localTransform = transform;
-        localRb = GetComponent<Rigidbody>();
-        localPlayerCollider = GetComponent<CapsuleCollider>();
-        animator = GetComponent<Animator>();
         playerLoadout = GetComponent<PlayerLoadout>();
     }
 
     public sealed override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
+
+        localTransform = transform;
+        localRb = GetComponent<Rigidbody>();
+        localPlayerCollider = GetComponent<CapsuleCollider>();
+        localAnimator = GetComponent<Animator>();
 
         localRb.sleepThreshold = 0.0f;
         localRb.mass = mass;
@@ -276,34 +265,13 @@ public class PlayerController : Entity
     void FixedUpdate()
     {
         if (!isInitialized || !(IsServer || IsOwner)) return;
-        if (isDead.Value) {
-            if (inputBuffer.Count > 0) inputBuffer.Clear();
-            return;
-        }
+        if (isDead.Value) return;
 
         // First, we collect all of the inputs that go into moving the player, and create an input state
         HandleInputs();
-        InputState frameInputs = new()
-        {
-            timestamp = NetworkManager.LocalTime.Time,
-            movementDirection = movementDirection,
-            rotationDeltaYaw = rotationDeltaYaw,
-            isJumping = isJumping,
-            isSkiing = isSkiing,
-            isUpJetting = isUpJetting,
-            isDownJetting = isDownJetting,
-            isJetting = isJetting,
-            isRunning = isRunning
-        };
-
-        // Next, we add the inputs to the input buffer for client-side prediction
-        if (!IsServer)
-        {
-            inputBuffer.Add(frameInputs);
-        }
 
         // Finally, we process the inputs to move the player locally and on the server
-        HandleMovement(frameInputs);
+        HandleMovement();
 
         isJumping = false;
         if (playerTelemetry != null)
@@ -355,6 +323,7 @@ public class PlayerController : Entity
                 localTransform = playerPuppetObj.transform;
                 localPlayerCollider = playerPuppetObj.GetComponent<CapsuleCollider>();
                 localRb = playerPuppetObj.GetComponent<Rigidbody>();
+                localAnimator = playerPuppetObj.GetComponent<Animator>();
 
                 // Get the free look target transform from the puppet so that the camera can follow it
                 freeLookTargetTransform = playerPuppetObj.GetComponent<PlayerPuppet>().freeLookTargetTransform;
@@ -437,22 +406,24 @@ public class PlayerController : Entity
     public void SetPlayerControlsRpc(bool enabled)
     {
         if (enabled) playerControls.Character.Enable();
-        else
-        {
-            inputBuffer.Clear();
-            playerControls.Character.Disable();
-        }
+        else playerControls.Character.Disable();
     }
 
-    private void MoveInput(Vector2 movementInput)
+    private void MoveInput(Vector2 rawMovementInput)
     {
-        this.movementInput = new Vector3(movementInput.x, 0f, movementInput.y);
-        MoveInputRpc(movementInput);
+        bool changed = false;
+        Vector3 newMovementInput = new(rawMovementInput.x, 0f, rawMovementInput.y);
+
+        if (newMovementInput != movementInput) changed = true;
+        movementInput = newMovementInput;
+        newMovementDirection = localTransform.TransformDirection(movementInput); // NOT SUPPOSED TO BE NORMALIZED
+        if (changed) MoveInputRpc(movementInput, newMovementDirection);
     }
     [Rpc(SendTo.Server)]
-    private void MoveInputRpc(Vector2 movementInput)
+    private void MoveInputRpc(Vector3 movementInput, Vector3 newMovementDirection)
     {
-        this.movementInput = new Vector3(movementInput.x, 0f, movementInput.y);
+        this.movementInput = movementInput;
+        this.newMovementDirection = newMovementDirection;
     }
     private void LookInput(Vector2 lookInput)
     {
@@ -517,7 +488,7 @@ public class PlayerController : Entity
 
         // Get direction of movement relative to player rotation
         Vector3 movement = movementInput;
-        movementDirection = localTransform.TransformDirection(movement); // NOT SUPPOSED TO BE NORMALIZED
+        movementDirection = newMovementDirection;
 
         // Get input for skiing, jumping, and down jetting
         isUpJetting = upJettingInput && isSkiing;
@@ -553,14 +524,14 @@ public class PlayerController : Entity
         // Set animator values
         Vector3 animMovementDirectionNewY = Vector3.up * (isDownJetting ? -1f : (isUpJetting ? 1f : 0f));
         animMovementDirection = Vector3.Lerp(animMovementDirection, movement.normalized + animMovementDirectionNewY, Time.fixedDeltaTime * 10f);
-        animator.SetFloat("xDir", animMovementDirection.x);
-        animator.SetFloat("yDir", animMovementDirection.y);
-        animator.SetFloat("zDir", animMovementDirection.z);
-        animator.SetFloat("yVel", localRb.linearVelocity.normalized.y);
-        animator.SetBool("isGrounded", isGrounded);
-        animator.SetBool("isRunning", isRunning);
-        animator.SetBool("isSkiing", isSkiing && !isUpJetting && !isDownJetting);
-        animator.SetBool("isJetting", isUpJetting || isDownJetting);
+        localAnimator.SetFloat("xDir", animMovementDirection.x);
+        localAnimator.SetFloat("yDir", animMovementDirection.y);
+        localAnimator.SetFloat("zDir", animMovementDirection.z);
+        localAnimator.SetFloat("yVel", localRb.linearVelocity.normalized.y);
+        localAnimator.SetBool("isGrounded", isGrounded);
+        localAnimator.SetBool("isRunning", isRunning);
+        localAnimator.SetBool("isSkiing", isSkiing && !isUpJetting && !isDownJetting);
+        localAnimator.SetBool("isJetting", isUpJetting || isDownJetting);
     }
     #endregion
 
@@ -575,8 +546,9 @@ public class PlayerController : Entity
         localRb.isKinematic = true;
         localPlayerCollider.enabled = false;
 
-        localTransform.position = destination;
-        Physics.SyncTransforms();
+        localRb.position = destination;
+        if (rotation != default) localRb.rotation = rotation;
+        localRb.PublishTransform();
 
         localPlayerCollider.enabled = true;
         localRb.isKinematic = false;
@@ -647,16 +619,8 @@ public class PlayerController : Entity
         
     }
 
-    private void HandleMovement(InputState frameInputs)
+    private void HandleMovement()
     {
-        Vector3 movementDirection = frameInputs.movementDirection;
-        Vector3 rotationDeltaYaw = frameInputs.rotationDeltaYaw;
-        bool isJumping = frameInputs.isJumping;
-        bool isSkiing = frameInputs.isSkiing;
-        bool isUpJetting = frameInputs.isUpJetting;
-        bool isDownJetting = frameInputs.isDownJetting;
-        bool isJetting = frameInputs.isJetting;
-        bool isRunning = frameInputs.isRunning;
         Vector3 currentVelocity = localRb.linearVelocity;
         Vector3 desiredAcc = Vector3.zero;
         Vector3 groundImpulse = Vector3.zero;
@@ -706,7 +670,7 @@ public class PlayerController : Entity
                 Vector3.zero;
             desiredVerticalAcc = jumpSurfaceNormal.y * playerScaleFactor * jumpForceFinal * jumpScale;
             lastGroundedTime = 1f;
-            animator.SetTrigger("triggerJump");
+            localAnimator.SetTrigger("triggerJump");
         }
         // Running Movement
         else if (isRunning)
@@ -927,6 +891,9 @@ public class PlayerController : Entity
     {
         if (IsOwner)
         {
+            localRb.isKinematic = true;
+            localPlayerCollider.enabled = false;
+
             // Disable the camera
             if (cineCam) cineCam.Priority.Value = 0;
 
@@ -962,6 +929,9 @@ public class PlayerController : Entity
         {
             // Enable the camera
             if (cineCam) cineCam.Priority.Value = 99;
+
+            localRb.isKinematic = false;
+            localPlayerCollider.enabled = true;
         }
         localTransform.Find("Model").gameObject.SetActive(true);
     }

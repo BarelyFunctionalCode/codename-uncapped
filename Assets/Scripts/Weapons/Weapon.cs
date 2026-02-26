@@ -1,9 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
-using Unity.Netcode.Components;
 
-[RequireComponent(typeof(NetworkTransform))]
 [RequireComponent(typeof(AudioSource))]
 public class Weapon : NetworkBehaviour
 {
@@ -113,8 +111,19 @@ public class Weapon : NetworkBehaviour
         playerRef.TryGet(out PlayerController playerController);
         originalParentNetworkObject = GetComponentInParent<NetworkObject>();
         transform.parent = playerController.weaponMountPoint;
+        transform.localPosition = Vector3.zero;
+        transform.localRotation = Quaternion.identity;
         if (IsOwner)
         {
+            if (!IsHost)
+            {
+                GameObject weaponModel = transform.GetChild(0).gameObject;
+                Vector3 localPosition = weaponModel.transform.localPosition;
+                weaponModel.transform.parent = playerController.playerPuppetObj.GetComponent<PlayerPuppet>().weaponMountPoint;
+                weaponModel.transform.localPosition = localPosition;
+                weaponModel.transform.localRotation = Quaternion.identity;
+            }
+            
             playerCamera = Camera.main;
             weaponUI.Initialize(maxAmmo, reticleSprite);
         }
