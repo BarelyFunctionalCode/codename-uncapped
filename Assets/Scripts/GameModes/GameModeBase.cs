@@ -6,9 +6,13 @@ using System.Collections.Generic;
 public class GameModeBase : MonoBehaviour
 {
     #region Component references
+    [SerializeField]
     private TeamStructure team_structure;
+    [SerializeField]
     private PhaseSystem   phase_system;
+    [SerializeField]
     private GameStats     game_stats;
+    [SerializeField]
     private WinConditions win_conditions;
     #endregion
 
@@ -87,11 +91,6 @@ public class GameModeBase : MonoBehaviour
 
     private void Start()
     {
-        team_structure  = gameObject.GetComponent<TeamStructure>();
-        phase_system    = gameObject.GetComponent<PhaseSystem>();
-        game_stats      = gameObject.GetComponent<GameStats>();
-        win_conditions  = gameObject.GetComponent<WinConditions>();
-
         isLoaded = true;
         StartGame();
     }

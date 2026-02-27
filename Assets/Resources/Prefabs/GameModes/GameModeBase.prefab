@@ -49,6 +49,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af2b78525ff8dd856afa6a07ae644d42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameModeBase
+  team_structure: {fileID: 4152407925966231162}
+  phase_system: {fileID: -4189097990456723710}
+  game_stats: {fileID: 5088351037047258174}
+  win_conditions: {fileID: 1446111806336827319}
 --- !u!114 &777088185169405786
 MonoBehaviour:
   m_ObjectHideFlags: 0
