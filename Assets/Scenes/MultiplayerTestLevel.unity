@@ -291,11 +291,11 @@ GameObject:
   m_Component:
   - component: {fileID: 589785388}
   m_Layer: 0
-  m_Name: Spawn (1)
+  m_Name: 1
   m_TagString: Respawn
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &589785388
 Transform:
@@ -312,6 +312,59 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2133765499}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &603038683
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 603038685}
+  - component: {fileID: 603038684}
+  m_Layer: 0
+  m_Name: Runtime Network Stats Monitor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &603038684
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 603038683}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17737e0516da2445b9b0077ae2bd9b4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Multiplayer.Tools.NetStatsMonitor.Component::Unity.Multiplayer.Tools.NetStatsMonitor.RuntimeNetStatsMonitor
+  m_Visible: 1
+  m_MaxRefreshRate: 30
+  <CustomStyleSheet>k__BackingField: {fileID: 0}
+  <PanelSettingsOverride>k__BackingField: {fileID: 0}
+  <Position>k__BackingField:
+    <OverridePosition>k__BackingField: 1
+    m_PositionLeftToRight: 0
+    m_PositionTopToBottom: 0
+  <Configuration>k__BackingField: {fileID: 11400000, guid: 8f1b4e3792d8446399527749cfb591a2, type: 2}
+--- !u!4 &603038685
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 603038683}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &654760832
 GameObject:
   m_ObjectHideFlags: 0
@@ -322,11 +375,11 @@ GameObject:
   m_Component:
   - component: {fileID: 654760833}
   m_Layer: 0
-  m_Name: Spawn (2)
+  m_Name: 0
   m_TagString: Respawn
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &654760833
 Transform:
@@ -353,11 +406,11 @@ GameObject:
   m_Component:
   - component: {fileID: 703081589}
   m_Layer: 0
-  m_Name: Spawn (2)
+  m_Name: 1
   m_TagString: Respawn
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &703081589
 Transform:
@@ -384,11 +437,11 @@ GameObject:
   m_Component:
   - component: {fileID: 713486514}
   m_Layer: 0
-  m_Name: Spawn (1)
+  m_Name: 0
   m_TagString: Respawn
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &713486514
 Transform:
@@ -666,11 +719,11 @@ GameObject:
   m_Component:
   - component: {fileID: 1045212618}
   m_Layer: 0
-  m_Name: Spawn (4)
+  m_Name: 1
   m_TagString: Respawn
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &1045212618
 Transform:
@@ -697,11 +750,11 @@ GameObject:
   m_Component:
   - component: {fileID: 1064342389}
   m_Layer: 0
-  m_Name: Spawn (3)
+  m_Name: 0
   m_TagString: Respawn
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &1064342389
 Transform:
@@ -728,11 +781,11 @@ GameObject:
   m_Component:
   - component: {fileID: 1460903535}
   m_Layer: 0
-  m_Name: Spawn (4)
+  m_Name: 0
   m_TagString: Respawn
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &1460903535
 Transform:
@@ -828,11 +881,11 @@ GameObject:
   m_Component:
   - component: {fileID: 1638787938}
   m_Layer: 0
-  m_Name: Spawn
+  m_Name: 0
   m_TagString: Respawn
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &1638787938
 Transform:
@@ -931,11 +984,11 @@ GameObject:
   - component: {fileID: 1756532410}
   - component: {fileID: 1756532409}
   m_Layer: 0
-  m_Name: Base
+  m_Name: Base0
   m_TagString: Terrain
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!65 &1756532409
 BoxCollider:
@@ -1045,11 +1098,11 @@ GameObject:
   m_Component:
   - component: {fileID: 1793634656}
   m_Layer: 0
-  m_Name: Spawn (3)
+  m_Name: 1
   m_TagString: Respawn
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &1793634656
 Transform:
@@ -1303,11 +1356,11 @@ GameObject:
   m_Component:
   - component: {fileID: 2027858532}
   m_Layer: 0
-  m_Name: Spawn
+  m_Name: 1
   m_TagString: Respawn
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &2027858532
 Transform:
@@ -1337,11 +1390,11 @@ GameObject:
   - component: {fileID: 2133765497}
   - component: {fileID: 2133765496}
   m_Layer: 0
-  m_Name: Base (1)
+  m_Name: Base1
   m_TagString: Terrain
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!65 &2133765496
 BoxCollider:
@@ -1451,9 +1504,4 @@ SceneRoots:
   - {fileID: 467024928}
   - {fileID: 1756532412}
   - {fileID: 2133765499}
-  - {fileID: 751302423}
-  - {fileID: 1822857693}
-  - {fileID: 909134423}
-  - {fileID: 1507719130}
-  - {fileID: 1667373397}
-  - {fileID: 121102309}
+  - {fileID: 603038685}

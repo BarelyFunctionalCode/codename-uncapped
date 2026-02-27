@@ -32,6 +32,10 @@ PrefabInstance:
       propertyPath: energyRegenRate
       value: 5.625
       objectReference: {fileID: 0}
+    - target: {fileID: 7551887640761236581, guid: 3fa16d938dcaf43da8ffee5ad932a77b, type: 3}
+      propertyPath: playerPuppetPrefabObj
+      value: 
+      objectReference: {fileID: 246932093399203689, guid: b537f33c3c541da4a8067e6b0d0d8b94, type: 3}
     - target: {fileID: 7768043932259214961, guid: 3fa16d938dcaf43da8ffee5ad932a77b, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
