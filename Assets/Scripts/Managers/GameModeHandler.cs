@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+using UnityEditor;
+
 
 public enum GameModes
 {
@@ -16,8 +18,6 @@ public enum GameModes
 // through PhaseSystem, once it has begun.
 public class GameModeHandler : MonoBehaviour
 {
-
-
     private static GameModeHandler _instance;
     public static GameModeHandler Instance
     {
@@ -32,9 +32,9 @@ public class GameModeHandler : MonoBehaviour
     #region Gamemode prefab cache
     // Pseudo
     [SerializeField]
-    public IReadOnlyDictionary<GameModes, int> game_mode_cache = new Dictionary<GameModes, int>()
+    public IReadOnlyDictionary<GameModes, GameObject> game_mode_cache = new Dictionary<GameModes, GameObject>()
     {
-        { GameModes.FFA, 0 }
+//        { GameModes.FFA, (GameObject)AssetDatabase.LoadAssetAtPath("Assets/Resources/Prefabs/GameModes/GameModeFFA.prefab", typeof(GameObject)) }
     };
 
     #endregion
@@ -51,11 +51,23 @@ public class GameModeHandler : MonoBehaviour
     public void SelectNewMode(GameModes g)
     {
         // Delete the current one
-        Destroy(current_game_mode);
+        if (current_game_mode)
+        {
+            // Remember, a GameModeBase is just a component of a GameObject
+            // so delete the game object, this deletes GameModeBase
+            Destroy(current_game_mode.gameObject);
+        }
 
         // Fetch the new one and assign it
-        int game_mode = game_mode_cache[g];
-        //current_game_mode = game_mode.Instantiate();
+        // GameObject game_mode = game_mode_cache[g];
+        // Fetch prefab resource
+        GameObject game_mode_object = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/Resources/Prefabs/GameModes/GameModeFFA.prefab", typeof(GameObject));
+        // Clone the prefab, add it as a child to the GameModeHandler
+        GameObject cloned_game_mode_object = Instantiate(game_mode_object, this.gameObject.transform);
+        // Fetch the clones's GameModeBase component
+        GameModeBase game_mode = cloned_game_mode_object.GetComponent<GameModeBase>();
+        current_game_mode = game_mode;
+        print("Done loading game mode");
     }
     #endregion
 
@@ -74,6 +86,8 @@ public class GameModeHandler : MonoBehaviour
         }
 
         current_game_mode = gameObject.GetComponent<GameModeBase>();
+        // Debugging
+        SelectNewMode(GameModes.FFA);
     }
     #endregion
 }

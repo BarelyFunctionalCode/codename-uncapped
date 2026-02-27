@@ -6,7 +6,6 @@ using System.Collections.Generic;
 public class GameModeBase : MonoBehaviour
 {
     #region Component references
-    private GameModeBase  game_mode_base;
     private TeamStructure team_structure;
     private PhaseSystem   phase_system;
     private GameStats     game_stats;
@@ -17,6 +16,7 @@ public class GameModeBase : MonoBehaviour
     private bool isInSession	   = false;
     private bool isComplete		   = true;
     private bool isDamageAllowed   = false;
+    private bool isLoaded          = false;
     #endregion
 
     #region Public Methods
@@ -32,6 +32,10 @@ public class GameModeBase : MonoBehaviour
     // Entry point for the game mode to begin its session.
     public void StartGame()
     {
+        if (!isLoaded)
+        {
+            return;
+        }
         team_structure.WipeTeams();
         phase_system.HardSet(Phase.PRELOAD);
     }
@@ -79,6 +83,17 @@ public class GameModeBase : MonoBehaviour
     public void OnGameWon()
     {
         print("Game won!");
+    }
+
+    private void Start()
+    {
+        team_structure  = gameObject.GetComponent<TeamStructure>();
+        phase_system    = gameObject.GetComponent<PhaseSystem>();
+        game_stats      = gameObject.GetComponent<GameStats>();
+        win_conditions  = gameObject.GetComponent<WinConditions>();
+
+        isLoaded = true;
+        StartGame();
     }
     #endregion
 

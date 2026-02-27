@@ -40,16 +40,16 @@ public class PhaseSystem : MonoBehaviour
             switch ( value )
             {
                 case Phase.PRELOAD:
-                    SetCountdown(1.0f);
+                    SetCountdown(5.0f);
                     break;
                 case Phase.WARMUP:
-                    SetCountdown(600.0f);
+                    SetCountdown(5.0f);
                     break;
                 case Phase.ACTIVE:
                     SetCountdown(5.0f);
                     break;
                 case Phase.ENDGAME:
-                    SetCountdown(1.0f);
+                    SetCountdown(5.0f);
                     break;
             };
         }
@@ -123,7 +123,7 @@ public class PhaseSystem : MonoBehaviour
 
     private void SetCountdown(float f)
     {
-
+        Countdown = f;
     }
     #endregion
     
