@@ -60,7 +60,7 @@ public class GameStats : MonoBehaviour
 
         if (!stat_group.ContainsKey(id))
         {
-            stat_group.Add(id, new StatTracker(id));
+            stat_group.Add(id, new StatTracker(id, stat_group_id));
         }
     }
 

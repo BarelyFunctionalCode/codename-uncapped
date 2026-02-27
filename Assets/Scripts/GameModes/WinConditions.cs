@@ -21,7 +21,6 @@ public class WinConditions : MonoBehaviour
             foreach (KeyValuePair<ulong, StatTracker> t in team_points)
             {
                 float team_point_value = t.Value.FetchStatValue(stat_type);
-                // debugging //print("team point value : stat value -- [" + team_point_value + " : " + stat_value + "]");
                 if (team_point_value >= stat_value)
                 {
                     result = true;

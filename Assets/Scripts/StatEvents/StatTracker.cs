@@ -6,6 +6,7 @@ public class StatTracker
 {
     // id = either Team_ID or Player_ID
     public ulong id;
+    public StatsGroup stat_group_id;
 
     /* Dictionary<StatEventType, int> stats
      * { StatEventType.KILLS:         5,
@@ -15,9 +16,10 @@ public class StatTracker
      */
     public Dictionary<StatEventType, float> stats = new Dictionary<StatEventType, float>{};
 
-    public StatTracker(ulong p)
+    public StatTracker(ulong _id, StatsGroup _stat_group_id)
     {
-        id = p;
+        id = _id;
+        stat_group_id = _stat_group_id;
     }
 
     // Add to a stat value, check first if that stat has an entry. If not, add a default stat 0.
