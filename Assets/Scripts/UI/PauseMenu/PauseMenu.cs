@@ -73,7 +73,12 @@ public class PauseMenu : MonoBehaviour
     private void OnTestLevelButtonClicked()
     {
         testLevelButton.gameObject.SetActive(false);
-        if (NetworkManager.Singleton.IsHost) GameManager.Instance.LoadLevel("MultiplayerTestLevel");
+        if (NetworkManager.Singleton.IsHost)
+        {
+            GameManager.Instance.SetLevel("MultiplayerTestLevel");
+            GameManager.Instance.SetGameMode(GameModes.FFA);
+            GameManager.Instance.LoadLevel();
+        }
     }
 
     private void OnLobbiesTabButtonClicked()

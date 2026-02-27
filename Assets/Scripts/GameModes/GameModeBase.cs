@@ -20,7 +20,6 @@ public class GameModeBase : MonoBehaviour
     private bool isInSession	   = false;
     private bool isComplete		   = true;
     private bool isDamageAllowed   = false;
-    private bool isLoaded          = false;
     #endregion
 
     #region Public Methods
@@ -36,10 +35,6 @@ public class GameModeBase : MonoBehaviour
     // Entry point for the game mode to begin its session.
     public void StartGame()
     {
-        if (!isLoaded)
-        {
-            return;
-        }
         team_structure.WipeTeams();
         phase_system.HardSet(Phase.PRELOAD);
     }
@@ -88,12 +83,6 @@ public class GameModeBase : MonoBehaviour
     public void OnGameWon(ulong id)
     {
         print("Game won! : " + id);
-    }
-
-    private void Start()
-    {
-        isLoaded = true;
-        StartGame();
     }
     #endregion
 

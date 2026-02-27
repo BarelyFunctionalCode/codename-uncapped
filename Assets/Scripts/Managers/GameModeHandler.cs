@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 using UnityEditor;
+using Unity.Netcode;
 
 
 public enum GameModes
@@ -30,13 +31,7 @@ public class GameModeHandler : MonoBehaviour
     public GameModeBase current_game_mode;
 
     #region Gamemode prefab cache
-    // Pseudo
-    [SerializeField]
-    public IReadOnlyDictionary<GameModes, GameObject> game_mode_cache = new Dictionary<GameModes, GameObject>()
-    {
-//        { GameModes.FFA, (GameObject)AssetDatabase.LoadAssetAtPath("Assets/Resources/Prefabs/GameModes/GameModeFFA.prefab", typeof(GameObject)) }
-    };
-
+    public static Dictionary<GameModes, GameObject> game_mode_cache = new();
     #endregion
 
 
@@ -60,19 +55,25 @@ public class GameModeHandler : MonoBehaviour
 
         // Fetch the new one and assign it
         // GameObject game_mode = game_mode_cache[g];
-        // Fetch prefab resource
-        GameObject game_mode_object = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/Resources/Prefabs/GameModes/GameModeFFA.prefab", typeof(GameObject));
         // Clone the prefab, add it as a child to the GameModeHandler
-        GameObject cloned_game_mode_object = Instantiate(game_mode_object, this.gameObject.transform);
+        GameObject cloned_game_mode_object = Instantiate(game_mode_cache[g], this.gameObject.transform);
+        cloned_game_mode_object.GetComponent<NetworkObject>().Spawn();
         // Fetch the clones's GameModeBase component
         GameModeBase game_mode = cloned_game_mode_object.GetComponent<GameModeBase>();
         current_game_mode = game_mode;
+
+        if (LevelManager.Instance) LevelManager.Instance.OnStageGenerated();
         print("Done loading game mode");
+    }
+
+    public void StartGame()
+    {
+        current_game_mode.StartGame();
     }
     #endregion
 
     #region Message Receivers
-    private void Start()
+    private void Awake()
     {
         // Init singleton logic
         if (_instance != null && _instance != this)
@@ -85,9 +86,20 @@ public class GameModeHandler : MonoBehaviour
             _instance = this;
         }
 
-        current_game_mode = gameObject.GetComponent<GameModeBase>();
-        // Debugging
-        SelectNewMode(GameModes.FFA);
+        // current_game_mode = gameObject.GetComponent<GameModeBase>();
+        // // Debugging
+        // SelectNewMode(GameModes.FFA);
+
+        if (game_mode_cache.Count == 0)
+        {
+            var gamemodeObjects = Resources.LoadAll<GameObject>("Prefabs/GameModes/Variants");
+            game_mode_cache = new Dictionary<GameModes, GameObject>(gamemodeObjects.Length);
+            foreach (GameObject obj in gamemodeObjects)
+            {
+                if (Enum.TryParse(obj.name, out GameModes gameMode))game_mode_cache.Add(gameMode, obj);
+                else Debug.LogWarning($"GameModeHandler: Failed to parse GameMode from prefab name {obj.name}");
+            }
+        }
     }
     #endregion
 }

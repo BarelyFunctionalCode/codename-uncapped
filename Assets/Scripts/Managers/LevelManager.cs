@@ -7,9 +7,11 @@ public class LevelManager : NetworkBehaviour
     public static LevelManager Instance { get; private set; } = null;
 
     private bool playersLoaded = false;
-    private bool stageGenerated = true; // TODO: Set to false when we have actual stage generation
+    private bool stageGenerated = false;
 
     Dictionary<int, List<Transform>> spawnPoints = new Dictionary<int, List<Transform>>();
+
+    [SerializeField] private GameObject gameModeHandlerPrefabObj;
 
     private void Awake()
     {
@@ -18,6 +20,15 @@ public class LevelManager : NetworkBehaviour
 
         transform.SetParent(null);
 	}
+
+    public void SetGameMode(GameModes gameMode)
+    {
+        if (GameModeHandler.Instance != null) return;
+
+        GameObject gamemodeHandlerObj = Instantiate(gameModeHandlerPrefabObj);
+        GameModeHandler gamemodeHandler = gamemodeHandlerObj.GetComponent<GameModeHandler>();
+        gamemodeHandler.SelectNewMode(gameMode);
+    }
 
     // Called after all the players have loaded into the scene
     public void OnPlayersLoaded()
@@ -72,12 +83,17 @@ public class LevelManager : NetworkBehaviour
     public void OnLevelReady()
     {
         // Do things to start the level
+
+        // Give players control
         foreach (var player in NetworkManager.Singleton.SpawnManager.PlayerObjects)
         {
             PlayerController playerController = player.GetComponentInChildren<PlayerController>();
             if (playerController == null) continue;
             playerController.SetPlayerControlsRpc(true);
         }
+
+        // Start the game mode
+        GameModeHandler.Instance.StartGame();
     }
 
     public Transform GetSpawnPoint(int teamId)
