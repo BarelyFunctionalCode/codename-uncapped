@@ -89,9 +89,63 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     ""name"": ""PlayerControls"",
     ""maps"": [
         {
-            ""name"": ""Movement"",
+            ""name"": ""Character"",
             ""id"": ""1b35036c-9fa3-4b75-bf32-7725165b6a39"",
             ""actions"": [
+                {
+                    ""name"": ""Look"",
+                    ""type"": ""Value"",
+                    ""id"": ""69d04e48-5c2c-4185-9024-8ee2eb8d07b0"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Move"",
+                    ""type"": ""Value"",
+                    ""id"": ""5f954712-d352-4f46-84b8-df597f27b69b"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Primary Fire"",
+                    ""type"": ""Button"",
+                    ""id"": ""e4d864ee-5fcf-4f03-8214-1a6daa7d1893"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": ""Hold"",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Throwable"",
+                    ""type"": ""Button"",
+                    ""id"": ""ba23aa3a-856c-4dae-81b4-74e1b78b4bd7"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Previous Weapon"",
+                    ""type"": ""Button"",
+                    ""id"": ""8683dfa9-c9ba-465b-bc56-9669e43ea5cb"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Next Weapon"",
+                    ""type"": ""Button"",
+                    ""id"": ""6b6c4e97-fa25-42dc-9a35-73a353238db3"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
                 {
                     ""name"": ""Ski"",
                     ""type"": ""Value"",
@@ -111,24 +165,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": true
                 },
                 {
-                    ""name"": ""Move"",
-                    ""type"": ""Value"",
-                    ""id"": ""5f954712-d352-4f46-84b8-df597f27b69b"",
-                    ""expectedControlType"": ""Vector2"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": true
-                },
-                {
-                    ""name"": ""Look"",
-                    ""type"": ""Value"",
-                    ""id"": ""69d04e48-5c2c-4185-9024-8ee2eb8d07b0"",
-                    ""expectedControlType"": ""Vector2"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": true
-                },
-                {
                     ""name"": ""Down Jet"",
                     ""type"": ""Value"",
                     ""id"": ""f1ed069d-0b72-480f-beda-e9259634b5ca"",
@@ -136,24 +172,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
-                },
-                {
-                    ""name"": ""Time Slow"",
-                    ""type"": ""Button"",
-                    ""id"": ""6faec846-c61a-4b4a-8cec-bc4c6d20197f"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Toggle Ski"",
-                    ""type"": ""Button"",
-                    ""id"": ""8aeb1a7d-0d65-4b7b-9ded-fcd0806676c4"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -165,6 +183,50 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Ski"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7abf3dc3-cb7c-4c79-8289-360ff29db954"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Throwable"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""36971091-6b32-4490-9c26-fe52579b4be6"",
+                    ""path"": ""<Keyboard>/2"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Previous Weapon"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4dfa588a-6055-4438-9890-b8a3df9ce1bb"",
+                    ""path"": ""<Keyboard>/1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Next Weapon"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""6fff2e6b-09f7-4f2e-9726-5dafd418aa59"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Primary Fire"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -255,28 +317,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""action"": ""Down Jet"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""07e9e91c-b557-45a1-b8ac-6ea2632e6265"",
-                    ""path"": ""<Mouse>/forwardButton"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Time Slow"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""fafa3d25-a9e9-4ae1-9ba7-98d5a3c8c613"",
-                    ""path"": ""<Keyboard>/x"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Toggle Ski"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -288,7 +328,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""name"": ""Pause"",
                     ""type"": ""Button"",
                     ""id"": ""07028ae3-1ad2-4a9f-ab57-c0d17623d3a2"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -318,123 +358,30 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
-        },
-        {
-            ""name"": ""Equipment"",
-            ""id"": ""37aceb1a-34fd-49e6-a1d5-318f660aef61"",
-            ""actions"": [
-                {
-                    ""name"": ""Primary Fire"",
-                    ""type"": ""Button"",
-                    ""id"": ""c7ada4ac-cfea-475b-88ab-55e7778770b4"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": ""Hold"",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Next Weapon"",
-                    ""type"": ""Button"",
-                    ""id"": ""a8dd11b4-d233-4e43-b9c2-77e0a4f617c7"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Previous Weapon"",
-                    ""type"": ""Button"",
-                    ""id"": ""8fda191e-e5cc-49af-a1bb-e5bc457030f6"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Throwable"",
-                    ""type"": ""Button"",
-                    ""id"": ""b7eedb3a-73d9-4467-810a-7f5fdc190db7"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                }
-            ],
-            ""bindings"": [
-                {
-                    ""name"": """",
-                    ""id"": ""fa19f955-da88-4183-bcd4-fec438c34fd7"",
-                    ""path"": ""<Mouse>/leftButton"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Primary Fire"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""e8ef93c9-1a8a-45dd-8d72-99f4e9d2092e"",
-                    ""path"": ""<Keyboard>/1"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Next Weapon"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""78af021a-57e9-43e1-b356-c0697ee88b42"",
-                    ""path"": ""<Keyboard>/2"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Previous Weapon"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""c4c1b539-1e8b-48c1-b510-ebbda51995a2"",
-                    ""path"": ""<Keyboard>/e"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Throwable"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                }
-            ]
         }
     ],
     ""controlSchemes"": []
 }");
-        // Movement
-        m_Movement = asset.FindActionMap("Movement", throwIfNotFound: true);
-        m_Movement_Ski = m_Movement.FindAction("Ski", throwIfNotFound: true);
-        m_Movement_JumpJet = m_Movement.FindAction("Jump / Jet", throwIfNotFound: true);
-        m_Movement_Move = m_Movement.FindAction("Move", throwIfNotFound: true);
-        m_Movement_Look = m_Movement.FindAction("Look", throwIfNotFound: true);
-        m_Movement_DownJet = m_Movement.FindAction("Down Jet", throwIfNotFound: true);
-        m_Movement_TimeSlow = m_Movement.FindAction("Time Slow", throwIfNotFound: true);
-        m_Movement_ToggleSki = m_Movement.FindAction("Toggle Ski", throwIfNotFound: true);
+        // Character
+        m_Character = asset.FindActionMap("Character", throwIfNotFound: true);
+        m_Character_Look = m_Character.FindAction("Look", throwIfNotFound: true);
+        m_Character_Move = m_Character.FindAction("Move", throwIfNotFound: true);
+        m_Character_PrimaryFire = m_Character.FindAction("Primary Fire", throwIfNotFound: true);
+        m_Character_Throwable = m_Character.FindAction("Throwable", throwIfNotFound: true);
+        m_Character_PreviousWeapon = m_Character.FindAction("Previous Weapon", throwIfNotFound: true);
+        m_Character_NextWeapon = m_Character.FindAction("Next Weapon", throwIfNotFound: true);
+        m_Character_Ski = m_Character.FindAction("Ski", throwIfNotFound: true);
+        m_Character_JumpJet = m_Character.FindAction("Jump / Jet", throwIfNotFound: true);
+        m_Character_DownJet = m_Character.FindAction("Down Jet", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Pause = m_UI.FindAction("Pause", throwIfNotFound: true);
-        // Equipment
-        m_Equipment = asset.FindActionMap("Equipment", throwIfNotFound: true);
-        m_Equipment_PrimaryFire = m_Equipment.FindAction("Primary Fire", throwIfNotFound: true);
-        m_Equipment_NextWeapon = m_Equipment.FindAction("Next Weapon", throwIfNotFound: true);
-        m_Equipment_PreviousWeapon = m_Equipment.FindAction("Previous Weapon", throwIfNotFound: true);
-        m_Equipment_Throwable = m_Equipment.FindAction("Throwable", throwIfNotFound: true);
     }
 
     ~@PlayerControls()
     {
-        UnityEngine.Debug.Assert(!m_Movement.enabled, "This will cause a leak and performance issues, PlayerControls.Movement.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_Character.enabled, "This will cause a leak and performance issues, PlayerControls.Character.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_UI.enabled, "This will cause a leak and performance issues, PlayerControls.UI.Disable() has not been called.");
-        UnityEngine.Debug.Assert(!m_Equipment.enabled, "This will cause a leak and performance issues, PlayerControls.Equipment.Disable() has not been called.");
     }
 
     /// <summary>
@@ -507,59 +454,69 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         return asset.FindBinding(bindingMask, out action);
     }
 
-    // Movement
-    private readonly InputActionMap m_Movement;
-    private List<IMovementActions> m_MovementActionsCallbackInterfaces = new List<IMovementActions>();
-    private readonly InputAction m_Movement_Ski;
-    private readonly InputAction m_Movement_JumpJet;
-    private readonly InputAction m_Movement_Move;
-    private readonly InputAction m_Movement_Look;
-    private readonly InputAction m_Movement_DownJet;
-    private readonly InputAction m_Movement_TimeSlow;
-    private readonly InputAction m_Movement_ToggleSki;
+    // Character
+    private readonly InputActionMap m_Character;
+    private List<ICharacterActions> m_CharacterActionsCallbackInterfaces = new List<ICharacterActions>();
+    private readonly InputAction m_Character_Look;
+    private readonly InputAction m_Character_Move;
+    private readonly InputAction m_Character_PrimaryFire;
+    private readonly InputAction m_Character_Throwable;
+    private readonly InputAction m_Character_PreviousWeapon;
+    private readonly InputAction m_Character_NextWeapon;
+    private readonly InputAction m_Character_Ski;
+    private readonly InputAction m_Character_JumpJet;
+    private readonly InputAction m_Character_DownJet;
     /// <summary>
-    /// Provides access to input actions defined in input action map "Movement".
+    /// Provides access to input actions defined in input action map "Character".
     /// </summary>
-    public struct MovementActions
+    public struct CharacterActions
     {
         private @PlayerControls m_Wrapper;
 
         /// <summary>
         /// Construct a new instance of the input action map wrapper class.
         /// </summary>
-        public MovementActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
+        public CharacterActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
         /// <summary>
-        /// Provides access to the underlying input action "Movement/Ski".
+        /// Provides access to the underlying input action "Character/Look".
         /// </summary>
-        public InputAction @Ski => m_Wrapper.m_Movement_Ski;
+        public InputAction @Look => m_Wrapper.m_Character_Look;
         /// <summary>
-        /// Provides access to the underlying input action "Movement/JumpJet".
+        /// Provides access to the underlying input action "Character/Move".
         /// </summary>
-        public InputAction @JumpJet => m_Wrapper.m_Movement_JumpJet;
+        public InputAction @Move => m_Wrapper.m_Character_Move;
         /// <summary>
-        /// Provides access to the underlying input action "Movement/Move".
+        /// Provides access to the underlying input action "Character/PrimaryFire".
         /// </summary>
-        public InputAction @Move => m_Wrapper.m_Movement_Move;
+        public InputAction @PrimaryFire => m_Wrapper.m_Character_PrimaryFire;
         /// <summary>
-        /// Provides access to the underlying input action "Movement/Look".
+        /// Provides access to the underlying input action "Character/Throwable".
         /// </summary>
-        public InputAction @Look => m_Wrapper.m_Movement_Look;
+        public InputAction @Throwable => m_Wrapper.m_Character_Throwable;
         /// <summary>
-        /// Provides access to the underlying input action "Movement/DownJet".
+        /// Provides access to the underlying input action "Character/PreviousWeapon".
         /// </summary>
-        public InputAction @DownJet => m_Wrapper.m_Movement_DownJet;
+        public InputAction @PreviousWeapon => m_Wrapper.m_Character_PreviousWeapon;
         /// <summary>
-        /// Provides access to the underlying input action "Movement/TimeSlow".
+        /// Provides access to the underlying input action "Character/NextWeapon".
         /// </summary>
-        public InputAction @TimeSlow => m_Wrapper.m_Movement_TimeSlow;
+        public InputAction @NextWeapon => m_Wrapper.m_Character_NextWeapon;
         /// <summary>
-        /// Provides access to the underlying input action "Movement/ToggleSki".
+        /// Provides access to the underlying input action "Character/Ski".
         /// </summary>
-        public InputAction @ToggleSki => m_Wrapper.m_Movement_ToggleSki;
+        public InputAction @Ski => m_Wrapper.m_Character_Ski;
+        /// <summary>
+        /// Provides access to the underlying input action "Character/JumpJet".
+        /// </summary>
+        public InputAction @JumpJet => m_Wrapper.m_Character_JumpJet;
+        /// <summary>
+        /// Provides access to the underlying input action "Character/DownJet".
+        /// </summary>
+        public InputAction @DownJet => m_Wrapper.m_Character_DownJet;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
-        public InputActionMap Get() { return m_Wrapper.m_Movement; }
+        public InputActionMap Get() { return m_Wrapper.m_Character; }
         /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
         public void Enable() { Get().Enable(); }
         /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
@@ -567,9 +524,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
         public bool enabled => Get().enabled;
         /// <summary>
-        /// Implicitly converts an <see ref="MovementActions" /> to an <see ref="InputActionMap" /> instance.
+        /// Implicitly converts an <see ref="CharacterActions" /> to an <see ref="InputActionMap" /> instance.
         /// </summary>
-        public static implicit operator InputActionMap(MovementActions set) { return set.Get(); }
+        public static implicit operator InputActionMap(CharacterActions set) { return set.Get(); }
         /// <summary>
         /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
         /// </summary>
@@ -577,32 +534,38 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <remarks>
         /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
         /// </remarks>
-        /// <seealso cref="MovementActions" />
-        public void AddCallbacks(IMovementActions instance)
+        /// <seealso cref="CharacterActions" />
+        public void AddCallbacks(ICharacterActions instance)
         {
-            if (instance == null || m_Wrapper.m_MovementActionsCallbackInterfaces.Contains(instance)) return;
-            m_Wrapper.m_MovementActionsCallbackInterfaces.Add(instance);
+            if (instance == null || m_Wrapper.m_CharacterActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_CharacterActionsCallbackInterfaces.Add(instance);
+            @Look.started += instance.OnLook;
+            @Look.performed += instance.OnLook;
+            @Look.canceled += instance.OnLook;
+            @Move.started += instance.OnMove;
+            @Move.performed += instance.OnMove;
+            @Move.canceled += instance.OnMove;
+            @PrimaryFire.started += instance.OnPrimaryFire;
+            @PrimaryFire.performed += instance.OnPrimaryFire;
+            @PrimaryFire.canceled += instance.OnPrimaryFire;
+            @Throwable.started += instance.OnThrowable;
+            @Throwable.performed += instance.OnThrowable;
+            @Throwable.canceled += instance.OnThrowable;
+            @PreviousWeapon.started += instance.OnPreviousWeapon;
+            @PreviousWeapon.performed += instance.OnPreviousWeapon;
+            @PreviousWeapon.canceled += instance.OnPreviousWeapon;
+            @NextWeapon.started += instance.OnNextWeapon;
+            @NextWeapon.performed += instance.OnNextWeapon;
+            @NextWeapon.canceled += instance.OnNextWeapon;
             @Ski.started += instance.OnSki;
             @Ski.performed += instance.OnSki;
             @Ski.canceled += instance.OnSki;
             @JumpJet.started += instance.OnJumpJet;
             @JumpJet.performed += instance.OnJumpJet;
             @JumpJet.canceled += instance.OnJumpJet;
-            @Move.started += instance.OnMove;
-            @Move.performed += instance.OnMove;
-            @Move.canceled += instance.OnMove;
-            @Look.started += instance.OnLook;
-            @Look.performed += instance.OnLook;
-            @Look.canceled += instance.OnLook;
             @DownJet.started += instance.OnDownJet;
             @DownJet.performed += instance.OnDownJet;
             @DownJet.canceled += instance.OnDownJet;
-            @TimeSlow.started += instance.OnTimeSlow;
-            @TimeSlow.performed += instance.OnTimeSlow;
-            @TimeSlow.canceled += instance.OnTimeSlow;
-            @ToggleSki.started += instance.OnToggleSki;
-            @ToggleSki.performed += instance.OnToggleSki;
-            @ToggleSki.canceled += instance.OnToggleSki;
         }
 
         /// <summary>
@@ -611,39 +574,45 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <remarks>
         /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
         /// </remarks>
-        /// <seealso cref="MovementActions" />
-        private void UnregisterCallbacks(IMovementActions instance)
+        /// <seealso cref="CharacterActions" />
+        private void UnregisterCallbacks(ICharacterActions instance)
         {
+            @Look.started -= instance.OnLook;
+            @Look.performed -= instance.OnLook;
+            @Look.canceled -= instance.OnLook;
+            @Move.started -= instance.OnMove;
+            @Move.performed -= instance.OnMove;
+            @Move.canceled -= instance.OnMove;
+            @PrimaryFire.started -= instance.OnPrimaryFire;
+            @PrimaryFire.performed -= instance.OnPrimaryFire;
+            @PrimaryFire.canceled -= instance.OnPrimaryFire;
+            @Throwable.started -= instance.OnThrowable;
+            @Throwable.performed -= instance.OnThrowable;
+            @Throwable.canceled -= instance.OnThrowable;
+            @PreviousWeapon.started -= instance.OnPreviousWeapon;
+            @PreviousWeapon.performed -= instance.OnPreviousWeapon;
+            @PreviousWeapon.canceled -= instance.OnPreviousWeapon;
+            @NextWeapon.started -= instance.OnNextWeapon;
+            @NextWeapon.performed -= instance.OnNextWeapon;
+            @NextWeapon.canceled -= instance.OnNextWeapon;
             @Ski.started -= instance.OnSki;
             @Ski.performed -= instance.OnSki;
             @Ski.canceled -= instance.OnSki;
             @JumpJet.started -= instance.OnJumpJet;
             @JumpJet.performed -= instance.OnJumpJet;
             @JumpJet.canceled -= instance.OnJumpJet;
-            @Move.started -= instance.OnMove;
-            @Move.performed -= instance.OnMove;
-            @Move.canceled -= instance.OnMove;
-            @Look.started -= instance.OnLook;
-            @Look.performed -= instance.OnLook;
-            @Look.canceled -= instance.OnLook;
             @DownJet.started -= instance.OnDownJet;
             @DownJet.performed -= instance.OnDownJet;
             @DownJet.canceled -= instance.OnDownJet;
-            @TimeSlow.started -= instance.OnTimeSlow;
-            @TimeSlow.performed -= instance.OnTimeSlow;
-            @TimeSlow.canceled -= instance.OnTimeSlow;
-            @ToggleSki.started -= instance.OnToggleSki;
-            @ToggleSki.performed -= instance.OnToggleSki;
-            @ToggleSki.canceled -= instance.OnToggleSki;
         }
 
         /// <summary>
-        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="MovementActions.UnregisterCallbacks(IMovementActions)" />.
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="CharacterActions.UnregisterCallbacks(ICharacterActions)" />.
         /// </summary>
-        /// <seealso cref="MovementActions.UnregisterCallbacks(IMovementActions)" />
-        public void RemoveCallbacks(IMovementActions instance)
+        /// <seealso cref="CharacterActions.UnregisterCallbacks(ICharacterActions)" />
+        public void RemoveCallbacks(ICharacterActions instance)
         {
-            if (m_Wrapper.m_MovementActionsCallbackInterfaces.Remove(instance))
+            if (m_Wrapper.m_CharacterActionsCallbackInterfaces.Remove(instance))
                 UnregisterCallbacks(instance);
         }
 
@@ -653,21 +622,21 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <remarks>
         /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
         /// </remarks>
-        /// <seealso cref="MovementActions.AddCallbacks(IMovementActions)" />
-        /// <seealso cref="MovementActions.RemoveCallbacks(IMovementActions)" />
-        /// <seealso cref="MovementActions.UnregisterCallbacks(IMovementActions)" />
-        public void SetCallbacks(IMovementActions instance)
+        /// <seealso cref="CharacterActions.AddCallbacks(ICharacterActions)" />
+        /// <seealso cref="CharacterActions.RemoveCallbacks(ICharacterActions)" />
+        /// <seealso cref="CharacterActions.UnregisterCallbacks(ICharacterActions)" />
+        public void SetCallbacks(ICharacterActions instance)
         {
-            foreach (var item in m_Wrapper.m_MovementActionsCallbackInterfaces)
+            foreach (var item in m_Wrapper.m_CharacterActionsCallbackInterfaces)
                 UnregisterCallbacks(item);
-            m_Wrapper.m_MovementActionsCallbackInterfaces.Clear();
+            m_Wrapper.m_CharacterActionsCallbackInterfaces.Clear();
             AddCallbacks(instance);
         }
     }
     /// <summary>
-    /// Provides a new <see cref="MovementActions" /> instance referencing this action map.
+    /// Provides a new <see cref="CharacterActions" /> instance referencing this action map.
     /// </summary>
-    public MovementActions @Movement => new MovementActions(this);
+    public CharacterActions @Character => new CharacterActions(this);
 
     // UI
     private readonly InputActionMap m_UI;
@@ -764,142 +733,55 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     /// Provides a new <see cref="UIActions" /> instance referencing this action map.
     /// </summary>
     public UIActions @UI => new UIActions(this);
-
-    // Equipment
-    private readonly InputActionMap m_Equipment;
-    private List<IEquipmentActions> m_EquipmentActionsCallbackInterfaces = new List<IEquipmentActions>();
-    private readonly InputAction m_Equipment_PrimaryFire;
-    private readonly InputAction m_Equipment_NextWeapon;
-    private readonly InputAction m_Equipment_PreviousWeapon;
-    private readonly InputAction m_Equipment_Throwable;
     /// <summary>
-    /// Provides access to input actions defined in input action map "Equipment".
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Character" which allows adding and removing callbacks.
     /// </summary>
-    public struct EquipmentActions
+    /// <seealso cref="CharacterActions.AddCallbacks(ICharacterActions)" />
+    /// <seealso cref="CharacterActions.RemoveCallbacks(ICharacterActions)" />
+    public interface ICharacterActions
     {
-        private @PlayerControls m_Wrapper;
-
         /// <summary>
-        /// Construct a new instance of the input action map wrapper class.
+        /// Method invoked when associated input action "Look" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
-        public EquipmentActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnLook(InputAction.CallbackContext context);
         /// <summary>
-        /// Provides access to the underlying input action "Equipment/PrimaryFire".
+        /// Method invoked when associated input action "Move" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
-        public InputAction @PrimaryFire => m_Wrapper.m_Equipment_PrimaryFire;
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnMove(InputAction.CallbackContext context);
         /// <summary>
-        /// Provides access to the underlying input action "Equipment/NextWeapon".
+        /// Method invoked when associated input action "Primary Fire" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
-        public InputAction @NextWeapon => m_Wrapper.m_Equipment_NextWeapon;
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPrimaryFire(InputAction.CallbackContext context);
         /// <summary>
-        /// Provides access to the underlying input action "Equipment/PreviousWeapon".
+        /// Method invoked when associated input action "Throwable" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
-        public InputAction @PreviousWeapon => m_Wrapper.m_Equipment_PreviousWeapon;
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnThrowable(InputAction.CallbackContext context);
         /// <summary>
-        /// Provides access to the underlying input action "Equipment/Throwable".
+        /// Method invoked when associated input action "Previous Weapon" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
-        public InputAction @Throwable => m_Wrapper.m_Equipment_Throwable;
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPreviousWeapon(InputAction.CallbackContext context);
         /// <summary>
-        /// Provides access to the underlying input action map instance.
+        /// Method invoked when associated input action "Next Weapon" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
-        public InputActionMap Get() { return m_Wrapper.m_Equipment; }
-        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
-        public void Enable() { Get().Enable(); }
-        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
-        public void Disable() { Get().Disable(); }
-        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
-        public bool enabled => Get().enabled;
-        /// <summary>
-        /// Implicitly converts an <see ref="EquipmentActions" /> to an <see ref="InputActionMap" /> instance.
-        /// </summary>
-        public static implicit operator InputActionMap(EquipmentActions set) { return set.Get(); }
-        /// <summary>
-        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
-        /// </summary>
-        /// <param name="instance">Callback instance.</param>
-        /// <remarks>
-        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
-        /// </remarks>
-        /// <seealso cref="EquipmentActions" />
-        public void AddCallbacks(IEquipmentActions instance)
-        {
-            if (instance == null || m_Wrapper.m_EquipmentActionsCallbackInterfaces.Contains(instance)) return;
-            m_Wrapper.m_EquipmentActionsCallbackInterfaces.Add(instance);
-            @PrimaryFire.started += instance.OnPrimaryFire;
-            @PrimaryFire.performed += instance.OnPrimaryFire;
-            @PrimaryFire.canceled += instance.OnPrimaryFire;
-            @NextWeapon.started += instance.OnNextWeapon;
-            @NextWeapon.performed += instance.OnNextWeapon;
-            @NextWeapon.canceled += instance.OnNextWeapon;
-            @PreviousWeapon.started += instance.OnPreviousWeapon;
-            @PreviousWeapon.performed += instance.OnPreviousWeapon;
-            @PreviousWeapon.canceled += instance.OnPreviousWeapon;
-            @Throwable.started += instance.OnThrowable;
-            @Throwable.performed += instance.OnThrowable;
-            @Throwable.canceled += instance.OnThrowable;
-        }
-
-        /// <summary>
-        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
-        /// </summary>
-        /// <remarks>
-        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
-        /// </remarks>
-        /// <seealso cref="EquipmentActions" />
-        private void UnregisterCallbacks(IEquipmentActions instance)
-        {
-            @PrimaryFire.started -= instance.OnPrimaryFire;
-            @PrimaryFire.performed -= instance.OnPrimaryFire;
-            @PrimaryFire.canceled -= instance.OnPrimaryFire;
-            @NextWeapon.started -= instance.OnNextWeapon;
-            @NextWeapon.performed -= instance.OnNextWeapon;
-            @NextWeapon.canceled -= instance.OnNextWeapon;
-            @PreviousWeapon.started -= instance.OnPreviousWeapon;
-            @PreviousWeapon.performed -= instance.OnPreviousWeapon;
-            @PreviousWeapon.canceled -= instance.OnPreviousWeapon;
-            @Throwable.started -= instance.OnThrowable;
-            @Throwable.performed -= instance.OnThrowable;
-            @Throwable.canceled -= instance.OnThrowable;
-        }
-
-        /// <summary>
-        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="EquipmentActions.UnregisterCallbacks(IEquipmentActions)" />.
-        /// </summary>
-        /// <seealso cref="EquipmentActions.UnregisterCallbacks(IEquipmentActions)" />
-        public void RemoveCallbacks(IEquipmentActions instance)
-        {
-            if (m_Wrapper.m_EquipmentActionsCallbackInterfaces.Remove(instance))
-                UnregisterCallbacks(instance);
-        }
-
-        /// <summary>
-        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
-        /// </summary>
-        /// <remarks>
-        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
-        /// </remarks>
-        /// <seealso cref="EquipmentActions.AddCallbacks(IEquipmentActions)" />
-        /// <seealso cref="EquipmentActions.RemoveCallbacks(IEquipmentActions)" />
-        /// <seealso cref="EquipmentActions.UnregisterCallbacks(IEquipmentActions)" />
-        public void SetCallbacks(IEquipmentActions instance)
-        {
-            foreach (var item in m_Wrapper.m_EquipmentActionsCallbackInterfaces)
-                UnregisterCallbacks(item);
-            m_Wrapper.m_EquipmentActionsCallbackInterfaces.Clear();
-            AddCallbacks(instance);
-        }
-    }
-    /// <summary>
-    /// Provides a new <see cref="EquipmentActions" /> instance referencing this action map.
-    /// </summary>
-    public EquipmentActions @Equipment => new EquipmentActions(this);
-    /// <summary>
-    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Movement" which allows adding and removing callbacks.
-    /// </summary>
-    /// <seealso cref="MovementActions.AddCallbacks(IMovementActions)" />
-    /// <seealso cref="MovementActions.RemoveCallbacks(IMovementActions)" />
-    public interface IMovementActions
-    {
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnNextWeapon(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "Ski" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
@@ -915,40 +797,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnJumpJet(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Move" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnMove(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Look" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnLook(InputAction.CallbackContext context);
-        /// <summary>
         /// Method invoked when associated input action "Down Jet" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnDownJet(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Time Slow" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnTimeSlow(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Toggle Ski" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnToggleSki(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.
@@ -964,41 +818,5 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnPause(InputAction.CallbackContext context);
-    }
-    /// <summary>
-    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Equipment" which allows adding and removing callbacks.
-    /// </summary>
-    /// <seealso cref="EquipmentActions.AddCallbacks(IEquipmentActions)" />
-    /// <seealso cref="EquipmentActions.RemoveCallbacks(IEquipmentActions)" />
-    public interface IEquipmentActions
-    {
-        /// <summary>
-        /// Method invoked when associated input action "Primary Fire" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnPrimaryFire(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Next Weapon" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnNextWeapon(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Previous Weapon" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnPreviousWeapon(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Throwable" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnThrowable(InputAction.CallbackContext context);
     }
 }

@@ -212,6 +212,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5264849612332608470}
+  - {fileID: 406254401492999483}
   m_Father: {fileID: 8319885908206120541}
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!33 &5937924671580274136
@@ -281,7 +282,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8319885908206120541}
   - component: {fileID: 5429348420117299609}
-  - component: {fileID: 3563414091861852614}
+  - component: {fileID: 1097497126747797972}
   - component: {fileID: 6084447725475632623}
   m_Layer: 0
   m_Name: ChainGun
@@ -304,7 +305,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8484721488691571597}
-  - {fileID: 406254401492999483}
   m_Father: {fileID: 4243680587606140157}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5429348420117299609
@@ -335,7 +335,7 @@ MonoBehaviour:
   canFire: 1
   isEquiped:
     m_InternalValue: 1
---- !u!114 &3563414091861852614
+--- !u!114 &1097497126747797972
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -356,7 +356,7 @@ MonoBehaviour:
   PositionLerpSmoothing: 1
   PositionMaxInterpolationTime: 0.1
   RotationLerpSmoothing: 1
-  RotationMaxInterpolationTime: 0.01
+  RotationMaxInterpolationTime: 0.1
   ScaleLerpSmoothing: 1
   ScaleMaxInterpolationTime: 0.1
   AuthorityMode: 0
@@ -377,7 +377,7 @@ MonoBehaviour:
   UseQuaternionSynchronization: 0
   UseQuaternionCompression: 0
   UseHalfFloatPrecision: 0
-  InLocalSpace: 1
+  InLocalSpace: 0
   SwitchTransformSpaceWhenParented: 1
   Interpolate: 0
   SlerpPosition: 0
@@ -487,7 +487,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4243680587606140157}
-  - component: {fileID: -2800417887248720923}
+  - component: {fileID: 2084104615955523830}
   m_Layer: 0
   m_Name: ChainGun
   m_TagString: Weapon
@@ -512,7 +512,7 @@ Transform:
   - {fileID: 4512563890339095642}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &-2800417887248720923
+--- !u!114 &2084104615955523830
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -524,7 +524,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1866152574
+  GlobalObjectIdHash: 1677014881
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -546,7 +546,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 406254401492999483}
-  - component: {fileID: 1584342417571883412}
   m_Layer: 0
   m_Name: ProjectileSpawnPoint
   m_TagString: Untagged
@@ -562,59 +561,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4591842285128116185}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 1.352}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 13.129999, z: 0}
+  m_LocalScale: {x: 3.333333, y: 3.3333323, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 8319885908206120541}
+  m_Father: {fileID: 8484721488691571597}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1584342417571883412
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4591842285128116185}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.Components.NetworkTransform
-  ShowTopMostFoldoutHeaderGroup: 1
-  NetworkTransformExpanded: 0
-  AutoOwnerAuthorityTickOffset: 1
-  PositionInterpolationType: 0
-  RotationInterpolationType: 0
-  ScaleInterpolationType: 0
-  PositionLerpSmoothing: 1
-  PositionMaxInterpolationTime: 0.1
-  RotationLerpSmoothing: 1
-  RotationMaxInterpolationTime: 0.1
-  ScaleLerpSmoothing: 1
-  ScaleMaxInterpolationTime: 0.1
-  AuthorityMode: 0
-  TickSyncChildren: 0
-  UseUnreliableDeltas: 0
-  SyncPositionX: 0
-  SyncPositionY: 0
-  SyncPositionZ: 0
-  SyncRotAngleX: 1
-  SyncRotAngleY: 1
-  SyncRotAngleZ: 1
-  SyncScaleX: 0
-  SyncScaleY: 0
-  SyncScaleZ: 0
-  PositionThreshold: 0.001
-  RotAngleThreshold: 0.01
-  ScaleThreshold: 0.01
-  UseQuaternionSynchronization: 0
-  UseQuaternionCompression: 0
-  UseHalfFloatPrecision: 0
-  InLocalSpace: 1
-  SwitchTransformSpaceWhenParented: 0
-  Interpolate: 0
-  SlerpPosition: 0
 --- !u!1 &5703832469504607894
 GameObject:
   m_ObjectHideFlags: 0
