@@ -1618,7 +1618,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1476614326
+  GlobalObjectIdHash: 1518157095
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -1716,6 +1716,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  identifier: 
+  teamId: 0
   health:
     m_InternalValue: 0
   maxHealth: 0
@@ -1735,7 +1737,7 @@ MonoBehaviour:
   horizontalRotationSpeed: 20
   verticalRotationSpeed: 24
   verticalRotationLimit: 100
-  playerUIPrefabObj: {fileID: 1576205389831411256, guid: 0ab52eef5ee0c7540a8cbb0c08a02f33, type: 3}
+  playerUIPrefabObj: {fileID: 294921519159598449, guid: fbaff38f26bf3e1d2a0c405ca55dd54c, type: 3}
   playerUIObj: {fileID: 0}
   skiMaterial: {fileID: 13400000, guid: 5d01f8d4ca43e524696e30c3ba230525, type: 2}
   normalMaterial: {fileID: 13400000, guid: 3c46edcb0e00fb14d9c600ca066c4007, type: 2}
@@ -2087,6 +2089,9 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
+  onNewLocalTransformState:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &7219783322743969792
 MonoBehaviour:
   m_ObjectHideFlags: 0

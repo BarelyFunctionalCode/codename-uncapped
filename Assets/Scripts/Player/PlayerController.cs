@@ -5,6 +5,7 @@ using Unity.Cinemachine;
 using Unity.Netcode;
 using Unity.Netcode.Components;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 
 
@@ -230,14 +231,14 @@ public class PlayerController : Entity
         {
             if (playerControls.UI.Pause.WasPressedThisFrame())
             {
-                bool newMenuState = !playerUIObj.transform.Find("PauseMenu").gameObject.activeSelf;
+                bool newMenuState = !playerUIObj.transform.GetComponentInChildren<PauseMenu>(true).gameObject.activeSelf;
                 Cursor.lockState = newMenuState ? CursorLockMode.Confined : CursorLockMode.Locked;
                 if (newMenuState) {
                     playerControls.Disable();
                     playerControls.UI.Enable();
                 }
                 else playerControls.Enable();
-                playerUIObj.transform.Find("PauseMenu").gameObject.SetActive(newMenuState);
+                playerUIObj.transform.GetComponentInChildren<PauseMenu>(true).gameObject.SetActive(newMenuState);
             }
             playerTelemetry.Update();
             
@@ -351,6 +352,11 @@ public class PlayerController : Entity
                 audioListener = playerCameraObj.GetComponentInChildren<AudioListener>();
                 cineCam = playerCameraObj.GetComponentInChildren<CinemachineCamera>();
                 cineCam.Follow = freeLookTargetTransform;
+
+                Camera UIOverlayCamera = playerUIObj.GetComponentInChildren<Canvas>().worldCamera;
+                Camera mainCamera = playerCameraObj.GetComponentInChildren<Camera>();
+                var cameraData = mainCamera.GetUniversalAdditionalCameraData();
+                cameraData.cameraStack.Add(UIOverlayCamera);
 
                 // Enable audio listener
                 audioListener.enabled = true;
