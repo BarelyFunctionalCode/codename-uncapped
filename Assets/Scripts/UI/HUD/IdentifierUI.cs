@@ -18,6 +18,7 @@ public class IdentifierUI : MonoBehaviour
     private Collider objectCollider;
     private Vector3 objectColliderExtents;
     private RectTransform identifierRect;
+    private RectTransform offscreenIndicatorRect;
 
     float detectionMaxDistanceRange = 1000f;
     float detectionMaxDistanceScreenRadius = 10f;
@@ -48,6 +49,7 @@ public class IdentifierUI : MonoBehaviour
     private void Awake()
     {
         identifierRect = GetComponent<RectTransform>();
+        offscreenIndicatorRect = offscreenIndicator.GetComponent<RectTransform>();
         offscreenIndicatorOriginalAlpha = offscreenIndicator.color.a;
         mainIndicatorOriginalAlpha = mainIndicator.color.a;
 
@@ -76,7 +78,7 @@ public class IdentifierUI : MonoBehaviour
         }
 
         // Basic screen and object information
-        Vector3 screenCenter = new(Screen.width * parentCanvas.scaleFactor / 2f, Screen.height * parentCanvas.scaleFactor / 2f, 0f);
+        Vector3 screenCenter = new(Screen.width / 2f, Screen.height / 2f, 0f);
         Vector3 objectScreenCenterPos = Camera.main.WorldToScreenPoint(objectTransform.position);
         Vector3 objectDirectionToCamera = (Camera.main.transform.position - objectTransform.position).normalized;
         float distanceToObject = Vector3.Distance(Camera.main.transform.position, objectTransform.position);
@@ -100,8 +102,8 @@ public class IdentifierUI : MonoBehaviour
         }
 
         // Check if the object is on screen
-        bool isOnScreen = !(objectScreenCenterPos.x < 0 || objectScreenCenterPos.x > Screen.width * parentCanvas.scaleFactor ||
-                            objectScreenCenterPos.y < 0 || objectScreenCenterPos.y > Screen.height * parentCanvas.scaleFactor) &&
+        bool isOnScreen = !(objectScreenCenterPos.x < 0 || objectScreenCenterPos.x > Screen.width ||
+                            objectScreenCenterPos.y < 0 || objectScreenCenterPos.y > Screen.height) &&
                             Vector3.Dot(objectDirectionToCamera, Camera.main.transform.forward) < 0;
 
         // Toggle various elements based on on-screen status
@@ -110,14 +112,17 @@ public class IdentifierUI : MonoBehaviour
         identifierBottomText.enabled = isOnScreen;
         offscreenIndicator.enabled = !isOnScreen;
 
-        Vector3 rectPosition = objectScreenCenterPos;
         if (!isOnScreen)
         {
             // Off Screen
-            rectPosition = CalculateOffscreenIndicatorPosition(objectTransform);
+            Vector3 offscreenIndicatorPosition = CalculateOffscreenIndicatorPosition(objectTransform);
             
             // Handle off-screen indicator fading and hiding
             FadeOutOffscreenIndicator(identifierData.color);
+
+            Debug.Log($"Offscreen Indicator Pos: {offscreenIndicatorPosition} | Current Pos: {offscreenIndicatorRect.anchoredPosition}");
+            // Set position
+            offscreenIndicatorRect.anchoredPosition = offscreenIndicatorPosition;
         }
         else
         {
@@ -143,10 +148,10 @@ public class IdentifierUI : MonoBehaviour
             
             // Reset off-screen indicator if it was previously shown
             if (offscreenIndicator.enabled) ResetOffscreenIndicator(identifierData.color);
-        }
 
-        // Set position
-        identifierRect.anchoredPosition = rectPosition;
+            // Set position
+            identifierRect.anchoredPosition = objectScreenCenterPos / parentCanvas.scaleFactor;
+        }
     }
     #endregion
 
@@ -162,6 +167,7 @@ public class IdentifierUI : MonoBehaviour
         objectColliderExtents = objectCollider.bounds.extents + new Vector3(1f, 1f, 1f); // Add some padding to ensure the identifier fully encompasses the object
         offscreenIndicator.transform.SetParent(offscreenIndicatorContainer, false);
         this.offscreenIndicatorContainer = offscreenIndicatorContainer.GetComponent<RectTransform>();
+        offscreenIndicatorRect.anchoredPosition = this.offscreenIndicatorContainer.rect.center;
         
         IdentifierData identifierData = identifiable.GetIdentifierData();
         FullReset(identifierData.color);
@@ -179,7 +185,7 @@ public class IdentifierUI : MonoBehaviour
         Vector3 objectScreenCornerPos = Camera.main.WorldToScreenPoint(
             objectTransform.position +
             objectColliderExtents.y * Camera.main.transform.up +
-            objectColliderExtents.x * Mathf.Sign(objectScreenCenterPos.x - Screen.width * parentCanvas.scaleFactor / 2f) * objectToCameraSideVector);
+            objectColliderExtents.x * Mathf.Sign(objectScreenCenterPos.x - Screen.width / 2f) * objectToCameraSideVector);
 
         // Calculate the size of the identifier based on the distance between the center and corner positions
         Vector3 objectScreenExtents = objectScreenCornerPos - objectScreenCenterPos;
@@ -215,7 +221,7 @@ public class IdentifierUI : MonoBehaviour
         SetElementAlpha(mainIndicator, teamColor, 0f);
         SetElementAlpha(identifierTopText, teamColor, 0f);
         SetElementAlpha(identifierBottomText, teamColor, 0f);
-        identifierRect.sizeDelta = new Vector2(Screen.width * parentCanvas.scaleFactor * 2f, Screen.height * parentCanvas.scaleFactor * 2f);
+        identifierRect.sizeDelta = new Vector2(Screen.width * 2f, Screen.height * 2f);
         mainInfoShowTimer = 0f;
     }
     #endregion
@@ -225,20 +231,26 @@ public class IdentifierUI : MonoBehaviour
     private Vector3 CalculateOffscreenIndicatorPosition(Transform objectTransform)
     {
         // Position the off-screen indicator at the edge of the screen in the direction of the object
-        float indicatorDistanceFromCenter = 210f;
+        float maxObjectDistanceForIndicator = 500f;
         Vector3 directionToObject = Camera.main.transform.InverseTransformDirection(
             Vector3.ProjectOnPlane(
                 objectTransform.position - Camera.main.transform.position,
                 Camera.main.transform.forward
             ).normalized
         );
+        float distanceToObject = Vector3.Distance(Camera.main.transform.position, objectTransform.position);
         float angle = Mathf.Atan2(directionToObject.y, directionToObject.x) * Mathf.Rad2Deg - 90f;
         offscreenIndicator.rectTransform.rotation = Quaternion.Euler(0f, 0f, angle);
-        Vector3 center = new (offscreenIndicatorContainer.rect.center.x, offscreenIndicatorContainer.rect.center.y, 0f);
         Vector2 containerRatio = offscreenIndicatorContainer.rect.size.normalized;
         // Map indicator to oval-sized container to ensure it stays within bounds while still pointing in the correct direction
-        Vector3 desiredPosition = center + new Vector3(directionToObject.x * containerRatio.x, directionToObject.y * containerRatio.y, 0f).normalized * indicatorDistanceFromCenter;
-        return Vector3.Lerp(identifierRect.anchoredPosition, desiredPosition, 0.3f);
+        float indicatorDistanceFromCenter = Mathf.Lerp(
+            30f,
+            offscreenIndicatorContainer.rect.size.magnitude / 2f - 30f,
+            Mathf.Clamp01(distanceToObject / maxObjectDistanceForIndicator)
+        );
+        Vector3 desiredPosition = new Vector3(directionToObject.x * containerRatio.x, directionToObject.y * containerRatio.y, 0f) * indicatorDistanceFromCenter;
+        Debug.Log($"Offscreen Pos: {desiredPosition} | Dir: {directionToObject} | Angle: {angle} | Container Size: {offscreenIndicatorContainer.rect.size} | Ratio: {containerRatio} | DistFromCenter: {indicatorDistanceFromCenter} | DistToObj: {distanceToObject}");
+        return Vector3.Lerp(offscreenIndicatorRect.anchoredPosition, desiredPosition, 0.3f);
     }
 
     private void FadeOutOffscreenIndicator(Color teamColor)
