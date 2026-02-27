@@ -33,6 +33,11 @@ public class StatTracker
         stats[s] += v;
     }
 
+    public ulong FetchId()
+    {
+        return id;
+    }
+
     // Lookup what the current value of a stat is, given a stat type.
     public float FetchStatValue(StatEventType s)
     {

@@ -84,9 +84,10 @@ public class GameModeBase : MonoBehaviour
         CheckScore(points[StatsGroup.TEAM]);
     }
 
-    public void OnGameWon()
+    // Pseudo. Refactor to properly announce team that won across network peers with an RPC
+    public void OnGameWon(ulong id)
     {
-        print("Game won!");
+        print("Game won! : " + id);
     }
 
     private void Start()

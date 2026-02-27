@@ -10,6 +10,7 @@ public class WinConditions : MonoBehaviour
     public void CheckAll(Dictionary<ulong, StatTracker> team_points)
     {
         bool result = false;
+        ulong winning_id = 0;
 
         // Does any winconditionitem indicate that the game has won?
         foreach (WinConditionItem w in win_conditions)
@@ -24,6 +25,8 @@ public class WinConditions : MonoBehaviour
                 if (team_point_value >= stat_value)
                 {
                     result = true;
+                    winning_id = t.Value.FetchId();
+
                     break;
                 }
             }
@@ -31,15 +34,15 @@ public class WinConditions : MonoBehaviour
             // We already found a winner, break the loop
             if ( result )
             {
-                EmitGameWon();
+                EmitGameWon(winning_id);
                 break;
             }
         }
     }
 
-    public void EmitGameWon()
+    public void EmitGameWon(ulong winning_id)
     {
-        gameObject.BroadcastMessage("OnGameWon");
+        gameObject.BroadcastMessage("OnGameWon", winning_id);
     }
 
     // Fetch Stats that are required to win the game
