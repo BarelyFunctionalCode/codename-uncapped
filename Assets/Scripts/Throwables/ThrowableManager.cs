@@ -9,10 +9,10 @@ public class ThrowableManager : NetworkBehaviour
     public static List<string> interactionTags = new() { "Terrain", "Player", "Projectile" };
 
     [SerializeField] private LayerMask ignoreLayers;
-    [SerializeField] private GameObject throwablePrefabObj;
-    [SerializeField] private ThrowableUI throwableUI;
+    [SerializeField] public GameObject throwablePrefabObj;
+    [SerializeField] public Sprite iconSprite;
 
-    private float maxAmmo = 50;
+    public float maxAmmo = 5;
     private float fireRate = 2;
 
     protected Camera playerCamera;
@@ -27,7 +27,7 @@ public class ThrowableManager : NetworkBehaviour
     private float throwForceFactorIncreaseRate = 0.01f;
 
     private NetworkVariable<float> throwForceFactor = new();
-    private NetworkVariable<float> ammoCount = new();
+    public NetworkVariable<float> ammoCount = new();
     private NetworkVariable<float> fireRateTimer = new();
 
     private bool isInitialized = false;
@@ -61,8 +61,6 @@ public class ThrowableManager : NetworkBehaviour
             RaycastHit hitInfo;
             if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity, ~ignoreLayers))
                 newWeaponAimPosition = hitInfo.point;
-
-            throwableUI.UpdateUI(ammoCount.Value, throwForceFactor.Value);
 
             ThrowableLookRpc(newWeaponAimPosition);
         }
@@ -116,9 +114,8 @@ public class ThrowableManager : NetworkBehaviour
         if (IsOwner)
         {
             playerCamera = Camera.main;
-            throwableUI.Initialize(maxAmmo);
+            playerController.playerUIObj.GetComponentInChildren<HUD>().SetThrowableUI(this);
         }
-        else Destroy(throwableUI.gameObject);
 
         isInitialized = true;
     }

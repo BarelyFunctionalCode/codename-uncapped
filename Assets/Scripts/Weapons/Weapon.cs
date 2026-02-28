@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
+using UnityEngine.Events;
 
 [RequireComponent(typeof(AudioSource))]
 public class Weapon : NetworkBehaviour
@@ -10,12 +11,12 @@ public class Weapon : NetworkBehaviour
     [SerializeField] private Transform projectileSpawnPoint;
     [SerializeField] private GameObject modelObj;
     [SerializeField] private GameObject projectilePrefabObj;
-    [SerializeField] private Sprite reticleSprite;
+    [SerializeField] public Sprite iconSprite;
+    [SerializeField] public Sprite reticleSprite;
     [SerializeField] protected AudioClip fireSound;
-    [SerializeField] private WeaponUI weaponUI;
     
     [Header("Attributes")]
-    [SerializeField] private float maxAmmo = 10000;
+    [SerializeField] public float maxAmmo = 10000;
     [SerializeField] private float damage = 1;
     [SerializeField] private float fireRate = 0.05f;
     
@@ -33,7 +34,7 @@ public class Weapon : NetworkBehaviour
     private NetworkVariable<NetworkBehaviourReference> playerRef = new();
 
     public NetworkVariable<bool> isEquiped = new();
-    private NetworkVariable<float> ammoCount = new();
+    public NetworkVariable<float> ammoCount = new();
     private NetworkVariable<float> fireRateTimer = new();
     private bool isInitialized = false;
 
@@ -70,8 +71,6 @@ public class Weapon : NetworkBehaviour
             RaycastHit hitInfo;
             if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity, ~ignoreLayers))
                 newWeaponAimPosition = hitInfo.point;
-
-            if (weaponUI.gameObject.activeSelf) weaponUI.UpdateUI(ammoCount.Value, fireRateTimer.Value, fireRate);
 
             WeaponLookRpc(newWeaponAimPosition);
         }
@@ -125,9 +124,8 @@ public class Weapon : NetworkBehaviour
             }
             
             playerCamera = Camera.main;
-            weaponUI.Initialize(maxAmmo, reticleSprite);
+            playerController.playerUIObj.GetComponentInChildren<HUD>().AddWeaponUI(this);
         }
-        else Destroy(weaponUI.gameObject);
 
         if (isEquiped.Value) EquipRpc(RpcTarget.Me);
         else UnequipRpc(RpcTarget.Me);
@@ -152,7 +150,6 @@ public class Weapon : NetworkBehaviour
     public void EquipRpc(RpcParams rpcParams = default)
     {
         modelObj.SetActive(true);
-        if (IsOwner) weaponUI.gameObject.SetActive(true);
         if (IsServer) isEquiped.Value = true;
     }
 
@@ -161,7 +158,6 @@ public class Weapon : NetworkBehaviour
     {
         modelObj.SetActive(false);
 
-        if (IsOwner) weaponUI.gameObject.SetActive(false);
         if (IsServer) isEquiped.Value = false;
     }
 

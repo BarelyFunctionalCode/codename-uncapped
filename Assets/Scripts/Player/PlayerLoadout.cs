@@ -78,15 +78,6 @@ public class PlayerLoadout : NetworkBehaviour
             playerController.transform,
             playerController.OwnerClientId
         );
-        // GameObject newWeapon = Instantiate(
-        //     weaponPrefabObj,
-        //     playerController.weaponMountPoint.position,
-        //     playerController.weaponMountPoint.rotation
-        // );
-        // NetworkObject networkObj = newWeapon.GetComponent<NetworkObject>();
-        // networkObj.Spawn(true);
-        // networkObj.TrySetParent(playerController.NetworkObject);
-        // networkObj.ChangeOwnership(playerController.OwnerClientId);
         newWeapon = newWeapon.transform.GetComponentInChildren<Weapon>().gameObject;
         newWeapon.GetComponent<Weapon>().Initialize(playerController);
 
@@ -105,15 +96,6 @@ public class PlayerLoadout : NetworkBehaviour
             playerController.transform,
             playerController.OwnerClientId
         );
-        // GameObject newThrowable = Instantiate(
-        //     throwablePrefabObj,
-        //     playerController.throwableMountPoint.position,
-        //     playerController.throwableMountPoint.rotation
-        // );
-        // NetworkObject networkObj = newThrowable.GetComponent<NetworkObject>();
-        // networkObj.Spawn(true);
-        // networkObj.TrySetParent(playerController.NetworkObject);
-        // networkObj.ChangeOwnership(playerController.OwnerClientId);
         throwableManager = newThrowable.GetComponentInChildren<ThrowableManager>();
         throwableManager.Initialize(playerController);
     }
