@@ -239,9 +239,18 @@
             "id": "982abddc-7cf8-4d3d-be8d-96e5711a70ae",
             "actions": [
                 {
-                    "name": "Pause",
+                    "name": "PauseMenu",
                     "type": "Button",
                     "id": "07028ae3-1ad2-4a9f-ab57-c0d17623d3a2",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "LoadoutMenu",
+                    "type": "Button",
+                    "id": "85f2fb69-b642-4ed3-bfc4-8e339a4f10e1",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -256,7 +265,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Pause",
+                    "action": "PauseMenu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -267,7 +276,18 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Pause",
+                    "action": "PauseMenu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "dc4f8e73-a919-4e38-b73e-c0b1f96a140f",
+                    "path": "<Keyboard>/l",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "LoadoutMenu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

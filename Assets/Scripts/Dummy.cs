@@ -1,8 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class Dummy : Entity
+public class Dummy : Entity, IIdentifiable
 {
     private Material material;
 
@@ -11,6 +10,11 @@ public class Dummy : Entity
     private void Awake()
     {
         material = GetComponent<MeshRenderer>().materials[0];
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
     }
 
     // Update is called once per frame
@@ -23,7 +27,36 @@ public class Dummy : Entity
 
     protected override void OnDie()
     {
-        explodeParticleObj.transform.parent = null;
+        OnDieRPC();
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void OnDieRPC()
+    {
+        GetComponent<MeshRenderer>().enabled = false;
         explodeParticleObj.SetActive(true);
+    }
+
+    protected override void OnRespawn()
+    {
+        OnRespawnRPC();
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void OnRespawnRPC()
+    {
+        GetComponent<MeshRenderer>().enabled = true;
+        explodeParticleObj.SetActive(false);
+    }
+
+    public IdentifierData GetIdentifierData()
+    {
+        return new IdentifierData
+        {
+            color = IdentifierManager.TempTeamColors[GetTeamId()],
+            topText = GetIdentifier(),
+            bottomText = $"{Mathf.CeilToInt(GetHealthPercentage() * 100f)}%",
+            isActive = GetHealth() > 0
+        };
     }
 }
