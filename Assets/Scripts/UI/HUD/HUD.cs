@@ -16,6 +16,7 @@ public class HUD : MonoBehaviour
     [SerializeField] private GameObject weaponUIPrefabObj;
     [SerializeField] private ThrowableUI throwableUI;
     [SerializeField] private Transform gearContainer;
+    [SerializeField] private RectTransform dynamicReticle;
 
     private PlayerController playerController;
     private PlayerControls playerControls;
@@ -23,7 +24,24 @@ public class HUD : MonoBehaviour
     [SerializeField] public LoadoutMenu loadoutMenu;
     [SerializeField] private PauseMenu pauseMenu;
 
+    private float dynamicReticleMaxMoveRange = 50f;
+    private float dynamicReticleMaxVelocityDeflection = 50f;
+
     private bool isInitialized = false;
+
+    private void Update()
+    {
+        if (!isInitialized) return;
+
+        // Update dynamic reticle position based on player velocity
+        if (playerController == null || playerController.localRb == null) return;
+        Vector3 velocity = playerController.transform.InverseTransformVector(playerController.localRb.linearVelocity);
+        float deflectionX = Mathf.Clamp(-velocity.x, -dynamicReticleMaxVelocityDeflection, dynamicReticleMaxVelocityDeflection);
+        float deflectionY = Mathf.Clamp(-velocity.y, -dynamicReticleMaxVelocityDeflection, dynamicReticleMaxVelocityDeflection);
+        Vector2 dynamicReticleTargetPos = new Vector2(deflectionX / dynamicReticleMaxVelocityDeflection * dynamicReticleMaxMoveRange,
+                                                      deflectionY / dynamicReticleMaxVelocityDeflection * dynamicReticleMaxMoveRange);
+        dynamicReticle.anchoredPosition = Vector2.Lerp(dynamicReticle.anchoredPosition, dynamicReticleTargetPos, Time.deltaTime * 10f);
+    }
 
     public void Initialize(PlayerController playerController)
     {
@@ -121,10 +139,17 @@ public class HUD : MonoBehaviour
                 break;
         }
 
-        if (openMenus.Contains(menu)) openMenus.Remove(menu);
-        else openMenus.Add(menu);
+        if (openMenus.Contains(menu))
+        {
+            openMenus.Remove(menu);
+            if (openMenus.Count == 0) playerController.SetPlayerControlsRpc(true);
+        }
+        else
+        {
+            if (openMenus.Count == 0) playerController.SetPlayerControlsRpc(false);
+            openMenus.Add(menu);
+        }
 
-        playerController.SetPlayerControlsRpc(openMenus.Count == 0);
         Cursor.lockState = openMenus.Count > 0 ? CursorLockMode.Confined : CursorLockMode.Locked;
     }
 }
