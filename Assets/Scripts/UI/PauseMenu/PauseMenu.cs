@@ -66,6 +66,11 @@ public class PauseMenu : MonoBehaviour
         testLevelButton.gameObject.SetActive(NetworkManager.Singleton.IsHost);
     }
 
+    public void ToggleMenu()
+    {
+        gameObject.SetActive(!gameObject.activeSelf);
+    }
+
     private void OnQuitButtonClicked() { Application.Quit(); }
 
     private void OnLeaveButtonClicked() { if (!NetworkManager.Singleton.IsHost) GameManager.Instance.PrepGoToOwnLobby(); }

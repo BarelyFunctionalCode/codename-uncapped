@@ -120,7 +120,6 @@ public class IdentifierUI : MonoBehaviour
             // Handle off-screen indicator fading and hiding
             FadeOutOffscreenIndicator(identifierData.color);
 
-            Debug.Log($"Offscreen Indicator Pos: {offscreenIndicatorPosition} | Current Pos: {offscreenIndicatorRect.anchoredPosition}");
             // Set position
             offscreenIndicatorRect.anchoredPosition = offscreenIndicatorPosition;
         }
@@ -249,7 +248,6 @@ public class IdentifierUI : MonoBehaviour
             Mathf.Clamp01(distanceToObject / maxObjectDistanceForIndicator)
         );
         Vector3 desiredPosition = new Vector3(directionToObject.x * containerRatio.x, directionToObject.y * containerRatio.y, 0f) * indicatorDistanceFromCenter;
-        Debug.Log($"Offscreen Pos: {desiredPosition} | Dir: {directionToObject} | Angle: {angle} | Container Size: {offscreenIndicatorContainer.rect.size} | Ratio: {containerRatio} | DistFromCenter: {indicatorDistanceFromCenter} | DistToObj: {distanceToObject}");
         return Vector3.Lerp(offscreenIndicatorRect.anchoredPosition, desiredPosition, 0.3f);
     }
 
