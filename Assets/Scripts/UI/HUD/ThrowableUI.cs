@@ -11,6 +11,7 @@ public class ThrowableUI : MonoBehaviour
 
     private bool isInitialized = false;
     private ThrowableManager throwableManager;
+    private float activeAlpha;
     private float inactiveAlpha;
 
     private void Update()
@@ -37,13 +38,15 @@ public class ThrowableUI : MonoBehaviour
     public void Initialize(ThrowableManager throwableManager)
     {
         this.throwableManager = throwableManager;
+        activeAlpha = transform.parent.GetComponent<Image>().color.a;
         inactiveAlpha = throwableIconImage.color.a;
         ammoCountText.text = throwableManager.maxAmmo.ToString();
         throwableIconImage.sprite = throwableManager.iconSprite;
         
         Color newColor = throwableIconImage.color;
-        newColor.a = 1f;
+        newColor.a = activeAlpha;
         throwableIconImage.color = newColor;
+        newColor.a *= 2f;
         ammoCountText.color = newColor;
 
         throwableManager.ammoCount.OnValueChanged += UpdateAmmo;
@@ -55,8 +58,9 @@ public class ThrowableUI : MonoBehaviour
         ammoCountText.text = ammoCount.ToString();
 
         Color newColor = throwableIconImage.color;
-        newColor.a = ammoCount > 0 ? 1f : inactiveAlpha;
+        newColor.a = ammoCount > 0 ? activeAlpha : inactiveAlpha;
         throwableIconImage.color = newColor;
+        newColor.a *= 2f;
         ammoCountText.color = newColor;
     }
 }

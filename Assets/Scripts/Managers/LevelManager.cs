@@ -75,6 +75,7 @@ public class LevelManager : NetworkBehaviour
             
             playerController.Teleport(spawnPoint.position, spawnPoint.rotation);
             playerController.SetPlayerControlsRpc(false);
+            playerController.OpenLoadoutMenuRpc();
         }
 
         OnLevelReady();

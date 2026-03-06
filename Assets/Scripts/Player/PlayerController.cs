@@ -54,7 +54,7 @@ public class PlayerController : Entity
     // UI
     [SerializeField] private GameObject playerUIPrefabObj;
     public GameObject playerUIObj;
-    private HUD playerHUD;
+    public HUD playerHUD;
 
     // Inputs
     public PlayerControls playerControls;
@@ -419,10 +419,16 @@ public class PlayerController : Entity
         SetPlayerControlsOwnerRpc(controlsDisabledCount == 0);
     }
     [Rpc(SendTo.Owner)]
-    public void SetPlayerControlsOwnerRpc(bool enabled)
+    private void SetPlayerControlsOwnerRpc(bool enabled)
     {
         if (enabled) playerControls.Character.Enable();
         else playerControls.Character.Disable();
+    }
+
+    [Rpc(SendTo.Owner)]
+    public void OpenLoadoutMenuRpc()
+    {
+        playerHUD.ToggleMenu(HUDMenu.LoadoutMenu, true);
     }
 
     private void MoveInput(Vector2 rawMovementInput)

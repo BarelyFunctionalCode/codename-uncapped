@@ -43,6 +43,15 @@ public class HUD : MonoBehaviour
         dynamicReticle.anchoredPosition = Vector2.Lerp(dynamicReticle.anchoredPosition, dynamicReticleTargetPos, Time.deltaTime * 10f);
     }
 
+    public void ToggleHUD()
+    {
+        Canvas canvas = GetComponent<Canvas>();
+        if (canvas != null)
+        {
+            canvas.enabled = !canvas.enabled;
+        }
+    }
+
     public void Initialize(PlayerController playerController)
     {
         if (isInitialized) return;
@@ -57,7 +66,6 @@ public class HUD : MonoBehaviour
         centerClusterUI.Initialize(playerController);
         loadoutMenu.Initialize(playerController.GetComponent<PlayerLoadoutManager>(), this);
 
-        ToggleMenu(HUDMenu.LoadoutMenu);
         isInitialized = true;
     }
 
@@ -125,8 +133,10 @@ public class HUD : MonoBehaviour
         }
     }
 
-    public void ToggleMenu(HUDMenu menu)
+    public void ToggleMenu(HUDMenu menu, bool forceOpen = false)
     {
+        if (forceOpen && openMenus.Contains(menu)) return;
+
         switch (menu)
         {
             case HUDMenu.LoadoutMenu:

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3419327438276916808}
   - component: {fileID: 4616280905746880279}
   - component: {fileID: 2491672627398381217}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: barrel (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -101,7 +101,7 @@ GameObject:
   - component: {fileID: 8502992985511467339}
   - component: {fileID: 6479178384164902273}
   - component: {fileID: 8890782664320974684}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: barrel (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -191,7 +191,7 @@ GameObject:
   - component: {fileID: 8484721488691571597}
   - component: {fileID: 5937924671580274136}
   - component: {fileID: 8612830393930919021}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -284,7 +284,7 @@ GameObject:
   - component: {fileID: 5429348420117299609}
   - component: {fileID: 1097497126747797972}
   - component: {fileID: 6084447725475632623}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: ChainGun
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -490,7 +490,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4243680587606140157}
   - component: {fileID: 2084104615955523830}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: ChainGun
   m_TagString: Weapon
   m_Icon: {fileID: 0}
@@ -547,7 +547,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 406254401492999483}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: ProjectileSpawnPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -580,7 +580,7 @@ GameObject:
   - component: {fileID: 991129841971623608}
   - component: {fileID: 183848430424146461}
   - component: {fileID: 7434913844374831316}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: barrel (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -670,7 +670,7 @@ GameObject:
   - component: {fileID: 5264849612332608470}
   - component: {fileID: 3947191274212065674}
   - component: {fileID: 1035645352632860223}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: barrel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -761,7 +761,7 @@ GameObject:
   - component: {fileID: 1926098598040647978}
   - component: {fileID: 5837515928938423610}
   - component: {fileID: 6808244182697546383}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: barrel (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -851,7 +851,7 @@ GameObject:
   - component: {fileID: 1755908730066099153}
   - component: {fileID: 7535821001644535195}
   - component: {fileID: 3182237129979233224}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: barrel (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -941,7 +941,7 @@ GameObject:
   - component: {fileID: 8510260997824112275}
   - component: {fileID: 2095994696142545589}
   - component: {fileID: 1170682345674468238}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
