@@ -13,6 +13,7 @@ public class DevNetworkManager : MonoBehaviour
     private float playerWaitTimer = 10f;
 
     private string desiredSceneName;
+    private GameModes desiredGameMode;
 
     private void Awake()
     {
@@ -20,15 +21,9 @@ public class DevNetworkManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         desiredSceneName = SceneManager.GetActiveScene().name;
+        desiredGameMode = GameModes.FFA;
 
-        if (FindFirstObjectByType<NetworkManager>() == null)
-        {
-            Instantiate(networkManagerPrefab);
-            if (Unity.Multiplayer.PlayMode.CurrentPlayer.Tags.ToList().Contains("Host"))
-            {
-                NetworkManager.Singleton.OnServerStarted += OnServerStarted;
-            }
-        }
+        if (FindFirstObjectByType<NetworkManager>() == null) Instantiate(networkManagerPrefab);
         else Destroy(gameObject);
     }
 
@@ -40,11 +35,13 @@ public class DevNetworkManager : MonoBehaviour
             if (Unity.Multiplayer.PlayMode.CurrentPlayer.Tags.ToList().Contains("Host"))
             {
                 // Wait for all players are joined.
-                if (playerWaitTimer <= 0f) // TODO: Also check to see if gamemode is set?
+                if (playerWaitTimer <= 0f)
                 {
-                    NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnLoadEventCompleted;
-                    GameManager.Instance.LoadLevel(desiredSceneName);
-                    playerWaitTimer = float.MaxValue; // Prevents multiple calls
+                    GameManager.Instance.SetLevel(desiredSceneName);
+                    GameManager.Instance.SetGameMode(desiredGameMode);
+                    GameManager.Instance.LoadLevel();
+                    
+                    Destroy(gameObject);
                 }
                 else
                 {
@@ -61,20 +58,5 @@ public class DevNetworkManager : MonoBehaviour
                 } 
             }
         }
-    }
-
-    private void OnServerStarted()
-    {
-        // TODO: Probably set the gamemode here
-        NetworkManager.Singleton.OnServerStarted -= OnServerStarted;
-    }
-
-    private void OnLoadEventCompleted(string sceneName, LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
-    {
-        NetworkManager.Singleton.SceneManager.OnLoadEventCompleted -= OnLoadEventCompleted;
-
-        LevelManager.Instance.OnPlayersLoaded();
-        
-        Destroy(gameObject);
     }
 }

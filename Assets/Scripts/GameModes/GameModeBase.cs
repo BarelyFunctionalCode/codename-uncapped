@@ -1,31 +1,96 @@
 using UnityEngine;
+using System;
 using System.Collections.Generic;
+
 
 public class GameModeBase : MonoBehaviour
 {
-    private bool isInSession = false;
-    private bool isComplete = false;
-    
-    [SerializeField] protected TeamStructure team_structure;
-    [SerializeField] protected PhaseSystem phase_system;
-    
-    
-    public List<string> teams = new List<string> {"Red", "Blue"};
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    #region Component references
+    [SerializeField]
+    private TeamStructure team_structure;
+    [SerializeField]
+    private PhaseSystem   phase_system;
+    [SerializeField]
+    private GameStats     game_stats;
+    [SerializeField]
+    private WinConditions win_conditions;
+    #endregion
+
+    #region State
+    private bool isInSession	   = false;
+    private bool isComplete		   = true;
+    private bool isDamageAllowed   = false;
+    #endregion
+
+    #region Public Methods
+    public void StatEventReceiver(StatEvent s)
     {
-        
+        // Stats should only accumulate during active game session.
+        if (phase_system.GetCurrentPhase() == Phase.ACTIVE)
+        {
+            game_stats.AddToStat(s);
+        }
     }
 
-    public virtual void LaunchSession()
+    // Entry point for the game mode to begin its session.
+    public void StartGame()
     {
-    
-    }
-    public virtual void EndSession()
-    {
-    
+        team_structure.WipeTeams();
+        phase_system.HardSet(Phase.PRELOAD);
     }
 
-    public bool GetIsInSession() { return isInSession; }
-    public bool GetIsComplete() { return isComplete; }
+    // And to end a game mode session. Begin all cleanup, unloading operations.
+    public void StopGame()
+    {
+        phase_system.HardSet(Phase.ENDGAME);
+    }
+    #endregion
+
+    #region Message Receivers
+    public void OnPhaseChanged(EventArgsPhaseChanged e)
+    {
+        // if in active session, toggle state booleans appropriately
+        switch( e.phase )
+        {
+            case Phase.ACTIVE:
+                isInSession		= true;
+                isComplete		= false;
+                isDamageAllowed	= true;
+                break;
+            default:
+                isInSession		= false;
+                isComplete		= true;
+                isDamageAllowed	= false;
+                break;
+        }
+    }
+
+    // Pseudo
+    // Need to update the EventArgs to make sure its sending player id
+    public void OnPlayerJoined(object sender, EventArgs e)
+    {
+        ulong player_id = 0; // e.player_id;
+
+        game_stats.CheckAddEntry(player_id, StatsGroup.PLAYER);
+    }
+
+    public void OnPointsChanged(Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> points)
+    {
+        CheckScore(points[StatsGroup.TEAM]);
+    }
+
+    // Pseudo. Refactor to properly announce team that won across network peers with an RPC
+    public void OnGameWon(ulong id)
+    {
+        print("Game won! : " + id);
+    }
+    #endregion
+
+    #region Private Methods
+    // Check score against win condition, complete the game if score is met.
+    private void CheckScore(Dictionary<ulong, StatTracker> team_points)
+    {
+        win_conditions.CheckAll(team_points);
+    }
+    #endregion
 }

@@ -39,7 +39,9 @@ public class GameManager : MonoBehaviour
     private bool activeSceneChanged = false;
     private Scene previousScene;
     private bool sceneUnloaded = false;
-    public UnityEvent OnLevelLoadedEvent = new();
+
+    private string desiredLevelName = "";
+    private GameModes desiredGameMode = GameModes.NONE;
 
 
     private void Awake()
@@ -104,7 +106,14 @@ public class GameManager : MonoBehaviour
             SceneManager.activeSceneChanged -= ChangedActiveScene;
             NetworkManager.Singleton.SceneManager.OnUnloadEventCompleted += OnSceneUnloaded;
 
-            OnLevelLoadedEvent.Invoke();
+            if (SceneManager.GetActiveScene().name == desiredLevelName)
+            {
+                Debug.Log(desiredGameMode);
+                LevelManager.Instance.SetGameMode(desiredGameMode);
+                LevelManager.Instance.OnPlayersLoaded();
+                desiredGameMode = GameModes.NONE;
+                desiredLevelName = "";
+            }
 
             NetworkManager.Singleton.SceneManager.UnloadScene(previousScene);
 
@@ -388,11 +397,11 @@ public class GameManager : MonoBehaviour
 
 
     // TODO: Move to LevelManager script
-    public void LoadLevel(string levelSceneName) {
+    public void LoadLevel() {
         if (!NetworkManager.Singleton.IsHost) return;
 
         NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnLevelLoaded;
-        NetworkManager.Singleton.SceneManager.LoadScene(levelSceneName, LoadSceneMode.Additive);
+        NetworkManager.Singleton.SceneManager.LoadScene(desiredLevelName, LoadSceneMode.Additive);
     }
 
     // Done when a single player is loaded into the Level scene
@@ -428,5 +437,18 @@ public class GameManager : MonoBehaviour
 
         if (debugMode) Debug.Log($"{GetType()}: Scene unloaded, sceneName={sceneName}");
         sceneUnloaded = true;
+    }
+
+    public void SetLevel(string levelSceneName)
+    {
+        if (!NetworkManager.Singleton.IsHost) return;
+        desiredLevelName = levelSceneName;
+    }
+
+    public void SetGameMode(GameModes gameMode)
+    {
+        if (!NetworkManager.Singleton.IsHost) return;
+        Debug.Log(gameMode);
+        desiredGameMode = gameMode;
     }
 }
