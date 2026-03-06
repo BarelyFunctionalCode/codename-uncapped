@@ -1,10 +1,9 @@
-using System.Collections.Generic;
-using System.Reflection;
 using Steamworks;
 using Unity.Cinemachine;
 using Unity.Netcode;
 using Unity.Netcode.Components;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 
 
@@ -12,7 +11,7 @@ using UnityEngine.SceneManagement;
 [RequireComponent(typeof(CapsuleCollider))]
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(NetworkAnimator))]
-[RequireComponent(typeof(PlayerLoadout))]
+[RequireComponent(typeof(PlayerLoadoutManager))]
 [RequireComponent(typeof(PlayerNetworkTransform))]
 [RequireComponent(typeof(NetworkRigidbody))]
 public class PlayerController : Entity
@@ -55,9 +54,11 @@ public class PlayerController : Entity
     // UI
     [SerializeField] private GameObject playerUIPrefabObj;
     public GameObject playerUIObj;
+    private HUD playerHUD;
 
     // Inputs
     public PlayerControls playerControls;
+    private int controlsDisabledCount = 0;
     Vector3 movementInput = Vector3.zero;
     Vector3 newMovementDirection = Vector3.zero;
     Vector3 movementDirection = Vector3.zero;
@@ -90,7 +91,7 @@ public class PlayerController : Entity
     [Header("Weapons and Gear")]
     [SerializeField] public Transform weaponMountPoint;
     [SerializeField] public Transform throwableMountPoint;
-    private PlayerLoadout playerLoadout;
+    private PlayerLoadoutManager playerLoadout;
 
     // Movement Parameters
     private readonly float hoverHeightMax = 0.4f;
@@ -137,7 +138,7 @@ public class PlayerController : Entity
     #region Lifecycle
     private void Awake()
     {
-        playerLoadout = GetComponent<PlayerLoadout>();
+        playerLoadout = GetComponent<PlayerLoadoutManager>();
     }
 
     public sealed override void OnNetworkSpawn()
@@ -228,17 +229,6 @@ public class PlayerController : Entity
         if (!isInitialized || !(IsServer || IsOwner)) return;
         if (IsOwner)
         {
-            if (playerControls.UI.Pause.WasPressedThisFrame())
-            {
-                bool newMenuState = !playerUIObj.transform.Find("PauseMenu").gameObject.activeSelf;
-                Cursor.lockState = newMenuState ? CursorLockMode.Confined : CursorLockMode.Locked;
-                if (newMenuState) {
-                    playerControls.Disable();
-                    playerControls.UI.Enable();
-                }
-                else playerControls.Enable();
-                playerUIObj.transform.Find("PauseMenu").gameObject.SetActive(newMenuState);
-            }
             playerTelemetry.Update();
             
             // TODO: Move this to a better place
@@ -339,9 +329,8 @@ public class PlayerController : Entity
             // Initialize Player UI
             if (!playerUIObj) {
                 playerUIObj = Instantiate(playerUIPrefabObj);
-                playerUIObj.GetComponentInChildren<HUD>().Initialize(this);
+                playerHUD = playerUIObj.GetComponentInChildren<HUD>();
                 playerTelemetry = new PlayerTelemetry(devVectorRenderer);
-                InitializePauseMenuElements();
             }
 
             // Initialize Player Camera
@@ -351,6 +340,11 @@ public class PlayerController : Entity
                 audioListener = playerCameraObj.GetComponentInChildren<AudioListener>();
                 cineCam = playerCameraObj.GetComponentInChildren<CinemachineCamera>();
                 cineCam.Follow = freeLookTargetTransform;
+
+                Camera UIOverlayCamera = playerUIObj.GetComponentInChildren<Canvas>().worldCamera;
+                Camera mainCamera = playerCameraObj.GetComponentInChildren<Camera>();
+                var cameraData = mainCamera.GetUniversalAdditionalCameraData();
+                cameraData.cameraStack.Add(UIOverlayCamera);
 
                 // Enable audio listener
                 audioListener.enabled = true;
@@ -377,8 +371,15 @@ public class PlayerController : Entity
     private void InitializeRpc()
     {
         playerLoadout.Initialize(this);
+        PostInitializeRpc();
 
         isInitialized = true;
+    }
+
+    [Rpc(SendTo.Owner)]
+    private void PostInitializeRpc()
+    {
+        playerHUD.Initialize(this);
     }
     #endregion
 
@@ -414,8 +415,15 @@ public class PlayerController : Entity
 
 
     #region Inputs
-    [Rpc(SendTo.Owner)]
+    [Rpc(SendTo.Server)]
     public void SetPlayerControlsRpc(bool enabled)
+    {
+        controlsDisabledCount += enabled ? -1 : 1;
+        controlsDisabledCount = Mathf.Max(0, controlsDisabledCount);
+        SetPlayerControlsOwnerRpc(controlsDisabledCount == 0);
+    }
+    [Rpc(SendTo.Owner)]
+    public void SetPlayerControlsOwnerRpc(bool enabled)
     {
         if (enabled) playerControls.Character.Enable();
         else playerControls.Character.Disable();
@@ -502,6 +510,18 @@ public class PlayerController : Entity
         isJetting = isUpJetting || isDownJetting;
         isMoving = movement.magnitude > 0.0f;
         isRunning = isGrounded && isMoving && !isSkiing;
+
+        if (controlsDisabledCount > 0)
+        {
+            movementDirection = Vector3.zero;
+            rotationDeltaYaw = Vector3.zero;
+            isSkiing = false;
+            isUpJetting = false;
+            isDownJetting = false;
+            isJetting = false;
+            isMoving = false;
+            isRunning = false;
+        }
         
         if (playerTelemetry != null)
         {
@@ -570,6 +590,8 @@ public class PlayerController : Entity
         rotationInputY = 0f;
         float currentXRotation = freeLookTargetTransform.eulerAngles.x < 180f ? freeLookTargetTransform.eulerAngles.x : freeLookTargetTransform.eulerAngles.x - 360f;
         rotationDeltaPitch.x = Mathf.Clamp(currentXRotation + rotationDeltaPitch.x, -89.0f, 89.0f) - currentXRotation;
+        if (controlsDisabledCount > 0) rotationDeltaPitch = Vector3.zero;
+        
         freeLookTargetTransform.Rotate(rotationDeltaPitch);
     }
 
@@ -940,61 +962,6 @@ public class PlayerController : Entity
             localPlayerCollider.enabled = true;
         }
         localTransform.Find("Model").gameObject.SetActive(true);
-    }
-    #endregion
-
-
-    #region UI
-    private void InitializePauseMenuElements()
-    {
-        // Initialize player options in pause menu
-        FieldInfo[] fields = this.GetType().GetFields();
-        foreach (var field in fields)
-        {
-            PauseMenuOptionAttribute[] attribute = (PauseMenuOptionAttribute[])field.GetCustomAttributes(typeof(PauseMenuOptionAttribute), true);
-
-            if (attribute.Length > 0)
-            {
-                if (!PauseMenu.Instance.devMode && attribute[0].GetType() == typeof(PauseMenuDevOptionAttribute)) continue;
-                PauseMenu.Instance.AddOption(
-                    attribute[0].GetType() == typeof(PauseMenuDevOptionAttribute) ? "dev - " + attribute[0].label : attribute[0].label,
-                    (float)field.GetValue(this),
-                    attribute[0].minValue,
-                    attribute[0].maxValue,
-                    (float value) => { field.SetValue(this, value); }
-                );
-            }
-        }
-
-        // Initialize player controls in pause menu
-        List<string> controlIgnoreList = new List<string> { "Pause","Move", "Look" };
-        // InputActionMap movementMap = playerControls.Movement;
-        foreach (var actionMap in playerControls.asset.actionMaps)
-        {
-            foreach (var action in actionMap)
-            {
-                if (controlIgnoreList.Contains(action.name)) continue;
-                PauseMenu.Instance.AddControl(action);
-            }
-        }
-
-        // Initialize player debug settings in pause menu
-        if (!PauseMenu.Instance.devMode) return;
-        fields = playerTelemetry.GetType().GetFields();
-        foreach (var field in fields)
-        {
-            PauseMenuDevOptionAttribute[] attribute = (PauseMenuDevOptionAttribute[])field.GetCustomAttributes(typeof(PauseMenuDevOptionAttribute), true);
-
-            if (attribute.Length > 0)
-            {
-                PauseMenu.Instance.AddDebug(
-                    field.Name,
-                    attribute[0].label,
-                    (bool)field.GetValue(playerTelemetry),
-                    value => { field.SetValue(playerTelemetry, value); }
-                );
-            }
-        }
     }
     #endregion
 

@@ -29,7 +29,7 @@ public class PhaseSystem : MonoBehaviour
 {
     #region Properties
     [SerializeField]
-    public Phase _currentphase = Phase.PRELOAD;
+    private Phase _currentphase = Phase.PRELOAD;
     public Phase CurrentPhase
     {
         get => _currentphase;
