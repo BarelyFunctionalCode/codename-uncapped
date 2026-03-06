@@ -1,130 +1,172 @@
+
+using System;
 using System.Collections.Generic;
-using UnityEngine;
+using System.Linq;
 using Unity.Netcode;
+using UnityEngine;
 
-public class PlayerLoadout : NetworkBehaviour
+public enum LoadoutItemType
 {
-    [SerializeField] private List<GameObject> weaponPrefabObjList;
-    private List<GameObject> currentWeaponsObjList;
-    private int currentWeaponIndex = 0;
-    private Weapon equippedPrimaryWeapon;
-    private bool isPrimaryFiring = false;
+    ArmorClass,
+    Weapon,
+    HeavyWeapon,
+    Throwable,
+    Equipment,
+    Core
+}
 
-    [SerializeField] private GameObject throwablePrefabObj;
-    private ThrowableManager throwableManager;
+public enum LoadoutArmorClass
+{
+    Any,
+    Light,
+    Medium,
+    Heavy
+}
 
-    protected virtual void Update()
+public class PlayerLoadout : INetworkSerializable, IEquatable<PlayerLoadout>
+{
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
-        if (IsServer)
+        serializer.SerializeValue(ref armorClass);
+        if (serializer.IsWriter)
         {
-            if (equippedPrimaryWeapon != null)
-            {
-                if (isPrimaryFiring) equippedPrimaryWeapon.Fire();
-                if (!isPrimaryFiring) equippedPrimaryWeapon.StopFire();
-            }
+            FastBufferWriter writer = serializer.GetFastBufferWriter();
+            writer.WriteValueSafe(weapon1SO != null ? WeaponLoadoutItems.IndexOf(WeaponLoadoutItems.First(w => w == weapon1SO)) : -1);
+            writer.WriteValueSafe(weapon2SO != null ? WeaponLoadoutItems.IndexOf(WeaponLoadoutItems.First(w => w == weapon2SO)) : -1);
+            writer.WriteValueSafe(heavyWeaponSO != null ? HeavyWeaponLoadoutItems.IndexOf(HeavyWeaponLoadoutItems.First(w => w == heavyWeaponSO)) : -1);
+            writer.WriteValueSafe(throwableSO != null ? ThrowableLoadoutItems.IndexOf(ThrowableLoadoutItems.First(w => w == throwableSO)) : -1);
+            writer.WriteValueSafe(equipmentSO != null ? EquipmentLoadoutItems.IndexOf(EquipmentLoadoutItems.First(w => w == equipmentSO)) : -1);
+            writer.WriteValueSafe(coreSO != null ? CoreLoadoutItems.IndexOf(CoreLoadoutItems.First(w => w == coreSO)) : -1);
+        }
+        else
+        {
+            FastBufferReader reader = serializer.GetFastBufferReader();
+            reader.ReadValueSafe(out int weapon1Index);
+            weapon1SO = weapon1Index != -1 ? WeaponLoadoutItems[weapon1Index] : null;
+            reader.ReadValueSafe(out int weapon2Index);
+            weapon2SO = weapon2Index != -1 ? WeaponLoadoutItems[weapon2Index] : null;
+            reader.ReadValueSafe(out int heavyWeaponIndex);
+            heavyWeaponSO = heavyWeaponIndex != -1 ? HeavyWeaponLoadoutItems[heavyWeaponIndex] : null;
+            reader.ReadValueSafe(out int throwableIndex);
+            throwableSO = throwableIndex != -1 ? ThrowableLoadoutItems[throwableIndex] : null;
+            reader.ReadValueSafe(out int equipmentIndex);
+            equipmentSO = equipmentIndex != -1 ? EquipmentLoadoutItems[equipmentIndex] : null;
+            reader.ReadValueSafe(out int coreIndex);
+            coreSO = coreIndex != -1 ? CoreLoadoutItems[coreIndex] : null;
         }
     }
 
-    public void Initialize(PlayerController playerController)
+    public bool Equals(PlayerLoadout other)
     {
-        if (!IsServer) return;
+        if (other == null) return false;
 
-        currentWeaponsObjList = new List<GameObject>();
-        foreach (GameObject weaponPrefabObj in weaponPrefabObjList)
-        {
-            AddWeapon(weaponPrefabObj, playerController);
-        }
-        currentWeaponsObjList[0].GetComponent<Weapon>().EquipRpc();
-        equippedPrimaryWeapon = currentWeaponsObjList[0].GetComponent<Weapon>();
-
-        AddThrowable(throwablePrefabObj, playerController);
+        return armorClass == other.armorClass &&
+            weapon1SO == other.weapon1SO &&
+            weapon2SO == other.weapon2SO &&
+            heavyWeaponSO == other.heavyWeaponSO &&
+            throwableSO == other.throwableSO &&
+            equipmentSO == other.equipmentSO &&
+            coreSO == other.coreSO;
     }
 
-    public void Deinitialize()
+    private static List<LoadoutItemSO> _armorClassLoadoutItems;
+    public static List<LoadoutItemSO> ArmorClassLoadoutItems
     {
-        if (!IsServer) return;
-
-        foreach (GameObject weaponObj in currentWeaponsObjList)
+        get
         {
-            weaponObj.GetComponent<Weapon>().Deinitialize();
-            NetworkObject networkObj = weaponObj.GetComponentInParent<NetworkObject>();
-            networkObj.Despawn();
-            Destroy(weaponObj);
-        }
-        currentWeaponsObjList.Clear();
-        currentWeaponIndex = 0;
-        equippedPrimaryWeapon = null;
-
-        if (throwableManager != null)
-        {
-            throwableManager.Deinitialize();
-            NetworkObject networkObj = throwableManager.GetComponentInParent<NetworkObject>();
-            networkObj.Despawn();
-            Destroy(throwableManager.gameObject);
-            throwableManager = null;
+            _armorClassLoadoutItems ??= Resources.LoadAll<LoadoutItemSO>("LoadoutItemSOs/ArmorClasses").ToList();
+            return _armorClassLoadoutItems;
         }
     }
 
-
-    private void AddWeapon(GameObject weaponPrefabObj, PlayerController playerController)
+    private static List<LoadoutItemSO> _weaponLoadoutItems;
+    public static List<LoadoutItemSO> WeaponLoadoutItems
     {
-        if (!IsServer) return;
-
-        GameObject newWeapon = Instantiate(
-            weaponPrefabObj,
-            playerController.weaponMountPoint.position,
-            playerController.weaponMountPoint.rotation
-        );
-        NetworkObject networkObj = newWeapon.GetComponent<NetworkObject>();
-        networkObj.Spawn(true);
-        networkObj.TrySetParent(playerController.NetworkObject);
-        networkObj.ChangeOwnership(playerController.OwnerClientId);
-        newWeapon = newWeapon.transform.GetComponentInChildren<Weapon>().gameObject;
-        newWeapon.GetComponent<Weapon>().Initialize(playerController);
-
-        currentWeaponsObjList.Add(newWeapon);
+        get
+        {
+            _weaponLoadoutItems ??= Resources.LoadAll<LoadoutItemSO>("LoadoutItemSOs/Weapons").ToList();
+            return _weaponLoadoutItems;
+        }
     }
 
-    private void AddThrowable(GameObject throwablePrefabObj, PlayerController playerController)
+    private static List<LoadoutItemSO> _heavyWeaponLoadoutItems;
+    public static List<LoadoutItemSO> HeavyWeaponLoadoutItems
     {
-        if (!IsServer) return;
-
-        GameObject newThrowable = Instantiate(
-            throwablePrefabObj,
-            playerController.throwableMountPoint.position,
-            playerController.throwableMountPoint.rotation
-        );
-        NetworkObject networkObj = newThrowable.GetComponent<NetworkObject>();
-        networkObj.Spawn(true);
-        networkObj.TrySetParent(playerController.NetworkObject);
-        networkObj.ChangeOwnership(playerController.OwnerClientId);
-        throwableManager = newThrowable.GetComponentInChildren<ThrowableManager>();
-        throwableManager.Initialize(playerController);
+        get
+        {
+            _heavyWeaponLoadoutItems ??= Resources.LoadAll<LoadoutItemSO>("LoadoutItemSOs/HeavyWeapons").ToList();
+            return _heavyWeaponLoadoutItems;
+        }
     }
 
-    [Rpc(SendTo.Server)]
-    public void NextWeaponRpc()
+    private static List<LoadoutItemSO> _throwableLoadoutItems;
+    public static List<LoadoutItemSO> ThrowableLoadoutItems
     {
-        currentWeaponsObjList[currentWeaponIndex].GetComponent<Weapon>().UnequipRpc();
-        currentWeaponIndex = (currentWeaponIndex + 1) % currentWeaponsObjList.Count;
-        currentWeaponsObjList[currentWeaponIndex].GetComponent<Weapon>().EquipRpc();
-        equippedPrimaryWeapon = currentWeaponsObjList[currentWeaponIndex].GetComponent<Weapon>();
-    }
-    [Rpc(SendTo.Server)]
-    public void PreviousWeaponRpc()
-    {
-        currentWeaponsObjList[currentWeaponIndex].GetComponent<Weapon>().UnequipRpc();
-        currentWeaponIndex = (currentWeaponIndex - 1 + currentWeaponsObjList.Count) % currentWeaponsObjList.Count;
-        currentWeaponsObjList[currentWeaponIndex].GetComponent<Weapon>().EquipRpc();
-        equippedPrimaryWeapon = currentWeaponsObjList[currentWeaponIndex].GetComponent<Weapon>();
+        get
+        {
+            _throwableLoadoutItems ??= Resources.LoadAll<LoadoutItemSO>("LoadoutItemSOs/Throwables").ToList();
+            return _throwableLoadoutItems;
+        }
     }
 
-    [Rpc(SendTo.Server)]
-    public void OnPrimaryFireStartedRpc() => isPrimaryFiring = true;
-    [Rpc(SendTo.Server)]
-    public void OnPrimaryFireCanceledRpc() => isPrimaryFiring = false;
-    [Rpc(SendTo.Server)]
-    public void OnThrowableStartedRpc() => throwableManager.StartThrow();
-    [Rpc(SendTo.Server)]
-    public void OnThrowableCanceledRpc() => throwableManager.ReleaseThrow();
+    private static List<LoadoutItemSO> _equipmentLoadoutItems;
+    public static List<LoadoutItemSO> EquipmentLoadoutItems
+    {
+        get
+        {
+            _equipmentLoadoutItems ??= Resources.LoadAll<LoadoutItemSO>("LoadoutItemSOs/Equipments").ToList();
+            return _equipmentLoadoutItems;
+        }
+    }
+
+    private static List<LoadoutItemSO> _coreLoadoutItems;
+    public static List<LoadoutItemSO> CoreLoadoutItems
+    {
+        get
+        {
+            _coreLoadoutItems ??= Resources.LoadAll<LoadoutItemSO>("LoadoutItemSOs/Cores").ToList();
+            return _coreLoadoutItems;
+        }
+    }
+
+    public LoadoutArmorClass armorClass;
+    public LoadoutItemSO weapon1SO;
+    public LoadoutItemSO weapon2SO;
+    public LoadoutItemSO heavyWeaponSO;
+    public LoadoutItemSO throwableSO;
+    public LoadoutItemSO equipmentSO;
+    public LoadoutItemSO coreSO;
+
+    public PlayerLoadout()
+    {
+        armorClass = LoadoutArmorClass.Any;
+        weapon1SO = null;
+        weapon2SO = null;
+        heavyWeaponSO = null;
+        throwableSO = null;
+        equipmentSO = null;
+        coreSO = null;
+    }
+
+    public PlayerLoadout(PlayerLoadout other)
+    {
+        armorClass = other.armorClass;
+        weapon1SO = other.weapon1SO;
+        weapon2SO = other.weapon2SO;
+        heavyWeaponSO = other.heavyWeaponSO;
+        throwableSO = other.throwableSO;
+        equipmentSO = other.equipmentSO;
+        coreSO = other.coreSO;
+    }
+
+    public PlayerLoadout(LoadoutPresetSO loadoutSO)
+    {
+        armorClass = loadoutSO.armorClass;
+        weapon1SO = loadoutSO.weapon1;
+        weapon2SO = loadoutSO.weapon2;
+        heavyWeaponSO = loadoutSO.heavyWeapon;
+        throwableSO = loadoutSO.throwable;
+        equipmentSO = loadoutSO.equipment;
+        coreSO = loadoutSO.core;
+    }   
 }

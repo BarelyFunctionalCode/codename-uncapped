@@ -6,6 +6,8 @@ public class Entity : NetworkBehaviour, IDamageable
     private const float groundEnergyRegenRate = 12.5f;
     
     [Header("Entity Attributes")]
+    [SerializeField] private string identifier;
+    [SerializeField] private uint teamId = 0;
     [SerializeField] private NetworkVariable<float> health;
     [SerializeField] private float maxHealth;
 
@@ -39,9 +41,11 @@ public class Entity : NetworkBehaviour, IDamageable
     #endregion
     
     #region Getters
-    public float GetHealth()				{ return health.Value; }
-    public float GetHealthPercentage()	{ return health.Value / maxHealth; }
-    public bool GetIsGrounded() 			{ return isGrounded; }
+    public string GetIdentifier()       { return identifier; }
+    public uint GetTeamId()			    { return teamId; }
+    public float GetHealth()		    { return health.Value; }
+    public float GetHealthPercentage()	{ return maxHealth > 0f ? health.Value / maxHealth : 0f; }
+    public bool GetIsGrounded() 	    { return isGrounded; }
     #endregion
     
 
