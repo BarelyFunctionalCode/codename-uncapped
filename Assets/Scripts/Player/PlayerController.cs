@@ -364,6 +364,10 @@ public class PlayerController : Entity
             {
                 localId = SteamClient.SteamId.Value;
             }
+            else
+            {
+                localId = OwnerClientId;
+            }
             InitializeRpc();
         }
         isInitialized = true;

@@ -29,7 +29,7 @@ public class PhaseSystem : MonoBehaviour
 {
     #region Properties
     [SerializeField]
-    private Phase _currentphase = Phase.PRELOAD;
+    public Phase _currentphase = Phase.PRELOAD;
     public Phase CurrentPhase
     {
         get => _currentphase;
@@ -54,6 +54,15 @@ public class PhaseSystem : MonoBehaviour
             };
         }
     }
+
+    [SerializeField]
+    public Dictionary<Phase, float> countdowns = new DIctionary<Phase, float>()
+    {
+        { Phase.PRELOAD,    15.0f  },
+        { Phase.WARMUP,     15.0f  },
+        { Phase.ACTIVE,     600.0f },
+        { Phase.ENDGAME,    15.0f  },
+    };
 
     [SerializeField]
     private float _countdown;
@@ -119,6 +128,11 @@ public class PhaseSystem : MonoBehaviour
     private float GetCountdown()
     {
         return Countdown;
+    }
+
+    private void AddCountdown(float f)
+    {
+        SetCountdown(f + GetCountdown());
     }
 
     private void SetCountdown(float f)
