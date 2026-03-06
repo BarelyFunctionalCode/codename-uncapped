@@ -1,6 +1,152 @@
 using UnityEngine;
+using System;
+using System.Collections.Generic;
+
+
+public enum Phase
+{
+    PRELOAD,
+    WARMUP,
+    ACTIVE,
+    ENDGAME
+}
+
+ /*  PhaseSystem handles state of the game mode
+ *      - States:
+ *        - Preload is the initial value, possibly unnecessary and could simply use Warmup
+ *        - Warmup pre-game
+ *        - Starting a game
+ *        - Cleanup post-game
+ *      - Receives signal to change state from server host (force game start/game end),
+ *        or the states' Step condition
+ *        - Pregame warmup has an idle timer of 30 seconds to allow everyone to load into the session,
+ *          and select a team, after which it changes state to "In Session"
+ *        - In-session phase step condition is # of points
+ *        - Cleanup post game phase has a timer of 30 seconds, allows for voting on the next map
+ */
 
 public class PhaseSystem : MonoBehaviour
 {
+    #region Properties
+    [SerializeField]
+    private Phase _currentphase = Phase.PRELOAD;
+    public Phase CurrentPhase
+    {
+        get => _currentphase;
+        set
+        {
+            _currentphase = value;
+            // Phase duration is set at the same time as we're setting current phase
+            switch ( value )
+            {
+                case Phase.PRELOAD:
+                    SetCountdown(5.0f);
+                    break;
+                case Phase.WARMUP:
+                    SetCountdown(5.0f);
+                    break;
+                case Phase.ACTIVE:
+                    SetCountdown(5.0f);
+                    break;
+                case Phase.ENDGAME:
+                    SetCountdown(5.0f);
+                    break;
+            };
+        }
+    }
 
+    [SerializeField]
+    private float _countdown;
+    private float Countdown
+    {
+        get => _countdown;
+        set
+        {
+            _countdown = value;
+            if (Countdown <= 0)
+            {
+                Step();
+            }
+        }
+    }
+    #endregion
+
+    #region Public methods
+    public Phase GetCurrentPhase()
+    {
+        return CurrentPhase;
+    }
+
+    // Step phase forward
+    public void Step()
+    {
+        // set the next phase
+        switch ( CurrentPhase )
+        {
+            case Phase.PRELOAD:
+                CurrentPhase = Phase.WARMUP;
+                break;
+            case Phase.WARMUP:
+                CurrentPhase = Phase.ACTIVE;
+                break;
+            case Phase.ACTIVE:
+                CurrentPhase = Phase.ENDGAME;
+                break;
+            case Phase.ENDGAME:
+                CurrentPhase = Phase.WARMUP;
+                break;
+        };
+
+        EmitPhaseChanged(new EventArgsPhaseChanged(CurrentPhase));
+    }
+
+    // Bypass intended stepping and set Phase directly.
+    // Used for restarting a match, or early ending a match.
+    public void HardSet(Phase phase)
+    {
+        CurrentPhase = phase;
+        EmitPhaseChanged(new EventArgsPhaseChanged(CurrentPhase));
+    }
+
+    #endregion
+
+    #region Private methods
+    private void EmitPhaseChanged(EventArgsPhaseChanged e)
+    {
+        gameObject.BroadcastMessage("OnPhaseChanged", e);
+    }
+
+    private float GetCountdown()
+    {
+        return Countdown;
+    }
+
+    private void SetCountdown(float f)
+    {
+        Countdown = f;
+    }
+    #endregion
+    
+    #region Message Receivers
+    private void FixedUpdate()
+    {
+        SetCountdown(GetCountdown() - Time.fixedDeltaTime);
+    }
+
+    public void Awake()
+    {
+        SetCountdown(1.0f);
+    }
+
+    public void OnGameWon()
+    {
+        HardSet(Phase.ENDGAME);
+    }
+    #endregion
+}
+
+public class EventArgsPhaseChanged : EventArgs
+{
+    public Phase phase;
+    public EventArgsPhaseChanged(Phase p) => phase = p;
 }
