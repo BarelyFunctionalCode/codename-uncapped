@@ -56,7 +56,7 @@ public class PhaseSystem : MonoBehaviour
     }
 
     [SerializeField]
-    public Dictionary<Phase, float> countdowns = new DIctionary<Phase, float>()
+    public Dictionary<Phase, float> countdowns = new Dictionary<Phase, float>()
     {
         { Phase.PRELOAD,    15.0f  },
         { Phase.WARMUP,     15.0f  },

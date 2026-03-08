@@ -9,6 +9,7 @@ public enum StatEventType
     FLAG_RETURN,
     FLAG_PICKED_UP,
     FLAG_HELD,
+    DAMAGE_TAKEN,
 }
 
 public class StatEvent

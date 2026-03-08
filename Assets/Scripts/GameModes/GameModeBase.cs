@@ -22,6 +22,9 @@ public class GameModeBase : MonoBehaviour
     private bool isDamageAllowed   = false;
     #endregion
 
+    [SerializeField]
+    public GameModes game_mode_id;
+
     #region Public Methods
     public void StatEventReceiver(StatEvent s)
     {
