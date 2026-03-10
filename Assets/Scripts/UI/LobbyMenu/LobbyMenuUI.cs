@@ -54,7 +54,7 @@ public class LobbyMenuUI : MonoBehaviour
         {
             GameObject lobbyListItem = Instantiate(lobbyListEntryPrefab, lobbyListContainerObj.transform);
             lobbyListItem.transform.SetAsFirstSibling();
-            lobbyListItem.GetComponent<LobbyListEntryUI>().Initialize(lobby.GetData("name"), lobby.Id);
+            lobbyListItem.GetComponent<LobbyListEntryUI>().Initialize(lobby.GetData("name"), lobby.Id, lobby.MemberCount, lobby.MaxMembers);
         }
     }
 }

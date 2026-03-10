@@ -1,17 +1,11 @@
 using System.Collections.Generic;
 using System.IO;
 using TMPro;
-using Unity.Cinemachine;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class MatchSelection : NetworkBehaviour
 {
-    private Canvas canvas;
-    [SerializeField] private CinemachineCamera pcCam;
-    [SerializeField] private LayerMask noPlayerMask;
-
     [SerializeField] private TMP_Dropdown levelSelectDropdown;
     [SerializeField] private TMP_Dropdown gameModeSelectDropdown;
     [SerializeField] private TMP_Dropdown maxPlayersSelectDropdown;
@@ -23,93 +17,20 @@ public class MatchSelection : NetworkBehaviour
     [SerializeField] private TMP_Text selectedGameModeTitleText;
     [SerializeField] private TMP_Text selectedGameModeDescriptionText;
 
-    [SerializeField] private GameObject interactPromptObj;
-
-    [SerializeField] private GameObject cursorObj;
-    private Rect cursorBounds;
-
     private static List<string> levelNames = new();
-
-    private float camToCanvasDistance;
-    private bool showInteractPrompt = false;
-    private bool isActive = false;
-
-    private PlayerController interactingPlayerController;
 
     private string selectedLevel;
     private GameModes selectedGameMode;
     private int selectedMaxPlayers;
     private int selectedTimeLimit;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Awake()
-    {
-        canvas = GetComponentInChildren<Canvas>();
-        camToCanvasDistance = pcCam.GetComponent<CinemachinePositionComposer>().CameraDistance;
-        cursorBounds = cursorObj.transform.parent.GetComponent<RectTransform>().rect;
-    }
+    [SerializeField] private LobbyPC lobbyPC;
 
     public sealed override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
         InitializeMenu();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (cursorObj != null && isActive)
-        {
-            Vector2 mousePosition = Mouse.current.position.ReadValue();
-            Vector3 cursorPosition = Camera.main.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, camToCanvasDistance));
-            // Clamp cursor position to canvas bounds
-            cursorPosition.x = Mathf.Clamp(cursorPosition.x, cursorBounds.xMin * canvas.scaleFactor, cursorBounds.xMax * canvas.scaleFactor);
-            cursorPosition.y = Mathf.Clamp(cursorPosition.y, cursorBounds.yMin * canvas.scaleFactor, cursorBounds.yMax * canvas.scaleFactor);
-            cursorObj.transform.position = cursorPosition; // TODO: This doesn't work, probably need to update anchored position
-        }
-
-        if (Keyboard.current.fKey.wasPressedThisFrame && showInteractPrompt && !isActive)
-        {
-            Interact();
-        }
-    }
-
-    private void FixedUpdate()
-    {
-        interactPromptObj.SetActive(showInteractPrompt && !isActive);
-        showInteractPrompt = false;
-    }
-
-    private void Interact()
-    {
-        NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject().TryGetComponent(out PlayerController playerController);
-        playerController.SetPlayerControlsRpc(false);
-        interactingPlayerController = playerController;
-        interactingPlayerController.playerHUD.ToggleHUD();
-
-        // Sets priority to PC Cam and then unlocks the cursor
-        Camera.main.cullingMask = noPlayerMask;
-        pcCam.Priority.Value = 99;
-        Cursor.lockState = CursorLockMode.Confined;
-        Cursor.visible = false;
-        cursorObj.SetActive(true);
-        isActive = true;
-    }
-
-    private void Reset()
-    {
-        // Resets priority to PC Cam and then locks the cursor
-        isActive = false;
-        cursorObj.SetActive(false);
-        Camera.main.cullingMask = -1;
-        pcCam.Priority.Value = 0;
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = true;
-
-        interactingPlayerController.SetPlayerControlsRpc(true);
-        interactingPlayerController.playerHUD.ToggleHUD();
-        interactingPlayerController = null;
     }
 
     private void InitializeMenu()
@@ -230,21 +151,10 @@ public class MatchSelection : NetworkBehaviour
     {
         if (!IsHost) return;
 
-        Reset();
+        Debug.Log($"Starting match with settings: Level - {selectedLevel}, Game Mode - {selectedGameMode}, Max Players - {selectedMaxPlayers}, Time Limit - {selectedTimeLimit} minutes");
+        lobbyPC.Reset();
         GameManager.Instance.SetLevel(selectedLevel);
         GameManager.Instance.SetGameMode(selectedGameMode);
         GameManager.Instance.LoadLevel();
-    }
-
-    void OnTriggerStay(Collider other)
-    {
-        if (isActive) return;
-
-        other.TryGetComponent(out PlayerController playerController);
-        if (playerController != null && playerController.IsLocalPlayer)
-        {
-            interactPromptObj.SetActive(true);
-            showInteractPrompt = true;
-        }
     }
 }

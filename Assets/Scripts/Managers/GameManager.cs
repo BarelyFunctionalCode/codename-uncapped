@@ -362,7 +362,7 @@ public class GameManager : MonoBehaviour
 		}
 
 		// lobby.SetFriendsOnly(); // Set to friends only!
-		lobby.SetData("name", SteamClient.Name + "'s Lobby");
+		lobby.SetData("name", SteamClient.Name);
         lobby.SetData("description", "LUTest");
 		lobby.SetJoinable(true);
 

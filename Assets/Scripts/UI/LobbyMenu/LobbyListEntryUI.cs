@@ -6,6 +6,7 @@ public class LobbyListEntryUI : MonoBehaviour
 {
     [SerializeField] private Button selectButton;
     [SerializeField] private TMP_Text lobbyNameTextObj;
+    [SerializeField] private TMP_Text playerCountTextObj;
 
     private LobbyMenuUI lobbyMenuUI;
     private ulong lobbyId;
@@ -16,10 +17,11 @@ public class LobbyListEntryUI : MonoBehaviour
 
     private void Start() => lobbyMenuUI = FindAnyObjectByType<LobbyMenuUI>();
 
-    public void Initialize(string lobbyName, ulong lobbyId)
+    public void Initialize(string lobbyName, ulong lobbyId, int playerCount, int maxPlayers)
     {
         // Set button info
         lobbyNameTextObj.text = lobbyName;
+        playerCountTextObj.text = $"{playerCount}/{maxPlayers}";
         this.lobbyId = lobbyId;
     }
 
