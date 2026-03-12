@@ -1,0 +1,57 @@
+{
+    "version": 1,
+    "name": "TerrainGenerationControls",
+    "maps": [
+        {
+            "name": "Camera",
+            "id": "7c36c41f-1b68-4a85-bc79-46e3a0685c2a",
+            "actions": [
+                {
+                    "name": "Look",
+                    "type": "Value",
+                    "id": "0e4c0184-f494-4ea6-9097-e84181327295",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "Look",
+                    "id": "d43a3c6e-1f47-4dfd-a36b-930d311815a4",
+                    "path": "OneModifier",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Look",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "modifier",
+                    "id": "ece9c106-12a9-4d07-bade-3307dd05fd8b",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "binding",
+                    "id": "444102f6-357d-481f-988a-1062018ea5bc",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
