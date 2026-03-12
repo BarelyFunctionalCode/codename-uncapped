@@ -14,7 +14,7 @@ using UnityEngine.SceneManagement;
 [RequireComponent(typeof(PlayerLoadoutManager))]
 [RequireComponent(typeof(PlayerNetworkTransform))]
 [RequireComponent(typeof(NetworkRigidbody))]
-public class PlayerController : Entity
+public class PlayerController : Entity, IGravityModifiable
 {
     [Space(20)]
     // Debug
@@ -132,6 +132,8 @@ public class PlayerController : Entity
     private readonly float airCushionHeight = 10f;    
     private readonly float mass = 75f; // TODO: This mass value need to be moved to the elsewhere since they differ by class
 
+    private NetworkVariable<float> gravityModifier = new();
+
     public bool isInitialized = false;
 
 
@@ -144,6 +146,8 @@ public class PlayerController : Entity
     public sealed override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
+
+        if (IsServer) gravityModifier.Value = 1f;
 
         localTransform = transform;
         localRb = GetComponent<Rigidbody>();
@@ -274,6 +278,15 @@ public class PlayerController : Entity
 
         // Finally, we process the inputs to move the player locally and on the server
         HandleMovement();
+
+        if (IsServer)
+        {
+            if (gravityModifier.Value != 1f)
+            {
+                gravityModifier.Value = Mathf.Lerp(gravityModifier.Value, 1f, Time.fixedDeltaTime * 5f);
+                if (Mathf.Abs(gravityModifier.Value - 1f) < 0.01f) gravityModifier.Value = 1f;
+            }
+        }
 
         isJumping = false;
         if (playerTelemetry != null)
@@ -565,6 +578,12 @@ public class PlayerController : Entity
 
 
     #region Movement
+    public void SetGravityModifier(float modifier)
+    {
+        if (!IsSpawned || !IsServer) return;
+        gravityModifier.Value = modifier;
+    }
+
     public void Teleport(Vector3 destination, Quaternion rotation = default)
     {
         if (!IsServer) return;
@@ -656,6 +675,8 @@ public class PlayerController : Entity
         Vector3 groundImpulse = Vector3.zero;
         float desiredVerticalAcc = 0f;
 
+        float gravityMagnitude = Physics.gravity.magnitude * gravityModifier.Value;
+
         // Air Control
         if (!isGrounded && !isJetting && !isSkiing)
         {
@@ -705,7 +726,7 @@ public class PlayerController : Entity
         // Running Movement
         else if (isRunning)
         {
-            groundImpulse = new(0f, -Physics.gravity.magnitude * Time.fixedDeltaTime, 0f);
+            groundImpulse = new(0f, -gravityMagnitude * Time.fixedDeltaTime, 0f);
             float slopeDot = -Vector3.Dot(groundImpulse, surfaceNormal);
 
             if (slopeDot > 0.0f)
@@ -752,7 +773,7 @@ public class PlayerController : Entity
             {
                 // Going Downhill?
                 // player is pushed fast downhill... easy
-                desiredAcc = 2.0f * hoverFactor * Physics.gravity.magnitude * Time.fixedDeltaTime * Vector3.ProjectOnPlane(surfaceNormal, Vector3.up);
+                desiredAcc = 2.0f * hoverFactor * gravityMagnitude * Time.fixedDeltaTime * Vector3.ProjectOnPlane(surfaceNormal, Vector3.up);
             }
             else
             {
@@ -761,10 +782,10 @@ public class PlayerController : Entity
                 Vector3 sideDirection = -lateralVelocityDir;
                 float sideDot = Vector3.Dot(surfaceDirection, sideDirection);
                 
-                desiredAcc = 0.5f * hoverFactor * Physics.gravity.magnitude * Time.fixedDeltaTime * (surfaceDirection - lateralVelocityDir * sideDot);
+                desiredAcc = 0.5f * hoverFactor * gravityMagnitude * Time.fixedDeltaTime * (surfaceDirection - lateralVelocityDir * sideDot);
             }
             desiredAcc.y = 0.0f;
-            Vector3 hoverVertAcc = hoverFactor * Physics.gravity.magnitude * Time.fixedDeltaTime * Vector3.up;
+            Vector3 hoverVertAcc = hoverFactor * gravityMagnitude * Time.fixedDeltaTime * Vector3.up;
             currentVelocity += hoverVertAcc;
         }
 
@@ -817,7 +838,7 @@ public class PlayerController : Entity
 
         // Apply desired acceleration, jetting accelration, walking acceleration, and gravity
         desiredAcc.y += desiredVerticalAcc;
-        desiredAcc.y -= Physics.gravity.magnitude * Time.fixedDeltaTime;
+        desiredAcc.y -= gravityMagnitude * Time.fixedDeltaTime;
         desiredAcc += groundImpulse;
         currentVelocity += desiredAcc;
 

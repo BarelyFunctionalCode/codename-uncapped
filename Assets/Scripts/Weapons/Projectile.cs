@@ -7,7 +7,7 @@ using System.Linq;
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(NetworkRigidbody))]
 [RequireComponent(typeof(AudioSource))]
-public class Projectile : NetworkBehaviour
+public class Projectile : NetworkBehaviour, IGravityModifiable
 {
     [SerializeField] private SphereCollider projectileCollider;
     [SerializeField] protected CapsuleCollider damageRadiusTrigger;
@@ -24,6 +24,8 @@ public class Projectile : NetworkBehaviour
     [SerializeField] private float selfDestructTimer = 10;
     [SerializeField] protected float armingTimer = 0f;
     [SerializeField] public bool hasHoldModifier = false;
+
+    private NetworkVariable<float> gravityModifier = new();
 
     protected NetworkBehaviourReference ownerRef;
     protected NetworkBehaviourReference weaponRef;
@@ -47,15 +49,30 @@ public class Projectile : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
+        if (IsServer) gravityModifier.Value = 1f;
+
         audioSource = GetComponent<AudioSource>();
         audioSource.spatialBlend = 1;
         audioSource.minDistance = soundMinDistance;
         audioSource.maxDistance = soundMaxDistance;
+
+        rb.useGravity = false;
     }
 
     protected virtual void FixedUpdate()
     {
         if (!IsServer || !isFired) return;
+
+        if (IsServer)
+        {
+            if (gravityModifier.Value != 1f)
+            {
+                gravityModifier.Value = Mathf.Lerp(gravityModifier.Value, 1f, Time.fixedDeltaTime * 5f);
+                if (Mathf.Abs(gravityModifier.Value - 1f) < 0.01f) gravityModifier.Value = 1f;
+            }
+        }
+
+        rb.AddForce(Physics.gravity * gravityModifier.Value, ForceMode.Force);
 
         selfDestructTimer -= Time.fixedDeltaTime;
         armingTimer -= Time.fixedDeltaTime;
@@ -94,6 +111,12 @@ public class Projectile : NetworkBehaviour
     {
         if (!IsServer || !isFired) return;
         AddDamageReceiver(other);
+    }
+
+    public void SetGravityModifier(float modifier)
+    {
+        if (!IsSpawned || !IsServer) return;
+        gravityModifier.Value = modifier;
     }
 
     private void AddDamageReceiver(Collider receiverCollider)

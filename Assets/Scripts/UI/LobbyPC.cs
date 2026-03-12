@@ -47,7 +47,7 @@ public class LobbyPC : MonoBehaviour
 
     void Update()
     {
-        if (autoInteract && NetworkManager.Singleton != null && NetworkManager.Singleton.IsHost)
+        if (autoInteract && GameManager.Instance.usingSteam && NetworkManager.Singleton != null && NetworkManager.Singleton.IsHost)
         {
             Interact();
             Intro possibleIntro = FindAnyObjectByType<Intro>();
