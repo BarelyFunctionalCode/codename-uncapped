@@ -4,7 +4,7 @@ using UnityEngine.Events;
 
 public static class SpawnManager
 {
-    public static UnityEvent<GameObject> objectSpawnedEvent = new();
+    public static UnityEvent<GameObject> objectSpawnedEvent = new(); // TODO: THIS DOES NOT REACH CLIENTS!
 
     public static GameObject Spawn(GameObject objectPrefab, Transform parent)
     {

@@ -19,7 +19,6 @@ public interface IIdentifiable
 public class IdentifierManager : MonoBehaviour
 {
     public static Color[] TempTeamColors = new Color[] { Color.blue, Color.red, Color.green, Color.yellow, Color.cyan, Color.magenta };
-    public static IdentifierManager Instance { get; private set; } = null;
     [SerializeField] private GameObject identifierPrefab;
     private Canvas parentCanvas;
 
@@ -31,7 +30,18 @@ public class IdentifierManager : MonoBehaviour
     private float cleanupInterval = 5f;
     private float cleanupTimer = 0f;
 
-     private void Update()
+    private void Awake()
+    {
+        parentCanvas = GetComponent<Canvas>();
+
+        SceneManager.activeSceneChanged += (_, _) => RegisterSweep();
+        SpawnManager.objectSpawnedEvent.AddListener(obj =>
+        {
+            if (obj.TryGetComponent<IIdentifiable>(out var identifiable)) RegisterIdentifier(identifiable);
+        });
+    }
+
+    private void Update()
     {
         cleanupTimer += Time.deltaTime;
         if (cleanupTimer >= cleanupInterval)
@@ -48,34 +58,23 @@ public class IdentifierManager : MonoBehaviour
         }
     }
 
-    private void Awake()
+    private void OnDestroy()
     {
-        parentCanvas = GetComponent<Canvas>();
-
-        if (Instance == null)
-            Instance = this;
-        else
-        {
-            Destroy(gameObject);
-            return;
-        }
-    }
-
-    private void Start()
-    {
-        RegisterSweep();
-        SceneManager.activeSceneChanged += (_, _) => RegisterSweep();
-        SpawnManager.objectSpawnedEvent.AddListener(obj =>
+        SceneManager.activeSceneChanged -= (_, _) => RegisterSweep(); // TODO: This is fucked
+        SpawnManager.objectSpawnedEvent.RemoveListener(obj =>
         {
             if (obj.TryGetComponent<IIdentifiable>(out var identifiable)) RegisterIdentifier(identifiable);
         });
     }
+
 
     private void RegisterSweep()
     {
         GameObject[] existingIdentifiables = FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         foreach (GameObject obj in existingIdentifiables)
         {
+            // Check if obj is in active scene)
+            if (obj.scene != SceneManager.GetActiveScene()) continue;
             if (obj.TryGetComponent<IIdentifiable>(out var identifiable)) RegisterIdentifier(identifiable);
         }
     }

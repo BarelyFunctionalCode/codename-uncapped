@@ -4,14 +4,18 @@ using static Unity.Netcode.Components.NetworkTransform;
 
 public class PlayerPuppet : MonoBehaviour
 {
-    [SerializeField] public Transform freeLookTargetTransform;
-    [SerializeField] public Transform weaponMountPoint;
-    [SerializeField] public Transform throwableMountPoint;
-    [SerializeField] public AudioSource hoverAudioSource;
-    [SerializeField] public AudioSource windAudioSource;
+    private GameObject playerTypeObj;
+    private PlayerTypeData playerTypeData;
+
+    public Transform freeLookTargetTransform;
+    public Transform weaponMountPoint;
+    public Transform throwableMountPoint;
+    public Animator playerAnimator;
+    public AudioSource hoverAudioSource;
+    public AudioSource windAudioSource;
+    public Rigidbody rb;
+    public CapsuleCollider playerCollider;
     private PlayerController playerController;
-    private Rigidbody rb;
-    private CapsuleCollider playerCollider;
 
     Vector3 lastReceivedPosition;
 
@@ -24,7 +28,7 @@ public class PlayerPuppet : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        playerCollider = GetComponent<CapsuleCollider>();
+        rb.sleepThreshold = 0.0f;
     }
 
     private void FixedUpdate()
@@ -54,8 +58,24 @@ public class PlayerPuppet : MonoBehaviour
     public void Initialize(PlayerController playerController)
     {
         this.playerController = playerController;
+        SetPlayerType(playerController.playerTypePrefabObj);
         playerController.GetComponent<PlayerNetworkTransform>().onNewLocalTransformState.AddListener(OnNewLocalTransformState);
         isInitialized = true;
+    }
+
+    private void SetPlayerType(GameObject playerTypePrefabObj)
+    {
+        if (playerTypeObj != null) Destroy(playerTypeObj);
+        playerTypeObj = Instantiate(playerTypePrefabObj, transform.position, transform.rotation, transform);
+        playerTypeData = playerTypeObj.GetComponent<PlayerTypeData>();
+        playerCollider = playerTypeData.playerCollider;
+        playerAnimator = playerTypeData.playerAnimator;
+        freeLookTargetTransform = playerTypeData.freeLookTargetTransform;
+        weaponMountPoint = playerTypeData.weaponMountPoint;
+        throwableMountPoint = playerTypeData.throwableMountPoint;
+        hoverAudioSource = playerTypeData.hoverAudioSource;
+        windAudioSource = playerTypeData.windAudioSource;
+        rb.mass = playerTypeData.mass;
     }
 
     private void OnNewLocalTransformState(NetworkTransformState newState)

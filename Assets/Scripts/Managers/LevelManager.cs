@@ -15,7 +15,7 @@ public class LevelManager : NetworkBehaviour
 
     private void Awake()
     {
-        if (Instance != null) Destroy(gameObject);
+        if (Instance != null || GameManager.Instance == null || !GameManager.Instance.isInitialized) Destroy(gameObject);
         else Instance = this;
 
         transform.SetParent(null);

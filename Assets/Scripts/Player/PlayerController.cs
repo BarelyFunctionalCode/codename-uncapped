@@ -8,9 +8,9 @@ using UnityEngine.SceneManagement;
 
 
 [RequireComponent(typeof(Rigidbody))]
-[RequireComponent(typeof(CapsuleCollider))]
-[RequireComponent(typeof(Animator))]
-[RequireComponent(typeof(NetworkAnimator))]
+// [RequireComponent(typeof(CapsuleCollider))]
+// [RequireComponent(typeof(Animator))]
+// [RequireComponent(typeof(NetworkAnimator))]
 [RequireComponent(typeof(PlayerLoadoutManager))]
 [RequireComponent(typeof(PlayerNetworkTransform))]
 [RequireComponent(typeof(NetworkRigidbody))]
@@ -22,6 +22,10 @@ public class PlayerController : Entity, IGravityModifiable
     public PlayerTelemetry playerTelemetry;
 
     public Transform localTransform;
+
+    [SerializeField] public GameObject playerTypePrefabObj;
+    private GameObject playerTypeObj;
+    private PlayerTypeData playerTypeData;
 
     [SerializeField] private GameObject playerPuppetPrefabObj;
     public GameObject playerPuppetObj;
@@ -35,14 +39,14 @@ public class PlayerController : Entity, IGravityModifiable
     private Vector3 animMovementDirection = Vector3.zero;
 
     // Audio
-    [SerializeField] private AudioSource hoverAudioSource;
-    [SerializeField] private AudioSource windAudioSource;
+    private AudioSource hoverAudioSource;
+    private AudioSource windAudioSource;
 
     // Camera
     [SerializeField] private GameObject playerCameraPrefabObj;
     private GameObject playerCameraObj;
     private CinemachineCamera cineCam;
-    [SerializeField] private Transform freeLookTargetTransform;
+    private Transform freeLookTargetTransform;
     [PauseMenuOption("Horizontal Look", 0f, 100f)]
     public float horizontalRotationSpeed = 20f;
     private readonly float horizontalRotationLimit = 100f;
@@ -89,8 +93,8 @@ public class PlayerController : Entity, IGravityModifiable
 
     // Weapons and Gear
     [Header("Weapons and Gear")]
-    [SerializeField] public Transform weaponMountPoint;
-    [SerializeField] public Transform throwableMountPoint;
+    public Transform weaponMountPoint;
+    public Transform throwableMountPoint;
     private PlayerLoadoutManager playerLoadout;
 
     // Movement Parameters
@@ -130,7 +134,6 @@ public class PlayerController : Entity, IGravityModifiable
     private readonly float drag = 0.004f;                        
     private readonly float airCushionDrag = 0.00275f;             
     private readonly float airCushionHeight = 10f;    
-    private readonly float mass = 75f; // TODO: This mass value need to be moved to the elsewhere since they differ by class
 
     private NetworkVariable<float> gravityModifier = new();
 
@@ -147,19 +150,12 @@ public class PlayerController : Entity, IGravityModifiable
     {
         base.OnNetworkSpawn();
 
-        if (IsServer) gravityModifier.Value = 1f;
+        SceneManager.activeSceneChanged += ChangedActiveScene;
 
         localTransform = transform;
         localRb = GetComponent<Rigidbody>();
-        localPlayerCollider = GetComponent<CapsuleCollider>();
-        localAnimator = GetComponent<Animator>();
-
         localRb.sleepThreshold = 0.0f;
-        localRb.mass = mass;
-        localPlayerCollider.material = normalMaterial;
-
-        SceneManager.activeSceneChanged += ChangedActiveScene;
-
+        if (IsServer) gravityModifier.Value = 1f;
 
         if (IsOwner)
         {
@@ -188,9 +184,6 @@ public class PlayerController : Entity, IGravityModifiable
             playerControls.Character.DownJet.performed += ctx => DownJetInput(ctx.ReadValue<float>());
             playerControls.Character.DownJet.canceled += ctx => DownJetInput(ctx.ReadValue<float>());
             playerControls.Character.JumpJet.started += ctx => JumpInput();
-
-
-            if (!IsHost) Initialize();
         }
     }
 
@@ -230,7 +223,9 @@ public class PlayerController : Entity, IGravityModifiable
     protected override void Update()
     {
         base.Update();
+        if (!playerTypeObj && IsServer && GameManager.Instance.isInitialized) SetPlayerType(playerTypePrefabObj);
         if (!isInitialized || !(IsServer || IsOwner)) return;
+
         if (IsOwner)
         {
             playerTelemetry.Update();
@@ -299,85 +294,116 @@ public class PlayerController : Entity, IGravityModifiable
 
 
     #region Initialization
-    public void Initialize()
+    private void SetPlayerType(GameObject playerTypePrefabObj)
     {
-        if (IsOwner)
+        if (!IsServer) return;
+        if (playerTypeObj != null) Destroy(playerTypeObj);
+        playerTypeObj = SpawnManager.Spawn(
+            playerTypePrefabObj,
+            false,
+            transform.position,
+            transform.rotation,
+            transform,
+            OwnerClientId
+        );
+        Debug.Log("Set Player Type: " + playerTypeObj.name);
+    }
+
+    public void OnPlayerTypeObjectSpawned(PlayerTypeData playerTypeData)
+    {
+        Debug.Log("Player Type Object Spawned: " + playerTypeData.name);
+        this.playerTypeData = playerTypeData;
+        localPlayerCollider = playerTypeData.playerCollider;
+        localPlayerCollider.material = normalMaterial;
+        localAnimator = playerTypeData.playerAnimator;
+        freeLookTargetTransform = playerTypeData.freeLookTargetTransform;
+        weaponMountPoint = playerTypeData.weaponMountPoint;
+        throwableMountPoint = playerTypeData.throwableMountPoint;
+        hoverAudioSource = playerTypeData.hoverAudioSource;
+        windAudioSource = playerTypeData.windAudioSource;
+        localRb.mass = playerTypeData.mass;
+
+        if (IsOwner) InitializeOwner();
+    }
+
+    public void InitializeOwner()
+    {
+        if (!IsOwner) return;
+        if (!IsHost && !playerPuppetObj)
         {
-            if (!IsHost && !playerPuppetObj)
+            // Hide all visuals on authoritative player object
+            foreach (Renderer r in GetComponentsInChildren<Renderer>())
             {
-                // Hide all visuals on authoritative player object
-                foreach (Renderer r in GetComponentsInChildren<Renderer>())
-                {
-                    r.enabled = false;
-                }
-
-                // Disable audio sources
-                foreach (AudioSource a in GetComponentsInChildren<AudioSource>())
-                {
-                    a.enabled = false;
-                }
-
-                // Disable the collider on the authoritative player object so it doesn't interfere with the puppet's collider
-                localPlayerCollider.enabled = false;
-
-                // Spawn a non-authoritative puppet on local client for predicting the player's position and rotation before the server updates it
-                playerPuppetObj = Instantiate(playerPuppetPrefabObj, localTransform.position, localTransform.rotation);
-                playerPuppetObj.GetComponent<PlayerPuppet>().Initialize(this);
-
-                // Set the local player's transform, collider, and rigidbody references to the puppet's so that the rest of the
-                // player controller code can work as normal regardless of whether it's running on the server or client
-                localTransform = playerPuppetObj.transform;
-                localPlayerCollider = playerPuppetObj.GetComponent<CapsuleCollider>();
-                localRb = playerPuppetObj.GetComponent<Rigidbody>();
-                localAnimator = playerPuppetObj.GetComponent<Animator>();
-
-                // Get the free look target transform from the puppet so that the camera can follow it
-                freeLookTargetTransform = playerPuppetObj.GetComponent<PlayerPuppet>().freeLookTargetTransform;
-
-                // Set Audio Sources
-                hoverAudioSource = playerPuppetObj.GetComponent<PlayerPuppet>().hoverAudioSource;
-                windAudioSource = playerPuppetObj.GetComponent<PlayerPuppet>().windAudioSource;
+                r.enabled = false;
             }
 
-            // Initialize Player UI
-            if (!playerUIObj) {
-                playerUIObj = Instantiate(playerUIPrefabObj);
-                playerHUD = playerUIObj.GetComponentInChildren<HUD>();
-                playerTelemetry = new PlayerTelemetry(devVectorRenderer);
-            }
-
-            // Initialize Player Camera
-            if (!playerCameraObj)
+            // Disable audio sources
+            foreach (AudioSource a in GetComponentsInChildren<AudioSource>())
             {
-                playerCameraObj = Instantiate(playerCameraPrefabObj);
-                audioListener = playerCameraObj.GetComponentInChildren<AudioListener>();
-                cineCam = playerCameraObj.GetComponentInChildren<CinemachineCamera>();
-                cineCam.Follow = freeLookTargetTransform;
-
-                Camera UIOverlayCamera = playerUIObj.GetComponentInChildren<Canvas>().worldCamera;
-                Camera mainCamera = playerCameraObj.GetComponentInChildren<Camera>();
-                var cameraData = mainCamera.GetUniversalAdditionalCameraData();
-                cameraData.cameraStack.Add(UIOverlayCamera);
-
-                // Enable audio listener
-                audioListener.enabled = true;
-
-                // Enable the camera
-                cineCam.Priority.Value = 1;
+                a.enabled = false;
             }
 
-            // Get Player's Steam ID
-            if (GameManager.Instance?.usingSteam == true)
-            {
-                localId = SteamClient.SteamId.Value;
-            }
-            InitializeRpc();
+            // Disable the collider on the authoritative player object so it doesn't interfere with the puppet's collider
+            localPlayerCollider.enabled = false;
+
+            // Spawn a non-authoritative puppet on local client for predicting the player's position and rotation before the server updates it
+            playerPuppetObj = Instantiate(playerPuppetPrefabObj, localTransform.position, localTransform.rotation);
+            PlayerPuppet playerPuppet = playerPuppetObj.GetComponent<PlayerPuppet>();
+            playerPuppet.Initialize(this);
+
+            // Set the local player's transform, collider, and rigidbody references to the puppet's so that the rest of the
+            // player controller code can work as normal regardless of whether it's running on the server or client
+            localTransform = playerPuppetObj.transform;
+            localPlayerCollider = playerPuppet.playerCollider;
+            localRb = playerPuppet.rb;
+            localAnimator = playerPuppet.playerAnimator;
+
+            // Get the free look target transform from the puppet so that the camera can follow it
+            freeLookTargetTransform = playerPuppet.freeLookTargetTransform;
+
+            // Set Audio Sources
+            hoverAudioSource = playerPuppet.hoverAudioSource;
+            windAudioSource = playerPuppet.windAudioSource;
         }
+
+        // Initialize Player UI
+        if (!playerUIObj) {
+            playerUIObj = Instantiate(playerUIPrefabObj);
+            playerHUD = playerUIObj.GetComponentInChildren<HUD>();
+            playerTelemetry = new PlayerTelemetry(devVectorRenderer);
+        }
+
+        // Initialize Player Camera
+        if (!playerCameraObj)
+        {
+            playerCameraObj = Instantiate(playerCameraPrefabObj);
+            audioListener = playerCameraObj.GetComponentInChildren<AudioListener>();
+            cineCam = playerCameraObj.GetComponentInChildren<CinemachineCamera>();
+            cineCam.Follow = freeLookTargetTransform;
+
+            Camera UIOverlayCamera = playerUIObj.GetComponentInChildren<Canvas>().worldCamera;
+            Camera mainCamera = playerCameraObj.GetComponentInChildren<Camera>();
+            var cameraData = mainCamera.GetUniversalAdditionalCameraData();
+            cameraData.cameraStack.Add(UIOverlayCamera);
+
+            // Enable audio listener
+            audioListener.enabled = true;
+
+            // Enable the camera
+            cineCam.Priority.Value = 1;
+        }
+
+        // Get Player's Steam ID
+        if (GameManager.Instance?.usingSteam == true)
+        {
+            localId = SteamClient.SteamId.Value;
+        }
+        InitializeServerRpc();
         isInitialized = true;
     }
 
     [Rpc(SendTo.Server)]
-    private void InitializeRpc()
+    private void InitializeServerRpc()
     {
         playerLoadout.Initialize(this);
         PostInitializeRpc();
@@ -407,6 +433,14 @@ public class PlayerController : Entity, IGravityModifiable
     private void DisconnectCleanupOwnerRpc()
     {
         // Disable the UI
+        if (playerCameraObj)
+        {
+            Camera mainCamera = playerCameraObj.GetComponentInChildren<Camera>();
+            var cameraData = mainCamera.GetUniversalAdditionalCameraData();
+            cameraData.cameraStack.Remove(playerUIObj.GetComponentInChildren<Canvas>().worldCamera);
+            Destroy(playerCameraObj);
+            playerCameraObj = null;
+        }
         if (playerUIObj)
         {
             Destroy(playerUIObj);
@@ -683,7 +717,7 @@ public class PlayerController : Entity, IGravityModifiable
             Vector3 airDirection = movementDirection.normalized;
             Vector3 airControlAcc = airDirection * airControl;
 
-            float maxAccel = runForce / mass * Time.fixedDeltaTime * 0.3f;
+            float maxAccel = runForce / localRb.mass * Time.fixedDeltaTime * 0.3f;
 
             if (airControlAcc.magnitude > maxAccel)
             {
@@ -752,7 +786,7 @@ public class PlayerController : Entity, IGravityModifiable
 
             Vector3 velocityDiff = targetVelocity - (currentVelocity + groundImpulse);
 
-            float maxRunAccel = runForce / mass * Time.fixedDeltaTime;
+            float maxRunAccel = runForce / localRb.mass * Time.fixedDeltaTime;
             if (velocityDiff.magnitude > maxRunAccel)
                 velocityDiff *= maxRunAccel / velocityDiff.magnitude;
 
@@ -805,7 +839,7 @@ public class PlayerController : Entity, IGravityModifiable
             // Directional Control while Jetting/Skiing
             if (isSkiing && movementDirection.magnitude > 0.01f && GetEnergy() > 0.0f)
             {
-                float lateralForce = jetDirectionalForceXY / mass * accelScale * Time.fixedDeltaTime;
+                float lateralForce = jetDirectionalForceXY / localRb.mass * accelScale * Time.fixedDeltaTime;
                 desiredAcc += movementDirection * lateralForce;
                 ApplyEnergyDelta(-jetSkateEnergyDrain * accelScale * Time.fixedDeltaTime);
             }
@@ -820,12 +854,12 @@ public class PlayerController : Entity, IGravityModifiable
                     if (distanceToSurface <= airCushionHeight)
                         cushion = (airCushionHeight - distanceToSurface) / airCushionHeight;
 
-                    force = upJetForce / mass * accelScale * Time.fixedDeltaTime;
+                    force = upJetForce / localRb.mass * accelScale * Time.fixedDeltaTime;
                     force += force * cushion * 0.5f;
                 }
                 else if (isDownJetting) // Down Jetting
                 {
-                    force = -downJetForce / mass * accelScale * Time.fixedDeltaTime;
+                    force = -downJetForce / localRb.mass * accelScale * Time.fixedDeltaTime;
                 }
 
                 desiredVerticalAcc = force;
@@ -1003,7 +1037,7 @@ public class PlayerController : Entity, IGravityModifiable
         if (playerUIObj) SceneManager.MoveGameObjectToScene(playerUIObj, SceneManager.GetSceneByName(sceneName));
         if (playerCameraObj) SceneManager.MoveGameObjectToScene(playerCameraObj, SceneManager.GetSceneByName(sceneName));
 
-        if (sceneName == "Lobby") Initialize();
+        // if (sceneName == "Lobby") InitializeOwner();
     }
     #endregion
 }
