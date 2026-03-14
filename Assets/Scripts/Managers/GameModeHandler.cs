@@ -68,8 +68,6 @@ public class GameModeHandler : MonoBehaviour
             Destroy(current_game_mode.gameObject);
         }
 
-        // Fetch the new one and assign it
-        // GameObject game_mode = game_mode_cache[g];
         // Clone the prefab, add it as a child to the GameModeHandler
         GameObject cloned_game_mode_object = Instantiate(game_mode_cache[g], this.gameObject.transform);
         cloned_game_mode_object.GetComponent<NetworkObject>().Spawn();
@@ -93,6 +91,20 @@ public class GameModeHandler : MonoBehaviour
         return success ? type : TeamBasedType.NONE;
     }
 
+    #endregion
+
+    #region Private Methods
+    public ulong FetchLocalIdByClientId(ulong ClientID)
+    {
+        ulong localId = NetworkManager
+            .Singleton
+            .ConnectedClients[ClientID]
+            .PlayerObject
+            .GetComponent<PlayerController>()
+            .localId;
+
+        return localId;
+    }
     #endregion
 
     #region Message Receivers
@@ -129,18 +141,16 @@ public class GameModeHandler : MonoBehaviour
     {
         if ( GameModesTeamTypes[current_game_mode.game_mode_id] == TeamBasedType.SOLO)
         {
-            // Player joined the server, auto-assign team if FFA style game mode
-            ulong localId = NetworkManager
-                .Singleton
-                .ConnectedClients[ClientID]
-                .PlayerObject
-                .GetComponent<PlayerController>()
-                .localId;
-
+            ulong localId = FetchLocalIdByClientId(ClientID);
             current_game_mode.GetComponent<TeamStructure>().SetPlayerTeamFFA(localId);
         }
 
     }
 
+    public void OnClientLeft(ulong ClientID)
+    {
+        ulong localId = FetchLocalIdByClientId(ClientID);
+        current_game_mode.GetComponent<TeamStructure>().RemovePlayerTeam(localId);
+    }
     #endregion
 }

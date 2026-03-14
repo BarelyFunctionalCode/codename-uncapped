@@ -132,6 +132,19 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 8192
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -417,18 +430,18 @@ TextureImporter:
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":true,"gridCellCount":{"x":4.0,"y":4.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      EntityIdentifier_0: -605965121
-      EntityIdentifier_1: -1828082195
-      EntityIdentifier_10: -1433785062
-      EntityIdentifier_11: 153897279
-      EntityIdentifier_2: -742089931
-      EntityIdentifier_3: -332926985
-      EntityIdentifier_4: 1387727765
-      EntityIdentifier_5: -562984942
-      EntityIdentifier_6: -626471001
-      EntityIdentifier_7: 639205651
-      EntityIdentifier_8: -2135876158
-      EntityIdentifier_9: -394634770
+      EntityIdentifier_0: -1458835427
+      EntityIdentifier_1: -1379326116
+      EntityIdentifier_10: 719504004
+      EntityIdentifier_11: 2007990399
+      EntityIdentifier_2: 1319204250
+      EntityIdentifier_3: -1186612859
+      EntityIdentifier_4: -1384663729
+      EntityIdentifier_5: -1440224015
+      EntityIdentifier_6: -1870131770
+      EntityIdentifier_7: -723677171
+      EntityIdentifier_8: -1660138497
+      EntityIdentifier_9: -1115278108
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

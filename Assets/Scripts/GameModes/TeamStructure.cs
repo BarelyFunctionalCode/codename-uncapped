@@ -73,6 +73,15 @@ public class TeamStructure : NetworkBehaviour
         EmitPlayerChangedTeam(new EventArgsPlayerChangedTeam(player_id, team));
     }
 
+    // Remove a players' team
+    public void RemovePlayerTeam(ulong player_id)
+    {
+        if (team_assignment.ContainsKey(player_id))
+        {
+            team_assignment.Remove(player_id);
+        }
+    }
+
     public void AddNewTeam(string team)
     {
         teams.Add(team);
@@ -80,7 +89,11 @@ public class TeamStructure : NetworkBehaviour
 
     public void RemoveTeam(string team)
     {
-        if (teams.Contains(team)) { teams.Remove(team); }
+        if (teams.Contains(team))
+        {
+            teams.Remove(team);
+
+        }
     }
 
     public void WipeTeams()
