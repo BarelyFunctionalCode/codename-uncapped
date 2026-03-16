@@ -569,7 +569,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1483398771261850526, guid: a36fbecd6ba8ea20f9e6871c1befd4fb, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.7993258
+      value: -1.7993257
       objectReference: {fileID: 0}
     - target: {fileID: 1483398771261850526, guid: a36fbecd6ba8ea20f9e6871c1befd4fb, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1866,6 +1866,18 @@ PrefabInstance:
     - target: {fileID: 5820736377076070670, guid: a36fbecd6ba8ea20f9e6871c1befd4fb, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5940640826867647947, guid: a36fbecd6ba8ea20f9e6871c1befd4fb, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 1089964986
+      objectReference: {fileID: 0}
+    - target: {fileID: 5940640826867647947, guid: a36fbecd6ba8ea20f9e6871c1befd4fb, type: 3}
+      propertyPath: SceneMigrationSynchronization
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5940640826867647947, guid: a36fbecd6ba8ea20f9e6871c1befd4fb, type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 859765250
       objectReference: {fileID: 0}
     - target: {fileID: 5948908948042540533, guid: a36fbecd6ba8ea20f9e6871c1befd4fb, type: 3}
       propertyPath: m_AnchorMax.y
