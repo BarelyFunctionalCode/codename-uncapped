@@ -43,6 +43,7 @@ public class Entity : NetworkBehaviour, IDamageable
     #region Getters
     public string GetIdentifier()       { return identifier; }
     public uint GetTeamId()			    { return teamId; }
+    public void SetTeamId(uint newTeamId) { teamId = newTeamId; }
     public float GetHealth()		    { return health.Value; }
     public float GetHealthPercentage()	{ return maxHealth > 0f ? health.Value / maxHealth : 0f; }
     public bool GetIsGrounded() 	    { return isGrounded; }

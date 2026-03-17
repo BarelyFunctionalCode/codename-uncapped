@@ -38,7 +38,7 @@ public class LoadoutMenu : MonoBehaviour
         isInitialized = true;
     }
 
-    public void ToggleMenu()
+    public bool ToggleMenu()
     {
         gameObject.SetActive(!gameObject.activeSelf);
         if (gameObject.activeSelf)
@@ -47,6 +47,7 @@ public class LoadoutMenu : MonoBehaviour
             selectedArmorClass = tempLoadout.armorClass;
             BuildLoadoutLists();
         }
+        return gameObject.activeSelf;
     }
 
     private void BuildLoadoutLists()

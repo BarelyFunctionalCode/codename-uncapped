@@ -21,24 +21,15 @@ public class ChatManager : NetworkBehaviour
 {
     public static ChatManager Instance { get; private set; } = null;
     public UnityEvent<ChatMessageData> newMessageReceivedEvent = new();
-    public UnityEvent<bool> chatInputToggledEvent = new();
-    public bool isChatInputActive = false;
-
 
     private void Awake()
     {
-        if (Instance == null)
-            Instance = this;
+        if (Instance == null) Instance = this;
         else
         {
             Destroy(gameObject);
             return;
         }
-
-        Debug.Log("ChatManager Awake");
-
-        transform.SetParent(null);
-        DontDestroyOnLoad(gameObject);
     }
 
     [Rpc(SendTo.Server)]
@@ -60,12 +51,5 @@ public class ChatManager : NetworkBehaviour
     private void BroadcastMessageRpc(string name, string message, Color messageColor)
     {
         newMessageReceivedEvent.Invoke(new ChatMessageData(name, message, messageColor));
-    }
-
-    public void ToggleChatInput(bool isEnabled)
-    {
-        Debug.Log($"Toggling chat input: {(isEnabled ? "ON" : "OFF")}");
-        isChatInputActive = isEnabled;
-        chatInputToggledEvent.Invoke(isChatInputActive);
     }
 }

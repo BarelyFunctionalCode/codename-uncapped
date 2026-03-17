@@ -3,68 +3,95 @@ using UnityEngine;
 
 public class ChatWindow : MonoBehaviour
 {
-    [SerializeField] private GameObject chatContainerObj;
     [SerializeField] private Transform messagesContainer;
     [SerializeField] private GameObject chatMessagePrefabObj;
     [SerializeField] private GameObject chatInputFieldObj;
     [SerializeField] private TMP_InputField chatInputField;
+
+    private bool isInitialized = false;
+    private HUD hud;
 
     private float messageDisplayDuration = 10f;
     private float messageTimer = 0f;
 
     private void Awake()
     {
-        Debug.Log("ChatWindow Awake");
         ChatManager.Instance.newMessageReceivedEvent.AddListener(OnNewMessageReceived);
-        ChatManager.Instance.chatInputToggledEvent.AddListener(OnChatInputToggled);
 
-        chatContainerObj.SetActive(false);
+        gameObject.SetActive(false);
+        chatInputFieldObj.SetActive(false);
+
+        chatInputField.onSubmit.AddListener(OnChatInputSubmit);
+        chatInputField.onDeselect.AddListener(OnChatInputCancel);
     }
 
     private void Update()
     {
-        if (!chatContainerObj.activeSelf || ChatManager.Instance.isChatInputActive) return;
+        if (!gameObject.activeSelf || chatInputFieldObj.activeSelf) return;
         messageTimer -= Time.deltaTime;
         if (messageTimer <= 0f)
         {
-            chatContainerObj.SetActive(false);
+            gameObject.SetActive(false);
         }
     }
 
     private void OnDestroy()
     {
+        chatInputField.onSubmit.RemoveListener(OnChatInputSubmit);
+        chatInputField.onDeselect.RemoveListener(OnChatInputCancel);
         if (ChatManager.Instance != null)
         {
             ChatManager.Instance.newMessageReceivedEvent.RemoveListener(OnNewMessageReceived);
-            ChatManager.Instance.chatInputToggledEvent.RemoveListener(OnChatInputToggled);
         }
+    }
+
+    public void Initialize(HUD hud)
+    {
+        if (isInitialized) return;
+
+        this.hud = hud;
+        isInitialized = true;
+    }
+
+    public bool ToggleMenu()
+    {
+        bool isActive = !chatInputFieldObj.activeSelf;
+        chatInputFieldObj.SetActive(isActive);
+        chatInputField.text = string.Empty;
+        if (isActive)
+        {
+            if (!gameObject.activeSelf) gameObject.SetActive(true);
+            chatInputField.ActivateInputField();
+        }
+        else 
+        {
+            chatInputField.DeactivateInputField();
+        }
+        return isActive;
     }
 
     private void OnNewMessageReceived(ChatMessageData messageData)
     {
         messageTimer = messageDisplayDuration;
+        if (!gameObject.activeSelf) gameObject.SetActive(true);
         GameObject newMessageObj = Instantiate(chatMessagePrefabObj, messagesContainer);
         newMessageObj.GetComponent<ChatMessage>().Initialize(messageData);
     }
 
-    private void OnChatInputToggled(bool isActive)
-    {
-        chatInputFieldObj.SetActive(isActive);
-        if (isActive)
-        {
-            if (!chatContainerObj.activeSelf) chatContainerObj.SetActive(true);
-            chatInputField.ActivateInputField();
-        }
-    }
-
-    public void OnChatInputSubmit()
+    private void OnChatInputSubmit(string _)
     {
         string message = chatInputField.text;
         if (!string.IsNullOrWhiteSpace(message))
         {
             ChatManager.Instance.SendMessageRpc(message);
             chatInputField.text = string.Empty;
-            ChatManager.Instance.ToggleChatInput(false);
+            hud.ToggleMenu(HUDMenu.Chat);
         }
+    }
+
+    private void OnChatInputCancel(string _)
+    {
+        if (!gameObject.activeSelf || !chatInputFieldObj.activeSelf) return;
+        hud.ToggleMenu(HUDMenu.Chat);
     }
 }

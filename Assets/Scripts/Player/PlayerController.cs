@@ -405,6 +405,7 @@ public class PlayerController : Entity, IGravityModifiable
     [Rpc(SendTo.Server)]
     private void InitializeServerRpc()
     {
+        SetTeamId((uint)OwnerClientId);
         playerLoadout.Initialize(this);
         PostInitializeRpc();
 
