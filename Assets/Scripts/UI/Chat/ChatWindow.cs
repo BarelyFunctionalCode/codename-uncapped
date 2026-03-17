@@ -16,7 +16,7 @@ public class ChatWindow : MonoBehaviour
 
     private void Awake()
     {
-        ChatManager.Instance.newMessageReceivedEvent.AddListener(OnNewMessageReceived);
+        NotificationManager.Instance.newNotificationReceivedEvent.AddListener(OnNewMessageReceived);
 
         gameObject.SetActive(false);
         chatInputFieldObj.SetActive(false);
@@ -39,9 +39,9 @@ public class ChatWindow : MonoBehaviour
     {
         chatInputField.onSubmit.RemoveListener(OnChatInputSubmit);
         chatInputField.onDeselect.RemoveListener(OnChatInputCancel);
-        if (ChatManager.Instance != null)
+        if (NotificationManager.Instance != null)
         {
-            ChatManager.Instance.newMessageReceivedEvent.RemoveListener(OnNewMessageReceived);
+            NotificationManager.Instance.newNotificationReceivedEvent.RemoveListener(OnNewMessageReceived);
         }
     }
 
@@ -70,8 +70,10 @@ public class ChatWindow : MonoBehaviour
         return isActive;
     }
 
-    private void OnNewMessageReceived(ChatMessageData messageData)
+    private void OnNewMessageReceived(NotificationData messageData)
     {
+        if (messageData.type != NotificationType.ChatMessage) return;
+        
         messageTimer = messageDisplayDuration;
         if (!gameObject.activeSelf) gameObject.SetActive(true);
         GameObject newMessageObj = Instantiate(chatMessagePrefabObj, messagesContainer);
@@ -83,7 +85,7 @@ public class ChatWindow : MonoBehaviour
         string message = chatInputField.text;
         if (!string.IsNullOrWhiteSpace(message))
         {
-            ChatManager.Instance.SendMessageRpc(message);
+            NotificationManager.Instance.SendChatNotificationRpc(message);
             chatInputField.text = string.Empty;
             hud.ToggleMenu(HUDMenu.Chat);
         }

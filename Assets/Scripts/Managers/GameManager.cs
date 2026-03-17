@@ -23,8 +23,8 @@ public class GameManager : MonoBehaviour
     public bool isInitialized = false;
     public static GameManager Instance { get; private set; } = null;
 
-    [SerializeField] private GameObject ChatManagerPrefabObj;
-    private GameObject chatManagerObj;
+    [SerializeField] private GameObject notificationManagerPrefabObj;
+    private GameObject notificationManagerObj;
     private FacepunchTransport facepunchTransport;
     private ulong selectedLobbyId = 0;
 	public Lobby? CurrentLobby { get; private set; } = null;
@@ -205,8 +205,8 @@ public class GameManager : MonoBehaviour
         NetworkManager.Singleton.SceneManager.ActiveSceneSynchronizationEnabled = true;
 
         // Create Chat Manager
-        chatManagerObj = Instantiate(ChatManagerPrefabObj);
-        chatManagerObj.GetComponent<NetworkObject>().Spawn();
+        notificationManagerObj = Instantiate(notificationManagerPrefabObj);
+        notificationManagerObj.GetComponent<NetworkObject>().Spawn();
 
         // If using Steam, create a lobby
 		if (usingSteam) CurrentLobby = await SteamMatchmaking.CreateLobbyAsync(maxLobbySize);
@@ -239,7 +239,7 @@ public class GameManager : MonoBehaviour
             NetworkManager.Singleton.SceneManager.OnLoadComplete -= OnPlayerLoaded;
         }
         // if (PlayerManager.Instance != null) PlayerManager.Instance.Clear();
-        if (chatManagerObj != null) Destroy(chatManagerObj);
+        if (notificationManagerObj != null) Destroy(notificationManagerObj);
 		NetworkManager.Singleton.Shutdown();
 	}
 

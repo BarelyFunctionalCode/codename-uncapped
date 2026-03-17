@@ -46,5 +46,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debugMode: 0
   isInitialized: 0
-  ChatManagerPrefabObj: {fileID: 2745216909498764604, guid: 6ee6cc1f65e1ec1e6bc500f5ac1c7735, type: 3}
+  notificationManagerPrefabObj: {fileID: 2745216909498764604, guid: 6ee6cc1f65e1ec1e6bc500f5ac1c7735, type: 3}
   usingSteam: 0

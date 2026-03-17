@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: -7032970482823889702}
   - component: {fileID: 6951893801847129890}
   m_Layer: 0
-  m_Name: ChatManager
+  m_Name: NotificationManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2152969416
+  GlobalObjectIdHash: 2489630312
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -74,7 +74,3 @@ MonoBehaviour:
   newMessageReceivedEvent:
     m_PersistentCalls:
       m_Calls: []
-  chatInputToggledEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  isChatInputActive: 0

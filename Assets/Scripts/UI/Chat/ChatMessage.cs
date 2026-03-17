@@ -6,10 +6,10 @@ public class ChatMessage : MonoBehaviour
     [SerializeField] private TMP_Text messageNameText;
     [SerializeField] private TMP_Text messageContentText;
 
-    public void Initialize(ChatMessageData messageData)
+    public void Initialize(NotificationData messageData)
     {
-        messageNameText.text = messageData.senderName;
-        messageNameText.color = messageData.messageColor;
-        messageContentText.text = messageData.messageContent;
+        messageNameText.text = messageData.title;
+        messageNameText.color = messageData.color;
+        messageContentText.text = messageData.content;
     }
 }
