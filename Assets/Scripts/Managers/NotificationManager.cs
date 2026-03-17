@@ -19,6 +19,14 @@ public struct NotificationData: INetworkSerializable
     public string content;
     public Color color;
 
+    public NotificationData(NotificationType type, string content, Color color = default)
+    {
+        this.type = type;
+        title = "";
+        this.content = content;
+        this.color = color;   
+    }
+
     public NotificationData(NotificationType type, string title, string content, Color color = default)
     {
         this.type = type;

@@ -1,9 +1,11 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ChatWindow : MonoBehaviour
 {
     [SerializeField] private Transform messagesContainer;
+    [SerializeField] private ScrollRect scrollRect;
     [SerializeField] private GameObject chatMessagePrefabObj;
     [SerializeField] private GameObject chatInputFieldObj;
     [SerializeField] private TMP_InputField chatInputField;
@@ -65,6 +67,7 @@ public class ChatWindow : MonoBehaviour
         }
         else 
         {
+            scrollRect.verticalNormalizedPosition = 0f;
             chatInputField.DeactivateInputField();
         }
         return isActive;
@@ -73,7 +76,7 @@ public class ChatWindow : MonoBehaviour
     private void OnNewMessageReceived(NotificationData messageData)
     {
         if (messageData.type != NotificationType.ChatMessage) return;
-        
+
         messageTimer = messageDisplayDuration;
         if (!gameObject.activeSelf) gameObject.SetActive(true);
         GameObject newMessageObj = Instantiate(chatMessagePrefabObj, messagesContainer);
