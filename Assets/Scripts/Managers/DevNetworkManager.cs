@@ -8,7 +8,6 @@ using UnityEngine.SceneManagement;
 public class DevNetworkManager : MonoBehaviour
 {
     [SerializeField] private GameObject networkManagerPrefab;
-    [SerializeField] private Transform playerSpawnTransform;
 
     private float playerWaitTimer = 10f;
 

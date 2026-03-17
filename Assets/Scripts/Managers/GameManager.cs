@@ -22,6 +22,9 @@ public class GameManager : MonoBehaviour
 
     public bool isInitialized = false;
     public static GameManager Instance { get; private set; } = null;
+
+    [SerializeField] private GameObject ChatManagerPrefabObj;
+    private GameObject chatManagerObj;
     private FacepunchTransport facepunchTransport;
     private ulong selectedLobbyId = 0;
 	public Lobby? CurrentLobby { get; private set; } = null;
@@ -195,9 +198,15 @@ public class GameManager : MonoBehaviour
             if (Unity.Multiplayer.PlayMode.CurrentPlayer.Tags.Contains("Host")) unityTransportDesiredPort = 2000;
             unityTransport.SetConnectionData("127.0.0.1", unityTransportDesiredPort, "0.0.0.0");
         }
+
+
         // Start the server
 		NetworkManager.Singleton.StartHost();
         NetworkManager.Singleton.SceneManager.ActiveSceneSynchronizationEnabled = true;
+
+        // Create Chat Manager
+        chatManagerObj = Instantiate(ChatManagerPrefabObj);
+        chatManagerObj.GetComponent<NetworkObject>().Spawn();
 
         // If using Steam, create a lobby
 		if (usingSteam) CurrentLobby = await SteamMatchmaking.CreateLobbyAsync(maxLobbySize);
@@ -230,6 +239,7 @@ public class GameManager : MonoBehaviour
             NetworkManager.Singleton.SceneManager.OnLoadComplete -= OnPlayerLoaded;
         }
         // if (PlayerManager.Instance != null) PlayerManager.Instance.Clear();
+        if (chatManagerObj != null) Destroy(chatManagerObj);
 		NetworkManager.Singleton.Shutdown();
 	}
 

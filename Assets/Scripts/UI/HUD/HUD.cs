@@ -27,6 +27,8 @@ public class HUD : MonoBehaviour
     private float dynamicReticleMaxMoveRange = 50f;
     private float dynamicReticleMaxVelocityDeflection = 50f;
 
+    private bool menuLock = false;
+
     private bool isInitialized = false;
 
     private void Update()
@@ -60,7 +62,8 @@ public class HUD : MonoBehaviour
         playerControls = playerController.playerControls;
         playerControls.UI.PauseMenu.performed += ctx => ToggleMenu(HUDMenu.PauseMenu);
         playerControls.UI.LoadoutMenu.performed += ctx => ToggleMenu(HUDMenu.LoadoutMenu);
-
+        playerControls.UI.Chat.performed += ctx => EnableChatInput();
+        playerControls.UI.Close.performed += ctx => EscapePressed();
 
         InitializePauseMenuElements(playerController);
         centerClusterUI.Initialize(playerController);
@@ -133,8 +136,27 @@ public class HUD : MonoBehaviour
         }
     }
 
+    public void EscapePressed()
+    {
+        if (ChatManager.Instance.isChatInputActive) // Prioritize closing chat input if it's open
+        {
+            ChatManager.Instance.ToggleChatInput(false);
+            menuLock = false;
+            return;
+        }
+        ToggleMenu(openMenus[^1]);
+    }
+
+    private void EnableChatInput()
+    {
+        if (openMenus.Count > 0) return; // Don't open chat if any menu is open
+        ChatManager.Instance.ToggleChatInput(true);
+        menuLock = true;
+    } 
+
     public void ToggleMenu(HUDMenu menu, bool forceOpen = false)
     {
+        if (menuLock) return;
         if (forceOpen && openMenus.Contains(menu)) return;
 
         switch (menu)
