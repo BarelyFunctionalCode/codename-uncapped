@@ -48,6 +48,7 @@ public class GameStats : MonoBehaviour
     #region Private methods
     private void EmitPointsChanged()
     {
+        // Internval communication on the server
         gameObject.BroadcastMessage("OnPointsChanged", FetchStats());
     }
     #endregion
@@ -92,6 +93,34 @@ public class GameStats : MonoBehaviour
         }
 
         EmitPointsChanged();
+    }
+
+    public List<FlatStatData> FetchFlatStats()
+    {
+        List<FlatStatData> f = new List<FlatStatData>();
+
+        /*  Point tracking for teams & players
+         * {
+         *   StatsGroup.TEAM:   { 0: StatTracker},
+         *   StatsGroup.PLAYER: {0: StatTracker,
+         *                       1: StatTracker,
+         * }}
+         *
+         */
+        foreach(KeyValuePair<Dictionary<StatsGroup, Dictionary<ulong, StatTracker>>> kvp in points)
+        {
+            StatsGroup stat_group_id = kvp.Key;
+            Dictionary<ulong, StatTracker> list_of_stats = kvp.Value;
+
+            foreach (KeyValuePair<Dictionary<ulong, StatTracker>> _kvp in list_of_entities)
+            {
+                StatTracker stat_tracker = _kvp.Value;
+
+                f.Add(stat_tracker.Flatten());
+            }
+        }
+
+        return f;
     }
 
     public Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> FetchStats()
