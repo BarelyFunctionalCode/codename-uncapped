@@ -401,6 +401,8 @@ public class PlayerController : Entity, IGravityModifiable
     private void InitializeServerRpc()
     {
         entityName = $"Player {OwnerClientId}";
+        Debug.Log("Initializing player with name: " + entityName);
+        Debug.Log("Initializing player with name: " + GetEntityName());
         // Get Player's Steam ID
         if (GameManager.Instance?.usingSteam == true)
         {
@@ -410,8 +412,8 @@ public class PlayerController : Entity, IGravityModifiable
         SetTeamId((uint)OwnerClientId);
         playerLoadout.Initialize(this);
         PostInitializeRpc();
-        GameManager.Instance.OnClientConnectedEvent.Invoke(OwnerClientId);
         isInitialized = true;
+        GameManager.Instance.OnClientConnectedEvent.Invoke(OwnerClientId);
     }
 
     [Rpc(SendTo.Owner)]

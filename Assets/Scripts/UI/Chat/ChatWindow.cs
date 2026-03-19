@@ -9,12 +9,15 @@ public class ChatWindow : MonoBehaviour
     [SerializeField] private GameObject chatMessagePrefabObj;
     [SerializeField] private GameObject chatInputFieldObj;
     [SerializeField] private TMP_InputField chatInputField;
+    [SerializeField] private bool isAlwaysActive = false;
 
     private bool isInitialized = false;
     private HUD hud;
 
     private float messageDisplayDuration = 10f;
     private float messageTimer = 0f;
+
+    private Color messageContainerColor;
 
     private void Awake()
     {
@@ -25,11 +28,20 @@ public class ChatWindow : MonoBehaviour
 
         chatInputField.onSubmit.AddListener(OnChatInputSubmit);
         chatInputField.onDeselect.AddListener(OnChatInputCancel);
+
+        messageContainerColor = chatInputFieldObj.GetComponent<Image>().color;
+
+        if (isAlwaysActive)
+        {
+            gameObject.SetActive(true);
+            chatInputFieldObj.SetActive(true);
+            isInitialized = true;
+        }
     }
 
     private void Update()
     {
-        if (!gameObject.activeSelf || chatInputFieldObj.activeSelf) return;
+        if (!gameObject.activeSelf || chatInputFieldObj.activeSelf || isAlwaysActive) return;
         messageTimer -= Time.deltaTime;
         if (messageTimer <= 0f)
         {
@@ -78,9 +90,9 @@ public class ChatWindow : MonoBehaviour
         if (messageData.type != NotificationType.ChatMessage) return;
 
         messageTimer = messageDisplayDuration;
-        if (!gameObject.activeSelf) gameObject.SetActive(true);
+        if (!isAlwaysActive && !gameObject.activeSelf) gameObject.SetActive(true);
         GameObject newMessageObj = Instantiate(chatMessagePrefabObj, messagesContainer);
-        newMessageObj.GetComponent<ChatMessage>().Initialize(messageData);
+        newMessageObj.GetComponent<ChatMessage>().Initialize(messageData, messageContainerColor);
     }
 
     private void OnChatInputSubmit(string _)
@@ -90,13 +102,14 @@ public class ChatWindow : MonoBehaviour
         {
             NotificationManager.Instance.SendChatNotificationRpc(message);
             chatInputField.text = string.Empty;
-            hud.ToggleMenu(HUDMenu.Chat);
+            if (hud) hud.ToggleMenu(HUDMenu.Chat);
+            else chatInputField.ActivateInputField();
         }
     }
 
     private void OnChatInputCancel(string _)
     {
         if (!gameObject.activeSelf || !chatInputFieldObj.activeSelf) return;
-        hud.ToggleMenu(HUDMenu.Chat);
+        if (hud) hud.ToggleMenu(HUDMenu.Chat);
     }
 }

@@ -17,6 +17,8 @@ public class MatchSelection : NetworkBehaviour
     [SerializeField] private TMP_Text selectedGameModeTitleText;
     [SerializeField] private TMP_Text selectedGameModeDescriptionText;
 
+
+    [SerializeField] private GameObject playerListTeamSeparatorObj;
     [SerializeField] private Transform playerListColumn0;
     [SerializeField] private Transform playerListColumn1;
     [SerializeField] private GameObject lobbyPlayerPrefabObj;
@@ -38,8 +40,8 @@ public class MatchSelection : NetworkBehaviour
 
         if (IsHost)
         {
-            GameManager.Instance.OnClientConnectedEvent.AddListener(AddPlayerRpc);
-            GameManager.Instance.OnClientDisconnectedEvent.AddListener(RemovePlayerRpc);
+            GameManager.Instance.OnClientConnectedEvent.AddListener(AddPlayer);
+            GameManager.Instance.OnClientDisconnectedEvent.AddListener(RemovePlayer);
         }
 
         InitializeMenu();
@@ -98,11 +100,12 @@ public class MatchSelection : NetworkBehaviour
             timeLimitSelectDropdown.interactable = false;
         }
 
+        playerListTeamSeparatorObj.SetActive(isGameModeTeamBased);
         if (IsHost)
         {
             foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
             {
-                AddPlayerRpc(client.ClientId);
+                AddPlayer(client.ClientId);
             }
         }
     }
@@ -134,6 +137,8 @@ public class MatchSelection : NetworkBehaviour
         selectedGameMode = (GameModes)index;
         selectedGameModeTitleText.text = selectedGameMode.ToString(); // TODO: Change this to be the title from the GameModeSO
         selectedGameModeDescriptionText.text = "This is a description for " + selectedGameMode; // TODO: Change this to be the description from the GameModeSO
+        isGameModeTeamBased = false; // TODO: Change this to be based on the selected GameModeSO
+        playerListTeamSeparatorObj.SetActive(isGameModeTeamBased);
 
         if (IsHost) return;
         gameModeSelectDropdown.value = index;
@@ -178,15 +183,30 @@ public class MatchSelection : NetworkBehaviour
         GameManager.Instance.LoadLevel();
     }
 
-    [Rpc(SendTo.Everyone)]
-    private void AddPlayerRpc(ulong clientId)
+
+    private void AddPlayer(ulong clientId)
     {
+        if (!IsHost) return;
+
+        Debug.Log("Adding player for clientId: " + clientId);
+
         LobbyPlayer lobbyPlayerToRemove = lobbyPlayers.Find(lp => lp.GetComponent<LobbyPlayer>().clientId == clientId);
         if (lobbyPlayerToRemove != null) return;
 
         PlayerController playerController = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject.GetComponent<PlayerController>();
+        if (!playerController.isInitialized) return;
+
         string playerName = playerController.GetEntityName();
         int teamId = isGameModeTeamBased ? (int)playerController.GetTeamId() : -1;
+
+        Debug.Log("Adding player with name: " + playerName + " to team: " + teamId);
+        AddPlayerRpc(clientId, playerName, teamId);
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void AddPlayerRpc(ulong clientId, string playerName, int teamId)
+    {
+
 
         Transform parentColumn = teamId == 0 ? playerListColumn0 : playerListColumn1;
         if (!isGameModeTeamBased) parentColumn = playerListColumn0.childCount <= playerListColumn1.childCount ? playerListColumn0 : playerListColumn1;
@@ -195,6 +215,12 @@ public class MatchSelection : NetworkBehaviour
         LobbyPlayer lobbyPlayer = lobbyPlayerObj.GetComponent<LobbyPlayer>();
         lobbyPlayer.Initialize(this, clientId, playerName, teamId, IsHost);
         lobbyPlayers.Add(lobbyPlayer);
+    }
+
+    private void RemovePlayer(ulong clientId)
+    {
+        if (!IsHost) return;
+        RemovePlayerRpc(clientId);
     }
 
     [Rpc(SendTo.Everyone)]

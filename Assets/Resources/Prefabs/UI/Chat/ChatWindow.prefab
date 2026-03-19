@@ -481,7 +481,7 @@ GameObject:
   - component: {fileID: 982997598278176465}
   - component: {fileID: 4601924049756781978}
   m_Layer: 5
-  m_Name: Static
+  m_Name: Border
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1201,6 +1201,7 @@ MonoBehaviour:
   chatMessagePrefabObj: {fileID: 1705281057154190870, guid: d772b8b5d10ab30d695752794aef885c, type: 3}
   chatInputFieldObj: {fileID: 2146842698735759742}
   chatInputField: {fileID: 6892373567804462798}
+  isAlwaysActive: 0
 --- !u!114 &949215371601607812
 MonoBehaviour:
   m_ObjectHideFlags: 0
