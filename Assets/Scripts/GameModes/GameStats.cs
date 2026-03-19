@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Unity.Netcode;
 
 public enum StatsGroup
 {
@@ -31,32 +30,45 @@ public enum StatsGroup
 */
 
 
-public class GameStats : NetworkBehaviour
+public class GameStats : MonoBehaviour
 {
     #region Properties
-
-    /*
-     * Vec4 Layout
-     * [ StatsGroupID, TrackerID, StatEventTypeID, value ]
+    /*  Point tracking for teams & players
+     * {
+     *   StatsGroup.TEAM:   { 0: StatTracker},
+     *   StatsGroup.PLAYER: {0: StatTracker,
+     *                       1: StatTracker,
+     * }}
      *
-     * Example
-     * Vector4[
-     *  StatsGroup.PLAYER,  // Stat entry is a specific player
-     *  0,                  // Player is the server ( id = 0 )
-     *  StatEventType.KILL, // Stat entry is for kill count
-     *  5,                  // Server has 5 kills
-     * ]
      */
+    [SerializeField]
+    private Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> points = new Dictionary<StatsGroup, Dictionary<ulong, StatTracker>>();
+    #endregion
 
-    private NetworkList<StatTracker> points = new NetworkList<StatTracker>();
+    #region Private methods
+    private void EmitPointsChanged()
+    {
+        gameObject.BroadcastMessage("OnPointsChanged", FetchStats());
+    }
     #endregion
 
     #region Public Methods
+    public void CheckAddEntry(ulong id, StatsGroup stat_group_id)
+    {
+        Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> points = FetchStats();
+        Dictionary<ulong, StatTracker> stat_group = points[stat_group_id];
+
+        if (!stat_group.ContainsKey(id))
+        {
+            stat_group.Add(id, new StatTracker(id, stat_group_id));
+        }
+    }
+
     // Add to a stat value, check first if that stat has an entry. If not, add a default stat 0.
     public void AddToStat(StatEvent s)
     {
-        NetworkList<Vector4> points = FetchStats();
-
+        Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> points = FetchStats();
+        Dictionary<ulong, StatTracker> stat_group;
         ulong player_id = s.Source;
         string team_name = gameObject.GetComponent<TeamStructure>().GetTeam(player_id);
 
@@ -82,54 +94,18 @@ public class GameStats : NetworkBehaviour
         EmitPointsChanged();
     }
 
-    public NetworkList<Vector4> FetchStats()
+    public Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> FetchStats()
     {
          return points;
     }
     #endregion
 
-    #region Private methods
-    private void EmitPointsChanged()
-    {
-        gameObject.BroadcastMessage("OnPointsChanged", FetchStats());
-    }
-
-    private void CheckAddEntry(ulong id, StatsGroup stat_group_id)
-    {
-        NetworkList<Vector4> points = FetchStats();
-        // Dictionary<ulong, StatTracker> stat_group = points[stat_group_id];
-
-        // Iterate through all entries to find the right one by id & stat_group_id
-        // If unable to find entry, add entry
-        bool result = false;
-
-        foreach (Vector4 v in points)
-        {
-            ulong entry_stat_group_id = v[0];
-            ulong entry_id = v[1];
-
-            if ((entry_stat_group_id == stat_group_id) && (entry_id == id))
-            {
-                result = true;
-            }
-
-            if (result)
-            {
-                break;
-            }
-        }
-
-        // we didn't find an entry so let's add one
-        if (!result)
-        {
-            stat_group.Add(id, new StatTracker(id, stat_group_id));
-        }
-    }
-
-    // Unimplemented
-    private Vector4 FindEntry(float _f) { return Vector4.one; }
-    #endregion
-
     #region Message Receivers
+    private void Start()
+    {
+        points[StatsGroup.PLAYER] = new Dictionary<ulong, StatTracker>();
+        points[StatsGroup.TEAM] = new Dictionary<ulong, StatTracker>();
+        points[StatsGroup.NONE] = new Dictionary<ulong, StatTracker>();
+    }
     #endregion
 }

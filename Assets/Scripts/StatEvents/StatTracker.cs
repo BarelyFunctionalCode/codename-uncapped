@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Unity.Netcode;
 
 
-public struct StatTracker : INetworkSerializable
+public class StatTracker
 {
     // id = either Team_ID or Player_ID
     public ulong id;
@@ -15,9 +14,8 @@ public struct StatTracker : INetworkSerializable
      *   StatEventType.FLAG_RETURNS:  3,
      * }
      */
-    public List<float> stats;
+    public Dictionary<StatEventType, float> stats = new Dictionary<StatEventType, float>{};
 
-    // Class constructor
     public StatTracker(ulong _id, StatsGroup _stat_group_id)
     {
         id = _id;
@@ -48,31 +46,4 @@ public struct StatTracker : INetworkSerializable
 
         return value;
     }
-
-    private List<float> ConstructEmptyStats()
-    {
-        List<float> list = new List<float>();
-        //pseudo
-        /*
-        foreach (enum e in StatEventType)
-        {
-            list.Add(e);
-        }
-        */
-        return list;
-    }
-
-    #region INetworkSerializable
-    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
-    {
-        if (serializer.IsReader)
-        {
-
-        }
-        else
-        {
-
-        }
-    }
-    #endregion
 }
