@@ -17,10 +17,16 @@ public class MatchSelection : NetworkBehaviour
     [SerializeField] private TMP_Text selectedGameModeTitleText;
     [SerializeField] private TMP_Text selectedGameModeDescriptionText;
 
+    [SerializeField] private Transform playerListColumn0;
+    [SerializeField] private Transform playerListColumn1;
+    [SerializeField] private GameObject lobbyPlayerPrefabObj;
+    private List<LobbyPlayer> lobbyPlayers = new();
+
     private static List<string> levelNames = new();
 
     private string selectedLevel;
     private GameModes selectedGameMode;
+    private bool isGameModeTeamBased = false; // TODO: Change this to be based on the selected GameModeSO
     private int selectedMaxPlayers;
     private int selectedTimeLimit;
 
@@ -29,6 +35,12 @@ public class MatchSelection : NetworkBehaviour
     public sealed override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
+
+        if (IsHost)
+        {
+            GameManager.Instance.OnClientConnectedEvent.AddListener(AddPlayerRpc);
+            GameManager.Instance.OnClientDisconnectedEvent.AddListener(RemovePlayerRpc);
+        }
 
         InitializeMenu();
     }
@@ -84,6 +96,14 @@ public class MatchSelection : NetworkBehaviour
             gameModeSelectDropdown.interactable = false;
             maxPlayersSelectDropdown.interactable = false;
             timeLimitSelectDropdown.interactable = false;
+        }
+
+        if (IsHost)
+        {
+            foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+            {
+                AddPlayerRpc(client.ClientId);
+            }
         }
     }
 
@@ -156,5 +176,54 @@ public class MatchSelection : NetworkBehaviour
         GameManager.Instance.SetLevel(selectedLevel);
         GameManager.Instance.SetGameMode(selectedGameMode);
         GameManager.Instance.LoadLevel();
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void AddPlayerRpc(ulong clientId)
+    {
+        LobbyPlayer lobbyPlayerToRemove = lobbyPlayers.Find(lp => lp.GetComponent<LobbyPlayer>().clientId == clientId);
+        if (lobbyPlayerToRemove != null) return;
+
+        PlayerController playerController = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject.GetComponent<PlayerController>();
+        string playerName = playerController.GetEntityName();
+        int teamId = isGameModeTeamBased ? (int)playerController.GetTeamId() : -1;
+
+        Transform parentColumn = teamId == 0 ? playerListColumn0 : playerListColumn1;
+        if (!isGameModeTeamBased) parentColumn = playerListColumn0.childCount <= playerListColumn1.childCount ? playerListColumn0 : playerListColumn1;
+
+        GameObject lobbyPlayerObj = Instantiate(lobbyPlayerPrefabObj, parentColumn);
+        LobbyPlayer lobbyPlayer = lobbyPlayerObj.GetComponent<LobbyPlayer>();
+        lobbyPlayer.Initialize(this, clientId, playerName, teamId, IsHost);
+        lobbyPlayers.Add(lobbyPlayer);
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void RemovePlayerRpc(ulong clientId)
+    {
+        LobbyPlayer lobbyPlayerToRemove = lobbyPlayers.Find(lp => lp.GetComponent<LobbyPlayer>().clientId == clientId);
+        if (lobbyPlayerToRemove != null)
+        {
+            lobbyPlayers.Remove(lobbyPlayerToRemove);
+            Destroy(lobbyPlayerToRemove.gameObject);
+        }
+    }
+
+    public void TryChangePlayerTeam(ulong clientId, int newTeam)
+    {
+        if (!IsHost) return;
+        // TODO: Check to see if the team change is valid based on the current game mode and team sizes before sending the RPC
+        ChangePlayerTeamRpc(clientId, newTeam);
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void ChangePlayerTeamRpc(ulong clientId, int newTeam)
+    {
+        if (!isGameModeTeamBased) return;
+        LobbyPlayer lobbyPlayer = lobbyPlayers.Find(lp => lp.GetComponent<LobbyPlayer>().clientId == clientId);
+        if (lobbyPlayer != null)
+        {
+            lobbyPlayer.transform.SetParent(newTeam == 0 ? playerListColumn0 : playerListColumn1);
+            lobbyPlayer.OnTeamChange(newTeam);
+        }
     }
 }

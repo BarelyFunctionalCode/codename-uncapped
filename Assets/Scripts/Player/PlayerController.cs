@@ -393,13 +393,6 @@ public class PlayerController : Entity, IGravityModifiable
             cineCam.Priority.Value = 1;
         }
 
-        entityName = $"Player {OwnerClientId}";
-        // Get Player's Steam ID
-        if (GameManager.Instance?.usingSteam == true)
-        {
-            entityId = SteamClient.SteamId.Value;
-            entityName = new Friend(entityId).Name;
-        }
         InitializeServerRpc();
         isInitialized = true;
     }
@@ -407,10 +400,17 @@ public class PlayerController : Entity, IGravityModifiable
     [Rpc(SendTo.Server)]
     private void InitializeServerRpc()
     {
+        entityName = $"Player {OwnerClientId}";
+        // Get Player's Steam ID
+        if (GameManager.Instance?.usingSteam == true)
+        {
+            entityId = SteamClient.SteamId.Value;
+            entityName = new Friend(entityId).Name;
+        }
         SetTeamId((uint)OwnerClientId);
         playerLoadout.Initialize(this);
         PostInitializeRpc();
-
+        GameManager.Instance.OnClientConnectedEvent.Invoke(OwnerClientId);
         isInitialized = true;
     }
 
@@ -428,7 +428,7 @@ public class PlayerController : Entity, IGravityModifiable
     {
         playerLoadout.Deinitialize();
         DisconnectCleanupOwnerRpc();
-
+        GameManager.Instance.OnClientDisconnectedEvent.Invoke(OwnerClientId);
         isInitialized = false;
     }
 

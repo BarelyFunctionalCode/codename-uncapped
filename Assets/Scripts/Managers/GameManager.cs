@@ -46,6 +46,9 @@ public class GameManager : MonoBehaviour
     private string desiredLevelName = "";
     private GameModes desiredGameMode = GameModes.NONE;
 
+    public UnityEvent<ulong> OnClientConnectedEvent = new();
+    public UnityEvent<ulong> OnClientDisconnectedEvent = new();
+
 
     private void Awake()
     {
@@ -401,8 +404,6 @@ public class GameManager : MonoBehaviour
     private void OnClientDisconnectCallback(ulong clientId)
     {
         if (debugMode) Debug.Log($"{GetType()}: Client disconnected, clientId={clientId}", this);
-
-        // if (NetworkManager.Singleton.IsHost) PlayerManager.Instance.RemovePlayer(clientId);
     }
 
 

@@ -14,6 +14,7 @@ public class ToastNotification : MonoBehaviour
     private float hideTimer = 0f;
 
     private bool doHide = false;
+    private bool isInitialized = false;
 
     private Vector2 targetPosition;
 
@@ -23,8 +24,9 @@ public class ToastNotification : MonoBehaviour
         parentRectTransform = transform.parent.GetComponent<RectTransform>();
     }
 
-    public void Initialize(NotificationData data)
+    public void Initialize(NotificationData data, float notificationDuration)
     {
+        hideTime = notificationDuration;
         if (data.title != null)
         {
             titleText.gameObject.SetActive(true);
@@ -45,11 +47,13 @@ public class ToastNotification : MonoBehaviour
             rectTransform.anchoredPosition = previousToast.rectTransform.anchoredPosition - new Vector2(0, rectTransform.rect.height + 10);
         }
         gameObject.SetActive(true);
+        isInitialized = true;
     }
 
 
     private void Update()
     {
+        if (!isInitialized) return;
         if (hideTimer >= hideTime) doHide = true;
         if (!doHide) hideTimer += Time.deltaTime;
 
