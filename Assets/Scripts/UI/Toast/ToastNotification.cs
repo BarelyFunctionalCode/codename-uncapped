@@ -4,6 +4,7 @@ using UnityEngine;
 [RequireComponent(typeof(RectTransform))]
 public class ToastNotification : MonoBehaviour
 {
+    [SerializeField] private TMP_Text titleText;
     [SerializeField] private TMP_Text messageText;
 
     private RectTransform rectTransform;
@@ -22,9 +23,19 @@ public class ToastNotification : MonoBehaviour
         parentRectTransform = transform.parent.GetComponent<RectTransform>();
     }
 
-    public void Initialize(string message)
+    public void Initialize(NotificationData data)
     {
-        messageText.text = message;
+        if (data.title != null)
+        {
+            titleText.gameObject.SetActive(true);
+            titleText.text = data.title;
+        }
+        messageText.text = data.content;
+        if (data.color != default)
+        {
+            if (data.title != null) titleText.color = data.color;
+            else messageText.color = data.color;
+        }
         transform.SetAsLastSibling();
         if (transform.GetSiblingIndex() == 0) return;
 
@@ -49,11 +60,16 @@ public class ToastNotification : MonoBehaviour
             Transform previousSibling = transform.parent.GetChild(siblingIndex - 1);
             if (previousSibling.TryGetComponent(out ToastNotification previousToast))
             {
-                targetPosition = previousToast.targetPosition - new Vector2(0, rectTransform.rect.height + 10);
+                targetPosition = previousToast.targetPosition - new Vector2(0, previousToast.rectTransform.rect.height + 10);
             }
         }
         if (doHide) targetPosition += new Vector2(0, rectTransform.rect.height + 10);
 
         rectTransform.anchoredPosition = Vector2.Lerp(rectTransform.anchoredPosition, targetPosition, Time.deltaTime * 10f);
+
+        if (doHide && Vector2.Distance(rectTransform.anchoredPosition, targetPosition) < 0.1f)
+        {
+            Destroy(gameObject);
+        }
     }
 }

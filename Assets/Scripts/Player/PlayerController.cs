@@ -393,10 +393,12 @@ public class PlayerController : Entity, IGravityModifiable
             cineCam.Priority.Value = 1;
         }
 
+        entityName = $"Player {OwnerClientId}";
         // Get Player's Steam ID
         if (GameManager.Instance?.usingSteam == true)
         {
-            localId = SteamClient.SteamId.Value;
+            entityId = SteamClient.SteamId.Value;
+            entityName = new Friend(entityId).Name;
         }
         InitializeServerRpc();
         isInitialized = true;

@@ -192,6 +192,10 @@ PrefabInstance:
       value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
+      propertyPath: entityName
+      value: xX_Big_Nut_Busta_Xx
+      objectReference: {fileID: 0}
+    - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: identifier
       value: Bob
       objectReference: {fileID: 0}
@@ -481,6 +485,10 @@ PrefabInstance:
       value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
+      propertyPath: entityName
+      value: Gleepy
+      objectReference: {fileID: 0}
+    - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: identifier
       value: Giblo The Destroyer
       objectReference: {fileID: 0}
@@ -614,6 +622,10 @@ PrefabInstance:
     - target: {fileID: 3954939014466050364, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
+      propertyPath: entityName
+      value: Crack
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -797,6 +809,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
+      propertyPath: entityName
+      value: Scobey
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -959,6 +975,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
+      propertyPath: entityName
+      value: Jimmy
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1058,6 +1078,10 @@ PrefabInstance:
     - target: {fileID: 3954939014466050364, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
+      propertyPath: entityName
+      value: Corn
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1275,6 +1299,10 @@ PrefabInstance:
     - target: {fileID: 3954939014466050364, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
+      propertyPath: entityName
+      value: Mr. Worldwide
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1559,6 +1587,10 @@ PrefabInstance:
       value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
+      propertyPath: entityName
+      value: Klyde
+      objectReference: {fileID: 0}
+    - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: identifier
       value: Gwitty
       objectReference: {fileID: 0}
@@ -1638,6 +1670,10 @@ PrefabInstance:
     - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: maxHealth
       value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
+      propertyPath: entityName
+      value: Eepy
       objectReference: {fileID: 0}
     - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: identifier
@@ -1827,6 +1863,10 @@ PrefabInstance:
     - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: maxHealth
       value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
+      propertyPath: entityName
+      value: ????
       objectReference: {fileID: 0}
     - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: identifier
@@ -2029,6 +2069,10 @@ PrefabInstance:
     - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: maxHealth
       value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
+      propertyPath: entityName
+      value: Orb
       objectReference: {fileID: 0}
     - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: identifier

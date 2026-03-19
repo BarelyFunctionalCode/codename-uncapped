@@ -23,6 +23,6 @@ public class ToastContainer : MonoBehaviour
     {
         if (data.type != type) return;
         ToastNotification toast = Instantiate(toastNotificationPrefabObj, toastNotificationContainerObj).GetComponent<ToastNotification>();
-        toast.Initialize(data.content);
+        toast.Initialize(data);
     }
 }

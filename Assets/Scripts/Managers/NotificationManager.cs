@@ -11,9 +11,8 @@ public enum NotificationType
     ObjectiveUpdate
 }
 
-public struct NotificationData: INetworkSerializable
+public struct NotificationData: INetworkSerializeByMemcpy
 {
-
     public NotificationType type;
     public string title;
     public string content;
@@ -22,7 +21,7 @@ public struct NotificationData: INetworkSerializable
     public NotificationData(NotificationType type, string content, Color color = default)
     {
         this.type = type;
-        title = "";
+        title = null;
         this.content = content;
         this.color = color;   
     }
@@ -33,14 +32,6 @@ public struct NotificationData: INetworkSerializable
         this.title = title;
         this.content = content;
         this.color = color;   
-    }
-
-    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
-    {
-        serializer.SerializeValue(ref type);
-        serializer.SerializeValue(ref title);
-        serializer.SerializeValue(ref content);
-        serializer.SerializeValue(ref color);
     }
 }
 
@@ -61,21 +52,29 @@ public class NotificationManager : NetworkBehaviour
     [Rpc(SendTo.Everyone)]
     private void BroadcastNotificationRpc(NotificationData data) => newNotificationReceivedEvent.Invoke(data);
 
-
-
     [Rpc(SendTo.Server)]
     public void SendChatNotificationRpc(string message, RpcParams rpcParams = default)
     {
         // TODO: Add some checks here, like message length, profanity filter, etc.
         ulong senderClientId = rpcParams.Receive.SenderClientId;
         NetworkManager.Singleton.ConnectedClients[senderClientId].PlayerObject.TryGetComponent(out PlayerController playerController);
-        string senderName = $"Fragger {senderClientId}";
-        Color messageColor = playerController.GetTeamId() == 0 ? Color.blue : Color.red;
-        if (GameManager.Instance.usingSteam)
-        {
-            senderName = new Friend(playerController.PlayerSteamId).Name;
-        }
-        NotificationData notificationData = new NotificationData(NotificationType.ChatMessage, senderName, message, messageColor);
+        Color playerColor = playerController.GetTeamId() == 0 ? Color.blue : Color.red;
+        NotificationData notificationData = new(
+            NotificationType.ChatMessage,
+            playerController.GetEntityName(),
+            message,
+            playerColor
+        );
+        SendNotificationRpc(notificationData);
+    }
+
+    [Rpc(SendTo.Server)]
+    public void SendKillFeedNotificationRpc(string victimName, string attackerName)
+    {
+        NotificationData notificationData = new(
+            NotificationType.KillFeed,
+            $"{attackerName} killed {victimName}"
+        );
         SendNotificationRpc(notificationData);
     }
 }

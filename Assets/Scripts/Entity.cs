@@ -6,7 +6,8 @@ public class Entity : NetworkBehaviour, IDamageable
     private const float groundEnergyRegenRate = 12.5f;
     
     [Header("Entity Attributes")]
-    [SerializeField] private string identifier;
+    [SerializeField] protected ulong entityId = 0;
+    [SerializeField] protected string entityName;
     [SerializeField] private uint teamId = 0;
     [SerializeField] private NetworkVariable<float> health;
     [SerializeField] private float maxHealth;
@@ -28,6 +29,9 @@ public class Entity : NetworkBehaviour, IDamageable
 
         if (!IsServer) return;
 
+        if (entityId == 0)
+            entityId = (ulong)NetworkObjectId;
+
         health.Value = maxHealth;
         energy.Value = maxEnergy;
     }
@@ -41,7 +45,8 @@ public class Entity : NetworkBehaviour, IDamageable
     #endregion
     
     #region Getters
-    public string GetIdentifier()       { return identifier; }
+    public new ulong GetEntityId()         { return entityId; } // It's probably a bad idea to override GetEntityId(), but oh well
+    public string GetEntityName()       { return entityName; }
     public uint GetTeamId()			    { return teamId; }
     public void SetTeamId(uint newTeamId) { teamId = newTeamId; }
     public float GetHealth()		    { return health.Value; }
@@ -84,6 +89,7 @@ public class Entity : NetworkBehaviour, IDamageable
             // StatsManager.Instance.LogDamageDealt(attacker.OwnerClientId, OwnerClientId, weapon.Name, damage, health.Value <= 0);
             print("Sending stat event");
             GameModeHandler.Instance.StatEventReceiver(new StatEvent(StatEventType.KILL, 1.0f, (ulong)0));
+            NotificationManager.Instance.SendKillFeedNotificationRpc( GetEntityName(), attacker.GetEntityName());
         }
 
 

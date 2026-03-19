@@ -54,7 +54,7 @@ public class Dummy : Entity, IIdentifiable
         return new IdentifierData
         {
             color = IdentifierManager.TempTeamColors[GetTeamId()],
-            topText = GetIdentifier(),
+            topText = GetEntityName(),
             bottomText = $"{Mathf.CeilToInt(GetHealthPercentage() * 100f)}%",
             isActive = GetHealth() > 0
         };

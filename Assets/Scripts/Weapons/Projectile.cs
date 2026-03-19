@@ -72,7 +72,9 @@ public class Projectile : NetworkBehaviour, IGravityModifiable
             }
         }
 
-        rb.AddForce(Physics.gravity * gravityModifier.Value, ForceMode.Force);
+        float gravityValue = gravityModifier.Value;
+        if (launchForceMode == ForceMode.VelocityChange) gravityValue -= 1.0f;
+        rb.AddForce(Physics.gravity * gravityValue, ForceMode.Force);
 
         selfDestructTimer -= Time.fixedDeltaTime;
         armingTimer -= Time.fixedDeltaTime;
