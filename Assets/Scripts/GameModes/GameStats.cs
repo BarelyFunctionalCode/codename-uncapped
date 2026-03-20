@@ -192,18 +192,7 @@ public class GameStats : MonoBehaviour
                 // Then fetch the individual StatTracker
                 if (_stats.TryGetValue(id, out stat_tracker))
                 {
-                    // We found the right stat tracker, so copy over the data
-                    // from FlatStats to StatTracker
-                    stat_tracker.stats[StatEventType.NONE]            = f.None;
-                    stat_tracker.stats[StatEventType.KILL]            = f.Kill;
-                    stat_tracker.stats[StatEventType.KILL_ASSIST]     = f.Kill_Assist;
-                    stat_tracker.stats[StatEventType.SHOT_FIRED]      = f.Shot_Fired;
-                    stat_tracker.stats[StatEventType.SHOT_HIT]        = f.Shot_Hit;
-                    stat_tracker.stats[StatEventType.FLAG_CAPTURE]    = f.Flag_Capture;
-                    stat_tracker.stats[StatEventType.FLAG_RETURN]     = f.Flag_Return;
-                    stat_tracker.stats[StatEventType.FLAG_PICKED_UP]  = f.Flag_Picked_Up;
-                    stat_tracker.stats[StatEventType.FLAG_HELD]       = f.Flag_Held;
-                    stat_tracker.stats[StatEventType.DAMAGE_TAKEN]    = f.Damage_Taken;
+                    stat_tracker.Rebuild(f);
                 }
             }
         }

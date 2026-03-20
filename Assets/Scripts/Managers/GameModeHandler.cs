@@ -72,7 +72,11 @@ public class GameModeHandler : MonoBehaviour
         // GameObject game_mode = game_mode_cache[g];
         // Clone the prefab, add it as a child to the GameModeHandler
         GameObject cloned_game_mode_object = Instantiate(game_mode_cache[g], this.gameObject.transform);
-        cloned_game_mode_object.GetComponent<NetworkObject>().Spawn();
+
+        // Uncommenting this line gives a nullreference exception?
+        // Is this spawn being called too early into initialization?
+        //cloned_game_mode_object.GetComponent<NetworkObject>().Spawn();
+
         // Fetch the clones's GameModeBase component
         GameModeBase game_mode = cloned_game_mode_object.GetComponent<GameModeBase>();
         current_game_mode = game_mode;
@@ -123,7 +127,6 @@ public class GameModeHandler : MonoBehaviour
         // current_game_mode = gameObject.GetComponent<GameModeBase>();
         // // Debugging
         SelectNewMode(GameModes.FFA);
-
     }
 
     public void OnClientJoined(ulong ClientID)
