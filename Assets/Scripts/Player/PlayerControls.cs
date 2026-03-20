@@ -334,6 +334,15 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
+                    ""name"": ""Leaderboard"",
+                    ""type"": ""Button"",
+                    ""id"": ""20c4a33e-60b7-4ef3-bb2d-f3834f26db18"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""LoadoutMenu"",
                     ""type"": ""Button"",
                     ""id"": ""85f2fb69-b642-4ed3-bfc4-8e339a4f10e1"",
@@ -405,6 +414,17 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""action"": ""Close"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d9c54206-5a78-40a1-9236-e2a54815f44e"",
+                    ""path"": ""<Keyboard>/tab"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Leaderboard"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -425,6 +445,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_PauseMenu = m_UI.FindAction("PauseMenu", throwIfNotFound: true);
+        m_UI_Leaderboard = m_UI.FindAction("Leaderboard", throwIfNotFound: true);
         m_UI_LoadoutMenu = m_UI.FindAction("LoadoutMenu", throwIfNotFound: true);
         m_UI_Chat = m_UI.FindAction("Chat", throwIfNotFound: true);
         m_UI_Close = m_UI.FindAction("Close", throwIfNotFound: true);
@@ -694,6 +715,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_UI;
     private List<IUIActions> m_UIActionsCallbackInterfaces = new List<IUIActions>();
     private readonly InputAction m_UI_PauseMenu;
+    private readonly InputAction m_UI_Leaderboard;
     private readonly InputAction m_UI_LoadoutMenu;
     private readonly InputAction m_UI_Chat;
     private readonly InputAction m_UI_Close;
@@ -712,6 +734,10 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "UI/PauseMenu".
         /// </summary>
         public InputAction @PauseMenu => m_Wrapper.m_UI_PauseMenu;
+        /// <summary>
+        /// Provides access to the underlying input action "UI/Leaderboard".
+        /// </summary>
+        public InputAction @Leaderboard => m_Wrapper.m_UI_Leaderboard;
         /// <summary>
         /// Provides access to the underlying input action "UI/LoadoutMenu".
         /// </summary>
@@ -753,6 +779,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @PauseMenu.started += instance.OnPauseMenu;
             @PauseMenu.performed += instance.OnPauseMenu;
             @PauseMenu.canceled += instance.OnPauseMenu;
+            @Leaderboard.started += instance.OnLeaderboard;
+            @Leaderboard.performed += instance.OnLeaderboard;
+            @Leaderboard.canceled += instance.OnLeaderboard;
             @LoadoutMenu.started += instance.OnLoadoutMenu;
             @LoadoutMenu.performed += instance.OnLoadoutMenu;
             @LoadoutMenu.canceled += instance.OnLoadoutMenu;
@@ -776,6 +805,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @PauseMenu.started -= instance.OnPauseMenu;
             @PauseMenu.performed -= instance.OnPauseMenu;
             @PauseMenu.canceled -= instance.OnPauseMenu;
+            @Leaderboard.started -= instance.OnLeaderboard;
+            @Leaderboard.performed -= instance.OnLeaderboard;
+            @Leaderboard.canceled -= instance.OnLeaderboard;
             @LoadoutMenu.started -= instance.OnLoadoutMenu;
             @LoadoutMenu.performed -= instance.OnLoadoutMenu;
             @LoadoutMenu.canceled -= instance.OnLoadoutMenu;
@@ -903,6 +935,13 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnPauseMenu(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Leaderboard" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnLeaderboard(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "LoadoutMenu" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>

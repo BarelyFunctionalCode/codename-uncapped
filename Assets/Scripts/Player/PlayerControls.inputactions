@@ -248,6 +248,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "Leaderboard",
+                    "type": "Button",
+                    "id": "20c4a33e-60b7-4ef3-bb2d-f3834f26db18",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "LoadoutMenu",
                     "type": "Button",
                     "id": "85f2fb69-b642-4ed3-bfc4-8e339a4f10e1",
@@ -317,6 +326,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Close",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d9c54206-5a78-40a1-9236-e2a54815f44e",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Leaderboard",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

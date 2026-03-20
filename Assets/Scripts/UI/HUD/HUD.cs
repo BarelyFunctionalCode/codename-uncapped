@@ -13,7 +13,6 @@ public enum HUDMenu
 public class HUD : MonoBehaviour
 {
     [SerializeField] private Canvas mainCanvas;
-    [SerializeField] private ChatWindow chatWindow;
     [SerializeField] private CenterClusterUI centerClusterUI;
     [SerializeField] private Transform weaponsContainer;
     [SerializeField] private GameObject weaponUIPrefabObj;
@@ -24,8 +23,10 @@ public class HUD : MonoBehaviour
     private PlayerController playerController;
     private PlayerControls playerControls;
     private List<HUDMenu> openMenus = new();
+    [SerializeField] private ChatWindow chatWindow;
     [SerializeField] public LoadoutMenu loadoutMenu;
     [SerializeField] private PauseMenu pauseMenu;
+    [SerializeField] private Leaderboard leaderboard;
 
     private float dynamicReticleMaxMoveRange = 50f;
     private float dynamicReticleMaxVelocityDeflection = 50f;
@@ -57,6 +58,9 @@ public class HUD : MonoBehaviour
         playerControls.UI.LoadoutMenu.performed -= ctx => ToggleMenu(HUDMenu.LoadoutMenu);
         playerControls.UI.Chat.performed -= ctx => ToggleMenu(HUDMenu.Chat, true);
         playerControls.UI.Close.performed -= ctx => ToggleMenu(HUDMenu.None);
+        
+        playerControls.UI.Leaderboard.started -= ctx => leaderboard.ToggleMenu(true);
+        playerControls.UI.Leaderboard.canceled -= ctx => leaderboard.ToggleMenu(false);
     }
 
     public void Initialize(PlayerController playerController)
@@ -70,10 +74,15 @@ public class HUD : MonoBehaviour
         playerControls.UI.Chat.performed += ctx => ToggleMenu(HUDMenu.Chat, true);
         playerControls.UI.Close.performed += ctx => ToggleMenu(HUDMenu.None);
 
+        playerControls.UI.Leaderboard.started += ctx => leaderboard.ToggleMenu(true);
+        playerControls.UI.Leaderboard.canceled += ctx => leaderboard.ToggleMenu(false);
+
         PauseMenu.Instance.Initialize(playerController);
         chatWindow.Initialize(this);
         centerClusterUI.Initialize(playerController);
         loadoutMenu.Initialize(playerController.GetComponent<PlayerLoadoutManager>(), this);
+
+        leaderboard.Initialize("Free For All"); // TODO: Set appropriate title and column names based on game mode.
 
         isInitialized = true;
     }

@@ -642,6 +642,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3433129259852603076}
   - component: {fileID: 9011934481821579978}
+  - component: {fileID: 4436685433255463966}
   - component: {fileID: 6921653619149194547}
   - component: {fileID: 2307117606042045214}
   m_Layer: 5
@@ -673,7 +674,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 500, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &9011934481821579978
 CanvasRenderer:
@@ -683,6 +684,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6088023361734111595}
   m_CullTransparentMesh: 1
+--- !u!114 &4436685433255463966
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6088023361734111595}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1074caf605c571078402606bb76b089, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LeaderboardEntry
+  nameText: {fileID: 2326407146613013092}
+  killsText: {fileID: 860187124256461567}
+  deathsText: {fileID: 721620269209429039}
+  assistsText: {fileID: 6591298336585706228}
+  capturesText: {fileID: 6406383724202393114}
+  playerId: 0
 --- !u!114 &6921653619149194547
 MonoBehaviour:
   m_ObjectHideFlags: 0
