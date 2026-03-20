@@ -52,6 +52,17 @@ public class GameStats : MonoBehaviour
     #endregion
 
     #region Private methods
+    private void ClearStats()
+    {
+        foreach(var group_of_entities in points.Values)
+        {
+            foreach (KeyValuePair<ulong, StatTracker> list_of_entities in group_of_entities)
+            {
+                list_of_entities.Value.Clear();
+            }
+        }
+    }
+
     private void ContaminateStatState()
     {
         is_dirty = true;
@@ -94,6 +105,9 @@ public class GameStats : MonoBehaviour
         CheckAddEntry(player_id, StatsGroup.PLAYER);
         // Add to the players' stats
         stat_group[player_id].AddToStat(s.StatType, s.Value);
+
+        // Debugging
+        stat_group[player_id].PrettyPrint();
 
         // Then add to the teams' stats ONLY IF the stat is being tracked by winconditions
         List<StatEventType> win_condition_stats = gameObject.GetComponent<WinConditions>().GetWinConditionStats();
@@ -200,6 +214,15 @@ public class GameStats : MonoBehaviour
     #endregion
 
     #region Message Receivers
+    private void OnPhaseChanged(EventArgsPhaseChanged e)
+    {
+        if (e.phase == Phase.PRELOAD)
+        {
+            ClearStats();
+        }
+    }
+
+
     private void Start()
     {
         points[StatsGroup.PLAYER] = new Dictionary<ulong, StatTracker>();

@@ -15,6 +15,7 @@ public struct FlatStatData: INetworkSerializeByMemcpy
     public float Flag_Picked_Up;
     public float Flag_Held;
     public float Damage_Taken;
+    public float Damage_Dealt;
 
     public FlatStatData(
         ulong _id,
@@ -28,7 +29,8 @@ public struct FlatStatData: INetworkSerializeByMemcpy
         float _Flag_Return,
         float _Flag_Picked_Up,
         float _Flag_Held,
-        float _Damage_Taken
+        float _Damage_Taken,
+        float _Damage_Dealt
     ) {
         this.id = _id;
         this.stat_group_id = _stat_group_id;
@@ -43,5 +45,6 @@ public struct FlatStatData: INetworkSerializeByMemcpy
         this.Flag_Picked_Up = _Flag_Picked_Up;
         this.Flag_Held = _Flag_Held;
         this.Damage_Taken = _Damage_Taken;
+        this.Damage_Dealt = _Damage_Dealt;
     }
 }

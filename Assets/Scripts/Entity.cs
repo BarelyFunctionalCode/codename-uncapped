@@ -55,7 +55,7 @@ public class Entity : NetworkBehaviour, IDamageable
         attackerRef.TryGet(out PlayerController attacker);
 
         GameModeHandler.Instance.StatEventReceiver(new StatEvent(
-            StatEventType.DAMAGE_TAKEN,
+            StatEventType.DAMAGE_DEALT,
             damage,
             (ulong)attacker.localId
         ));

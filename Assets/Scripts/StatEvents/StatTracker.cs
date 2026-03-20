@@ -1,3 +1,4 @@
+using UnityEngine;
 using System;
 using System.Collections.Generic;
 
@@ -15,6 +16,20 @@ public class StatTracker
      * }
      */
     public Dictionary<StatEventType, float> stats = new Dictionary<StatEventType, float>{};
+
+    public void Clear()
+    {
+        List<StatEventType> l = new List<StatEventType>();
+        foreach (StatEventType s in stats.Keys)
+        {
+            l.Add(s);
+        }
+
+        foreach (StatEventType s in l)
+        {
+            stats[s] = 0.0f;
+        }
+    }
 
     public StatTracker(ulong _id, StatsGroup _stat_group_id)
     {
@@ -61,6 +76,7 @@ public class StatTracker
         float _FLAG_PICKED_UP;
         float _FLAG_HELD;
         float _DAMAGE_TAKEN;
+        float _DAMAGE_DEALT;
 
         // Fetch stats and collect success booleans
         bool b_NONE = stats.TryGetValue(StatEventType.NONE,                 out _NONE);
@@ -73,6 +89,7 @@ public class StatTracker
         bool b_FLAG_PICKED_UP = stats.TryGetValue(StatEventType.FLAG_PICKED_UP, out _FLAG_PICKED_UP);
         bool b_FLAG_HELD = stats.TryGetValue(StatEventType.FLAG_HELD,           out _FLAG_HELD);
         bool b_DAMAGE_TAKEN = stats.TryGetValue(StatEventType.DAMAGE_TAKEN,      out _DAMAGE_TAKEN);
+        bool b_DAMAGE_DEALT = stats.TryGetValue(StatEventType.DAMAGE_DEALT,      out _DAMAGE_DEALT);
 
         // Flatten the stats data, provide 0.0 as defaults
         // if for some reason we couldn't fetch the stats data correctly
@@ -88,14 +105,15 @@ public class StatTracker
             b_FLAG_RETURN ?     _FLAG_RETURN :      0.0f,
             b_FLAG_PICKED_UP ?  _FLAG_PICKED_UP :   0.0f,
             b_FLAG_HELD ?       _FLAG_HELD :        0.0f,
-            b_DAMAGE_TAKEN ?    _DAMAGE_TAKEN :     0.0f
+            b_DAMAGE_TAKEN ?    _DAMAGE_TAKEN :     0.0f,
+            b_DAMAGE_DEALT ?    _DAMAGE_DEALT :     0.0f
         );
 
         return f;
     }
 
 
-    // Cast FlatStatsData back into 'stats' field
+    // Cast FlatStatData back into 'stats' field
     public void Rebuild(FlatStatData f)
     {
         stats[StatEventType.NONE] =           f.None;
@@ -108,5 +126,15 @@ public class StatTracker
         stats[StatEventType.FLAG_PICKED_UP] = f.Flag_Picked_Up;
         stats[StatEventType.FLAG_HELD] =      f.Flag_Held;
         stats[StatEventType.DAMAGE_TAKEN] =   f.Damage_Taken;
+        stats[StatEventType.DAMAGE_DEALT] =   f.Damage_Dealt;
+    }
+
+    public void PrettyPrint()
+    {
+
+        foreach (KeyValuePair<StatEventType, float> kvp in stats)
+        {
+            Debug.Log($"Stats for ID: {id} stat {kvp.Key} = {kvp.Value}");
+        }
     }
 }

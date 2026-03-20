@@ -37,21 +37,7 @@ public class PhaseSystem : MonoBehaviour
         {
             _currentphase = value;
             // Phase duration is set at the same time as we're setting current phase
-            switch ( value )
-            {
-                case Phase.PRELOAD:
-                    SetCountdown(5.0f);
-                    break;
-                case Phase.WARMUP:
-                    SetCountdown(5.0f);
-                    break;
-                case Phase.ACTIVE:
-                    SetCountdown(5.0f);
-                    break;
-                case Phase.ENDGAME:
-                    SetCountdown(5.0f);
-                    break;
-            };
+            SetCountdown(countdowns[value]);
         }
     }
 
@@ -78,6 +64,8 @@ public class PhaseSystem : MonoBehaviour
             }
         }
     }
+
+    private bool stepping = true;
     #endregion
 
     #region Public methods
