@@ -63,16 +63,16 @@ public class StatTracker
         float _DAMAGE_TAKEN;
 
         // Fetch stats and collect success booleans
-        bool b_NONE = stats.TryGetValue(StatEVentType.NONE,                 out _NONE);
-        bool b_KILL = stats.TryGetValue(StatEVentType.KILL,                 out _KILL);
-        bool b_KILL_ASSIST = stats.TryGetValue(StatEVentType.KILL_ASSIST,   out _KILL_ASSIST);
-        bool b_SHOT_FIRED = stats.TryGetValue(StatEVentType.SHOT_FIRED,     out _SHOT_FIRED);
-        bool b_SHOT_HIT = stats.TryGetValue(StatEVentType.SHOT_HIT,         out _SHOT_HIT);
-        bool b_FLAG_CAPTURE = stats.TryGetValue(StatEVentType.FLAG_CAPTURE, out _FLAG_CAPTURE);
-        bool b_FLAG_RETURN = stats.TryGetValue(StatEVentType.FLAG_RETURN,   out _FLAG_RETURN);
-        bool b_FLAG_PICKED_UP = stats.TryGetValue(StatEVentType.FLAG_PICKED_UP, out _FLAG_PICKED_UP);
-        bool b_FLAG_HELD = stats.TryGetValue(StatEVentType.FLAG_HELD,           out _FLAG_HELD);
-        bool b_DAMAGE_TAKEN = stats.TryGetValue(StatEVentType.DAMAGE_TAKE,      out _DAMAGE_TAKEN);
+        bool b_NONE = stats.TryGetValue(StatEventType.NONE,                 out _NONE);
+        bool b_KILL = stats.TryGetValue(StatEventType.KILL,                 out _KILL);
+        bool b_KILL_ASSIST = stats.TryGetValue(StatEventType.KILL_ASSIST,   out _KILL_ASSIST);
+        bool b_SHOT_FIRED = stats.TryGetValue(StatEventType.SHOT_FIRED,     out _SHOT_FIRED);
+        bool b_SHOT_HIT = stats.TryGetValue(StatEventType.SHOT_HIT,         out _SHOT_HIT);
+        bool b_FLAG_CAPTURE = stats.TryGetValue(StatEventType.FLAG_CAPTURE, out _FLAG_CAPTURE);
+        bool b_FLAG_RETURN = stats.TryGetValue(StatEventType.FLAG_RETURN,   out _FLAG_RETURN);
+        bool b_FLAG_PICKED_UP = stats.TryGetValue(StatEventType.FLAG_PICKED_UP, out _FLAG_PICKED_UP);
+        bool b_FLAG_HELD = stats.TryGetValue(StatEventType.FLAG_HELD,           out _FLAG_HELD);
+        bool b_DAMAGE_TAKEN = stats.TryGetValue(StatEventType.DAMAGE_TAKEN,      out _DAMAGE_TAKEN);
 
         // Flatten the stats data, provide 0.0 as defaults
         // if for some reason we couldn't fetch the stats data correctly
@@ -96,17 +96,17 @@ public class StatTracker
 
 
     // Cast FlatStatsData back into 'stats' field
-    public void Rebuild(FlatStatsData f)
+    public void Rebuild(FlatStatData f)
     {
-        stats[NONE] =           f.None;
-        stats[KILL] =           f.Kill;
-        stats[KILL_ASSIST] =    f.Kill_Assist;
-        stats[SHOT_FIRED] =     f.Shot_Fired;
-        stats[SHOT_HIT] =       f.Shot_Hit;
-        stats[FLAG_CAPTURE] =   f.Flag_Capture;
-        stats[FLAG_RETURN] =    f.Flag_Return;
-        stats[FLAG_PICKED_UP] = f.Flag_Picked_Up;
-        stats[FLAG_HELD] =      f.Flag_Held;
-        stats[DAMAGE_TAKEN] =   f.Damage_Taken;
+        stats[StatEventType.NONE] =           f.None;
+        stats[StatEventType.KILL] =           f.Kill;
+        stats[StatEventType.KILL_ASSIST] =    f.Kill_Assist;
+        stats[StatEventType.SHOT_FIRED] =     f.Shot_Fired;
+        stats[StatEventType.SHOT_HIT] =       f.Shot_Hit;
+        stats[StatEventType.FLAG_CAPTURE] =   f.Flag_Capture;
+        stats[StatEventType.FLAG_RETURN] =    f.Flag_Return;
+        stats[StatEventType.FLAG_PICKED_UP] = f.Flag_Picked_Up;
+        stats[StatEventType.FLAG_HELD] =      f.Flag_Held;
+        stats[StatEventType.DAMAGE_TAKEN] =   f.Damage_Taken;
     }
 }

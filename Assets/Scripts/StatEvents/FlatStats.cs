@@ -1,3 +1,5 @@
+using Unity.Netcode;
+
 public struct FlatStatData: INetworkSerializeByMemcpy
 {
     public ulong id;

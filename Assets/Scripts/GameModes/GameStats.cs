@@ -33,6 +33,12 @@ public enum StatsGroup
 public class GameStats : MonoBehaviour
 {
     #region Properties
+    /* Trigger for sending stat updates to clients
+    *   True = send to clients
+    *   False = clients are already synced, do not send
+    */
+    private bool is_dirty = false;
+
     /*  Point tracking for teams & players
      * {
      *   StatsGroup.TEAM:   { 0: StatTracker},
@@ -46,6 +52,11 @@ public class GameStats : MonoBehaviour
     #endregion
 
     #region Private methods
+    private void ContaminateStatState()
+    {
+        is_dirty = true;
+    }
+
     private void EmitPointsChanged()
     {
         // Internval communication on the server
@@ -63,6 +74,11 @@ public class GameStats : MonoBehaviour
         {
             stat_group.Add(id, new StatTracker(id, stat_group_id));
         }
+    }
+
+    public bool CheckDirtyState()
+    {
+        return is_dirty;
     }
 
     // Add to a stat value, check first if that stat has an entry. If not, add a default stat 0.
@@ -92,7 +108,13 @@ public class GameStats : MonoBehaviour
             source_team_stats.AddToStat(s.StatType, s.Value);
         }
 
+        ContaminateStatState();
         EmitPointsChanged();
+    }
+
+    public void CleanStatState()
+    {
+        is_dirty = false;
     }
 
     public List<FlatStatData> FetchFlatStats()
@@ -101,20 +123,28 @@ public class GameStats : MonoBehaviour
 
         /*  Point tracking for teams & players
          * {
-         *   StatsGroup.TEAM:   { 0: StatTracker},
-         *   StatsGroup.PLAYER: {0: StatTracker,
+         * ->StatsGroup.TEAM:   { 0: StatTracker},
+         * ->StatsGroup.PLAYER: { 0: StatTracker,
          *                       1: StatTracker,
          * }}
          *
          */
-        foreach(KeyValuePair<Dictionary<StatsGroup, Dictionary<ulong, StatTracker>>> kvp in points)
+        // Iterate through each stat_group first
+        foreach(var group_of_entities in points.Values)
         {
-            StatsGroup stat_group_id = kvp.Key;
-            Dictionary<ulong, StatTracker> list_of_stats = kvp.Value;
 
-            foreach (KeyValuePair<Dictionary<ulong, StatTracker>> _kvp in list_of_entities)
+            /*  Point tracking for teams & players
+             * {
+             *   StatsGroup.TEAM:   { ->0: StatTracker },
+             *   StatsGroup.PLAYER: { ->0: StatTracker,
+             *                        ->1: StatTracker,
+             * }}
+             *
+             */
+            // Then iterate through each list of entities
+            foreach (KeyValuePair<ulong, StatTracker> list_of_entities in group_of_entities)
             {
-                StatTracker stat_tracker = _kvp.Value;
+                StatTracker stat_tracker = list_of_entities.Value;
 
                 f.Add(stat_tracker.Flatten());
             }
@@ -123,9 +153,60 @@ public class GameStats : MonoBehaviour
         return f;
     }
 
+    // Helper function
+    public List<FlatStatData> FetchFlatStatsAndCleanState()
+    {
+        CleanStatState();
+        return FetchFlatStats();
+    }
+
     public Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> FetchStats()
     {
          return points;
+    }
+
+    public void RebuildStats(List<FlatStatData> flat_stats)
+    {
+    print("game_stats RebuildStats");
+        // Avoid re-allocations, re-use in the for loops
+        ulong id;
+        StatsGroup stat_group_id;
+        StatTracker stat_tracker;
+        Dictionary<ulong, StatTracker> _stats;
+
+        // Loop through each flatstats and copy over the data into `stats` field
+        // 1. Fetch id, stats_group_id from FlatStats
+        // 2. Fetch StatTracker from `stats`
+        //     Dictionary<StatsGroup, Dictionary<ulong, StatTracker>>
+        // 3. Overwrite the data in that StatTracker
+        foreach(FlatStatData f in flat_stats)
+        {
+            id = f.id;
+            stat_group_id = f.stat_group_id;
+
+            // Fetch the group of StatTrackers
+            // points = Dictionary<StatGroup, Dictionary<ulong, StatTracker>>
+            // stats = Dictionary<ulong, StatTracker>
+            if (points.TryGetValue(stat_group_id, out _stats))
+            {
+                // Then fetch the individual StatTracker
+                if (_stats.TryGetValue(id, out stat_tracker))
+                {
+                    // We found the right stat tracker, so copy over the data
+                    // from FlatStats to StatTracker
+                    stat_tracker.stats[StatEventType.NONE]            = f.None;
+                    stat_tracker.stats[StatEventType.KILL]            = f.Kill;
+                    stat_tracker.stats[StatEventType.KILL_ASSIST]     = f.Kill_Assist;
+                    stat_tracker.stats[StatEventType.SHOT_FIRED]      = f.Shot_Fired;
+                    stat_tracker.stats[StatEventType.SHOT_HIT]        = f.Shot_Hit;
+                    stat_tracker.stats[StatEventType.FLAG_CAPTURE]    = f.Flag_Capture;
+                    stat_tracker.stats[StatEventType.FLAG_RETURN]     = f.Flag_Return;
+                    stat_tracker.stats[StatEventType.FLAG_PICKED_UP]  = f.Flag_Picked_Up;
+                    stat_tracker.stats[StatEventType.FLAG_HELD]       = f.Flag_Held;
+                    stat_tracker.stats[StatEventType.DAMAGE_TAKEN]    = f.Damage_Taken;
+                }
+            }
+        }
     }
     #endregion
 

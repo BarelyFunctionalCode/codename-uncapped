@@ -109,10 +109,6 @@ public class GameModeHandler : MonoBehaviour
             _instance = this;
         }
 
-        // current_game_mode = gameObject.GetComponent<GameModeBase>();
-        // // Debugging
-        // SelectNewMode(GameModes.FFA);
-
         if (game_mode_cache.Count == 0)
         {
             var gamemodeObjects = Resources.LoadAll<GameObject>("Prefabs/GameModes/Variants");
@@ -123,6 +119,11 @@ public class GameModeHandler : MonoBehaviour
                 else Debug.LogWarning($"GameModeHandler: Failed to parse GameMode from prefab name {obj.name}");
             }
         }
+
+        // current_game_mode = gameObject.GetComponent<GameModeBase>();
+        // // Debugging
+        SelectNewMode(GameModes.FFA);
+
     }
 
     public void OnClientJoined(ulong ClientID)

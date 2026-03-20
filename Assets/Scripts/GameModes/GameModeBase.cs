@@ -82,7 +82,7 @@ public class GameModeBase : MonoBehaviour
     {
         CheckScore(points[StatsGroup.TEAM]);
         // And send an RPC out to clients for stats data updates
-        PushStatsToClients(game_stats.FetchFlatStats());
+        PushStatsToClientsRPC(game_stats.FetchFlatStatsAndCleanState());
     }
 
     // Pseudo. Refactor to properly announce team that won across network peers with an RPC
@@ -102,9 +102,10 @@ public class GameModeBase : MonoBehaviour
 
     #region Networking
     [Rpc(SendTo.Everyone)]
-    private void PushStatsToClients(List<FlatStatData> s, RpcParams rpcparams = default)
+    private void PushStatsToClientsRPC(List<FlatStatData> s, RpcParams rpcparams = default)
     {
-
+        print("PushStatsToClientsRPC");
+        game_stats.RebuildStats(s);
     }
     #endregion
 }
