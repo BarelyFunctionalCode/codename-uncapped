@@ -5,7 +5,7 @@ using static Unity.Netcode.Components.NetworkTransform;
 public class PlayerPuppet : MonoBehaviour
 {
     private GameObject playerTypeObj;
-    private PlayerTypeData playerTypeData;
+    private PlayerType playerTypeData;
 
     public Transform freeLookTargetTransform;
     public Transform weaponMountPoint;
@@ -67,7 +67,7 @@ public class PlayerPuppet : MonoBehaviour
     {
         if (playerTypeObj != null) Destroy(playerTypeObj);
         playerTypeObj = Instantiate(playerTypePrefabObj, transform.position, transform.rotation, transform);
-        playerTypeData = playerTypeObj.GetComponent<PlayerTypeData>();
+        playerTypeData = playerTypeObj.GetComponent<PlayerType>();
         playerCollider = playerTypeData.playerCollider;
         playerAnimator = playerTypeData.playerAnimator;
         freeLookTargetTransform = playerTypeData.freeLookTargetTransform;

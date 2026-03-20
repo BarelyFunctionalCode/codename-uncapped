@@ -25,14 +25,14 @@ public class PlayerController : Entity, IGravityModifiable
 
     [SerializeField] public GameObject playerTypePrefabObj;
     private GameObject playerTypeObj;
-    private PlayerTypeData playerTypeData;
+    private PlayerType playerType;
 
     [SerializeField] private GameObject playerPuppetPrefabObj;
     public GameObject playerPuppetObj;
 
     // ID
-    private SteamId localId;
-    public SteamId PlayerSteamId { get { return localId; } }
+    private SteamId _steamId;
+    public SteamId SteamId { get { return _steamId; } }
 
     // Animation
     private Animator localAnimator;
@@ -238,7 +238,7 @@ public class PlayerController : Entity, IGravityModifiable
             if (changed) MoveDirectionRpc(newMovementDirection);
         }
 
-        if (isDead.Value) return;
+        if (IsDead) return;
 
         HandleGroundDetection();
 
@@ -257,7 +257,7 @@ public class PlayerController : Entity, IGravityModifiable
     {
         if (!isInitialized || !IsOwner) return;
 
-        if (isDead.Value) return;
+        if (IsDead) return;
 
         // Handle camera pitch rotation on local client
         HandleCamera();
@@ -266,7 +266,7 @@ public class PlayerController : Entity, IGravityModifiable
     void FixedUpdate()
     {
         if (!isInitialized || !(IsServer || IsOwner)) return;
-        if (isDead.Value) return;
+        if (IsDead) return;
 
         // First, we collect all of the inputs that go into moving the player, and create an input state
         HandleInputs();
@@ -309,19 +309,19 @@ public class PlayerController : Entity, IGravityModifiable
         Debug.Log("Set Player Type: " + playerTypeObj.name);
     }
 
-    public void OnPlayerTypeObjectSpawned(PlayerTypeData playerTypeData)
+    public void OnPlayerTypeObjectSpawned(PlayerType playerType)
     {
-        Debug.Log("Player Type Object Spawned: " + playerTypeData.name);
-        this.playerTypeData = playerTypeData;
-        localPlayerCollider = playerTypeData.playerCollider;
+        Debug.Log("Player Type Object Spawned: " + playerType.name);
+        this.playerType = playerType;
+        localPlayerCollider = playerType.playerCollider;
         localPlayerCollider.material = normalMaterial;
-        localAnimator = playerTypeData.playerAnimator;
-        freeLookTargetTransform = playerTypeData.freeLookTargetTransform;
-        weaponMountPoint = playerTypeData.weaponMountPoint;
-        throwableMountPoint = playerTypeData.throwableMountPoint;
-        hoverAudioSource = playerTypeData.hoverAudioSource;
-        windAudioSource = playerTypeData.windAudioSource;
-        localRb.mass = playerTypeData.mass;
+        localAnimator = playerType.playerAnimator;
+        freeLookTargetTransform = playerType.freeLookTargetTransform;
+        weaponMountPoint = playerType.weaponMountPoint;
+        throwableMountPoint = playerType.throwableMountPoint;
+        hoverAudioSource = playerType.hoverAudioSource;
+        windAudioSource = playerType.windAudioSource;
+        localRb.mass = playerType.mass;
 
         if (IsOwner) InitializeOwner();
     }
@@ -400,16 +400,17 @@ public class PlayerController : Entity, IGravityModifiable
     [Rpc(SendTo.Server)]
     private void InitializeServerRpc()
     {
-        entityName = $"Player {OwnerClientId}";
-        Debug.Log("Initializing player with name: " + entityName);
-        Debug.Log("Initializing player with name: " + GetEntityName());
+        _entityName = $"Player {OwnerClientId}";
+        _entityId = OwnerClientId;
+        _teamId = (uint)OwnerClientId;
+
         // Get Player's Steam ID
         if (GameManager.Instance?.usingSteam == true)
         {
-            entityId = SteamClient.SteamId.Value;
-            entityName = new Friend(entityId).Name;
+            _steamId = SteamClient.SteamId.Value;
+            _entityName = new Friend(_steamId).Name;
         }
-        SetTeamId((uint)OwnerClientId);
+
         playerLoadout.Initialize(this);
         PostInitializeRpc();
         isInitialized = true;
@@ -563,7 +564,7 @@ public class PlayerController : Entity, IGravityModifiable
         isDownJetting = downJettingInput && isSkiing;
         isJetting = isUpJetting || isDownJetting;
         isMoving = movement.magnitude > 0.0f;
-        isRunning = isGrounded && isMoving && !isSkiing;
+        isRunning = IsGrounded && isMoving && !isSkiing;
 
         if (controlsDisabledCount > 0)
         {
@@ -608,7 +609,7 @@ public class PlayerController : Entity, IGravityModifiable
         localAnimator.SetFloat("yDir", animMovementDirection.y);
         localAnimator.SetFloat("zDir", animMovementDirection.z);
         localAnimator.SetFloat("yVel", localRb.linearVelocity.normalized.y);
-        localAnimator.SetBool("isGrounded", isGrounded);
+        localAnimator.SetBool("isGrounded", IsGrounded);
         localAnimator.SetBool("isRunning", isRunning);
         localAnimator.SetBool("isSkiing", isSkiing && !isUpJetting && !isDownJetting);
         localAnimator.SetBool("isJetting", isUpJetting || isDownJetting);
@@ -658,7 +659,7 @@ public class PlayerController : Entity, IGravityModifiable
     private void HandleGroundDetection()
     {
         lastGroundedTime += Time.deltaTime;
-        isGrounded = false;
+        _isGrounded = false;
         distanceToSurface = Mathf.Infinity;
         surfaceNormal = Vector3.up;
         surfacePoint = Vector3.zero;
@@ -676,7 +677,7 @@ public class PlayerController : Entity, IGravityModifiable
         );
         if (didHit)
         {
-            if (playerTelemetry != null) playerTelemetry.isGrounded = isGrounded;
+            if (playerTelemetry != null) playerTelemetry.isGrounded = IsGrounded;
             
             // Surface too steep
             float slope = Vector3.Dot(hit.normal, Vector3.up);
@@ -693,16 +694,16 @@ public class PlayerController : Entity, IGravityModifiable
 
             if (distanceToSurface <= 0.25f)
             {
-                isGrounded = true;
+                _isGrounded = true;
                 lastGroundedTime = 0f;
             }
-            else if (lastGroundedTime < 0.2f) isGrounded = true;
-            else isGrounded = false;
+            else if (lastGroundedTime < 0.2f) _isGrounded = true;
+            else _isGrounded = false;
 
-            if (isGrounded) surfaceNormal = hit.normal;
+            if (IsGrounded) surfaceNormal = hit.normal;
         }
 
-        if (playerTelemetry != null) playerTelemetry.isGrounded = isGrounded;
+        if (playerTelemetry != null) playerTelemetry.isGrounded = IsGrounded;
         if (playerTelemetry != null) playerTelemetry.surfaceNormal = surfaceNormal;
         
     }
@@ -717,7 +718,7 @@ public class PlayerController : Entity, IGravityModifiable
         float gravityMagnitude = Physics.gravity.magnitude * gravityModifier.Value;
 
         // Air Control
-        if (!isGrounded && !isJetting && !isSkiing)
+        if (!IsGrounded && !isJetting && !isSkiing)
         {
             Vector3 airDirection = movementDirection.normalized;
             Vector3 airControlAcc = airDirection * airControl;
@@ -733,7 +734,7 @@ public class PlayerController : Entity, IGravityModifiable
         }
 
         // Jumping
-        if (isJumping && isGrounded && currentVelocity.y <= maxJumpSpeed)
+        if (isJumping && IsGrounded && currentVelocity.y <= maxJumpSpeed)
         {
             float jumpScale = 1.0f;
 
@@ -799,7 +800,7 @@ public class PlayerController : Entity, IGravityModifiable
         }
 
         // Skiing Movement
-        if (isSkiing && GetEnergy() > 0.0f)
+        if (isSkiing && Energy > 0.0f)
         {
             // Hovering
             // More force the closer to the surface...
@@ -842,7 +843,7 @@ public class PlayerController : Entity, IGravityModifiable
             }
 
             // Directional Control while Jetting/Skiing
-            if (isSkiing && movementDirection.magnitude > 0.01f && GetEnergy() > 0.0f)
+            if (isSkiing && movementDirection.magnitude > 0.01f && Energy > 0.0f)
             {
                 float lateralForce = jetDirectionalForceXY / localRb.mass * accelScale * Time.fixedDeltaTime;
                 desiredAcc += movementDirection * lateralForce;
@@ -850,7 +851,7 @@ public class PlayerController : Entity, IGravityModifiable
             }
 
             // Up Jetting
-            if (isJetting && GetEnergy() > 0.01f)
+            if (isJetting && Energy > 0.01f)
             {
                 float force = 0f;
                 if (isUpJetting)
@@ -989,8 +990,7 @@ public class PlayerController : Entity, IGravityModifiable
 
             // TODO: Go to some other camera angle?
         }
-
-        localTransform.Find("Model").gameObject.SetActive(false);
+        playerType.OnDie();
     }
 
     protected override void OnRespawn()
@@ -1023,7 +1023,7 @@ public class PlayerController : Entity, IGravityModifiable
             localRb.isKinematic = false;
             localPlayerCollider.enabled = true;
         }
-        localTransform.Find("Model").gameObject.SetActive(true);
+        playerType.OnRespawn();
     }
     #endregion
 

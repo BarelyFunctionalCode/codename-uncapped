@@ -6,20 +6,34 @@ public class Entity : NetworkBehaviour, IDamageable
     private const float groundEnergyRegenRate = 12.5f;
     
     [Header("Entity Attributes")]
-    [SerializeField] protected ulong entityId = 0;
-    [SerializeField] protected string entityName;
-    [SerializeField] private uint teamId = 0;
-    [SerializeField] private NetworkVariable<float> health;
-    [SerializeField] private float maxHealth;
+    [SerializeField] protected ulong _entityId = 0;
+    [SerializeField] protected string _entityName;
+    [SerializeField] protected uint _teamId = 0;
+    [SerializeField] private NetworkVariable<float> _health = new(0.0f);
+    [SerializeField] private float _maxHealth;
 
-    [SerializeField] private NetworkVariable<float> energy = new NetworkVariable<float>(0.0f);
-    [SerializeField] private float maxEnergy;
-    [SerializeField] private float energyRegenRate;
+    [SerializeField] private NetworkVariable<float> _energy = new(0.0f);
+    [SerializeField] private float _maxEnergy;
+    [SerializeField] private float _energyRegenRate;
     [Range(0.0f, 2.0f)]
-    [SerializeField] private float energyRegenFactor = 1.0f;
+    [SerializeField] private float _energyRegenFactor = 1.0f;
 
-    protected NetworkVariable<bool> isDead = new(false);
-    protected bool isGrounded = false;
+    private NetworkVariable<bool> _isDead = new(false);
+    protected bool _isGrounded = false;
+
+    public ulong EntityId => _entityId;
+    public string EntityName => _entityName;
+    public uint TeamId { get { return _teamId; } set { _teamId = value; } }
+
+    public float Health => _health.Value;
+    public float MaxHealth => _maxHealth;
+    public float HealthPercentage => _maxHealth > 0f ? _health.Value / _maxHealth : 0f;
+    public float Energy => _energy.Value;
+    public float MaxEnergy => _maxEnergy;
+    public float EnergyPercentage => _maxEnergy > 0f ? _energy.Value / _maxEnergy : 0f;
+
+    public bool IsDead => _isDead.Value;
+    public bool IsGrounded => _isGrounded;
 
 
     #region Virtual Overrides
@@ -29,57 +43,43 @@ public class Entity : NetworkBehaviour, IDamageable
 
         if (!IsServer) return;
 
-        if (entityId == 0)
-            entityId = (ulong)NetworkObjectId;
+        if (_entityId == 0)
+            _entityId = NetworkObjectId + 5000; // Arbitrary offset to avoid conflicts with player IDs, which are based on client IDs
 
-        health.Value = maxHealth;
-        energy.Value = maxEnergy;
+        _health.Value = _maxHealth;
+        _energy.Value = _maxEnergy;
     }
 
     protected virtual void Update()
     {
-        if (!IsServer || isDead.Value) return;
+        if (!IsServer || _isDead.Value) return;
 		
-        ApplyEnergyDelta((GetIsGrounded() ? groundEnergyRegenRate : energyRegenRate) * energyRegenFactor * Time.deltaTime);
+        ApplyEnergyDelta((IsGrounded ? groundEnergyRegenRate : _energyRegenRate) * _energyRegenFactor * Time.deltaTime);
     }
     #endregion
     
-    #region Getters
-    public new ulong GetEntityId()         { return entityId; } // It's probably a bad idea to override GetEntityId(), but oh well
-    public string GetEntityName()       { return entityName; }
-    public uint GetTeamId()			    { return teamId; }
-    public void SetTeamId(uint newTeamId) { teamId = newTeamId; }
-    public float GetHealth()		    { return health.Value; }
-    public float GetHealthPercentage()	{ return maxHealth > 0f ? health.Value / maxHealth : 0f; }
-    public bool GetIsGrounded() 	    { return isGrounded; }
-    #endregion
-    
-
     public void TakeDamage(float damage, NetworkBehaviourReference attackerRef = default, NetworkBehaviourReference weaponRef = default)
     {
         ApplyhealthDelta(-damage);
-        if (health.Value <= 0) Die(attackerRef, weaponRef);
+        if (_health.Value <= 0) Die(attackerRef, weaponRef);
     }
-    
     public void ApplyhealthDelta(float amount)
     {
         if (!IsServer) return;
-        health.Value += amount;
-        health.Value = Mathf.Clamp(health.Value, 0, maxHealth);
+        _health.Value += amount;
+        _health.Value = Mathf.Clamp(_health.Value, 0, _maxHealth);
     }
 
-    public float GetEnergy() { return energy.Value; }
-    public float GetEnergyPercentage() { return energy.Value / maxEnergy; }
     public void ApplyEnergyDelta(float amount)
     {
         if (!IsServer) return;
-        energy.Value += amount;
-        energy.Value = Mathf.Min(energy.Value, maxEnergy);
+        _energy.Value += amount;
+        _energy.Value = Mathf.Min(_energy.Value, _maxEnergy);
     }
 
     private void Die(NetworkBehaviourReference attackerRef, NetworkBehaviourReference weaponRef)
     {
-        if (!IsServer || isDead.Value) return;
+        if (!IsServer || _isDead.Value) return;
         attackerRef.TryGet(out PlayerController attacker);
         weaponRef.TryGet(out Weapon weapon);
         if (attacker != null && weapon != null)
@@ -89,11 +89,11 @@ public class Entity : NetworkBehaviour, IDamageable
             // StatsManager.Instance.LogDamageDealt(attacker.OwnerClientId, OwnerClientId, weapon.Name, damage, health.Value <= 0);
             print("Sending stat event");
             GameModeHandler.Instance.StatEventReceiver(new StatEvent(StatEventType.KILL, 1.0f, (ulong)0));
-            NotificationManager.Instance.SendKillFeedNotificationRpc( GetEntityName(), attacker.GetEntityName());
+            NotificationManager.Instance.SendKillFeedNotificationRpc( EntityName, attacker.EntityName);
         }
 
 
-        isDead.Value = true;
+        _isDead.Value = true;
         OnDie();
         
         Invoke(nameof(Respawn), 3f);
@@ -104,9 +104,9 @@ public class Entity : NetworkBehaviour, IDamageable
     {
         if (!IsServer) return;
         OnRespawn();
-        health.Value = maxHealth;
-        energy.Value = maxEnergy;
-        isDead.Value = false;
+        _health.Value = _maxHealth;
+        _energy.Value = _maxEnergy;
+        _isDead.Value = false;
     }
     protected virtual void OnRespawn() {}
 }

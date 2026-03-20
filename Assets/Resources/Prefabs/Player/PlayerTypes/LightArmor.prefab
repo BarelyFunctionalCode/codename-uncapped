@@ -1325,7 +1325,7 @@ GameObject:
   - component: {fileID: 762060724138063147}
   m_Layer: 3
   m_Name: LightArmor
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1359,7 +1359,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1598310327
+  GlobalObjectIdHash: 3163775684
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -1385,6 +1385,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerTypeData
   ShowTopMostFoldoutHeaderGroup: 1
+  modelObj: {fileID: 4900657255785720398}
   playerCollider: {fileID: 3642010634863964215}
   freeLookTargetTransform: {fileID: 3455176191924679644}
   playerAnimator: {fileID: 6683425408317286339}

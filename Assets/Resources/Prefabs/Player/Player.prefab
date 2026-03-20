@@ -50,7 +50,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 148429366
+  GlobalObjectIdHash: 1947508556
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -76,16 +76,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  identifier: 
-  teamId: 0
-  health:
+  _entityId: 0
+  _entityName: 
+  _teamId: 0
+  _health:
     m_InternalValue: 0
-  maxHealth: 100
-  energy:
+  _maxHealth: 100
+  _energy:
     m_InternalValue: 0
-  maxEnergy: 33
-  energyRegenRate: 5.625
-  energyRegenFactor: 1
+  _maxEnergy: 33
+  _energyRegenRate: 5.625
+  _energyRegenFactor: 1
   devVectorRenderer: {fileID: 5320158334529817789}
   localTransform: {fileID: 0}
   playerTypePrefabObj: {fileID: 7161415578478602542, guid: 480549f6e4910d9359c16ae18711c700, type: 3}

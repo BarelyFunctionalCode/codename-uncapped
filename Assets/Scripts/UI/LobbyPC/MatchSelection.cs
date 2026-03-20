@@ -196,8 +196,8 @@ public class MatchSelection : NetworkBehaviour
         PlayerController playerController = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject.GetComponent<PlayerController>();
         if (!playerController.isInitialized) return;
 
-        string playerName = playerController.GetEntityName();
-        int teamId = isGameModeTeamBased ? (int)playerController.GetTeamId() : -1;
+        string playerName = playerController.EntityName;
+        int teamId = isGameModeTeamBased ? (int)playerController.TeamId : -1;
 
         Debug.Log("Adding player with name: " + playerName + " to team: " + teamId);
         AddPlayerRpc(clientId, playerName, teamId);

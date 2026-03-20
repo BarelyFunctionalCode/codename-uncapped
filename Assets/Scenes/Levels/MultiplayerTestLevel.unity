@@ -192,6 +192,10 @@ PrefabInstance:
       value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
+      propertyPath: _maxHealth
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: entityName
       value: xX_Big_Nut_Busta_Xx
       objectReference: {fileID: 0}
@@ -485,6 +489,10 @@ PrefabInstance:
       value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
+      propertyPath: _maxHealth
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: entityName
       value: Gleepy
       objectReference: {fileID: 0}
@@ -622,6 +630,10 @@ PrefabInstance:
     - target: {fileID: 3954939014466050364, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
+      propertyPath: _maxHealth
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: entityName
@@ -810,6 +822,14 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
+      propertyPath: _teamId
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
+      propertyPath: _maxHealth
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: entityName
       value: Scobey
       objectReference: {fileID: 0}
@@ -976,6 +996,14 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
+      propertyPath: _teamId
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
+      propertyPath: _maxHealth
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: entityName
       value: Jimmy
       objectReference: {fileID: 0}
@@ -1078,6 +1106,14 @@ PrefabInstance:
     - target: {fileID: 3954939014466050364, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
+      propertyPath: _teamId
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
+      propertyPath: _maxHealth
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: entityName
@@ -1299,6 +1335,10 @@ PrefabInstance:
     - target: {fileID: 3954939014466050364, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
+      propertyPath: _maxHealth
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: entityName
@@ -1583,8 +1623,16 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
+      propertyPath: _teamId
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: maxHealth
       value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
+      propertyPath: _maxHealth
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: entityName
@@ -1668,8 +1716,16 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
+      propertyPath: _teamId
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: maxHealth
       value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
+      propertyPath: _maxHealth
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: entityName
@@ -1863,6 +1919,10 @@ PrefabInstance:
     - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: maxHealth
       value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
+      propertyPath: _maxHealth
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: entityName
@@ -2067,8 +2127,16 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
+      propertyPath: _teamId
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: maxHealth
       value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
+      propertyPath: _maxHealth
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4144366904977847459, guid: 4532ad216fcec0541a19c35ac5d3146e, type: 3}
       propertyPath: entityName

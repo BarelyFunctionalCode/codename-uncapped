@@ -1,8 +1,9 @@
 using Unity.Netcode;
 using UnityEngine;
 
-public class PlayerTypeData : NetworkBehaviour
+public class PlayerType : NetworkBehaviour
 {
+    [SerializeField] private GameObject modelObj;
     [SerializeField] public CapsuleCollider playerCollider;
     [SerializeField] public Transform freeLookTargetTransform;
     [SerializeField] public Animator playerAnimator;
@@ -22,5 +23,15 @@ public class PlayerTypeData : NetworkBehaviour
             Debug.Log("Player Type Object Spawned: " + name + " with parent: " + playerController.name);
             playerController.OnPlayerTypeObjectSpawned(this);
         }
+    }
+
+    public void OnDie()
+    {
+        modelObj.SetActive(false);
+    }
+
+    public void OnRespawn()
+    {
+        modelObj.SetActive(true);
     }
 }

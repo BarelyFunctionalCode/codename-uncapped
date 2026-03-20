@@ -177,7 +177,7 @@ public class Projectile : NetworkBehaviour, IGravityModifiable
         if (directImpactCollider != null)
         {
             ApplyDamage(directImpactCollider.gameObject, maxDamage);
-            if (directImpactCollider.transform.GetComponent<Rigidbody>() != null) directImpactCollider.transform.GetComponent<Rigidbody>().AddForce(
+            if (directImpactCollider.transform.GetComponentInParent<Rigidbody>() != null) directImpactCollider.transform.GetComponentInParent<Rigidbody>().AddForce(
                 transform.forward * maxImpactForce,
                 ForceMode.Impulse
             );
@@ -190,7 +190,7 @@ public class Projectile : NetworkBehaviour, IGravityModifiable
             
             float distance = Vector3.Distance(damageRadiusTrigger.transform.position, receiver.ClosestPoint(damageRadiusTrigger.transform.position));
             ApplyDamage(receiver.gameObject, maxDamage * Mathf.Max(1 - distance / damageRadius, 0));
-            if (receiver.GetComponent<Rigidbody>() != null) receiver.GetComponent<Rigidbody>().AddExplosionForce(
+            if (receiver.GetComponentInParent<Rigidbody>() != null) receiver.GetComponentInParent<Rigidbody>().AddExplosionForce(
                 maxImpactForce,
                 rb.position,
                 damageRadius,
@@ -229,6 +229,6 @@ public class Projectile : NetworkBehaviour, IGravityModifiable
         if (!IsServer) return;
         // print("Applying " + damage + " damage to " + target.name);
         //if (target.GetComponent<Entity>() != null) target.GetComponent<Entity>().TakeDamage(damage);
-        if (target.GetComponent<IDamageable>() != null) target.GetComponent<IDamageable>().TakeDamage(damage, ownerRef, weaponRef);
+        if (target.GetComponentInParent<IDamageable>() != null) target.GetComponentInParent<IDamageable>().TakeDamage(damage, ownerRef, weaponRef);
     }
 }
