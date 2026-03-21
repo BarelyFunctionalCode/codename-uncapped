@@ -8,6 +8,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -7873266386530300743, guid: 748e2087d5405f9e3a66ded8a692b96b, type: 3}
+      propertyPath: game_mode_id
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 777088185169405786, guid: 748e2087d5405f9e3a66ded8a692b96b, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 940716577
@@ -22,7 +26,7 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: 43b27625ed79fa8cd8f0760f016a3a07, type: 2}
     - target: {fileID: 6000883229529177411, guid: 748e2087d5405f9e3a66ded8a692b96b, type: 3}
       propertyPath: m_Name
-      value: GameModeFFA
+      value: FFA
       objectReference: {fileID: 0}
     - target: {fileID: 8364704359906355596, guid: 748e2087d5405f9e3a66ded8a692b96b, type: 3}
       propertyPath: m_LocalPosition.x

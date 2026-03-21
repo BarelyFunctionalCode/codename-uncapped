@@ -1,3 +1,4 @@
+using UnityEngine;
 using System;
 using System.Collections.Generic;
 
@@ -15,6 +16,20 @@ public class StatTracker
      * }
      */
     public Dictionary<StatEventType, float> stats = new Dictionary<StatEventType, float>{};
+
+    public void Clear()
+    {
+        List<StatEventType> l = new List<StatEventType>();
+        foreach (StatEventType s in stats.Keys)
+        {
+            l.Add(s);
+        }
+
+        foreach (StatEventType s in l)
+        {
+            stats[s] = 0.0f;
+        }
+    }
 
     public StatTracker(ulong _id, StatsGroup _stat_group_id)
     {
@@ -45,5 +60,81 @@ public class StatTracker
         stats.TryGetValue(s, out value);
 
         return value;
+    }
+
+    // Cast 'stats' field from a Dictionary to struct
+    public FlatStatData Flatten()
+    {
+        // Output variables to fetch stats
+        float _NONE;
+        float _KILL;
+        float _KILL_ASSIST;
+        float _SHOT_FIRED;
+        float _SHOT_HIT;
+        float _FLAG_CAPTURE;
+        float _FLAG_RETURN;
+        float _FLAG_PICKED_UP;
+        float _FLAG_HELD;
+        float _DAMAGE_TAKEN;
+        float _DAMAGE_DEALT;
+
+        // Fetch stats and collect success booleans
+        bool b_NONE = stats.TryGetValue(StatEventType.NONE,                 out _NONE);
+        bool b_KILL = stats.TryGetValue(StatEventType.KILL,                 out _KILL);
+        bool b_KILL_ASSIST = stats.TryGetValue(StatEventType.KILL_ASSIST,   out _KILL_ASSIST);
+        bool b_SHOT_FIRED = stats.TryGetValue(StatEventType.SHOT_FIRED,     out _SHOT_FIRED);
+        bool b_SHOT_HIT = stats.TryGetValue(StatEventType.SHOT_HIT,         out _SHOT_HIT);
+        bool b_FLAG_CAPTURE = stats.TryGetValue(StatEventType.FLAG_CAPTURE, out _FLAG_CAPTURE);
+        bool b_FLAG_RETURN = stats.TryGetValue(StatEventType.FLAG_RETURN,   out _FLAG_RETURN);
+        bool b_FLAG_PICKED_UP = stats.TryGetValue(StatEventType.FLAG_PICKED_UP, out _FLAG_PICKED_UP);
+        bool b_FLAG_HELD = stats.TryGetValue(StatEventType.FLAG_HELD,           out _FLAG_HELD);
+        bool b_DAMAGE_TAKEN = stats.TryGetValue(StatEventType.DAMAGE_TAKEN,      out _DAMAGE_TAKEN);
+        bool b_DAMAGE_DEALT = stats.TryGetValue(StatEventType.DAMAGE_DEALT,      out _DAMAGE_DEALT);
+
+        // Flatten the stats data, provide 0.0 as defaults
+        // if for some reason we couldn't fetch the stats data correctly
+        FlatStatData f = new FlatStatData(
+            id,
+            stat_group_id,
+            b_NONE ?            _NONE :             0.0f,
+            b_KILL ?            _KILL :             0.0f,
+            b_KILL_ASSIST ?     _KILL_ASSIST :      0.0f,
+            b_SHOT_FIRED ?      _SHOT_FIRED :       0.0f,
+            b_SHOT_HIT ?        _SHOT_HIT :         0.0f,
+            b_FLAG_CAPTURE ?    _FLAG_CAPTURE :     0.0f,
+            b_FLAG_RETURN ?     _FLAG_RETURN :      0.0f,
+            b_FLAG_PICKED_UP ?  _FLAG_PICKED_UP :   0.0f,
+            b_FLAG_HELD ?       _FLAG_HELD :        0.0f,
+            b_DAMAGE_TAKEN ?    _DAMAGE_TAKEN :     0.0f,
+            b_DAMAGE_DEALT ?    _DAMAGE_DEALT :     0.0f
+        );
+
+        return f;
+    }
+
+
+    // Cast FlatStatData back into 'stats' field
+    public void Rebuild(FlatStatData f)
+    {
+        stats[StatEventType.NONE] =           f.None;
+        stats[StatEventType.KILL] =           f.Kill;
+        stats[StatEventType.KILL_ASSIST] =    f.Kill_Assist;
+        stats[StatEventType.SHOT_FIRED] =     f.Shot_Fired;
+        stats[StatEventType.SHOT_HIT] =       f.Shot_Hit;
+        stats[StatEventType.FLAG_CAPTURE] =   f.Flag_Capture;
+        stats[StatEventType.FLAG_RETURN] =    f.Flag_Return;
+        stats[StatEventType.FLAG_PICKED_UP] = f.Flag_Picked_Up;
+        stats[StatEventType.FLAG_HELD] =      f.Flag_Held;
+        stats[StatEventType.DAMAGE_TAKEN] =   f.Damage_Taken;
+        stats[StatEventType.DAMAGE_DEALT] =   f.Damage_Dealt;
+    }
+
+    public void PrettyPrint()
+    {
+
+        foreach (KeyValuePair<StatEventType, float> kvp in stats)
+        {
+            Debug.Log($"Stats for ID: {id} stat {kvp.Key} = {kvp.Value}");
+        }
     }
 }

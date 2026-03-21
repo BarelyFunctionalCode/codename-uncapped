@@ -27,8 +27,15 @@ public class PlayerController : Entity
     public GameObject playerPuppetObj;
 
     // ID
-    private SteamId localId;
-    public SteamId PlayerSteamId { get { return localId; } }
+    private ulong _localId;
+    public ulong localId
+    {
+        get { return _localId; }
+        set
+        {
+            _localId = value;
+        }
+    }
 
     // Animation
     private Animator localAnimator;
@@ -357,6 +364,10 @@ public class PlayerController : Entity
             if (GameManager.Instance?.usingSteam == true)
             {
                 localId = SteamClient.SteamId.Value;
+            }
+            else
+            {
+                localId = OwnerClientId;
             }
             InitializeRpc();
         }

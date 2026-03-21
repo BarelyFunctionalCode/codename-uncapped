@@ -47,11 +47,19 @@ public class Entity : NetworkBehaviour, IDamageable
     public float GetHealthPercentage()	{ return maxHealth > 0f ? health.Value / maxHealth : 0f; }
     public bool GetIsGrounded() 	    { return isGrounded; }
     #endregion
-    
+
 
     public void TakeDamage(float damage, NetworkBehaviourReference attackerRef = default, NetworkBehaviourReference weaponRef = default)
     {
         ApplyhealthDelta(-damage);
+        attackerRef.TryGet(out PlayerController attacker);
+
+        GameModeHandler.Instance.StatEventReceiver(new StatEvent(
+            StatEventType.DAMAGE_DEALT,
+            damage,
+            (ulong)attacker.localId
+        ));
+
         if (health.Value <= 0) Die(attackerRef, weaponRef);
     }
     
@@ -82,9 +90,12 @@ public class Entity : NetworkBehaviour, IDamageable
             // StatsManager.Instance.LogDamageDealt(ulong attackerClientId, ulong victimClientId, string weaponName, float damageAmount, bool isFatal);
             // StatsManager.Instance.LogDamageDealt(attacker.OwnerClientId, OwnerClientId, weapon.Name, damage, health.Value <= 0);
             print("Sending stat event");
-            GameModeHandler.Instance.StatEventReceiver(new StatEvent(StatEventType.KILL, 1.0f, (ulong)0));
+            GameModeHandler.Instance.StatEventReceiver(new StatEvent(
+                StatEventType.KILL,
+                1.0f,
+                (ulong)0
+            ));
         }
-
 
         isDead.Value = true;
         OnDie();
