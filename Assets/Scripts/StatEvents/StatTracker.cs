@@ -69,6 +69,7 @@ public class StatTracker
         float _NONE;
         float _KILL;
         float _KILL_ASSIST;
+        float _DEATHS;
         float _SHOT_FIRED;
         float _SHOT_HIT;
         float _FLAG_CAPTURE;
@@ -82,6 +83,7 @@ public class StatTracker
         bool b_NONE = stats.TryGetValue(StatEventType.NONE,                 out _NONE);
         bool b_KILL = stats.TryGetValue(StatEventType.KILL,                 out _KILL);
         bool b_KILL_ASSIST = stats.TryGetValue(StatEventType.KILL_ASSIST,   out _KILL_ASSIST);
+        bool b_DEATHS = stats.TryGetValue(StatEventType.DEATHS,             out _DEATHS);
         bool b_SHOT_FIRED = stats.TryGetValue(StatEventType.SHOT_FIRED,     out _SHOT_FIRED);
         bool b_SHOT_HIT = stats.TryGetValue(StatEventType.SHOT_HIT,         out _SHOT_HIT);
         bool b_FLAG_CAPTURE = stats.TryGetValue(StatEventType.FLAG_CAPTURE, out _FLAG_CAPTURE);
@@ -99,6 +101,7 @@ public class StatTracker
             b_NONE ?            _NONE :             0.0f,
             b_KILL ?            _KILL :             0.0f,
             b_KILL_ASSIST ?     _KILL_ASSIST :      0.0f,
+            b_DEATHS ?          _DEATHS :           0.0f,
             b_SHOT_FIRED ?      _SHOT_FIRED :       0.0f,
             b_SHOT_HIT ?        _SHOT_HIT :         0.0f,
             b_FLAG_CAPTURE ?    _FLAG_CAPTURE :     0.0f,
@@ -119,6 +122,7 @@ public class StatTracker
         stats[StatEventType.NONE] =           f.None;
         stats[StatEventType.KILL] =           f.Kill;
         stats[StatEventType.KILL_ASSIST] =    f.Kill_Assist;
+        stats[StatEventType.DEATHS] =          f.Deaths;
         stats[StatEventType.SHOT_FIRED] =     f.Shot_Fired;
         stats[StatEventType.SHOT_HIT] =       f.Shot_Hit;
         stats[StatEventType.FLAG_CAPTURE] =   f.Flag_Capture;

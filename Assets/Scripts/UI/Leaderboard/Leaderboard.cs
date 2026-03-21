@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 
 public class Leaderboard : MonoBehaviour
@@ -36,6 +37,9 @@ public class Leaderboard : MonoBehaviour
         this.enableCapturesStat = enableCapturesStat;
         capturesStat0Obj.SetActive(enableCapturesStat);
         capturesStat1Obj.SetActive(enableCapturesStat);
+
+        GameModeHandler.Instance.current_game_mode.OnStatEventReceived.AddListener(OnStatEventReceived);
+        GameModeHandler.Instance.current_game_mode.GetComponent<TeamStructure>().OnPlayerChangedTeam.AddListener(AddEntry);
     }
 
     public void ToggleMenu(bool enabled)
@@ -43,15 +47,21 @@ public class Leaderboard : MonoBehaviour
         gameObject.SetActive(enabled);
     }
 
-    public void AddEntry(ulong playerId, string name, int teamIndex)
+    private void AddEntry(EventArgsPlayerChangedTeam e)
     {
+        ulong playerId = e.player_id;
+        LeaderboardEntry entryToRemove = entries.Find(entry => entry.playerId == playerId);
+        if (entryToRemove != null) RemoveEntry(playerId);
+        
+        int teamIndex = int.Parse(e.team);
+        string name = NetworkManager.Singleton.ConnectedClients[playerId].PlayerObject.GetComponent<PlayerController>().EntityName;
         GameObject entryObj = Instantiate(leaderboardEntryPrefabObj, teamIndex == 0 ? listColumn0Obj.transform : listColumn1Obj.transform);
         LeaderboardEntry entry = entryObj.GetComponent<LeaderboardEntry>();
         entry.Initialize(playerId, name, enableCapturesStat);
         entries.Add(entry);
     }
 
-    public void RemoveEntry(ulong playerId)
+    private void RemoveEntry(ulong playerId)
     {
         LeaderboardEntry entryToRemove = entries.Find(entry => entry.playerId == playerId);
         if (entryToRemove != null)
@@ -61,13 +71,10 @@ public class Leaderboard : MonoBehaviour
         }
     }
 
-    public void UpdateEntryStats(ulong playerId, int kills, int deaths, int assists, int captures = 0)
+    private void OnStatEventReceived(StatEvent statEvent)
     {
-        LeaderboardEntry entryToUpdate = entries.Find(entry => entry.playerId == playerId);
-        if (entryToUpdate != null)
-        {
-            entryToUpdate.UpdateStats(kills, deaths, assists, captures);
-        }
+        LeaderboardEntry entryToUpdate = entries.Find(entry => entry.playerId == statEvent.Source);
+        if (entryToUpdate != null) entryToUpdate.UpdateStats(statEvent);
     }
 
     public void ClearEntries()

@@ -97,7 +97,7 @@ public class Entity : NetworkBehaviour, IDamageable
             // StatsManager.Instance.LogDamageDealt(ulong attackerClientId, ulong victimClientId, string weaponName, float damageAmount, bool isFatal);
             // StatsManager.Instance.LogDamageDealt(attacker.OwnerClientId, OwnerClientId, weapon.Name, damage, health.Value <= 0);
             print("Sending stat event");
-            GameModeHandler.Instance.StatEventReceiver(new StatEvent(StatEventType.KILL, 1.0f, (ulong)0));
+            GameModeHandler.Instance.StatEventReceiver(new StatEvent(StatEventType.KILL, 1.0f, attacker.EntityId));
             NotificationManager.Instance.SendKillFeedNotificationRpc( EntityName, attacker.EntityName);
         }
 

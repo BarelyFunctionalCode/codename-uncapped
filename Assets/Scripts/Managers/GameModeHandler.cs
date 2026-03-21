@@ -125,8 +125,10 @@ public class GameModeHandler : MonoBehaviour
         }
 
         // current_game_mode = gameObject.GetComponent<GameModeBase>();
-        // // Debugging
-        SelectNewMode(GameModes.FFA);
+        if (NetworkManager.Singleton.IsHost)
+        {
+            GameManager.Instance.OnClientConnectedEvent.AddListener(OnClientJoined);
+        }
     }
 
     public void OnClientJoined(ulong ClientID)
@@ -141,7 +143,7 @@ public class GameModeHandler : MonoBehaviour
                 .GetComponent<PlayerController>()
                 .EntityId;
 
-            current_game_mode.GetComponent<TeamStructure>().SetPlayerTeamFFA(entityId);
+            current_game_mode?.GetComponent<TeamStructure>().SetPlayerTeamFFA(entityId);
         }
 
     }

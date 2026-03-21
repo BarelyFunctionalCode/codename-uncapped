@@ -26,7 +26,7 @@ public class HUD : MonoBehaviour
     [SerializeField] private ChatWindow chatWindow;
     [SerializeField] public LoadoutMenu loadoutMenu;
     [SerializeField] private PauseMenu pauseMenu;
-    [SerializeField] private Leaderboard leaderboard;
+    [SerializeField] public Leaderboard leaderboard;
 
     private float dynamicReticleMaxMoveRange = 50f;
     private float dynamicReticleMaxVelocityDeflection = 50f;
@@ -81,8 +81,6 @@ public class HUD : MonoBehaviour
         chatWindow.Initialize(this);
         centerClusterUI.Initialize(playerController);
         loadoutMenu.Initialize(playerController.GetComponent<PlayerLoadoutManager>(), this);
-
-        leaderboard.Initialize("Free For All"); // TODO: Set appropriate title and column names based on game mode.
 
         isInitialized = true;
     }
