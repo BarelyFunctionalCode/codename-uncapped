@@ -16,7 +16,7 @@ public class TeamStructure : NetworkBehaviour
     // Team names, "Red" vs "Blue" for example.
     public NetworkList<FixedString128Bytes> teams;
 
-    // Players are assigned here by PlayerHandler, referenced by their PlayerController.localId
+    // Players are assigned here by PlayerHandler, referenced by their PlayerController.EntityId
     // Format: Dictionary[PlayerID, TeamName]
     public Dictionary<ulong, string> team_assignment = new Dictionary<ulong, string>();
 
@@ -61,9 +61,9 @@ public class TeamStructure : NetworkBehaviour
     }
 
     // pseudo helper function
-    public void SetPlayerTeamFFA(ulong localID)
+    public void SetPlayerTeamFFA(ulong entityId)
     {
-        SetPlayerTeam(localID, localID.ToString());
+        SetPlayerTeam(entityId, entityId.ToString());
     }
 
     // pseudo

@@ -134,14 +134,14 @@ public class GameModeHandler : MonoBehaviour
         if ( GameModesTeamTypes[current_game_mode.game_mode_id] == TeamBasedType.SOLO)
         {
             // Player joined the server, auto-assign team if FFA style game mode
-            ulong localId = NetworkManager
+            ulong entityId = NetworkManager
                 .Singleton
                 .ConnectedClients[ClientID]
                 .PlayerObject
                 .GetComponent<PlayerController>()
-                .localId;
+                .EntityId;
 
-            current_game_mode.GetComponent<TeamStructure>().SetPlayerTeamFFA(localId);
+            current_game_mode.GetComponent<TeamStructure>().SetPlayerTeamFFA(entityId);
         }
 
     }
