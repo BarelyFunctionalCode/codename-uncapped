@@ -1,3 +1,4 @@
+using Unity.Netcode;
 using UnityEngine;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,9 @@ public class GameModeBase : MonoBehaviour
     private bool isComplete		   = true;
     private bool isDamageAllowed   = false;
     #endregion
+
+    [SerializeField]
+    public GameModes game_mode_id;
 
     #region Public Methods
     public void StatEventReceiver(StatEvent s)
@@ -77,6 +81,8 @@ public class GameModeBase : MonoBehaviour
     public void OnPointsChanged(Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> points)
     {
         CheckScore(points[StatsGroup.TEAM]);
+        // And send an RPC out to clients for stats data updates
+        PushStatsToClientsRPC(game_stats.FetchFlatStatsAndCleanState());
     }
 
     // Pseudo. Refactor to properly announce team that won across network peers with an RPC
@@ -91,6 +97,15 @@ public class GameModeBase : MonoBehaviour
     private void CheckScore(Dictionary<ulong, StatTracker> team_points)
     {
         win_conditions.CheckAll(team_points);
+    }
+    #endregion
+
+    #region Networking
+    [Rpc(SendTo.Everyone)]
+    private void PushStatsToClientsRPC(List<FlatStatData> s, RpcParams rpcparams = default)
+    {
+        print("PushStatsToClientsRPC");
+        game_stats.RebuildStats(s);
     }
     #endregion
 }

@@ -33,6 +33,12 @@ public enum StatsGroup
 public class GameStats : MonoBehaviour
 {
     #region Properties
+    /* Trigger for sending stat updates to clients
+    *   True = send to clients
+    *   False = clients are already synced, do not send
+    */
+    private bool is_dirty = false;
+
     /*  Point tracking for teams & players
      * {
      *   StatsGroup.TEAM:   { 0: StatTracker},
@@ -46,8 +52,25 @@ public class GameStats : MonoBehaviour
     #endregion
 
     #region Private methods
+    private void ClearStats()
+    {
+        foreach(var group_of_entities in points.Values)
+        {
+            foreach (KeyValuePair<ulong, StatTracker> list_of_entities in group_of_entities)
+            {
+                list_of_entities.Value.Clear();
+            }
+        }
+    }
+
+    private void ContaminateStatState()
+    {
+        is_dirty = true;
+    }
+
     private void EmitPointsChanged()
     {
+        // Internval communication on the server
         gameObject.BroadcastMessage("OnPointsChanged", FetchStats());
     }
     #endregion
@@ -64,6 +87,11 @@ public class GameStats : MonoBehaviour
         }
     }
 
+    public bool CheckDirtyState()
+    {
+        return is_dirty;
+    }
+
     // Add to a stat value, check first if that stat has an entry. If not, add a default stat 0.
     public void AddToStat(StatEvent s)
     {
@@ -78,6 +106,9 @@ public class GameStats : MonoBehaviour
         // Add to the players' stats
         stat_group[player_id].AddToStat(s.StatType, s.Value);
 
+        // Debugging
+        stat_group[player_id].PrettyPrint();
+
         // Then add to the teams' stats ONLY IF the stat is being tracked by winconditions
         List<StatEventType> win_condition_stats = gameObject.GetComponent<WinConditions>().GetWinConditionStats();
         if (win_condition_stats.Contains(s.StatType))
@@ -91,16 +122,107 @@ public class GameStats : MonoBehaviour
             source_team_stats.AddToStat(s.StatType, s.Value);
         }
 
+        ContaminateStatState();
         EmitPointsChanged();
+    }
+
+    public void CleanStatState()
+    {
+        is_dirty = false;
+    }
+
+    public List<FlatStatData> FetchFlatStats()
+    {
+        List<FlatStatData> f = new List<FlatStatData>();
+
+        /*  Point tracking for teams & players
+         * {
+         * ->StatsGroup.TEAM:   { 0: StatTracker},
+         * ->StatsGroup.PLAYER: { 0: StatTracker,
+         *                       1: StatTracker,
+         * }}
+         *
+         */
+        // Iterate through each stat_group first
+        foreach(var group_of_entities in points.Values)
+        {
+
+            /*  Point tracking for teams & players
+             * {
+             *   StatsGroup.TEAM:   { ->0: StatTracker },
+             *   StatsGroup.PLAYER: { ->0: StatTracker,
+             *                        ->1: StatTracker,
+             * }}
+             *
+             */
+            // Then iterate through each list of entities
+            foreach (KeyValuePair<ulong, StatTracker> list_of_entities in group_of_entities)
+            {
+                StatTracker stat_tracker = list_of_entities.Value;
+
+                f.Add(stat_tracker.Flatten());
+            }
+        }
+
+        return f;
+    }
+
+    // Helper function
+    public List<FlatStatData> FetchFlatStatsAndCleanState()
+    {
+        CleanStatState();
+        return FetchFlatStats();
     }
 
     public Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> FetchStats()
     {
          return points;
     }
+
+    public void RebuildStats(List<FlatStatData> flat_stats)
+    {
+    print("game_stats RebuildStats");
+        // Avoid re-allocations, re-use in the for loops
+        ulong id;
+        StatsGroup stat_group_id;
+        StatTracker stat_tracker;
+        Dictionary<ulong, StatTracker> _stats;
+
+        // Loop through each flatstats and copy over the data into `stats` field
+        // 1. Fetch id, stats_group_id from FlatStats
+        // 2. Fetch StatTracker from `stats`
+        //     Dictionary<StatsGroup, Dictionary<ulong, StatTracker>>
+        // 3. Overwrite the data in that StatTracker
+        foreach(FlatStatData f in flat_stats)
+        {
+            id = f.id;
+            stat_group_id = f.stat_group_id;
+
+            // Fetch the group of StatTrackers
+            // points = Dictionary<StatGroup, Dictionary<ulong, StatTracker>>
+            // stats = Dictionary<ulong, StatTracker>
+            if (points.TryGetValue(stat_group_id, out _stats))
+            {
+                // Then fetch the individual StatTracker
+                if (_stats.TryGetValue(id, out stat_tracker))
+                {
+                    stat_tracker.Rebuild(f);
+                }
+            }
+        }
+    }
     #endregion
 
     #region Message Receivers
+    private void OnPhaseChanged(EventArgsPhaseChanged e)
+    {
+        if (e.phase == Phase.PRELOAD)
+        {
+            ClearStats();
+        }
+    }
+
+
     private void Start()
     {
         points[StatsGroup.PLAYER] = new Dictionary<ulong, StatTracker>();

@@ -58,9 +58,18 @@ public class Entity : NetworkBehaviour, IDamageable
     }
     #endregion
     
+
     public void TakeDamage(float damage, NetworkBehaviourReference attackerRef = default, NetworkBehaviourReference weaponRef = default)
     {
         ApplyhealthDelta(-damage);
+        attackerRef.TryGet(out PlayerController attacker);
+
+        GameModeHandler.Instance.StatEventReceiver(new StatEvent(
+            StatEventType.DAMAGE_DEALT,
+            damage,
+            attacker.EntityId
+        ));
+
         if (_health.Value <= 0) Die(attackerRef, weaponRef);
     }
     public void ApplyhealthDelta(float amount)

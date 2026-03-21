@@ -7,7 +7,6 @@ using System.Collections.Generic;
 
 /*  TeamStructure handles teams of players
 *      - Maintains list of teams and each players' assigned team
-*      - Checks for friendly fire, which can be a toggled option for server hosts to allow/disallow friendly fire
 *      - Free-for-all games (no teams) = Each player is on its own team, where the team name = player name
 */
 
@@ -17,48 +16,27 @@ public class TeamStructure : NetworkBehaviour
     // Team names, "Red" vs "Blue" for example.
     public NetworkList<FixedString128Bytes> teams;
 
-    // Players are assigned here by PlayerHandler, referenced by their instance ID
+    // Players are assigned here by PlayerHandler, referenced by their PlayerController.localId
     // Format: Dictionary[PlayerID, TeamName]
     public Dictionary<ulong, string> team_assignment = new Dictionary<ulong, string>();
 
-    // Players may select a new team
+    // Players may select a new team freely
     public bool AllowChangeTeams = true;
 
-    // Players may change teams by being assigned by a captain
+    // Players may only change teams by being assigned by a captain
     public bool ForceCaptainChangeTeams = false;
     #endregion
-
-    /*
-     * IsEnemies should be moved to EntityManager, where TeamStructure
-     * can provide Team information to it with `GetTeam()`
-    // Check if the acting player is on the enemy team of receiving player.
-    // By default, a FFA match has no teams and therefore will always return true.
-    public bool IsEnemies (ulong acting_player_id, ulong receiving_player_id)
-    {
-        bool result = true;
-
-        if (teams.Count > 0)
-        {
-            string ActingTeam = GetTeam(acting_player_id);
-            string RcvingTeam = GetTeam(receiving_player_id);
-
-            // Test if they are enemies - Not(Same team)
-            result = !(ActingTeam == RcvingTeam);
-        }
-
-        return result;
-    }
-    */
 
     #region Private methods
     private void EmitPlayerChangedTeam(EventArgsPlayerChangedTeam e)
     {
         gameObject.BroadcastMessage("OnPlayerChangedTeam", e);
     }
+
     #endregion
 
     #region public methods
-    public string GetTeam (ulong player_id)
+    public string GetTeam(ulong player_id)
     {
         string result;
         team_assignment.TryGetValue(player_id, out result);
@@ -82,8 +60,14 @@ public class TeamStructure : NetworkBehaviour
         return x;
     }
 
+    // pseudo helper function
+    public void SetPlayerTeamFFA(ulong localID)
+    {
+        SetPlayerTeam(localID, localID.ToString());
+    }
+
     // pseudo
-    public void SetPlayerTeam (ulong player_id, string team)
+    public void SetPlayerTeam(ulong player_id, string team)
     {
         team_assignment[player_id] = team;
         EmitPlayerChangedTeam(new EventArgsPlayerChangedTeam(player_id, team));
@@ -115,8 +99,8 @@ public class TeamStructure : NetworkBehaviour
 
 public class EventArgsPlayerChangedTeam : EventArgs
 {
-    public ulong      player_id   { get; set; }
-    public string   team        {get; set; }
+    public ulong    player_id   { get; set; }
+    public string   team        { get; set; }
 
     public EventArgsPlayerChangedTeam(ulong lPlayerId, string lTeam)
     {
