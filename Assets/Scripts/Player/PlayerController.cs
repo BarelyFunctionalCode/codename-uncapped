@@ -306,12 +306,10 @@ public class PlayerController : Entity, IGravityModifiable
             transform,
             OwnerClientId
         );
-        Debug.Log("Set Player Type: " + playerTypeObj.name);
     }
 
     public void OnPlayerTypeObjectSpawned(PlayerType playerType)
     {
-        Debug.Log("Player Type Object Spawned: " + playerType.name);
         this.playerType = playerType;
         localPlayerCollider = playerType.playerCollider;
         localPlayerCollider.material = normalMaterial;

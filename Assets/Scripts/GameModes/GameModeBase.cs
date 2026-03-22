@@ -2,7 +2,6 @@ using Unity.Netcode;
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using UnityEngine.Events;
 
 
 public class GameModeBase : NetworkBehaviour
@@ -31,7 +30,6 @@ public class GameModeBase : NetworkBehaviour
         StatEventType.DEATHS,
         StatEventType.FLAG_CAPTURE,
     };
-    public UnityEvent<StatEvent> OnStatEventReceived = new();
 
     [SerializeField]
     public GameModes game_mode_id;
@@ -45,7 +43,6 @@ public class GameModeBase : NetworkBehaviour
         if (phase_system.GetCurrentPhase() == Phase.ACTIVE)
         {
             game_stats.AddToStat(s);
-            OnstatChangeRPC(s);
         }
     }
 
@@ -99,13 +96,16 @@ public class GameModeBase : NetworkBehaviour
         game_stats.CheckAddEntry(player_id, StatsGroup.PLAYER);
     }
 
-    public void OnPointsChanged(Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> points)
+    public void OnPointsChanged(Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> points, StatEvent updated_stat_event)
     {
         if (!IsHost) return;
 
         CheckScore(points[StatsGroup.TEAM]);
         // And send an RPC out to clients for stats data updates
         // PushStatsToClientsRPC(game_stats.FetchFlatStatsAndCleanState());
+
+        // Call RPC that broadcasts the updated player stat to all clients
+        OnStatChangeRPC(updated_stat_event);
     }
 
     // Pseudo. Refactor to properly announce team that won across network peers with an RPC
@@ -136,11 +136,12 @@ public class GameModeBase : NetworkBehaviour
     // }
 
     [Rpc(SendTo.Everyone)]
-    private void OnstatChangeRPC(StatEvent statEvent)
+    private void OnStatChangeRPC(StatEvent statEvent)
     {
+        // Broadcast updated player stat to all clients, if the stat event is one we care about
         if (broadcastedStatEvents.Contains(statEvent.StatType))
         {
-            OnStatEventReceived.Invoke(statEvent);
+            GameModeHandler.Instance.OnStatUpdated.Invoke(statEvent);
         }
     }
     #endregion

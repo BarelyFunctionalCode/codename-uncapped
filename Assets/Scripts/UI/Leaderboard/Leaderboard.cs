@@ -38,8 +38,8 @@ public class Leaderboard : MonoBehaviour
         capturesStat0Obj.SetActive(enableCapturesStat);
         capturesStat1Obj.SetActive(enableCapturesStat);
 
-        GameModeHandler.Instance.current_game_mode.OnStatEventReceived.AddListener(OnStatEventReceived);
-        GameModeHandler.Instance.current_game_mode.GetComponent<TeamStructure>().OnPlayerChangedTeam.AddListener(AddEntry);
+        GameModeHandler.Instance.OnStatUpdated.AddListener(OnStatEventReceived);
+        GameModeHandler.Instance.OnPlayerChangedTeam.AddListener(AddEntry);
     }
 
     public void ToggleMenu(bool enabled)

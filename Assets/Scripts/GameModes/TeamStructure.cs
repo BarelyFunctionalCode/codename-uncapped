@@ -1,9 +1,7 @@
 using UnityEngine;
 using Unity.Netcode;
 using Unity.Collections;
-using System;
 using System.Collections.Generic;
-using UnityEngine.Events;
 
 
 /*  TeamStructure handles teams of players
@@ -14,7 +12,6 @@ using UnityEngine.Events;
 public class TeamStructure : NetworkBehaviour
 {
     #region Properties
-    public UnityEvent<EventArgsPlayerChangedTeam> OnPlayerChangedTeam = new();
 
     // Team names, "Red" vs "Blue" for example.
     public NetworkList<FixedString128Bytes> teams;
@@ -41,7 +38,7 @@ public class TeamStructure : NetworkBehaviour
     private void EmitPlayerChangedTeamRpc(EventArgsPlayerChangedTeam e)
     {
         // Notify all clients about the team change
-        OnPlayerChangedTeam.Invoke(e);
+        GameModeHandler.Instance.OnPlayerChangedTeam.Invoke(e);
     }
 
     #endregion
@@ -111,8 +108,8 @@ public class TeamStructure : NetworkBehaviour
 
 public struct EventArgsPlayerChangedTeam : INetworkSerializeByMemcpy
 {
-    public ulong    player_id   { get; set; }
-    public string   team        { get; set; }
+    public ulong    player_id;
+    public string   team;
 
     public EventArgsPlayerChangedTeam(ulong lPlayerId, string lTeam)
     {

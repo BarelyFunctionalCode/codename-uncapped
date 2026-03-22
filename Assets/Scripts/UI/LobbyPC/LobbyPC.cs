@@ -94,7 +94,6 @@ public class LobbyPC : MonoBehaviour
 
     public void Reset()
     {
-        Debug.Log("Resetting Lobby PC");
         // Resets priority to PC Cam and then locks the cursor
         isActive = false;
         cursorObj.SetActive(false);

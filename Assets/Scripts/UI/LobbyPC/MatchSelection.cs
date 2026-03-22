@@ -17,7 +17,6 @@ public class MatchSelection : NetworkBehaviour
     [SerializeField] private TMP_Text selectedGameModeTitleText;
     [SerializeField] private TMP_Text selectedGameModeDescriptionText;
 
-
     [SerializeField] private GameObject playerListTeamSeparatorObj;
     [SerializeField] private Transform playerListColumn0;
     [SerializeField] private Transform playerListColumn1;
@@ -34,9 +33,9 @@ public class MatchSelection : NetworkBehaviour
 
     [SerializeField] private LobbyPC lobbyPC;
 
-    public sealed override void OnNetworkSpawn()
+    protected sealed override void OnNetworkPostSpawn()
     {
-        base.OnNetworkSpawn();
+        base.OnNetworkPostSpawn();
 
         if (IsHost)
         {
@@ -56,7 +55,6 @@ public class MatchSelection : NetworkBehaviour
             foreach (string file in sceneFiles)
             {
                 string fileName = Path.GetFileName(file);
-                Debug.Log("Scene file: " + fileName);
                 levelNames.Add(Path.GetFileNameWithoutExtension(fileName));
             }
         }
@@ -176,7 +174,6 @@ public class MatchSelection : NetworkBehaviour
     {
         if (!IsHost) return;
 
-        Debug.Log($"Starting match with settings: Level - {selectedLevel}, Game Mode - {selectedGameMode}, Max Players - {selectedMaxPlayers}, Time Limit - {selectedTimeLimit} minutes");
         lobbyPC.Reset();
         GameManager.Instance.SetLevel(selectedLevel);
         GameManager.Instance.SetGameMode(selectedGameMode);
@@ -188,8 +185,6 @@ public class MatchSelection : NetworkBehaviour
     {
         if (!IsHost) return;
 
-        Debug.Log("Adding player for clientId: " + clientId);
-
         LobbyPlayer lobbyPlayerToRemove = lobbyPlayers.Find(lp => lp.GetComponent<LobbyPlayer>().clientId == clientId);
         if (lobbyPlayerToRemove != null) return;
 
@@ -199,7 +194,6 @@ public class MatchSelection : NetworkBehaviour
         string playerName = playerController.EntityName;
         int teamId = isGameModeTeamBased ? (int)playerController.TeamId : -1;
 
-        Debug.Log("Adding player with name: " + playerName + " to team: " + teamId);
         AddPlayerRpc(clientId, playerName, teamId);
     }
 

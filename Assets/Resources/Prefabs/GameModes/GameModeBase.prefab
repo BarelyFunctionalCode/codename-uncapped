@@ -9,8 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8364704359906355596}
-  - component: {fileID: -7873266386530300743}
   - component: {fileID: 777088185169405786}
+  - component: {fileID: -7873266386530300743}
   - component: {fileID: 4152407925966231162}
   - component: {fileID: -4189097990456723710}
   - component: {fileID: 5088351037047258174}
@@ -37,22 +37,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &-7873266386530300743
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6000883229529177411}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: af2b78525ff8dd856afa6a07ae644d42, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameModeBase
-  team_structure: {fileID: 4152407925966231162}
-  phase_system: {fileID: -4189097990456723710}
-  game_stats: {fileID: 5088351037047258174}
-  win_conditions: {fileID: 1446111806336827319}
 --- !u!114 &777088185169405786
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -65,7 +49,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1171206040
+  GlobalObjectIdHash: 401442221
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -78,6 +62,27 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
+--- !u!114 &-7873266386530300743
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6000883229529177411}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af2b78525ff8dd856afa6a07ae644d42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameModeBase
+  ShowTopMostFoldoutHeaderGroup: 1
+  team_structure: {fileID: 4152407925966231162}
+  phase_system: {fileID: -4189097990456723710}
+  game_stats: {fileID: 5088351037047258174}
+  win_conditions: {fileID: 1446111806336827319}
+  OnStatEventReceived:
+    m_PersistentCalls:
+      m_Calls: []
+  game_mode_id: 0
 --- !u!114 &4152407925966231162
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -91,6 +96,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TeamStructure
   ShowTopMostFoldoutHeaderGroup: 1
+  OnPlayerChangedTeam:
+    m_PersistentCalls:
+      m_Calls: []
   AllowChangeTeams: 1
   ForceCaptainChangeTeams: 0
 --- !u!114 &-4189097990456723710
@@ -119,6 +127,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 305fc0a2ed26f0d56a83f58b90f2b761, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameStats
+  game_mode_base: {fileID: -7873266386530300743}
 --- !u!114 &1446111806336827319
 MonoBehaviour:
   m_ObjectHideFlags: 0

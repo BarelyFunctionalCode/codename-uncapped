@@ -25,6 +25,8 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private GameObject notificationManagerPrefabObj;
     private GameObject notificationManagerObj;
+    [SerializeField] private GameObject gameModeHandlerPrefabObj;
+    private GameObject gameModeHandlerObj;
     private FacepunchTransport facepunchTransport;
     private ulong selectedLobbyId = 0;
 	public Lobby? CurrentLobby { get; private set; } = null;
@@ -114,10 +116,8 @@ public class GameManager : MonoBehaviour
 
             if (SceneManager.GetActiveScene().name == desiredLevelName)
             {
-                Debug.Log(desiredGameMode);
-                LevelManager.Instance.SetGameMode(desiredGameMode);
+                GameModeHandler.Instance.SelectNewMode(desiredGameMode);
                 LevelManager.Instance.OnPlayersLoaded();
-                desiredGameMode = GameModes.NONE;
                 desiredLevelName = "";
             }
 
@@ -211,6 +211,10 @@ public class GameManager : MonoBehaviour
         notificationManagerObj = Instantiate(notificationManagerPrefabObj);
         notificationManagerObj.GetComponent<NetworkObject>().Spawn();
 
+        // Create Game Mode Handler
+        gameModeHandlerObj = Instantiate(gameModeHandlerPrefabObj);
+        gameModeHandlerObj.GetComponent<NetworkObject>().Spawn();
+
         // If using Steam, create a lobby
 		if (usingSteam) CurrentLobby = await SteamMatchmaking.CreateLobbyAsync(maxLobbySize);
     }
@@ -243,6 +247,7 @@ public class GameManager : MonoBehaviour
         }
         // if (PlayerManager.Instance != null) PlayerManager.Instance.Clear();
         if (notificationManagerObj != null) Destroy(notificationManagerObj);
+        if (gameModeHandlerObj != null) Destroy(gameModeHandlerObj);
 		NetworkManager.Singleton.Shutdown();
 	}
 
@@ -459,7 +464,6 @@ public class GameManager : MonoBehaviour
     public void SetGameMode(GameModes gameMode)
     {
         if (!NetworkManager.Singleton.IsHost) return;
-        Debug.Log(gameMode);
         desiredGameMode = gameMode;
     }
 }

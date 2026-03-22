@@ -20,7 +20,6 @@ public class PlayerType : NetworkBehaviour
 
         if (networkObject != null && networkObject.TryGetComponent(out PlayerController playerController))
         {
-            Debug.Log("Player Type Object Spawned: " + name + " with parent: " + playerController.name);
             playerController.OnPlayerTypeObjectSpawned(this);
         }
     }

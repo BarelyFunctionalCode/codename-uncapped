@@ -11,8 +11,6 @@ public class LevelManager : NetworkBehaviour
 
     Dictionary<uint, List<Transform>> spawnPoints = new();
 
-    [SerializeField] private GameObject gameModeHandlerPrefabObj;
-
     private void Awake()
     {
         if (Instance != null || GameManager.Instance == null || !GameManager.Instance.isInitialized) Destroy(gameObject);
@@ -20,16 +18,6 @@ public class LevelManager : NetworkBehaviour
 
         transform.SetParent(null);
 	}
-
-    public void SetGameMode(GameModes gameMode)
-    {
-        if (GameModeHandler.Instance != null) return;
-
-        GameObject gamemodeHandlerObj = Instantiate(gameModeHandlerPrefabObj);
-        gamemodeHandlerObj.GetComponent<NetworkObject>().Spawn();
-        GameModeHandler gamemodeHandler = gamemodeHandlerObj.GetComponent<GameModeHandler>();
-        gamemodeHandler.SelectNewMode(gameMode);
-    }
 
     // Called after all the players have loaded into the scene
     public void OnPlayersLoaded()
@@ -53,7 +41,6 @@ public class LevelManager : NetworkBehaviour
     private void OnLevelInitialized()
     {
         if (!playersLoaded || !stageGenerated) return;
-        OnLevelInitializedRpc();
 
         spawnPoints.Clear();
         GameObject[] spawnPointsObjs = GameObject.FindGameObjectsWithTag("Respawn");
@@ -81,12 +68,6 @@ public class LevelManager : NetworkBehaviour
         }
 
         OnLevelReady();
-    }
-
-    [Rpc(SendTo.Everyone)]
-    private void OnLevelInitializedRpc()
-    {
-        NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerController>().playerHUD.leaderboard.Initialize("Free For All");
     }
 
     private void OnLevelReady()
