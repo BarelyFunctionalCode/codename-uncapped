@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 1306709494903019759}
   - component: {fileID: 8752288020006844415}
   - component: {fileID: 5941757599680232054}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Shell
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5023,7 +5023,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5412160233982213273}
   - component: {fileID: 8081777461980714450}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Grenade Shell
   m_TagString: Untagged
   m_Icon: {fileID: 0}

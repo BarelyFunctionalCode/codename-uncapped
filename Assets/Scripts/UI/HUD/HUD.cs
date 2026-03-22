@@ -5,12 +5,14 @@ using UnityEngine;
 public enum HUDMenu
 {
     None,
+    Chat,
     LoadoutMenu,
     PauseMenu
 }
 
 public class HUD : MonoBehaviour
 {
+    [SerializeField] private Canvas mainCanvas;
     [SerializeField] private CenterClusterUI centerClusterUI;
     [SerializeField] private Transform weaponsContainer;
     [SerializeField] private GameObject weaponUIPrefabObj;
@@ -21,11 +23,15 @@ public class HUD : MonoBehaviour
     private PlayerController playerController;
     private PlayerControls playerControls;
     private List<HUDMenu> openMenus = new();
+    [SerializeField] private ChatWindow chatWindow;
     [SerializeField] public LoadoutMenu loadoutMenu;
     [SerializeField] private PauseMenu pauseMenu;
+    [SerializeField] private Leaderboard leaderboard;
 
     private float dynamicReticleMaxMoveRange = 50f;
     private float dynamicReticleMaxVelocityDeflection = 50f;
+
+    private HUDMenu menuLock = HUDMenu.None;
 
     private bool isInitialized = false;
 
@@ -35,12 +41,26 @@ public class HUD : MonoBehaviour
 
         // Update dynamic reticle position based on player velocity
         if (playerController == null || playerController.localRb == null) return;
-        Vector3 velocity = playerController.transform.InverseTransformVector(playerController.localRb.linearVelocity);
+        Vector3 localForwardVelocity = Vector3.Project(playerController.localRb.linearVelocity, playerController.transform.forward);
+        Vector3 velocity = playerController.transform.InverseTransformVector(localForwardVelocity);
         float deflectionX = Mathf.Clamp(-velocity.x, -dynamicReticleMaxVelocityDeflection, dynamicReticleMaxVelocityDeflection);
         float deflectionY = Mathf.Clamp(-velocity.y, -dynamicReticleMaxVelocityDeflection, dynamicReticleMaxVelocityDeflection);
         Vector2 dynamicReticleTargetPos = new Vector2(deflectionX / dynamicReticleMaxVelocityDeflection * dynamicReticleMaxMoveRange,
                                                       deflectionY / dynamicReticleMaxVelocityDeflection * dynamicReticleMaxMoveRange);
         dynamicReticle.anchoredPosition = Vector2.Lerp(dynamicReticle.anchoredPosition, dynamicReticleTargetPos, Time.deltaTime * 10f);
+    }
+
+    private void OnDestroy()
+    {
+        if (!isInitialized) return;
+
+        playerControls.UI.PauseMenu.performed -= ctx => ToggleMenu(HUDMenu.PauseMenu);
+        playerControls.UI.LoadoutMenu.performed -= ctx => ToggleMenu(HUDMenu.LoadoutMenu);
+        playerControls.UI.Chat.performed -= ctx => ToggleMenu(HUDMenu.Chat, true);
+        playerControls.UI.Close.performed -= ctx => ToggleMenu(HUDMenu.None);
+        
+        playerControls.UI.Leaderboard.started -= ctx => leaderboard.ToggleMenu(true);
+        playerControls.UI.Leaderboard.canceled -= ctx => leaderboard.ToggleMenu(false);
     }
 
     public void Initialize(PlayerController playerController)
@@ -51,14 +71,24 @@ public class HUD : MonoBehaviour
         playerControls = playerController.playerControls;
         playerControls.UI.PauseMenu.performed += ctx => ToggleMenu(HUDMenu.PauseMenu);
         playerControls.UI.LoadoutMenu.performed += ctx => ToggleMenu(HUDMenu.LoadoutMenu);
+        playerControls.UI.Chat.performed += ctx => ToggleMenu(HUDMenu.Chat, true);
+        playerControls.UI.Close.performed += ctx => ToggleMenu(HUDMenu.None);
 
+        playerControls.UI.Leaderboard.started += ctx => leaderboard.ToggleMenu(true);
+        playerControls.UI.Leaderboard.canceled += ctx => leaderboard.ToggleMenu(false);
 
-        InitializePauseMenuElements(playerController);
+        PauseMenu.Instance.Initialize(playerController);
+        chatWindow.Initialize(this);
         centerClusterUI.Initialize(playerController);
         loadoutMenu.Initialize(playerController.GetComponent<PlayerLoadoutManager>(), this);
+        leaderboard.Initialize("Free For All");
 
-        ToggleMenu(HUDMenu.LoadoutMenu);
         isInitialized = true;
+    }
+
+    public void ToggleHUD()
+    {
+        if (mainCanvas != null) mainCanvas.enabled = !mainCanvas.enabled;
     }
 
     public void AddWeaponUI(Weapon weapon)
@@ -73,62 +103,30 @@ public class HUD : MonoBehaviour
         throwableUI.Initialize(throwableManager);
     }
 
-    private void InitializePauseMenuElements(PlayerController playerController)
+    public void ToggleMenu(HUDMenu menu, bool forceOpen = false)
     {
-        // Initialize player options in pause menu
-        FieldInfo[] fields = playerController.GetType().GetFields();
-        foreach (var field in fields)
+        // Don't do anything if the HUD is disabled.
+        if (!mainCanvas.enabled) return;
+
+        // If no menu is specified, close the last-opened menu.
+        if (menu == HUDMenu.None)
         {
-            PauseMenuOptionAttribute[] attribute = (PauseMenuOptionAttribute[])field.GetCustomAttributes(typeof(PauseMenuOptionAttribute), true);
-
-            if (attribute.Length > 0)
-            {
-                if (!PauseMenu.Instance.devMode && attribute[0].GetType() == typeof(PauseMenuDevOptionAttribute)) continue;
-                PauseMenu.Instance.AddOption(
-                    attribute[0].GetType() == typeof(PauseMenuDevOptionAttribute) ? "dev - " + attribute[0].label : attribute[0].label,
-                    (float)field.GetValue(playerController),
-                    attribute[0].minValue,
-                    attribute[0].maxValue,
-                    (float value) => { field.SetValue(playerController, value); }
-                );
-            }
+            if (openMenus.Count > 0) ToggleMenu(openMenus[^1]);
+            return;
         }
+        
+        // Some menus can lock out the system so that the currently opened menu must be closed before another can be opened.
+        if (menuLock != HUDMenu.None && menuLock != menu) return;
+        if (forceOpen && openMenus.Contains(menu)) return;
 
-        // Initialize player controls in pause menu
-        List<string> controlIgnoreList = new List<string> { "Pause","Move", "Look" };
-        // InputActionMap movementMap = playerControls.Movement;
-        foreach (var actionMap in playerControls.asset.actionMaps)
-        {
-            foreach (var action in actionMap)
-            {
-                if (controlIgnoreList.Contains(action.name)) continue;
-                PauseMenu.Instance.AddControl(action);
-            }
-        }
-
-        // Initialize player debug settings in pause menu
-        if (!PauseMenu.Instance.devMode) return;
-        fields = playerController.playerTelemetry.GetType().GetFields();
-        foreach (var field in fields)
-        {
-            PauseMenuDevOptionAttribute[] attribute = (PauseMenuDevOptionAttribute[])field.GetCustomAttributes(typeof(PauseMenuDevOptionAttribute), true);
-
-            if (attribute.Length > 0)
-            {
-                PauseMenu.Instance.AddDebug(
-                    field.Name,
-                    attribute[0].label,
-                    (bool)field.GetValue(playerController.playerTelemetry),
-                    value => { field.SetValue(playerController.playerTelemetry, value); }
-                );
-            }
-        }
-    }
-
-    public void ToggleMenu(HUDMenu menu)
-    {
         switch (menu)
         {
+            case HUDMenu.Chat:
+                // Only enable chat if no other menus are open, and lock other menus while chat is open.
+                if (openMenus.Count > 0 && !openMenus.Contains(HUDMenu.Chat)) return;
+                bool isActive = chatWindow.ToggleMenu();
+                menuLock = isActive ? HUDMenu.Chat : HUDMenu.None;
+                break;
             case HUDMenu.LoadoutMenu:
                 loadoutMenu.ToggleMenu();
                 break;

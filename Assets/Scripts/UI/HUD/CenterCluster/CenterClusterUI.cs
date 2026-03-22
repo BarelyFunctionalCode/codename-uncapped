@@ -21,7 +21,7 @@ public class CenterClusterUI : MonoBehaviour
     {
         if (!isInitialized) return;
 
-        healthBarImage.fillAmount = entity.GetHealthPercentage();
-        energyBarImage.fillAmount = entity.GetEnergyPercentage();
+        healthBarImage.fillAmount = entity.HealthPercentage;
+        energyBarImage.fillAmount = entity.EnergyPercentage;
     }
 }

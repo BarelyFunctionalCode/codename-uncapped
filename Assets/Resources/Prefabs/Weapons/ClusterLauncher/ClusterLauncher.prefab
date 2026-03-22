@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4015101778137679434}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: ProjectileSpawnPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42,7 +42,7 @@ GameObject:
   - component: {fileID: 8590801980182581106}
   - component: {fileID: 2178207318052814230}
   - component: {fileID: 847272572851578090}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: wing (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -132,7 +132,7 @@ GameObject:
   - component: {fileID: 8802086071775939338}
   - component: {fileID: 8594105033777008166}
   - component: {fileID: 153323203215992356}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -226,7 +226,7 @@ GameObject:
   - component: {fileID: 4962517912745424349}
   - component: {fileID: 4607693071028739890}
   - component: {fileID: 1563174047523229342}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: ClusterLauncher
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -433,7 +433,7 @@ GameObject:
   - component: {fileID: 1015522556541479979}
   - component: {fileID: 4661664084265093522}
   - component: {fileID: 7650219894181712569}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: barrel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -522,7 +522,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4285828080451445056}
   - component: {fileID: 949223575515162531}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: ClusterLauncher
   m_TagString: Weapon
   m_Icon: {fileID: 0}

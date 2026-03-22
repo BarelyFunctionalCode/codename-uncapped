@@ -18,7 +18,10 @@ EditorBuildSettings:
     path: Assets/Scenes/Transitions/Lobby.unity
     guid: 093d7852b0e0a5b9dbec9fde7c140977
   - enabled: 1
-    path: Assets/Scenes/MultiplayerTestLevel.unity
+    path: Assets/Scenes/Levels/MultiplayerTestLevel.unity
     guid: 2f0067bc0173094d18c87931fba66362
+  - enabled: 1
+    path: Assets/Scenes/Levels/Eden.unity
+    guid: 4387c7abae366953aa2b6c9b90ed81ee
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

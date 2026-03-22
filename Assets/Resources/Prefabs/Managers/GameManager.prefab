@@ -46,11 +46,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debugMode: 0
   isInitialized: 0
+  notificationManagerPrefabObj: {fileID: 2745216909498764604, guid: 6ee6cc1f65e1ec1e6bc500f5ac1c7735, type: 3}
+  gameModeHandlerPrefabObj: {fileID: 2640576069660163739, guid: aef91c95e9771e0fe9c01c166fd066a1, type: 3}
   usingSteam: 0
-  OnHeistSelectedEvent:
+  OnClientConnectedEvent:
     m_PersistentCalls:
       m_Calls: []
-  heistSOs: []
-  OnLevelLoadedEvent:
+  OnClientDisconnectedEvent:
     m_PersistentCalls:
       m_Calls: []

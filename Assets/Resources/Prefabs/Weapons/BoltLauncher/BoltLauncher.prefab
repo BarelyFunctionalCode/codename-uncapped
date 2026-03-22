@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6208169107719010279}
   - component: {fileID: 897064932959402891}
   - component: {fileID: 6558148787777012784}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: BoltLauncher
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -219,7 +219,7 @@ GameObject:
   - component: {fileID: 620699577064079132}
   - component: {fileID: 8082445101335254654}
   - component: {fileID: 8259054990553421348}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: wing
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -309,7 +309,7 @@ GameObject:
   - component: {fileID: 6450927291895468469}
   - component: {fileID: 6282705746085688654}
   - component: {fileID: 8802336352311052986}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: barrel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -398,7 +398,7 @@ GameObject:
   m_Component:
   - component: {fileID: 933219529342020716}
   - component: {fileID: -5996619282705086784}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: BoltLauncher
   m_TagString: Weapon
   m_Icon: {fileID: 0}
@@ -457,7 +457,7 @@ GameObject:
   - component: {fileID: 8198202431883796852}
   - component: {fileID: 1413410974551094085}
   - component: {fileID: 192563172487326266}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -551,7 +551,7 @@ GameObject:
   - component: {fileID: 543032524559049378}
   - component: {fileID: 3974398639446400719}
   - component: {fileID: 4272586821091255903}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: wing (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -639,7 +639,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4534575583122789439}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: ProjectileSpawnPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}

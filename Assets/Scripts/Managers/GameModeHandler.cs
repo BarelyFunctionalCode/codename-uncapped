@@ -3,6 +3,7 @@ using System;
 using UnityEngine;
 using UnityEditor;
 using Unity.Netcode;
+using UnityEngine.Events;
 
 
 public enum GameModes
@@ -24,7 +25,7 @@ public enum TeamBasedType
 // Must be notified to begin or end it (signalled by admin).
 // GameModes will handle beginning/ending their own game session
 // through PhaseSystem, once it has begun.
-public class GameModeHandler : MonoBehaviour
+public class GameModeHandler : NetworkBehaviour
 {
     // Is a game mode FFA? Are players going to have a team?
     public Dictionary<GameModes, TeamBasedType> GameModesTeamTypes = new Dictionary<GameModes, TeamBasedType>() {
@@ -32,7 +33,6 @@ public class GameModeHandler : MonoBehaviour
         { GameModes.FFA, TeamBasedType.SOLO },
         { GameModes.CTF, TeamBasedType.TEAM },
     };
-
 
     private static GameModeHandler _instance;
     public static GameModeHandler Instance
@@ -45,6 +45,9 @@ public class GameModeHandler : MonoBehaviour
 
     public GameModeBase current_game_mode;
 
+    public UnityEvent<StatEvent> OnStatUpdated = new();
+    public UnityEvent<EventArgsPlayerChangedTeam> OnPlayerChangedTeam = new();
+
     #region Gamemode prefab cache
     public static Dictionary<GameModes, GameObject> game_mode_cache = new();
     #endregion
@@ -53,6 +56,7 @@ public class GameModeHandler : MonoBehaviour
     #region Public Methods
     public void StatEventReceiver(StatEvent s)
     {
+        if (!IsHost || current_game_mode == null) return;
         current_game_mode.StatEventReceiver(s);
     }
     
@@ -60,6 +64,8 @@ public class GameModeHandler : MonoBehaviour
     // Psuedo
     public void SelectNewMode(GameModes g)
     {
+        if (!IsHost) return;
+
         // Delete the current one
         if (current_game_mode)
         {
@@ -75,18 +81,18 @@ public class GameModeHandler : MonoBehaviour
 
         // Uncommenting this line gives a nullreference exception?
         // Is this spawn being called too early into initialization?
-        //cloned_game_mode_object.GetComponent<NetworkObject>().Spawn();
+        cloned_game_mode_object.GetComponent<NetworkObject>().Spawn();
 
         // Fetch the clones's GameModeBase component
         GameModeBase game_mode = cloned_game_mode_object.GetComponent<GameModeBase>();
         current_game_mode = game_mode;
 
         if (LevelManager.Instance) LevelManager.Instance.OnStageGenerated();
-        print("Done loading game mode");
     }
 
     public void StartGame()
     {
+        if (!IsHost || current_game_mode == null) return;
         current_game_mode.StartGame();
     }
 
@@ -105,45 +111,50 @@ public class GameModeHandler : MonoBehaviour
         // Init singleton logic
         if (_instance != null && _instance != this)
         {
-            Destroy(this.gameObject);
+            Destroy(gameObject);
         }
 
         else
         {
             _instance = this;
         }
+    }
 
-        if (game_mode_cache.Count == 0)
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        if (IsHost)
         {
-            var gamemodeObjects = Resources.LoadAll<GameObject>("Prefabs/GameModes/Variants");
-            game_mode_cache = new Dictionary<GameModes, GameObject>(gamemodeObjects.Length);
-            foreach (GameObject obj in gamemodeObjects)
+            if (game_mode_cache.Count == 0)
             {
-                if (Enum.TryParse(obj.name, out GameModes gameMode))game_mode_cache.Add(gameMode, obj);
-                else Debug.LogWarning($"GameModeHandler: Failed to parse GameMode from prefab name {obj.name}");
+                var gamemodeObjects = Resources.LoadAll<GameObject>("Prefabs/GameModes/Variants");
+                game_mode_cache = new Dictionary<GameModes, GameObject>(gamemodeObjects.Length);
+                foreach (GameObject obj in gamemodeObjects)
+                {
+                    if (Enum.TryParse(obj.name, out GameModes gameMode))game_mode_cache.Add(gameMode, obj);
+                    else Debug.LogWarning($"GameModeHandler: Failed to parse GameMode from prefab name {obj.name}");
+                }
             }
+            GameManager.Instance.OnClientConnectedEvent.AddListener(OnClientJoined);
         }
-
-        // current_game_mode = gameObject.GetComponent<GameModeBase>();
-        // // Debugging
-        SelectNewMode(GameModes.FFA);
     }
 
     public void OnClientJoined(ulong ClientID)
     {
-        if ( GameModesTeamTypes[current_game_mode.game_mode_id] == TeamBasedType.SOLO)
+        if (!IsHost || current_game_mode == null) return;
+        if (GameModesTeamTypes[current_game_mode.game_mode_id] == TeamBasedType.SOLO)
         {
             // Player joined the server, auto-assign team if FFA style game mode
-            ulong localId = NetworkManager
+            ulong entityId = NetworkManager
                 .Singleton
                 .ConnectedClients[ClientID]
                 .PlayerObject
                 .GetComponent<PlayerController>()
-                .localId;
+                .EntityId;
 
-            current_game_mode.GetComponent<TeamStructure>().SetPlayerTeamFFA(localId);
+            current_game_mode?.GetComponent<TeamStructure>().SetPlayerTeamFFA(entityId);
         }
-
     }
 
     #endregion

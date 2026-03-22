@@ -8,7 +8,6 @@ using UnityEngine.SceneManagement;
 public class DevNetworkManager : MonoBehaviour
 {
     [SerializeField] private GameObject networkManagerPrefab;
-    [SerializeField] private Transform playerSpawnTransform;
 
     private float playerWaitTimer = 10f;
 
@@ -52,7 +51,6 @@ public class DevNetworkManager : MonoBehaviour
             {
                 if (NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject().GetComponentInChildren<PlayerController>().isInitialized)
                 {
-                    Debug.Log("Player is initialized, preparing to join lobby...");
                     GameManager.Instance.PrepJoiningOtherLobby();
                     Destroy(gameObject);
                 } 

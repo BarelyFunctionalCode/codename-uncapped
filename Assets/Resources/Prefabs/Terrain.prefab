@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1580914590679709980}
-  - component: {fileID: 1579748393241802184}
+  - component: {fileID: 2792958460677443014}
   - component: {fileID: 2594435180531805768}
   m_Layer: 0
   m_Name: Terrain
@@ -33,7 +33,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!218 &1579748393241802184
+--- !u!218 &2792958460677443014
 Terrain:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -42,12 +42,12 @@ Terrain:
   m_GameObject: {fileID: 2328385007850464330}
   m_Enabled: 1
   serializedVersion: 6
-  m_TerrainData: {fileID: 15600000, guid: 922d09d22b09f4509885511c1b1ca4bc, type: 2}
+  m_TerrainData: {fileID: 15600000, guid: 974b4af26d9dce133b47dce4f68e8dee, type: 2}
   m_TreeDistance: 5000
-  m_TreeBillboardDistance: 50
+  m_TreeBillboardDistance: 500
   m_TreeCrossFadeLength: 5
   m_TreeMaximumFullLODCount: 50
-  m_DetailObjectDistance: 80
+  m_DetailObjectDistance: 500
   m_DetailObjectDensity: 1
   m_HeightmapPixelError: 5
   m_SplatMapDistance: 1000
@@ -55,7 +55,7 @@ Terrain:
   m_HeightmapMaximumLOD: 0
   m_ShadowCastingMode: 2
   m_DrawHeightmap: 1
-  m_DrawInstanced: 1
+  m_DrawInstanced: 0
   m_DrawTreesAndFoliage: 1
   m_StaticShadowCaster: 0
   m_IgnoreQualitySettings: 0
@@ -91,5 +91,5 @@ TerrainCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_TerrainData: {fileID: 15600000, guid: 922d09d22b09f4509885511c1b1ca4bc, type: 2}
+  m_TerrainData: {fileID: 15600000, guid: 974b4af26d9dce133b47dce4f68e8dee, type: 2}
   m_EnableTreeColliders: 1

@@ -1,8 +1,11 @@
+using Unity.Netcode;
+
 public enum StatEventType
 {
     NONE,
     KILL,
     KILL_ASSIST,
+    DEATHS,
     SHOT_FIRED,
     SHOT_HIT,
     FLAG_CAPTURE,
@@ -13,7 +16,7 @@ public enum StatEventType
     DAMAGE_DEALT
 }
 
-public class StatEvent
+public struct StatEvent: INetworkSerializeByMemcpy
 {
     // What kind of event happened?
     public StatEventType StatType;
@@ -23,9 +26,6 @@ public class StatEvent
 
     // Which player caused the event?
     public ulong Source;
-
-    // Who received the event?
-    public ulong? Target;
 
     public StatEvent(StatEventType t, float v, ulong s)
     {

@@ -65,7 +65,7 @@ public class PhaseSystem : MonoBehaviour
         }
     }
 
-    private bool stepping = true;
+    // private bool stepping = true;
     #endregion
 
     #region Public methods

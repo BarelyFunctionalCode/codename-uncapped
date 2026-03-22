@@ -1,7 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
 using Unity.Collections;
-using System;
 using System.Collections.Generic;
 
 
@@ -13,10 +12,11 @@ using System.Collections.Generic;
 public class TeamStructure : NetworkBehaviour
 {
     #region Properties
+
     // Team names, "Red" vs "Blue" for example.
     public NetworkList<FixedString128Bytes> teams;
 
-    // Players are assigned here by PlayerHandler, referenced by their PlayerController.localId
+    // Players are assigned here by PlayerHandler, referenced by their PlayerController.EntityId
     // Format: Dictionary[PlayerID, TeamName]
     public Dictionary<ulong, string> team_assignment = new Dictionary<ulong, string>();
 
@@ -30,7 +30,15 @@ public class TeamStructure : NetworkBehaviour
     #region Private methods
     private void EmitPlayerChangedTeam(EventArgsPlayerChangedTeam e)
     {
-        gameObject.BroadcastMessage("OnPlayerChangedTeam", e);
+        // gameObject.BroadcastMessage("OnPlayerChangedTeam", e);
+        EmitPlayerChangedTeamRpc(e);
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void EmitPlayerChangedTeamRpc(EventArgsPlayerChangedTeam e)
+    {
+        // Notify all clients about the team change
+        GameModeHandler.Instance.OnPlayerChangedTeam.Invoke(e);
     }
 
     #endregion
@@ -61,14 +69,15 @@ public class TeamStructure : NetworkBehaviour
     }
 
     // pseudo helper function
-    public void SetPlayerTeamFFA(ulong localID)
+    public void SetPlayerTeamFFA(ulong entityId)
     {
-        SetPlayerTeam(localID, localID.ToString());
+        SetPlayerTeam(entityId, entityId.ToString());
     }
 
     // pseudo
     public void SetPlayerTeam(ulong player_id, string team)
     {
+        if (team_assignment.ContainsKey(player_id) && team_assignment[player_id] == team) return;
         team_assignment[player_id] = team;
         EmitPlayerChangedTeam(new EventArgsPlayerChangedTeam(player_id, team));
     }
@@ -97,10 +106,10 @@ public class TeamStructure : NetworkBehaviour
     #endregion
 }
 
-public class EventArgsPlayerChangedTeam : EventArgs
+public struct EventArgsPlayerChangedTeam : INetworkSerializeByMemcpy
 {
-    public ulong    player_id   { get; set; }
-    public string   team        { get; set; }
+    public ulong    player_id;
+    public string   team;
 
     public EventArgsPlayerChangedTeam(ulong lPlayerId, string lTeam)
     {

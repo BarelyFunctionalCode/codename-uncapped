@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 631072955746057078}
   - component: {fileID: 3647014172846940472}
   - component: {fileID: 4090797399486790445}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: GrenadeLauncher
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -277,7 +277,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7053101878330708289}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: ProjectileSpawnPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -309,7 +309,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3441636807916873101}
   - component: {fileID: 5536840749473345357}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: GrenadeLauncher
   m_TagString: Weapon
   m_Icon: {fileID: 0}
@@ -344,7 +344,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1776499438
+  GlobalObjectIdHash: 1969094637
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -366,7 +366,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1518291778265757106}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Shell Eject Point
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -396,6 +396,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4568595372777821569}
     m_Modifications:
+    - target: {fileID: -9001156666351637910, guid: 048d7ecbc2544a1449b0034e64959fd6, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 048d7ecbc2544a1449b0034e64959fd6, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.35
@@ -448,9 +452,25 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7339758636518203636, guid: 048d7ecbc2544a1449b0034e64959fd6, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: -3170237001655809445, guid: 048d7ecbc2544a1449b0034e64959fd6, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 048d7ecbc2544a1449b0034e64959fd6, type: 3}
       propertyPath: m_Name
       value: GrenadeLauncher
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 048d7ecbc2544a1449b0034e64959fd6, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4101161180453605438, guid: 048d7ecbc2544a1449b0034e64959fd6, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -484,6 +504,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 31968502425875243}
     m_Modifications:
+    - target: {fileID: -8928142258166665514, guid: c93af6d41f327d143b05637a13d76ff2, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c93af6d41f327d143b05637a13d76ff2, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.85
@@ -539,6 +563,14 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: c93af6d41f327d143b05637a13d76ff2, type: 3}
       propertyPath: m_Name
       value: Grenade
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: c93af6d41f327d143b05637a13d76ff2, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3665872839099263342, guid: c93af6d41f327d143b05637a13d76ff2, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

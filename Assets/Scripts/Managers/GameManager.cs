@@ -22,6 +22,11 @@ public class GameManager : MonoBehaviour
 
     public bool isInitialized = false;
     public static GameManager Instance { get; private set; } = null;
+
+    [SerializeField] private GameObject notificationManagerPrefabObj;
+    private GameObject notificationManagerObj;
+    [SerializeField] private GameObject gameModeHandlerPrefabObj;
+    private GameObject gameModeHandlerObj;
     private FacepunchTransport facepunchTransport;
     private ulong selectedLobbyId = 0;
 	public Lobby? CurrentLobby { get; private set; } = null;
@@ -42,6 +47,9 @@ public class GameManager : MonoBehaviour
 
     private string desiredLevelName = "";
     private GameModes desiredGameMode = GameModes.NONE;
+
+    public UnityEvent<ulong> OnClientConnectedEvent = new();
+    public UnityEvent<ulong> OnClientDisconnectedEvent = new();
 
 
     private void Awake()
@@ -108,10 +116,8 @@ public class GameManager : MonoBehaviour
 
             if (SceneManager.GetActiveScene().name == desiredLevelName)
             {
-                Debug.Log(desiredGameMode);
-                LevelManager.Instance.SetGameMode(desiredGameMode);
+                GameModeHandler.Instance.SelectNewMode(desiredGameMode);
                 LevelManager.Instance.OnPlayersLoaded();
-                desiredGameMode = GameModes.NONE;
                 desiredLevelName = "";
             }
 
@@ -195,9 +201,19 @@ public class GameManager : MonoBehaviour
             if (Unity.Multiplayer.PlayMode.CurrentPlayer.Tags.Contains("Host")) unityTransportDesiredPort = 2000;
             unityTransport.SetConnectionData("127.0.0.1", unityTransportDesiredPort, "0.0.0.0");
         }
+
+
         // Start the server
 		NetworkManager.Singleton.StartHost();
         NetworkManager.Singleton.SceneManager.ActiveSceneSynchronizationEnabled = true;
+
+        // Create Chat Manager
+        notificationManagerObj = Instantiate(notificationManagerPrefabObj);
+        notificationManagerObj.GetComponent<NetworkObject>().Spawn();
+
+        // Create Game Mode Handler
+        gameModeHandlerObj = Instantiate(gameModeHandlerPrefabObj);
+        gameModeHandlerObj.GetComponent<NetworkObject>().Spawn();
 
         // If using Steam, create a lobby
 		if (usingSteam) CurrentLobby = await SteamMatchmaking.CreateLobbyAsync(maxLobbySize);
@@ -230,6 +246,8 @@ public class GameManager : MonoBehaviour
             NetworkManager.Singleton.SceneManager.OnLoadComplete -= OnPlayerLoaded;
         }
         // if (PlayerManager.Instance != null) PlayerManager.Instance.Clear();
+        if (notificationManagerObj != null) Destroy(notificationManagerObj);
+        if (gameModeHandlerObj != null) Destroy(gameModeHandlerObj);
 		NetworkManager.Singleton.Shutdown();
 	}
 
@@ -362,7 +380,7 @@ public class GameManager : MonoBehaviour
 		}
 
 		// lobby.SetFriendsOnly(); // Set to friends only!
-		lobby.SetData("name", SteamClient.Name + "'s Lobby");
+		lobby.SetData("name", SteamClient.Name);
         lobby.SetData("description", "LUTest");
 		lobby.SetJoinable(true);
 
@@ -391,8 +409,6 @@ public class GameManager : MonoBehaviour
     private void OnClientDisconnectCallback(ulong clientId)
     {
         if (debugMode) Debug.Log($"{GetType()}: Client disconnected, clientId={clientId}", this);
-
-        // if (NetworkManager.Singleton.IsHost) PlayerManager.Instance.RemovePlayer(clientId);
     }
 
 
@@ -448,7 +464,6 @@ public class GameManager : MonoBehaviour
     public void SetGameMode(GameModes gameMode)
     {
         if (!NetworkManager.Singleton.IsHost) return;
-        Debug.Log(gameMode);
         desiredGameMode = gameMode;
     }
 }

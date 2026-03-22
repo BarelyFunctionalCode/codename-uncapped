@@ -8,6 +8,7 @@ public struct FlatStatData: INetworkSerializeByMemcpy
     public float None;
     public float Kill;
     public float Kill_Assist;
+    public float Deaths;
     public float Shot_Fired;
     public float Shot_Hit;
     public float Flag_Capture;
@@ -23,6 +24,7 @@ public struct FlatStatData: INetworkSerializeByMemcpy
         float _None,
         float _Kill,
         float _Kill_Assist,
+        float _Deaths,
         float _Shot_Fired,
         float _Shot_Hit,
         float _Flag_Capture,
@@ -38,6 +40,7 @@ public struct FlatStatData: INetworkSerializeByMemcpy
         this.None = _None;
         this.Kill = _Kill;
         this.Kill_Assist = _Kill_Assist;
+        this.Deaths = _Deaths;
         this.Shot_Fired = _Shot_Fired;
         this.Shot_Hit = _Shot_Hit;
         this.Flag_Capture = _Flag_Capture;

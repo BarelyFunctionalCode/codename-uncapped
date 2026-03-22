@@ -47,6 +47,9 @@ public class GameStats : MonoBehaviour
      * }}
      *
      */
+
+    [SerializeField] private GameModeBase game_mode_base;
+
     [SerializeField]
     private Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> points = new Dictionary<StatsGroup, Dictionary<ulong, StatTracker>>();
     #endregion
@@ -68,10 +71,9 @@ public class GameStats : MonoBehaviour
         is_dirty = true;
     }
 
-    private void EmitPointsChanged()
+    private void EmitPointsChanged(StatEvent updated_stat_event)
     {
-        // Internval communication on the server
-        gameObject.BroadcastMessage("OnPointsChanged", FetchStats());
+        game_mode_base.OnPointsChanged(FetchStats(), updated_stat_event);
     }
     #endregion
 
@@ -109,6 +111,13 @@ public class GameStats : MonoBehaviour
         // Debugging
         stat_group[player_id].PrettyPrint();
 
+        // Create StatEvent with updated value
+        StatEvent updated_stat_event = new(
+            s.StatType,
+            stat_group[player_id].FetchStatValue(s.StatType),
+            s.Source
+        );
+
         // Then add to the teams' stats ONLY IF the stat is being tracked by winconditions
         List<StatEventType> win_condition_stats = gameObject.GetComponent<WinConditions>().GetWinConditionStats();
         if (win_condition_stats.Contains(s.StatType))
@@ -123,7 +132,7 @@ public class GameStats : MonoBehaviour
         }
 
         ContaminateStatState();
-        EmitPointsChanged();
+        EmitPointsChanged(updated_stat_event);
     }
 
     public void CleanStatState()

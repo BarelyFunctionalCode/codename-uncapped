@@ -7,7 +7,7 @@ using System.Linq;
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(NetworkRigidbody))]
 [RequireComponent(typeof(AudioSource))]
-public class Projectile : NetworkBehaviour
+public class Projectile : NetworkBehaviour, IGravityModifiable
 {
     [SerializeField] private SphereCollider projectileCollider;
     [SerializeField] protected CapsuleCollider damageRadiusTrigger;
@@ -24,6 +24,8 @@ public class Projectile : NetworkBehaviour
     [SerializeField] private float selfDestructTimer = 10;
     [SerializeField] protected float armingTimer = 0f;
     [SerializeField] public bool hasHoldModifier = false;
+
+    private NetworkVariable<float> gravityModifier = new();
 
     protected NetworkBehaviourReference ownerRef;
     protected NetworkBehaviourReference weaponRef;
@@ -47,15 +49,32 @@ public class Projectile : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
+        if (IsServer) gravityModifier.Value = 1f;
+
         audioSource = GetComponent<AudioSource>();
         audioSource.spatialBlend = 1;
         audioSource.minDistance = soundMinDistance;
         audioSource.maxDistance = soundMaxDistance;
+
+        rb.useGravity = false;
     }
 
     protected virtual void FixedUpdate()
     {
         if (!IsServer || !isFired) return;
+
+        if (IsServer)
+        {
+            if (gravityModifier.Value != 1f)
+            {
+                gravityModifier.Value = Mathf.Lerp(gravityModifier.Value, 1f, Time.fixedDeltaTime * 5f);
+                if (Mathf.Abs(gravityModifier.Value - 1f) < 0.01f) gravityModifier.Value = 1f;
+            }
+        }
+
+        float gravityValue = gravityModifier.Value;
+        if (launchForceMode == ForceMode.VelocityChange) gravityValue -= 1.0f;
+        rb.AddForce(Physics.gravity * gravityValue, ForceMode.Force);
 
         selfDestructTimer -= Time.fixedDeltaTime;
         armingTimer -= Time.fixedDeltaTime;
@@ -94,6 +113,12 @@ public class Projectile : NetworkBehaviour
     {
         if (!IsServer || !isFired) return;
         AddDamageReceiver(other);
+    }
+
+    public void SetGravityModifier(float modifier)
+    {
+        if (!IsSpawned || !IsServer) return;
+        gravityModifier.Value = modifier;
     }
 
     private void AddDamageReceiver(Collider receiverCollider)
@@ -152,7 +177,7 @@ public class Projectile : NetworkBehaviour
         if (directImpactCollider != null)
         {
             ApplyDamage(directImpactCollider.gameObject, maxDamage);
-            if (directImpactCollider.transform.GetComponent<Rigidbody>() != null) directImpactCollider.transform.GetComponent<Rigidbody>().AddForce(
+            if (directImpactCollider.transform.GetComponentInParent<Rigidbody>() != null) directImpactCollider.transform.GetComponentInParent<Rigidbody>().AddForce(
                 transform.forward * maxImpactForce,
                 ForceMode.Impulse
             );
@@ -165,7 +190,7 @@ public class Projectile : NetworkBehaviour
             
             float distance = Vector3.Distance(damageRadiusTrigger.transform.position, receiver.ClosestPoint(damageRadiusTrigger.transform.position));
             ApplyDamage(receiver.gameObject, maxDamage * Mathf.Max(1 - distance / damageRadius, 0));
-            if (receiver.GetComponent<Rigidbody>() != null) receiver.GetComponent<Rigidbody>().AddExplosionForce(
+            if (receiver.GetComponentInParent<Rigidbody>() != null) receiver.GetComponentInParent<Rigidbody>().AddExplosionForce(
                 maxImpactForce,
                 rb.position,
                 damageRadius,
@@ -204,6 +229,6 @@ public class Projectile : NetworkBehaviour
         if (!IsServer) return;
         // print("Applying " + damage + " damage to " + target.name);
         //if (target.GetComponent<Entity>() != null) target.GetComponent<Entity>().TakeDamage(damage);
-        if (target.GetComponent<IDamageable>() != null) target.GetComponent<IDamageable>().TakeDamage(damage, ownerRef, weaponRef);
+        if (target.GetComponentInParent<IDamageable>() != null) target.GetComponentInParent<IDamageable>().TakeDamage(damage, ownerRef, weaponRef);
     }
 }

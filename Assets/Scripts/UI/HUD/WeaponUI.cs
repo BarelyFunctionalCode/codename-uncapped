@@ -11,6 +11,7 @@ public class WeaponUI : MonoBehaviour
 
     private bool isInitialized = false;
     private Weapon weapon;
+    private float activeAlpha;
     private float inactiveAlpha;
 
     private void Update()
@@ -39,6 +40,7 @@ public class WeaponUI : MonoBehaviour
     {
         this.weapon = weapon;
         inactiveAlpha = borderImage.color.a;
+        activeAlpha = inactiveAlpha * 2f;
         weaponIconImage.sprite = weapon.iconSprite;
         ammoCountText.text = weapon.maxAmmo.ToString();
 
@@ -55,10 +57,11 @@ public class WeaponUI : MonoBehaviour
     private void UpdateActiveState(bool _, bool isActive)
     {
         Color newColor = borderImage.color;
-        newColor.a = isActive ? 1f : inactiveAlpha;
+        newColor.a = isActive ? activeAlpha : inactiveAlpha;
 
         weaponIconImage.color = newColor;
         borderImage.color = newColor;
+        newColor.a *= 2f;
         ammoCountText.color = newColor;
     }
 }

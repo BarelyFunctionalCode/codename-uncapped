@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 using System;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
+using System.Reflection;
 
 public class PauseMenu : MonoBehaviour
 {
@@ -13,10 +14,7 @@ public class PauseMenu : MonoBehaviour
     public bool devMode { get; private set; } = true;
     [SerializeField] private Button quitButton;
     [SerializeField] private Button leaveButton;
-    [SerializeField] private Button testLevelButton;
-
-    [SerializeField] private Button lobbiesTabButton;
-    [SerializeField] private GameObject lobbiesContainerObj;
+    // [SerializeField] private Button testLevelButton;
 
     [SerializeField] private Button optionsTabButton;
     [SerializeField] private Transform optionsListObj;
@@ -50,12 +48,10 @@ public class PauseMenu : MonoBehaviour
 
         quitButton.onClick.AddListener( delegate { OnQuitButtonClicked(); } );
         leaveButton.onClick.AddListener( delegate { OnLeaveButtonClicked(); } );
-        testLevelButton.onClick.AddListener( delegate { OnTestLevelButtonClicked(); } );
-        lobbiesTabButton.onClick.AddListener( delegate { OnLobbiesTabButtonClicked(); } );
+        // testLevelButton.onClick.AddListener( delegate { OnTestLevelButtonClicked(); } );
         optionsTabButton.onClick.AddListener( delegate { OnOptionsTabButtonClicked(); } );
         controlsTabButton.onClick.AddListener( delegate { OnControlsTabButtonClicked(); } );
         debugTabButton.onClick.AddListener( delegate { OnDebugTabButtonClicked(); } );
-        lobbiesContainerObj.SetActive(true);
         optionsContainerObj.SetActive(false);
         controlsContainerObj.SetActive(false);
         debugContainerObj.SetActive(false);
@@ -63,40 +59,86 @@ public class PauseMenu : MonoBehaviour
 
         debugTabButton.gameObject.SetActive(devMode);
         leaveButton.gameObject.SetActive(!NetworkManager.Singleton.IsHost);
-        testLevelButton.gameObject.SetActive(NetworkManager.Singleton.IsHost);
+        // testLevelButton.gameObject.SetActive(NetworkManager.Singleton.IsHost);
     }
 
-    public void ToggleMenu()
+    public void Initialize(PlayerController playerController)
+    {
+        PlayerControls playerControls = playerController.playerControls;
+
+        // Initialize player options in pause menu
+        FieldInfo[] fields = playerController.GetType().GetFields();
+        foreach (var field in fields)
+        {
+            PauseMenuOptionAttribute[] attribute = (PauseMenuOptionAttribute[])field.GetCustomAttributes(typeof(PauseMenuOptionAttribute), true);
+
+            if (attribute.Length > 0)
+            {
+                if (!devMode && attribute[0].GetType() == typeof(PauseMenuDevOptionAttribute)) continue;
+                AddOption(
+                    attribute[0].GetType() == typeof(PauseMenuDevOptionAttribute) ? "dev - " + attribute[0].label : attribute[0].label,
+                    (float)field.GetValue(playerController),
+                    attribute[0].minValue,
+                    attribute[0].maxValue,
+                    (float value) => { field.SetValue(playerController, value); }
+                );
+            }
+        }
+
+        // Initialize player controls in pause menu
+        List<string> controlIgnoreList = new() { "Pause","Move", "Look" };
+        // InputActionMap movementMap = playerControls.Movement;
+        foreach (var actionMap in playerControls.asset.actionMaps)
+        {
+            foreach (var action in actionMap)
+            {
+                if (controlIgnoreList.Contains(action.name)) continue;
+                AddControl(action);
+            }
+        }
+
+        // Initialize player debug settings in pause menu
+        if (!devMode) return;
+        fields = playerController.playerTelemetry.GetType().GetFields();
+        foreach (var field in fields)
+        {
+            PauseMenuDevOptionAttribute[] attribute = (PauseMenuDevOptionAttribute[])field.GetCustomAttributes(typeof(PauseMenuDevOptionAttribute), true);
+
+            if (attribute.Length > 0)
+            {
+                AddDebug(
+                    field.Name,
+                    attribute[0].label,
+                    (bool)field.GetValue(playerController.playerTelemetry),
+                    value => { field.SetValue(playerController.playerTelemetry, value); }
+                );
+            }
+        }
+    }
+
+    public bool ToggleMenu()
     {
         gameObject.SetActive(!gameObject.activeSelf);
+        return gameObject.activeSelf;
     }
 
     private void OnQuitButtonClicked() { Application.Quit(); }
 
     private void OnLeaveButtonClicked() { if (!NetworkManager.Singleton.IsHost) GameManager.Instance.PrepGoToOwnLobby(); }
 
-    private void OnTestLevelButtonClicked()
-    {
-        testLevelButton.gameObject.SetActive(false);
-        if (NetworkManager.Singleton.IsHost)
-        {
-            GameManager.Instance.SetLevel("MultiplayerTestLevel");
-            GameManager.Instance.SetGameMode(GameModes.FFA);
-            GameManager.Instance.LoadLevel();
-        }
-    }
-
-    private void OnLobbiesTabButtonClicked()
-    {
-        lobbiesContainerObj.SetActive(true);
-        optionsContainerObj.SetActive(false);
-        controlsContainerObj.SetActive(false);
-        debugContainerObj.SetActive(false);
-    }
+    // private void OnTestLevelButtonClicked()
+    // {
+    //     testLevelButton.gameObject.SetActive(false);
+    //     if (NetworkManager.Singleton.IsHost)
+    //     {
+    //         GameManager.Instance.SetLevel("MultiplayerTestLevel");
+    //         GameManager.Instance.SetGameMode(GameModes.FFA);
+    //         GameManager.Instance.LoadLevel();
+    //     }
+    // }
 
     private void OnOptionsTabButtonClicked()
     {
-        lobbiesContainerObj.SetActive(false);
         optionsContainerObj.SetActive(true);
         controlsContainerObj.SetActive(false);
         debugContainerObj.SetActive(false);
@@ -104,7 +146,6 @@ public class PauseMenu : MonoBehaviour
 
     private void OnControlsTabButtonClicked()
     {
-        lobbiesContainerObj.SetActive(false);
         optionsContainerObj.SetActive(false);
         controlsContainerObj.SetActive(true);
         debugContainerObj.SetActive(false);
@@ -112,7 +153,6 @@ public class PauseMenu : MonoBehaviour
 
     private void OnDebugTabButtonClicked()
     {
-        lobbiesContainerObj.SetActive(false);
         optionsContainerObj.SetActive(false);
         controlsContainerObj.SetActive(false);
         debugContainerObj.SetActive(true);

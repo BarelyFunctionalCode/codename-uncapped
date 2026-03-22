@@ -9,26 +9,15 @@ public class LevelManager : NetworkBehaviour
     private bool playersLoaded = false;
     private bool stageGenerated = false;
 
-    Dictionary<int, List<Transform>> spawnPoints = new Dictionary<int, List<Transform>>();
-
-    [SerializeField] private GameObject gameModeHandlerPrefabObj;
+    Dictionary<uint, List<Transform>> spawnPoints = new();
 
     private void Awake()
     {
-        if (Instance != null) Destroy(gameObject);
+        if (Instance != null || GameManager.Instance == null || !GameManager.Instance.isInitialized) Destroy(gameObject);
         else Instance = this;
 
         transform.SetParent(null);
 	}
-
-    public void SetGameMode(GameModes gameMode)
-    {
-        if (GameModeHandler.Instance != null) return;
-
-        GameObject gamemodeHandlerObj = Instantiate(gameModeHandlerPrefabObj);
-        GameModeHandler gamemodeHandler = gamemodeHandlerObj.GetComponent<GameModeHandler>();
-        gamemodeHandler.SelectNewMode(gameMode);
-    }
 
     // Called after all the players have loaded into the scene
     public void OnPlayersLoaded()
@@ -57,7 +46,7 @@ public class LevelManager : NetworkBehaviour
         GameObject[] spawnPointsObjs = GameObject.FindGameObjectsWithTag("Respawn");
         foreach (var spawnPointObj in spawnPointsObjs)
         {
-            int teamId = int.Parse(spawnPointObj.name);
+            uint teamId = uint.Parse(spawnPointObj.name);
 
             if (!spawnPoints.ContainsKey(teamId)) spawnPoints[teamId] = new List<Transform>();
             spawnPoints[teamId].Add(spawnPointObj.transform);
@@ -68,19 +57,20 @@ public class LevelManager : NetworkBehaviour
             PlayerController playerController = player.GetComponentInChildren<PlayerController>();
             if (playerController == null) continue;
 
-            int teamId = 0; // TODO: Get team ID from player data
+            GameModeHandler.Instance.OnClientJoined(playerController.EntityId);
             
-            Transform spawnPoint = GetSpawnPoint(teamId);
+            Transform spawnPoint = GetSpawnPoint(playerController.TeamId);
             if (spawnPoint == null) continue;
             
             playerController.Teleport(spawnPoint.position, spawnPoint.rotation);
             playerController.SetPlayerControlsRpc(false);
+            playerController.OpenLoadoutMenuRpc();
         }
 
         OnLevelReady();
     }
 
-    public void OnLevelReady()
+    private void OnLevelReady()
     {
         // Do things to start the level
 
@@ -96,7 +86,7 @@ public class LevelManager : NetworkBehaviour
         GameModeHandler.Instance.StartGame();
     }
 
-    public Transform GetSpawnPoint(int teamId)
+    public Transform GetSpawnPoint(uint teamId)
     {
         if (spawnPoints.ContainsKey(teamId) && spawnPoints[teamId].Count > 0)
         {

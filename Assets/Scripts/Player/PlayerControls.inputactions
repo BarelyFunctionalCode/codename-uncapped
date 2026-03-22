@@ -248,6 +248,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "Leaderboard",
+                    "type": "Button",
+                    "id": "20c4a33e-60b7-4ef3-bb2d-f3834f26db18",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "LoadoutMenu",
                     "type": "Button",
                     "id": "85f2fb69-b642-4ed3-bfc4-8e339a4f10e1",
@@ -255,20 +264,27 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Chat",
+                    "type": "Button",
+                    "id": "e7bed3d5-584f-4e64-9dd1-028592bddc5f",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Close",
+                    "type": "Button",
+                    "id": "55e30eee-9cbb-4552-960d-4b4237e420d1",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
-                {
-                    "name": "",
-                    "id": "8c3b5a35-354e-4def-86d1-2ab5430bcaf4",
-                    "path": "<Keyboard>/escape",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "PauseMenu",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
                 {
                     "name": "",
                     "id": "bb636863-8048-4c0c-bb53-9fdc26b9f522",
@@ -288,6 +304,39 @@
                     "processors": "",
                     "groups": "",
                     "action": "LoadoutMenu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "048fff0d-24a1-481a-8675-661d922d3e9b",
+                    "path": "<Keyboard>/t",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Chat",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "97da61b5-1de7-404a-b080-58e73d497e36",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Close",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d9c54206-5a78-40a1-9236-e2a54815f44e",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Leaderboard",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

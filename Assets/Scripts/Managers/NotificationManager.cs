@@ -1,0 +1,80 @@
+using UnityEngine;
+using Unity.Netcode;
+using UnityEngine.Events;
+using Steamworks;
+
+public enum NotificationType
+{
+    ChatMessage,
+    SystemMessage,
+    KillFeed,
+    ObjectiveUpdate
+}
+
+public struct NotificationData: INetworkSerializeByMemcpy
+{
+    public NotificationType type;
+    public string title;
+    public string content;
+    public Color color;
+
+    public NotificationData(NotificationType type, string content, Color color = default)
+    {
+        this.type = type;
+        title = null;
+        this.content = content;
+        this.color = color;   
+    }
+
+    public NotificationData(NotificationType type, string title, string content, Color color = default)
+    {
+        this.type = type;
+        this.title = title;
+        this.content = content;
+        this.color = color;   
+    }
+}
+
+public class NotificationManager : NetworkBehaviour
+{
+    public static NotificationManager Instance { get; private set; } = null;
+    public UnityEvent<NotificationData> newNotificationReceivedEvent = new();
+
+    private void Awake()
+    {
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+    }
+
+    [Rpc(SendTo.Server)]
+    public void SendNotificationRpc(NotificationData data) => BroadcastNotificationRpc(data);
+
+    [Rpc(SendTo.Everyone)]
+    private void BroadcastNotificationRpc(NotificationData data) => newNotificationReceivedEvent.Invoke(data);
+
+    [Rpc(SendTo.Server)]
+    public void SendChatNotificationRpc(string message, RpcParams rpcParams = default)
+    {
+        // TODO: Add some checks here, like message length, profanity filter, etc.
+        ulong senderClientId = rpcParams.Receive.SenderClientId;
+        NetworkManager.Singleton.ConnectedClients[senderClientId].PlayerObject.TryGetComponent(out PlayerController playerController);
+        Color playerColor = playerController.TeamId == 0 ? Color.blue : Color.red;
+        NotificationData notificationData = new(
+            NotificationType.ChatMessage,
+            playerController.EntityName,
+            message,
+            playerColor
+        );
+        SendNotificationRpc(notificationData);
+    }
+
+    [Rpc(SendTo.Server)]
+    public void SendKillFeedNotificationRpc(string victimName, string attackerName)
+    {
+        NotificationData notificationData = new(
+            NotificationType.KillFeed,
+            $"{attackerName} killed {victimName}"
+        );
+        SendNotificationRpc(notificationData);
+    }
+}
