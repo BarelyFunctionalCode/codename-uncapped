@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5469594561667563519}
   - component: {fileID: 3990362075455226996}
   m_Layer: 0
-  m_Name: BoostGrenadeThrower
+  m_Name: FragGrenadeThrower
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 524243888
+  GlobalObjectIdHash: 3714459265
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -69,7 +69,7 @@ GameObject:
   - component: {fileID: 6203068389122202638}
   - component: {fileID: 3888271954074026447}
   m_Layer: 0
-  m_Name: BoostGrenadeThrower
+  m_Name: FragGrenadeThrower
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -106,7 +106,7 @@ MonoBehaviour:
   ignoreLayers:
     serializedVersion: 2
     m_Bits: 776
-  throwablePrefabObj: {fileID: 8182502780126453879, guid: 76389706857f1da4d8fe12645b8e07c9, type: 3}
+  throwablePrefabObj: {fileID: 8182502780126453879, guid: 9b16a4e2bc6edd93894d572ad6a3f211, type: 3}
   iconSprite: {fileID: 21300000, guid: d2de1d98924054a71933f5b8123f5ab8, type: 3}
   maxAmmo: 5
   ammoCount:

@@ -5,19 +5,25 @@ using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(NetworkRigidbody))]
+[RequireComponent(typeof(AudioSource))]
 public class Throwable : NetworkBehaviour
 {
     [SerializeField] protected SphereCollider throwableCollider;
     [SerializeField] protected CapsuleCollider effectRadiusTrigger;
+    [SerializeField] protected AudioClip detonateSound;
 
+    [SerializeField] [Range(0, 1000)] private float soundMinDistance = 100;
+    [SerializeField] [Range(0, 1000)] private float soundMaxDistance = 1000;
     [SerializeField] private float throwMaxForce = 2000f;
     [SerializeField] private float throwMinForce = 500f;
     [SerializeField] protected float effectRadius = 1f;
     [SerializeField] private float selfDestructTimer = 1.5f;
 
     protected NetworkBehaviourReference ownerRef;
+    protected NetworkBehaviourReference throwerRef;
     private Vector3 previousPosition;
     private List<Collider> affectedEntities = new List<Collider>();
+    protected AudioSource audioSource;
 
     public bool isThrown = false;
     protected bool isDetonating = false;
@@ -28,6 +34,16 @@ public class Throwable : NetworkBehaviour
     {
         previousPosition = transform.position;
         if (effectRadiusTrigger != null) effectRadiusTrigger.radius = effectRadius * 2;
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        audioSource = GetComponent<AudioSource>();
+        audioSource.spatialBlend = 1;
+        audioSource.minDistance = soundMinDistance;
+        audioSource.maxDistance = soundMaxDistance;
     }
 
     protected virtual void FixedUpdate()
@@ -42,7 +58,7 @@ public class Throwable : NetworkBehaviour
 
         if (isDetonating && isFinished)
         {
-            Destroy(gameObject);
+            Destroy(gameObject, detonateSound != null ? detonateSound.length : 0);
         }
 
         transform.LookAt(transform.position + GetComponent<Rigidbody>().linearVelocity.normalized);
@@ -95,11 +111,12 @@ public class Throwable : NetworkBehaviour
 
     protected virtual void DoThrowableEffect(NetworkBehaviourReference ownerRef, Transform receiverTransform, float effectFactor) {}
 
-    public void Throw(NetworkBehaviourReference ownerRef, float throwForceFactor)
+    public void Throw(NetworkBehaviourReference ownerRef, NetworkBehaviourReference throwerRef, float throwForceFactor)
     {
         if (!IsServer) return;
 
         this.ownerRef = ownerRef;
+        this.throwerRef = throwerRef;
 
         Vector3 intialVelocity = Vector3.Dot(transform.parent.GetComponentInParent<Rigidbody>().linearVelocity, transform.forward) * transform.forward;
 
@@ -129,6 +146,7 @@ public class Throwable : NetworkBehaviour
     private void DetonateRpc()
     {
         isDetonating = true;
+        if (detonateSound != null) audioSource.PlayOneShot(detonateSound);
     }
 
     protected virtual void OnDetonate() {}

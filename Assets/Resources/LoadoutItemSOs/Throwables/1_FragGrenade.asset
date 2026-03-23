@@ -15,6 +15,6 @@ MonoBehaviour:
   itemName: Frag Grenade
   itemDescription: Extra-spicy rock
   itemType: 3
-  itemPrefab: {fileID: 0}
+  itemPrefab: {fileID: 1645390600031970419, guid: f5163c000361ab3de8ac92ad11bd6165, type: 3}
   applicableArmorClasses: 00000000
-  isAvailable: 0
+  isAvailable: 1

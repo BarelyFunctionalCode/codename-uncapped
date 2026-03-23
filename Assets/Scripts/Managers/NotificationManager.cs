@@ -81,11 +81,13 @@ public class NotificationManager : NetworkBehaviour
     }
 
     [Rpc(SendTo.Server)]
-    public void SendKillFeedNotificationRpc(string victimName, string attackerName)
+    public void SendKillFeedNotificationRpc(string victimName, string attackerName, string weaponName = null)
     {
+        string aAn = weaponName != null && "aeiouAEIOU".Contains(weaponName[0]) ? "an" : "a";
+        string weaponPart = weaponName != null ? $" with {aAn} {weaponName}" : "";
         NotificationData notificationData = new(
             NotificationType.KillFeed,
-            $"{attackerName} killed {victimName}"
+            $"{attackerName} killed {victimName}" + weaponPart
         );
         SendNotificationRpc(notificationData);
     }

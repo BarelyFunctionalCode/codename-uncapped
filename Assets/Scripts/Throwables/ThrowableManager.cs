@@ -1,9 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
-using Unity.Netcode.Components;
 
-[RequireComponent(typeof(NetworkTransform))]
 public class ThrowableManager : NetworkBehaviour
 {
     public static List<string> interactionTags = new() { "Terrain", "Player", "Projectile" };
@@ -160,7 +158,7 @@ public class ThrowableManager : NetworkBehaviour
         // NetworkObject networkObj = throwableObj.GetComponent<NetworkObject>();
         // networkObj.Spawn(true);
         // networkObj.TrySetParent(transform.GetComponentInParent<NetworkObject>());
-        throwableObj.GetComponent<Throwable>().Throw(playerRef.Value, throwForceFactor.Value);
+        throwableObj.GetComponent<Throwable>().Throw(playerRef.Value, this, throwForceFactor.Value);
         ammoCount.Value--;
         canThrow = false;
         startedThrow = false;

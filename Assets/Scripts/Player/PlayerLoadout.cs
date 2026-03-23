@@ -129,6 +129,23 @@ public class PlayerLoadout : INetworkSerializable, IEquatable<PlayerLoadout>
         }
     }
 
+    public static LoadoutItemSO GetLoadoutItemSOFromPrefab(GameObject prefab)
+    {
+        LoadoutItemSO itemSO = null;
+        if (prefab.GetComponentInChildren<Weapon>() != null)
+            itemSO = WeaponLoadoutItems.FirstOrDefault(w => w != null && w.itemPrefab.name == prefab.name);
+        // else if (prefab.GetComponentInChildren<HeavyWeapon>() != null)
+        //     itemSO = HeavyWeaponLoadoutItems.FirstOrDefault(w => w != null && w.itemPrefab.name == prefab.name);
+        else if (prefab.GetComponentInChildren<ThrowableManager>() != null)
+            itemSO = ThrowableLoadoutItems.FirstOrDefault(w => w != null && w.itemPrefab.name == prefab.name);
+        // else if (prefab.GetComponentInChildren<Equipment>() != null)
+        //     itemSO = EquipmentLoadoutItems.FirstOrDefault(w => w != null && w.itemPrefab.name == prefab.name);
+        // else if (prefab.GetComponentInChildren<Core>() != null)
+        //     itemSO = CoreLoadoutItems.FirstOrDefault(w => w != null && w.itemPrefab.name == prefab.name);
+
+        return itemSO;
+    }
+
     public LoadoutArmorClass armorClass;
     public LoadoutItemSO weapon1SO;
     public LoadoutItemSO weapon2SO;

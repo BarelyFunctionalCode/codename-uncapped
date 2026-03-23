@@ -39,7 +39,6 @@ public class ToastNotification : MonoBehaviour
             else messageText.color = data.color;
         }
         transform.SetAsLastSibling();
-        if (transform.GetSiblingIndex() == 0) return;
 
         Vector2 anchoredPosition = Vector2.zero;
         if (transform.parent.childCount > 1)

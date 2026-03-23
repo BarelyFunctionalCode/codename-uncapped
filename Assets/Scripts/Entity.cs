@@ -92,14 +92,23 @@ public class Entity : NetworkBehaviour, IDamageable
         if (!IsServer || _isDead.Value) return;
         attackerRef.TryGet(out PlayerController attacker);
         weaponRef.TryGet(out Weapon weapon);
-        if (attacker != null && weapon != null)
+        ThrowableManager throwable = null;
+        if (weapon == null) weaponRef.TryGet(out throwable);
+        if (attacker != null && (weapon != null || throwable != null))
         {
             // TODO: Call stats manager singleton to log damage dealt
             // StatsManager.Instance.LogDamageDealt(ulong attackerClientId, ulong victimClientId, string weaponName, float damageAmount, bool isFatal);
             // StatsManager.Instance.LogDamageDealt(attacker.OwnerClientId, OwnerClientId, weapon.Name, damage, health.Value <= 0);
             GameModeHandler.Instance.StatEventReceiver(new StatEvent(StatEventType.DEATHS, 1.0f, EntityId));
             GameModeHandler.Instance.StatEventReceiver(new StatEvent(StatEventType.KILL, 1.0f, attacker.EntityId));
-            NotificationManager.Instance.SendKillFeedNotificationRpc( EntityName, attacker.EntityName);
+
+            GameObject weaponObj = weapon != null ? weapon.gameObject : throwable.gameObject;
+            Debug.Log($"Attacker: {attacker.EntityName}, Victim: {EntityName}, Weapon: {weaponObj.name}");
+            LoadoutItemSO itemSO = PlayerLoadout.GetLoadoutItemSOFromPrefab(weaponObj);
+            Debug.Log($"ItemSO: {itemSO}");
+            string weaponName = itemSO.itemName;
+            Debug.Log($"Weapon Name: {weaponName}");
+            NotificationManager.Instance.SendKillFeedNotificationRpc(EntityName, attacker.EntityName, weaponName);
         }
 
 
