@@ -47,6 +47,7 @@ public class GameModeHandler : NetworkBehaviour
 
     public UnityEvent<StatEvent> OnStatUpdated = new();
     public UnityEvent<EventArgsPlayerChangedTeam> OnPlayerChangedTeam = new();
+    public UnityEvent<GameModes> OnGameModeChanged = new();
 
     #region Gamemode prefab cache
     public static Dictionary<GameModes, GameObject> game_mode_cache = new();
@@ -87,7 +88,15 @@ public class GameModeHandler : NetworkBehaviour
         GameModeBase game_mode = cloned_game_mode_object.GetComponent<GameModeBase>();
         current_game_mode = game_mode;
 
+        SelectNewModeRpc(g);
+
         if (LevelManager.Instance) LevelManager.Instance.OnStageGenerated();
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void SelectNewModeRpc(GameModes g)
+    {
+        OnGameModeChanged.Invoke(g);
     }
 
     public void StartGame()

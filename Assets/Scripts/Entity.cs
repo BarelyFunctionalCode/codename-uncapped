@@ -1,3 +1,4 @@
+using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -6,8 +7,8 @@ public class Entity : NetworkBehaviour, IDamageable
     private const float groundEnergyRegenRate = 12.5f;
     
     [Header("Entity Attributes")]
-    [SerializeField] protected ulong _entityId = 0;
-    [SerializeField] protected string _entityName;
+    [SerializeField] protected NetworkVariable<ulong> _entityId = new(0);
+    [SerializeField] protected NetworkVariable<FixedString32Bytes> _entityName = new("");
     [SerializeField] protected uint _teamId = 0;
     [SerializeField] private NetworkVariable<float> _health = new(0.0f);
     [SerializeField] private float _maxHealth;
@@ -21,8 +22,8 @@ public class Entity : NetworkBehaviour, IDamageable
     private NetworkVariable<bool> _isDead = new(false);
     protected bool _isGrounded = false;
 
-    public ulong EntityId => _entityId;
-    public string EntityName => _entityName;
+    public ulong EntityId => _entityId.Value;
+    public string EntityName => _entityName.Value.ToString();
     public uint TeamId { get { return _teamId; } set { _teamId = value; } }
 
     public float Health => _health.Value;
@@ -43,8 +44,8 @@ public class Entity : NetworkBehaviour, IDamageable
 
         if (!IsServer) return;
 
-        if (_entityId == 0)
-            _entityId = NetworkObjectId + 5000; // Arbitrary offset to avoid conflicts with player IDs, which are based on client IDs
+        if (_entityId.Value == 0)
+            _entityId.Value = NetworkObjectId + 5000; // Arbitrary offset to avoid conflicts with player IDs, which are based on client IDs
 
         _health.Value = _maxHealth;
         _energy.Value = _maxEnergy;
@@ -96,7 +97,7 @@ public class Entity : NetworkBehaviour, IDamageable
             // TODO: Call stats manager singleton to log damage dealt
             // StatsManager.Instance.LogDamageDealt(ulong attackerClientId, ulong victimClientId, string weaponName, float damageAmount, bool isFatal);
             // StatsManager.Instance.LogDamageDealt(attacker.OwnerClientId, OwnerClientId, weapon.Name, damage, health.Value <= 0);
-            print("Sending stat event");
+            GameModeHandler.Instance.StatEventReceiver(new StatEvent(StatEventType.DEATHS, 1.0f, EntityId));
             GameModeHandler.Instance.StatEventReceiver(new StatEvent(StatEventType.KILL, 1.0f, attacker.EntityId));
             NotificationManager.Instance.SendKillFeedNotificationRpc( EntityName, attacker.EntityName);
         }

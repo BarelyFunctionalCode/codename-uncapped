@@ -20,7 +20,7 @@ public class Dummy : Entity, IIdentifiable
         base.OnNetworkSpawn();
         if (!IsServer) return;
 
-        _entityName = $"{namePartOneList[Random.Range(0, namePartOneList.Length)]} {namePartTwoList[Random.Range(0, namePartTwoList.Length)]}";
+        _entityName.Value = $"{namePartOneList[Random.Range(0, namePartOneList.Length)]} {namePartTwoList[Random.Range(0, namePartTwoList.Length)]}";
     }
 
     // Update is called once per frame

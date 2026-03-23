@@ -33,9 +33,9 @@ public class MatchSelection : NetworkBehaviour
 
     [SerializeField] private LobbyPC lobbyPC;
 
-    protected sealed override void OnNetworkPostSpawn()
+    public sealed override void OnNetworkSpawn()
     {
-        base.OnNetworkPostSpawn();
+        base.OnNetworkSpawn();
 
         if (IsHost)
         {

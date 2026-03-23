@@ -81,7 +81,7 @@ public class HUD : MonoBehaviour
         chatWindow.Initialize(this);
         centerClusterUI.Initialize(playerController);
         loadoutMenu.Initialize(playerController.GetComponent<PlayerLoadoutManager>(), this);
-        leaderboard.Initialize("Free For All");
+        leaderboard.Initialize();
 
         isInitialized = true;
     }

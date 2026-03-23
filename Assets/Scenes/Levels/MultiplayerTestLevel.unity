@@ -1357,6 +1357,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1931757068917247694, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
+      propertyPath: debugMode
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3737175516416455173, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
       propertyPath: m_Name
       value: Backbone

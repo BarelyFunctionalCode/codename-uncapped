@@ -41,11 +41,16 @@ public class ToastNotification : MonoBehaviour
         transform.SetAsLastSibling();
         if (transform.GetSiblingIndex() == 0) return;
 
-        Transform previousSibling = transform.parent.GetChild(transform.GetSiblingIndex() - 1);
-        if (previousSibling.TryGetComponent(out ToastNotification previousToast))
+        Vector2 anchoredPosition = Vector2.zero;
+        if (transform.parent.childCount > 1)
         {
-            rectTransform.anchoredPosition = previousToast.rectTransform.anchoredPosition - new Vector2(0, rectTransform.rect.height + 10);
+            Transform previousSibling = transform.parent.GetChild(transform.GetSiblingIndex() - 1);
+            if (previousSibling.TryGetComponent(out ToastNotification previousToast))
+            {
+                anchoredPosition = previousToast.rectTransform.anchoredPosition - new Vector2(0, rectTransform.rect.height + 10);
+            }
         }
+        rectTransform.anchoredPosition = anchoredPosition;
         gameObject.SetActive(true);
         isInitialized = true;
     }
@@ -55,7 +60,7 @@ public class ToastNotification : MonoBehaviour
     {
         if (!isInitialized) return;
         if (hideTimer >= hideTime) doHide = true;
-        if (!doHide) hideTimer += Time.deltaTime;
+        hideTimer += Time.deltaTime;
 
         targetPosition = Vector2.zero;
         int siblingIndex = transform.GetSiblingIndex();
@@ -71,7 +76,7 @@ public class ToastNotification : MonoBehaviour
 
         rectTransform.anchoredPosition = Vector2.Lerp(rectTransform.anchoredPosition, targetPosition, Time.deltaTime * 10f);
 
-        if (doHide && Vector2.Distance(rectTransform.anchoredPosition, targetPosition) < 0.1f)
+        if (doHide && (Vector2.Distance(rectTransform.anchoredPosition, targetPosition) < 0.1f || hideTimer >= hideTime * 2f))
         {
             Destroy(gameObject);
         }

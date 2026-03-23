@@ -398,15 +398,15 @@ public class PlayerController : Entity, IGravityModifiable
     [Rpc(SendTo.Server)]
     private void InitializeServerRpc()
     {
-        _entityName = $"Player {OwnerClientId}";
-        _entityId = OwnerClientId;
+        _entityName.Value = $"Player {OwnerClientId}";
+        _entityId.Value = OwnerClientId;
         _teamId = (uint)OwnerClientId;
 
         // Get Player's Steam ID
         if (GameManager.Instance?.usingSteam == true)
         {
             _steamId = SteamClient.SteamId.Value;
-            _entityName = new Friend(_steamId).Name;
+            _entityName.Value = new Friend(_steamId).Name;
         }
 
         playerLoadout.Initialize(this);

@@ -19,31 +19,45 @@ public class Leaderboard : MonoBehaviour
     [SerializeField] private GameObject capturesStat1Obj;
 
     private List<LeaderboardEntry> entries = new();
+    private bool isTeamBased = false;
     private bool enableCapturesStat;
+
+    private bool isActive = false;
 
     private void Awake()
     {
         gameObject.SetActive(false);
     }
 
-    public void Initialize(string title, string column0Title = "Player", string column1Title = "", bool enableCapturesStat = false)
+    public void Initialize()
     {
-        leaderboardTitleText.text = title;
-        listColumn0TitleText.text = column0Title;
-        listColumn1TitleText.text = column1Title;
-        listColumn1Obj.SetActive(!string.IsNullOrEmpty(column1Title));
-        teamSeparatorObj.SetActive(!string.IsNullOrEmpty(column1Title));
-
-        this.enableCapturesStat = enableCapturesStat;
-        capturesStat0Obj.SetActive(enableCapturesStat);
-        capturesStat1Obj.SetActive(enableCapturesStat);
-
+        GameModeHandler.Instance.OnGameModeChanged.AddListener(SetGameModeData);
         GameModeHandler.Instance.OnStatUpdated.AddListener(OnStatEventReceived);
         GameModeHandler.Instance.OnPlayerChangedTeam.AddListener(AddEntry);
     }
 
+    private void SetGameModeData(GameModes g)
+    {
+        TeamBasedType teamBasedType = GameModeHandler.Instance.FetchTeamBasedType(g);
+
+        leaderboardTitleText.text = g.ToString();
+        isTeamBased = teamBasedType == TeamBasedType.TEAM;
+
+        listColumn0TitleText.text = isTeamBased ? "Team 1" : "Player";
+        listColumn1TitleText.text = isTeamBased ? "Team 2" : "";
+        listColumn1Obj.SetActive(isTeamBased);
+        teamSeparatorObj.SetActive(isTeamBased);
+
+        enableCapturesStat = false; // TODO: Change this to be based on the selected GameModeSO
+        capturesStat0Obj.SetActive(enableCapturesStat);
+        capturesStat1Obj.SetActive(enableCapturesStat);
+
+        isActive = true;
+    }
+
     public void ToggleMenu(bool enabled)
     {
+        if (!isActive) return;
         gameObject.SetActive(enabled);
     }
 
@@ -55,7 +69,7 @@ public class Leaderboard : MonoBehaviour
         
         int teamIndex = e.teamIndex;
         string name = NetworkManager.Singleton.ConnectedClients[playerId].PlayerObject.GetComponent<PlayerController>().EntityName;
-        GameObject entryObj = Instantiate(leaderboardEntryPrefabObj, teamIndex == 0 ? listColumn0Obj.transform : listColumn1Obj.transform);
+        GameObject entryObj = Instantiate(leaderboardEntryPrefabObj, (!isTeamBased || teamIndex == 0) ? listColumn0Obj.transform : listColumn1Obj.transform);
         LeaderboardEntry entry = entryObj.GetComponent<LeaderboardEntry>();
         entry.Initialize(playerId, name, enableCapturesStat);
         entries.Add(entry);
