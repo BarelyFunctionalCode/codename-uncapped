@@ -11,7 +11,7 @@ public enum NotificationType
     ObjectiveUpdate
 }
 
-public struct NotificationData: INetworkSerializeByMemcpy
+public struct NotificationData: INetworkSerializable
 {
     public NotificationType type;
     public string title;
@@ -32,6 +32,18 @@ public struct NotificationData: INetworkSerializeByMemcpy
         this.title = title;
         this.content = content;
         this.color = color;   
+    }
+
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        title = title == null ? string.Empty : title;
+        
+        serializer.SerializeValue(ref type);
+        serializer.SerializeValue(ref title);
+        serializer.SerializeValue(ref content);
+        serializer.SerializeValue(ref color);
+
+        title = string.IsNullOrEmpty(title) ? null : title;
     }
 }
 

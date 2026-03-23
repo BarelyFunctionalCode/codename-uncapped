@@ -53,7 +53,7 @@ public class Leaderboard : MonoBehaviour
         LeaderboardEntry entryToRemove = entries.Find(entry => entry.playerId == playerId);
         if (entryToRemove != null) RemoveEntry(playerId);
         
-        int teamIndex = int.Parse(e.team);
+        int teamIndex = e.teamIndex;
         string name = NetworkManager.Singleton.ConnectedClients[playerId].PlayerObject.GetComponent<PlayerController>().EntityName;
         GameObject entryObj = Instantiate(leaderboardEntryPrefabObj, teamIndex == 0 ? listColumn0Obj.transform : listColumn1Obj.transform);
         LeaderboardEntry entry = entryObj.GetComponent<LeaderboardEntry>();

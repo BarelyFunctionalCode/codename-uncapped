@@ -17,8 +17,8 @@ public class TeamStructure : NetworkBehaviour
     public NetworkList<FixedString128Bytes> teams;
 
     // Players are assigned here by PlayerHandler, referenced by their PlayerController.EntityId
-    // Format: Dictionary[PlayerID, TeamName]
-    public Dictionary<ulong, string> team_assignment = new Dictionary<ulong, string>();
+    // Format: Dictionary[PlayerID, TeamIndex]
+    public Dictionary<ulong, int> team_assignment = new();
 
     // Players may select a new team freely
     public bool AllowChangeTeams = true;
@@ -46,8 +46,8 @@ public class TeamStructure : NetworkBehaviour
     #region public methods
     public string GetTeam(ulong player_id)
     {
-        string result;
-        team_assignment.TryGetValue(player_id, out result);
+        team_assignment.TryGetValue(player_id, out int teamIndex);
+        string result = teamIndex >= 0 && teamIndex < teams.Count ? teams[teamIndex].ToString() : "No Team";
 
         return result;
     }
@@ -71,20 +71,24 @@ public class TeamStructure : NetworkBehaviour
     // pseudo helper function
     public void SetPlayerTeamFFA(ulong entityId)
     {
-        SetPlayerTeam(entityId, entityId.ToString());
+        int teamIndex;
+        if (!teams.Contains(entityId.ToString())) teamIndex = AddNewTeam(entityId.ToString());
+        else teamIndex = GetTeamIndex(entityId.ToString());
+        SetPlayerTeam(entityId, teamIndex);
     }
 
     // pseudo
-    public void SetPlayerTeam(ulong player_id, string team)
+    public void SetPlayerTeam(ulong player_id, int teamIndex)
     {
-        if (team_assignment.ContainsKey(player_id) && team_assignment[player_id] == team) return;
-        team_assignment[player_id] = team;
-        EmitPlayerChangedTeam(new EventArgsPlayerChangedTeam(player_id, team));
+        if (team_assignment.ContainsKey(player_id) && team_assignment[player_id] == teamIndex) return;
+        team_assignment[player_id] = teamIndex;
+        EmitPlayerChangedTeam(new EventArgsPlayerChangedTeam(player_id, teamIndex));
     }
 
-    public void AddNewTeam(string team)
+    public int AddNewTeam(string team)
     {
         teams.Add(team);
+        return teams.Count - 1;
     }
 
     public void RemoveTeam(string team)
@@ -109,11 +113,11 @@ public class TeamStructure : NetworkBehaviour
 public struct EventArgsPlayerChangedTeam : INetworkSerializeByMemcpy
 {
     public ulong    player_id;
-    public string   team;
+    public int    teamIndex;
 
-    public EventArgsPlayerChangedTeam(ulong lPlayerId, string lTeam)
+    public EventArgsPlayerChangedTeam(ulong lPlayerId, int lTeamIndex)
     {
         player_id   = lPlayerId;
-        team        = lTeam;
+        teamIndex   = lTeamIndex;
     }
 }
