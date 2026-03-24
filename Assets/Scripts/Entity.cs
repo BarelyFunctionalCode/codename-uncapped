@@ -1,6 +1,7 @@
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Entity : NetworkBehaviour, IDamageable
 {
@@ -12,6 +13,7 @@ public class Entity : NetworkBehaviour, IDamageable
     [SerializeField] protected uint _teamId = 0;
     [SerializeField] private NetworkVariable<float> _health = new(0.0f);
     [SerializeField] private float _maxHealth;
+    public UnityEvent<float> onHealthChanged = new();
 
     [SerializeField] private NetworkVariable<float> _energy = new(0.0f);
     [SerializeField] private float _maxEnergy;
@@ -76,9 +78,16 @@ public class Entity : NetworkBehaviour, IDamageable
     public void ApplyhealthDelta(float amount)
     {
         if (!IsServer) return;
+        float oldHealth = _health.Value;
         _health.Value += amount;
         _health.Value = Mathf.Clamp(_health.Value, 0, _maxHealth);
+
+        float healthDeltaRatio = (_health.Value - oldHealth) / _maxHealth;
+        ApplyhealthDeltaRpc(healthDeltaRatio);
     }
+
+    [Rpc(SendTo.Owner)]
+    public void ApplyhealthDeltaRpc(float ratio) => onHealthChanged.Invoke(ratio);
 
     public void ApplyEnergyDelta(float amount)
     {
