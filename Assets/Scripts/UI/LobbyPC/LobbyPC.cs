@@ -13,6 +13,7 @@ public class LobbyPC : MonoBehaviour
     [SerializeField] private GameObject interactPromptObj;
 
     [SerializeField] private GameObject cursorObj;
+    [SerializeField] public AudioSource musicSource;
 
     private float camToCanvasDistance;
     private bool showInteractPrompt = false;
@@ -27,6 +28,8 @@ public class LobbyPC : MonoBehaviour
 
     private float activeTabButtonAlpha = 0.4f;
     private float inactiveTabButtonAlpha;
+
+    private bool isInitialized = false;
 
 
     void Awake()
@@ -47,12 +50,18 @@ public class LobbyPC : MonoBehaviour
 
     void Update()
     {
-        if (autoInteract && GameManager.Instance.usingSteam && NetworkManager.Singleton != null && NetworkManager.Singleton.IsHost)
+        if (!isInitialized && GameManager.Instance.usingSteam && NetworkManager.Singleton != null && NetworkManager.Singleton.IsHost)
         {
-            Interact();
-            Intro possibleIntro = FindAnyObjectByType<Intro>();
-            if (possibleIntro != null) possibleIntro.IsLoaded();
+            if (autoInteract)
+            {
+                Interact();
+                Intro possibleIntro = FindAnyObjectByType<Intro>();
+                if (possibleIntro != null) possibleIntro.IsLoaded();
+            }
+            isInitialized = true;
         }
+
+        musicSource.spatialBlend = Mathf.Lerp(musicSource.spatialBlend, isActive ? 0f : 1f, Time.deltaTime);
 
         if (cursorObj != null && isActive)
         {
@@ -75,6 +84,7 @@ public class LobbyPC : MonoBehaviour
 
     private void Interact()
     {
+        GetComponent<AudioListener>().enabled = false;
         if (isActive) return;
         NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject().TryGetComponent(out PlayerController playerController);
         if (playerController.isInitialized == false) return;
