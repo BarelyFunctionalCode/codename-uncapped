@@ -95,7 +95,7 @@ public class PlayerController : Entity, IGravityModifiable
     [Header("Weapons and Gear")]
     public Transform weaponMountPoint;
     public Transform throwableMountPoint;
-    private PlayerLoadoutManager playerLoadout;
+    public PlayerLoadoutManager playerLoadout;
 
     // Movement Parameters
     private readonly float hoverHeightMax = 0.4f;
@@ -409,7 +409,7 @@ public class PlayerController : Entity, IGravityModifiable
             _entityName.Value = new Friend(_steamId).Name;
         }
 
-        playerLoadout.Initialize(this);
+        playerLoadout.Initialize(true, this);
         PostInitializeRpc();
         isInitialized = true;
         GameManager.Instance.OnClientConnectedEvent.Invoke(OwnerClientId);
@@ -1005,7 +1005,7 @@ public class PlayerController : Entity, IGravityModifiable
         localPlayerCollider.enabled = true;
         localRb.isKinematic = false;
         playerLoadout.Deinitialize();
-        playerLoadout.Initialize(this);
+        playerLoadout.Initialize();
 
         OnRespawnRpc();
         SetPlayerControlsRpc(true);
