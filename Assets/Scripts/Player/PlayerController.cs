@@ -14,7 +14,7 @@ using UnityEngine.SceneManagement;
 [RequireComponent(typeof(PlayerLoadoutManager))]
 [RequireComponent(typeof(PlayerNetworkTransform))]
 [RequireComponent(typeof(NetworkRigidbody))]
-public class PlayerController : Entity, IGravityModifiable
+public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 {
     [Space(20)]
     // Debug
@@ -400,7 +400,7 @@ public class PlayerController : Entity, IGravityModifiable
     {
         _entityName.Value = $"Player {OwnerClientId}";
         _entityId.Value = OwnerClientId;
-        _teamId = (uint)OwnerClientId;
+        _teamId.Value = (uint)OwnerClientId;
 
         // Get Player's Steam ID
         if (GameManager.Instance?.usingSteam == true)
@@ -964,6 +964,37 @@ public class PlayerController : Entity, IGravityModifiable
     }
     #endregion
 
+    #region Collision
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (!IsServer) return;
+
+        if (localRb.linearVelocity.y > 0.0f) return; // Only take collision damage if moving downwards
+
+        float minimumDamageSpeed = 20f; // Minimum speed for a collision to cause damage
+        float minimumOuchyAngle = 30f; // Minimum angle for a collision to cause damage
+        float scaleFactor = 0.4f; // Overall scale factor for damage, can be tweaked for balance
+
+        Vector3 relativeVelocity = collision.relativeVelocity;
+
+        float impactSpeed = relativeVelocity.magnitude;
+        Vector3 impactDirection = relativeVelocity.normalized;
+
+        ContactPoint contact = collision.GetContact(0);
+        Vector3 surfaceNormal = contact.normal;
+
+        float ouchyThreshold = Vector3.Dot(impactDirection, surfaceNormal);
+
+        if (ouchyThreshold > Mathf.Cos(minimumOuchyAngle * Mathf.Deg2Rad) && impactSpeed > minimumDamageSpeed)
+        {
+            float damage = impactSpeed * ouchyThreshold * scaleFactor;
+            TakeDamage(damage);
+        }
+    }
+
+
+    #endregion
+
 
     #region Player State
     protected override void OnDie()
@@ -995,7 +1026,7 @@ public class PlayerController : Entity, IGravityModifiable
     {
         if (!IsServer) return;
 
-        Transform respawnPoint = LevelManager.Instance.GetSpawnPoint(0); // TODO: Pass in team index when we have teams
+        Transform respawnPoint = LevelManager.Instance.GetSpawnPoint(TeamId);
 
         if (respawnPoint)
         {
@@ -1023,8 +1054,18 @@ public class PlayerController : Entity, IGravityModifiable
         }
         playerType.OnRespawn();
     }
-    #endregion
 
+    public IdentifierData GetIdentifierData()
+    {
+        return new IdentifierData
+        {
+            color = IdentifierManager.TempTeamColors[TeamId],
+            topText = EntityName,
+            bottomText = $"{Mathf.CeilToInt(HealthPercentage * 100f)}%",
+            isActive = Health > 0
+        };
+    }
+    #endregion
 
     #region SceneManagement
     private void ChangedActiveScene(Scene _, Scene next)

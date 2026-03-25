@@ -6,7 +6,7 @@ using UnityEngine.Events;
 [RequireComponent(typeof(AudioSource))]
 public class Weapon : NetworkBehaviour
 {
-    public static List<string> interactionTags = new() { "Terrain", "Player", "Throwable" };
+    public static List<string> interactionIgnoreTags = new() { "Projectile" };
     [Header("Visuals")]
     [SerializeField] private Transform projectileSpawnPoint;
     [SerializeField] private GameObject modelObj;

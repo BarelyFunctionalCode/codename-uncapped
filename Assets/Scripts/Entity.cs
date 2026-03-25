@@ -10,7 +10,7 @@ public class Entity : NetworkBehaviour, IDamageable
     [Header("Entity Attributes")]
     [SerializeField] protected NetworkVariable<ulong> _entityId = new(0);
     [SerializeField] protected NetworkVariable<FixedString32Bytes> _entityName = new("");
-    [SerializeField] protected uint _teamId = 0;
+    [SerializeField] protected NetworkVariable<uint> _teamId = new(0);
     [SerializeField] private NetworkVariable<float> _health = new(0.0f);
     [SerializeField] private float _maxHealth;
     public UnityEvent<float> onHealthChanged = new();
@@ -27,7 +27,7 @@ public class Entity : NetworkBehaviour, IDamageable
 
     public ulong EntityId => _entityId.Value;
     public string EntityName => _entityName.Value.ToString();
-    public uint TeamId { get { return _teamId; } set { _teamId = value; } }
+    public uint TeamId { get { return _teamId.Value; } set { _teamId.Value = value; } }
 
     public float Health => _health.Value;
     public float MaxHealth => _maxHealth;

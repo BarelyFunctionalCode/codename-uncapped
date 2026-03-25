@@ -1334,7 +1334,7 @@ GameObject:
   - component: {fileID: 1756532409}
   m_Layer: 0
   m_Name: Base0
-  m_TagString: Terrain
+  m_TagString: TeamBase
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -2054,7 +2054,7 @@ GameObject:
   - component: {fileID: 2133765496}
   m_Layer: 0
   m_Name: Base1
-  m_TagString: Terrain
+  m_TagString: TeamBase
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
