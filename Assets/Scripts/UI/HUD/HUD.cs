@@ -94,7 +94,7 @@ public class HUD : MonoBehaviour
 
         playerController.onAppliedDamage.RemoveListener(SetHitMarker);
         GameModeHandler.Instance.currentPhaseCountdown.OnValueChanged -= SetCountDownTimer;
-        GameModeHandler.Instance.currentPhase.OnValueChanged -= SetCurrentPhase;
+        GameModeHandler.Instance.currentPhase.OnValueChanged -= SetCurrentPhaseData;
     }
 
     public void Initialize(PlayerController playerController)
@@ -119,7 +119,7 @@ public class HUD : MonoBehaviour
 
         playerController.onAppliedDamage.AddListener(SetHitMarker);
         GameModeHandler.Instance.currentPhaseCountdown.OnValueChanged += SetCountDownTimer;
-        GameModeHandler.Instance.currentPhase.OnValueChanged += SetCurrentPhase;
+        GameModeHandler.Instance.currentPhase.OnValueChanged += SetCurrentPhaseData;
 
         isInitialized = true;
     }
@@ -145,7 +145,7 @@ public class HUD : MonoBehaviour
         countdownSecondsText.text = seconds.ToString("00");
     }
 
-    private void SetCurrentPhase(Phase _, Phase phase)
+    private void SetCurrentPhaseData(Phase _, Phase phase)
     {
         currentPhaseText.text = phase.ToString();
         currentPhaseText.color = phaseColors[phase];

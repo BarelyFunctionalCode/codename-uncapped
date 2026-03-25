@@ -19,6 +19,21 @@ public class LevelManager : NetworkBehaviour
         transform.SetParent(null);
 	}
 
+    public sealed override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        if (GameManager.Instance == null || !GameManager.Instance.isInitialized) return;
+        if (IsHost) GameModeHandler.Instance.currentPhase.OnValueChanged += OnGameModePhaseChange;
+    }
+
+    public sealed override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+
+        if (GameModeHandler.Instance != null) GameModeHandler.Instance.currentPhase.OnValueChanged -= OnGameModePhaseChange;
+    }
+
     // Called after all the players have loaded into the scene
     public void OnPlayersLoaded()
     {
@@ -35,6 +50,19 @@ public class LevelManager : NetworkBehaviour
         stageGenerated = true;
 
         OnLevelInitialized();
+    }
+
+    private void OnGameModePhaseChange(Phase _, Phase newPhase)
+    {
+        if (newPhase == Phase.ACTIVE)
+        {
+            foreach (var player in NetworkManager.Singleton.SpawnManager.PlayerObjects)
+            {
+                PlayerController playerController = player.GetComponentInChildren<PlayerController>();
+                if (playerController == null) continue;
+                playerController.Suicide();
+            }
+        }
     }
 
 

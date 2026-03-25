@@ -101,30 +101,34 @@ public class Entity : NetworkBehaviour, IDamageable
         _energy.Value = Mathf.Min(_energy.Value, _maxEnergy);
     }
 
-    private void Die(NetworkBehaviourReference attackerRef, NetworkBehaviourReference weaponRef)
+    public void Suicide() => Die(null, null, true);
+
+    private void Die(NetworkBehaviourReference attackerRef, NetworkBehaviourReference weaponRef, bool isSuicide = false)
     {
         if (!IsServer || _isDead.Value) return;
-        attackerRef.TryGet(out PlayerController attacker);
-        weaponRef.TryGet(out Weapon weapon);
-        ThrowableManager throwable = null;
-        if (weapon == null) weaponRef.TryGet(out throwable);
-        if (attacker != null && (weapon != null || throwable != null))
+
+        if (!isSuicide)
         {
-            // TODO: Call stats manager singleton to log damage dealt
-            // StatsManager.Instance.LogDamageDealt(ulong attackerClientId, ulong victimClientId, string weaponName, float damageAmount, bool isFatal);
-            // StatsManager.Instance.LogDamageDealt(attacker.OwnerClientId, OwnerClientId, weapon.Name, damage, health.Value <= 0);
-            GameModeHandler.Instance.StatEventReceiver(new StatEvent(StatEventType.DEATHS, 1.0f, EntityId));
-            GameModeHandler.Instance.StatEventReceiver(new StatEvent(StatEventType.KILL, 1.0f, attacker.EntityId));
+            string lethalSource = "gravity";
+            string weaponName = null;
 
-            GameObject weaponObj = weapon != null ? weapon.gameObject : throwable.gameObject;
-            Debug.Log($"Attacker: {attacker.EntityName}, Victim: {EntityName}, Weapon: {weaponObj.name}");
-            LoadoutItemSO itemSO = PlayerLoadout.GetLoadoutItemSOFromPrefab(weaponObj);
-            Debug.Log($"ItemSO: {itemSO}");
-            string weaponName = itemSO.itemName;
-            Debug.Log($"Weapon Name: {weaponName}");
-            NotificationManager.Instance.SendKillFeedNotificationRpc(EntityName, attacker.EntityName, weaponName);
+            attackerRef.TryGet(out PlayerController attacker);
+            weaponRef.TryGet(out Weapon weapon);
+            ThrowableManager throwable = null;
+            if (weapon == null) weaponRef.TryGet(out throwable);
+            if (attacker != null && (weapon != null || throwable != null))
+            {
+                GameModeHandler.Instance.StatEventReceiver(new StatEvent(StatEventType.DEATHS, 1.0f, EntityId));
+                GameModeHandler.Instance.StatEventReceiver(new StatEvent(StatEventType.KILL, 1.0f, attacker.EntityId));
+
+                GameObject weaponObj = weapon != null ? weapon.gameObject : throwable.gameObject;
+                LoadoutItemSO itemSO = PlayerLoadout.GetLoadoutItemSOFromPrefab(weaponObj);
+                weaponName = itemSO.itemName;
+
+                lethalSource = attacker.EntityName + "'s " + weaponName;
+            }
+            NotificationManager.Instance.SendKillFeedNotificationRpc(EntityName, lethalSource);
         }
-
 
         _isDead.Value = true;
         OnDie();
