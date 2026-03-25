@@ -48,6 +48,8 @@ public class GameModeHandler : NetworkBehaviour
     public UnityEvent<StatEvent> OnStatUpdated = new();
     public UnityEvent<EventArgsPlayerChangedTeam> OnPlayerChangedTeam = new();
     public UnityEvent<GameModes> OnGameModeChanged = new();
+    public NetworkVariable<float> currentPhaseCountdown = new();
+    public NetworkVariable<Phase> currentPhase = new();
 
     #region Gamemode prefab cache
     public static Dictionary<GameModes, GameObject> game_mode_cache = new();

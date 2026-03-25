@@ -46,6 +46,9 @@ public class Weapon : NetworkBehaviour
         if (isInitialized) return;
         audioSource = GetComponent<AudioSource>();
         audioSource.spatialBlend = 1;
+        audioSource.dopplerLevel = 0;
+        audioSource.minDistance = 1;
+        audioSource.maxDistance = 10;
 
         if (IsServer)
         {

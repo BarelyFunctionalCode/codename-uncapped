@@ -14,6 +14,7 @@ public class Entity : NetworkBehaviour, IDamageable
     [SerializeField] private NetworkVariable<float> _health = new(0.0f);
     [SerializeField] private float _maxHealth;
     public UnityEvent<float> onHealthChanged = new();
+    public UnityEvent<float> onAppliedDamage = new();
 
     [SerializeField] private NetworkVariable<float> _energy = new(0.0f);
     [SerializeField] private float _maxEnergy;
@@ -67,6 +68,7 @@ public class Entity : NetworkBehaviour, IDamageable
         ApplyhealthDelta(-damage);
         attackerRef.TryGet(out PlayerController attacker);
 
+        if (attacker != null && attacker.EntityId != EntityId) attacker.OnAppliedDamageRpc(damage);
         GameModeHandler.Instance.StatEventReceiver(new StatEvent(
             StatEventType.DAMAGE_DEALT,
             damage,
@@ -75,6 +77,9 @@ public class Entity : NetworkBehaviour, IDamageable
 
         if (_health.Value <= 0) Die(attackerRef, weaponRef);
     }
+    [Rpc(SendTo.Owner)]
+    private void OnAppliedDamageRpc(float damage) => onAppliedDamage.Invoke(damage);
+
     public void ApplyhealthDelta(float amount)
     {
         if (!IsServer) return;

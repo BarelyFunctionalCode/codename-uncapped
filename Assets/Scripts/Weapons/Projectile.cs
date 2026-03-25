@@ -53,6 +53,7 @@ public class Projectile : NetworkBehaviour, IGravityModifiable
 
         audioSource = GetComponent<AudioSource>();
         audioSource.spatialBlend = 1;
+        audioSource.dopplerLevel = 0;
         audioSource.minDistance = soundMinDistance;
         audioSource.maxDistance = soundMaxDistance;
 
