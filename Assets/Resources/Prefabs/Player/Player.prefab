@@ -50,7 +50,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1947508556
+  GlobalObjectIdHash: 148429366
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -76,8 +76,43 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _entityId: 0
-  _entityName: 
+  _entityId:
+    m_InternalValue: 0
+  _entityName:
+    m_InternalValue:
+      utf8LengthInBytes: 0
+      bytes:
+        offset0000:
+          byte0000: 0
+          byte0001: 0
+          byte0002: 0
+          byte0003: 0
+          byte0004: 0
+          byte0005: 0
+          byte0006: 0
+          byte0007: 0
+          byte0008: 0
+          byte0009: 0
+          byte0010: 0
+          byte0011: 0
+          byte0012: 0
+          byte0013: 0
+          byte0014: 0
+          byte0015: 0
+        byte0016: 0
+        byte0017: 0
+        byte0018: 0
+        byte0019: 0
+        byte0020: 0
+        byte0021: 0
+        byte0022: 0
+        byte0023: 0
+        byte0024: 0
+        byte0025: 0
+        byte0026: 0
+        byte0027: 0
+        byte0028: 0
+        byte0029: 0
   _teamId: 0
   _health:
     m_InternalValue: 0
@@ -89,7 +124,7 @@ MonoBehaviour:
   _energyRegenFactor: 1
   devVectorRenderer: {fileID: 5320158334529817789}
   localTransform: {fileID: 0}
-  playerTypePrefabObj: {fileID: 7161415578478602542, guid: 480549f6e4910d9359c16ae18711c700, type: 3}
+  playerTypePrefabObj: {fileID: 7282026672141897861, guid: 4c68cd604176642a282ea4f5c810a151, type: 3}
   playerPuppetPrefabObj: {fileID: 3437312309707308051, guid: 67ec23ebb239f977f9b5beef525cf609, type: 3}
   playerPuppetObj: {fileID: 0}
   playerCameraPrefabObj: {fileID: 7378525201259159580, guid: 5d6ee420863db4f7bbd33642b61f0978, type: 3}
