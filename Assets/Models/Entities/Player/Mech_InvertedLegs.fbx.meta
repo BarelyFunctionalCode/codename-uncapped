@@ -112,7 +112,21 @@ ModelImporter:
       mirror: 0
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
-      events: []
+      events:
+      - time: 0.19837587
+        functionName: AnimationFootstepEvent
+        data: 
+        objectReferenceParameter: {fileID: 7282026672141897861, guid: 4c68cd604176642a282ea4f5c810a151, type: 3}
+        floatParameter: 0
+        intParameter: 1
+        messageOptions: 0
+      - time: 0.7772622
+        functionName: AnimationFootstepEvent
+        data: 
+        objectReferenceParameter: {fileID: 7282026672141897861, guid: 4c68cd604176642a282ea4f5c810a151, type: 3}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
       transformMask: []
       maskType: 3
       maskSource: {instanceID: 0}
