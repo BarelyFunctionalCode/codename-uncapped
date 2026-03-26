@@ -261,6 +261,8 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 
         // Handle camera pitch rotation on local client
         HandleCamera();
+
+        playerType.HandleLegRotation(movementDirection);
     }
 
     void FixedUpdate()
@@ -648,7 +650,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         rotationDeltaPitch = Vector3.ClampMagnitude(rotationPitch, verticalRotationLimit);
         rotationInputY = 0f;
         float currentXRotation = freeLookTargetTransform.eulerAngles.x < 180f ? freeLookTargetTransform.eulerAngles.x : freeLookTargetTransform.eulerAngles.x - 360f;
-        rotationDeltaPitch.x = Mathf.Clamp(currentXRotation + rotationDeltaPitch.x, -89.0f, 89.0f) - currentXRotation;
+        rotationDeltaPitch.x = Mathf.Clamp(currentXRotation + rotationDeltaPitch.x, -83.0f, 83.0f) - currentXRotation;
         if (controlsDisabledCount > 0) rotationDeltaPitch = Vector3.zero;
         
         freeLookTargetTransform.Rotate(rotationDeltaPitch);
