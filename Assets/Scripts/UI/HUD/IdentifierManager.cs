@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -35,10 +36,7 @@ public class IdentifierManager : MonoBehaviour
         parentCanvas = GetComponent<Canvas>();
 
         SceneManager.activeSceneChanged += (_, _) => RegisterSweep();
-        SpawnManager.objectSpawnedEvent.AddListener(obj =>
-        {
-            if (obj.TryGetComponent<IIdentifiable>(out var identifiable)) RegisterIdentifier(identifiable);
-        });
+        SpawnManager.objectSpawnedEvent.AddListener(RegisterIdentifier);
     }
 
     private void Update()
@@ -61,10 +59,7 @@ public class IdentifierManager : MonoBehaviour
     private void OnDestroy()
     {
         SceneManager.activeSceneChanged -= (_, _) => RegisterSweep(); // TODO: This is fucked
-        SpawnManager.objectSpawnedEvent.RemoveListener(obj =>
-        {
-            if (obj.TryGetComponent<IIdentifiable>(out var identifiable)) RegisterIdentifier(identifiable);
-        });
+        SpawnManager.objectSpawnedEvent.RemoveListener(RegisterIdentifier);
     }
 
 
@@ -75,12 +70,14 @@ public class IdentifierManager : MonoBehaviour
         {
             // Check if obj is in active scene)
             if (obj.scene != SceneManager.GetActiveScene()) continue;
-            if (obj.TryGetComponent<IIdentifiable>(out var identifiable)) RegisterIdentifier(identifiable);
+            RegisterIdentifier(obj);
         }
     }
 
-    public void RegisterIdentifier(IIdentifiable identifiable)
+    public void RegisterIdentifier(GameObject obj)
     {
+        if (obj == NetworkManager.Singleton.LocalClient.PlayerObject.gameObject) return;
+        if (!obj.TryGetComponent<IIdentifiable>(out var identifiable)) return;
         if (activeIdentifiers.Exists(identifier => identifier.identifiable == identifiable)) return;
 
         GameObject identifierObj = Instantiate(identifierPrefab, identifierContainer);

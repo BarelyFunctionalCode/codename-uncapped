@@ -41,6 +41,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     // Audio
     private AudioSource hoverAudioSource;
     private AudioSource windAudioSource;
+    [SerializeField] private AudioSource respawnAudioSource;
 
     // Camera
     [SerializeField] private GameObject playerCameraPrefabObj;
@@ -1055,6 +1056,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             localPlayerCollider.enabled = true;
         }
         playerType.OnRespawn();
+        respawnAudioSource.Play();
     }
 
     public IdentifierData GetIdentifierData()

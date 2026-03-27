@@ -14,6 +14,7 @@ public class PlayerType : NetworkBehaviour
     [SerializeField] public AudioSource windAudioSource;
     [SerializeField] private ParticleSystem animationFootstepParticleSystem;
     [SerializeField] private GameObject deathEffectPrefab;
+    private GameObject deathObj = null;
 
     [SerializeField] private Transform legsDirectionTransform;
     [SerializeField] private Transform leftFootIKTargetTransform;
@@ -103,7 +104,7 @@ public class PlayerType : NetworkBehaviour
         modelObj.SetActive(false);
         if (deathEffectPrefab != null)
         {
-            GameObject deathObj = Instantiate(deathEffectPrefab, transform.position, Quaternion.identity);
+            deathObj = Instantiate(deathEffectPrefab, transform.position, Quaternion.identity);
             foreach (Rigidbody rb in deathObj.GetComponentsInChildren<Rigidbody>())
             {
                 rb.AddExplosionForce(3000f, deathObj.transform.position, 10f);
@@ -115,5 +116,10 @@ public class PlayerType : NetworkBehaviour
     public void OnRespawn()
     {
         modelObj.SetActive(true);
+        if (deathObj != null)
+        {
+            Destroy(deathObj);
+            deathObj = null;
+        }
     }
 }

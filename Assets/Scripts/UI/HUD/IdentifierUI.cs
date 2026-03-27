@@ -8,6 +8,7 @@ public class IdentifierUI : MonoBehaviour
     [SerializeField] private TMP_Text identifierBottomText;
     [SerializeField] private Image mainIndicator;
     [SerializeField] private Image offscreenIndicator;
+    [SerializeField] private AudioSource activateSound;
     private RectTransform offscreenIndicatorContainer;
     private float offscreenIndicatorOriginalAlpha;
     private float mainIndicatorOriginalAlpha;
@@ -37,6 +38,7 @@ public class IdentifierUI : MonoBehaviour
 
     private float fadeSpeed = 0.2f;
     private float mainIndicatorSizeLerpSpeed = 0.2f;
+    private bool soundPlayed = false;
 
     private bool isEnabled = false;
 
@@ -68,7 +70,7 @@ public class IdentifierUI : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-        
+
         Transform objectTransform = identifiableObject.transform;
         IdentifierData identifierData = identifiable.GetIdentifierData();
         if (!identifierData.isActive)
@@ -189,6 +191,11 @@ public class IdentifierUI : MonoBehaviour
         // Calculate the size of the identifier based on the distance between the center and corner positions
         Vector3 objectScreenExtents = objectScreenCornerPos - objectScreenCenterPos;
         Vector2 desiredSize = new(Mathf.Max(Mathf.Abs(objectScreenExtents.x) * 2f, 25f), Mathf.Max(Mathf.Abs(objectScreenExtents.y) * 2f, 25f));
+        if (!soundPlayed && Vector2.Distance(identifierRect.sizeDelta, desiredSize) < desiredSize.magnitude)
+        {            
+            soundPlayed = true;
+            activateSound.Play();
+        }
         return Vector2.Lerp(identifierRect.sizeDelta, desiredSize, mainIndicatorSizeLerpSpeed);
     }
 
@@ -327,6 +334,7 @@ public class IdentifierUI : MonoBehaviour
         ResetMainIndicator(teamColor);
         ResetOffscreenIndicator(teamColor);
         isEnabled = false;
+        soundPlayed = false;
     }
     #endregion
 }

@@ -68,12 +68,15 @@ public class Entity : NetworkBehaviour, IDamageable
         ApplyhealthDelta(-damage);
         attackerRef.TryGet(out PlayerController attacker);
 
-        if (attacker != null && attacker.EntityId != EntityId) attacker.OnAppliedDamageRpc(damage);
-        GameModeHandler.Instance.StatEventReceiver(new StatEvent(
-            StatEventType.DAMAGE_DEALT,
-            damage,
-            attacker.EntityId
-        ));
+        if (attacker != null && attacker.EntityId != EntityId)
+        {
+            attacker.OnAppliedDamageRpc(damage);
+            GameModeHandler.Instance.StatEventReceiver(new StatEvent(
+                StatEventType.DAMAGE_DEALT,
+                damage,
+                attacker.EntityId
+            ));
+        }
 
         if (_health.Value <= 0) Die(attackerRef, weaponRef);
     }
