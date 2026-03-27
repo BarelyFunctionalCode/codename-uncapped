@@ -68,6 +68,8 @@ public class GameModeBase : NetworkBehaviour
     public void OnPhaseChanged(EventArgsPhaseChanged e)
     {
         if (!IsHost) return;
+        
+        GameModeHandler.Instance.currentPhase.Value = e.phase;
 
         // if in active session, toggle state booleans appropriately
         switch( e.phase )

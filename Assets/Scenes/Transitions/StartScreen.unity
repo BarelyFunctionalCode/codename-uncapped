@@ -307,6 +307,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: be7de7cd7b96e4f43b314e5daca766d8, type: 3}
+--- !u!95 &812544471 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 8756165944051087193, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
+  m_PrefabInstance: {fileID: 4901231123597515003}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1491540557
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -621,21 +626,29 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1415974225045019561, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
-      propertyPath: m_PlayableAsset
-      value: 
-      objectReference: {fileID: 11400000, guid: adf56e424c3a04c9da15a679d1c83c92, type: 2}
+      propertyPath: m_WrapMode
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 1415974225045019561, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
       propertyPath: m_SceneBindings.Array.size
-      value: 13
+      value: 17
       objectReference: {fileID: 0}
     - target: {fileID: 1415974225045019561, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
-      propertyPath: m_SceneBindings.Array.data[12].key
+      propertyPath: m_SceneBindings.Array.data[15].key
       value: 
-      objectReference: {fileID: 528598000529610276, guid: 7a510e9603ea0312ba5b6b2bdfe29f4c, type: 2}
+      objectReference: {fileID: -5275872293559434122, guid: 7a510e9603ea0312ba5b6b2bdfe29f4c, type: 2}
     - target: {fileID: 1415974225045019561, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
-      propertyPath: m_SceneBindings.Array.data[12].value
+      propertyPath: m_SceneBindings.Array.data[16].key
       value: 
-      objectReference: {fileID: 4901231123597515004}
+      objectReference: {fileID: 34821229303425557, guid: adf56e424c3a04c9da15a679d1c83c92, type: 2}
+    - target: {fileID: 1415974225045019561, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
+      propertyPath: m_SceneBindings.Array.data[15].value
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1415974225045019561, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
+      propertyPath: m_SceneBindings.Array.data[16].value
+      value: 
+      objectReference: {fileID: 812544471}
     - target: {fileID: 2090756768512166889, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
       propertyPath: m_SizeDelta.x
       value: 0
@@ -692,14 +705,6 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2617344036803686472, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
-      propertyPath: fadeTimeline
-      value: 
-      objectReference: {fileID: 11400000, guid: 7a510e9603ea0312ba5b6b2bdfe29f4c, type: 2}
-    - target: {fileID: 2617344036803686472, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
-      propertyPath: playableDirector
-      value: 
-      objectReference: {fileID: 4901231123597515006}
     - target: {fileID: 3456380527478836672, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -726,7 +731,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3941317006055494277, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
       propertyPath: m_fontColor32.rgba
-      value: 2987720448
+      value: 1376000
       objectReference: {fileID: 0}
     - target: {fileID: 4818578742739061625, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
       propertyPath: m_AnchorMax.y
@@ -754,88 +759,22 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5597140579655249276, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
       propertyPath: m_fontColor32.rgba
-      value: 2568290048
-      objectReference: {fileID: 0}
-    - target: {fileID: 6114554034879265269, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
-      propertyPath: m_Events.m_Events.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6114554034879265269, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
-      propertyPath: m_Events.m_Signals.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6114554034879265269, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
-      propertyPath: 'm_Events.m_Signals.Array.data[1]'
-      value: 
-      objectReference: {fileID: 11400000, guid: 8d35b16a14f140f42933b93a2b809585, type: 2}
-    - target: {fileID: 6114554034879265269, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
-      propertyPath: m_Events.m_Events.Array.data[1].m_PersistentCalls.m_Calls.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6114554034879265269, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
-      propertyPath: m_Events.m_Events.Array.data[1].m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6114554034879265269, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
-      propertyPath: m_Events.m_Events.Array.data[1].m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 4901231123597515005}
-    - target: {fileID: 6114554034879265269, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
-      propertyPath: m_Events.m_Events.Array.data[1].m_PersistentCalls.m_Calls.Array.data[0].m_CallState
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6114554034879265269, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
-      propertyPath: m_Events.m_Events.Array.data[1].m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: DestroyIntro
-      objectReference: {fileID: 0}
-    - target: {fileID: 6114554034879265269, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
-      propertyPath: m_Events.m_Events.Array.data[1].m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: Intro, Assembly-CSharp
-      objectReference: {fileID: 0}
-    - target: {fileID: 6114554034879265269, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
-      propertyPath: m_Events.m_Events.Array.data[1].m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
-      value: UnityEngine.Object, UnityEngine
+      value: 1376000
       objectReference: {fileID: 0}
     - target: {fileID: 6579418379965765071, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
       propertyPath: m_fontColor32.rgba
-      value: 2568290048
+      value: 1376000
       objectReference: {fileID: 0}
     - target: {fileID: 6969821347011904566, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
       propertyPath: m_Name
       value: Intro
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 2493495763244989233, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
---- !u!114 &4901231123597515004 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6114554034879265269, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
-  m_PrefabInstance: {fileID: 4901231123597515003}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e52de21a22b6dd44c9cc19f810c65059, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Timeline::UnityEngine.Timeline.SignalReceiver
---- !u!114 &4901231123597515005 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2617344036803686472, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
-  m_PrefabInstance: {fileID: 4901231123597515003}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 50743ee2678d976b5976e8af602896de, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Intro
---- !u!320 &4901231123597515006 stripped
-PlayableDirector:
-  m_CorrespondingSourceObject: {fileID: 1415974225045019561, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
-  m_PrefabInstance: {fileID: 4901231123597515003}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

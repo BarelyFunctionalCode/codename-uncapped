@@ -5,7 +5,7 @@ using UnityEngine.Timeline;
 public class Intro : MonoBehaviour
 {
     [SerializeField] private PlayableDirector playableDirector;
-    [SerializeField] private TimelineAsset fadeTimeline;
+    [SerializeField] private AudioTrack musicAudioTrack;
     private bool introFinished = false;
     private bool loaded = false;
 
@@ -17,6 +17,7 @@ public class Intro : MonoBehaviour
     public void IntroFinished()
     {
         introFinished = true;
+        playableDirector.playableGraph.GetRootPlayable(0).SetSpeed(0);
         if (loaded) TriggerFadeOut();
     }
 
@@ -29,7 +30,7 @@ public class Intro : MonoBehaviour
 
     public void TriggerFadeOut()
     {
-        playableDirector.Play(fadeTimeline);
+        playableDirector.playableGraph.GetRootPlayable(0).SetSpeed(1);
     }
 
     public void DestroyIntro()
