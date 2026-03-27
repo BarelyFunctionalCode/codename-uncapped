@@ -262,7 +262,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         // Handle camera pitch rotation on local client
         HandleCamera();
 
-        playerType.HandleLegRotation(movementDirection);
+        playerType.HandleExtraMotion(movementDirection, isSkiing, surfaceNormal);
     }
 
     void FixedUpdate()
