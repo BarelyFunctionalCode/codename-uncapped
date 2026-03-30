@@ -13,7 +13,8 @@ public enum StatEventType
     FLAG_PICKED_UP,
     FLAG_HELD,
     DAMAGE_TAKEN,
-    DAMAGE_DEALT
+    DAMAGE_DEALT,
+    INTEL_STOLEN
 }
 
 public struct StatEvent: INetworkSerializeByMemcpy

@@ -132,7 +132,7 @@ public class PauseMenu : MonoBehaviour
     //     if (NetworkManager.Singleton.IsHost)
     //     {
     //         GameManager.Instance.SetLevel("MultiplayerTestLevel");
-    //         GameManager.Instance.SetGameMode(GameModes.FFA);
+    //         GameManager.Instance.SetGameMode(GameModes.DEATHMATCH);
     //         GameManager.Instance.LoadLevel();
     //     }
     // }

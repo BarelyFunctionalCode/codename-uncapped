@@ -51,6 +51,9 @@ public class GameModeBase : NetworkBehaviour
     {
         if (!IsHost) return;
 
+        // Debugging
+        print("Starting game");
+
         team_structure.WipeTeams();
         team_structure.InitializeTeamNames(custom_team_names);
 

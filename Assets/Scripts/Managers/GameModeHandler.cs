@@ -9,8 +9,10 @@ using UnityEngine.Events;
 public enum GameModes
 {
     NONE,
-    FFA,
-    CTF,
+    DEATHMATCH,
+    POWERSTRUGGLE,
+    TEAMDEATHMATCH,
+    STEALTHEINTEL,
 }
 
 public enum TeamBasedType
@@ -29,9 +31,11 @@ public class GameModeHandler : NetworkBehaviour
 {
     // Is a game mode FFA? Are players going to have a team?
     public Dictionary<GameModes, TeamBasedType> GameModesTeamTypes = new Dictionary<GameModes, TeamBasedType>() {
-        { GameModes.NONE, TeamBasedType.NONE },
-        { GameModes.FFA, TeamBasedType.SOLO },
-        { GameModes.CTF, TeamBasedType.TEAM },
+        { GameModes.NONE,           TeamBasedType.NONE },
+        { GameModes.DEATHMATCH,     TeamBasedType.SOLO },
+        { GameModes.POWERSTRUGGLE,  TeamBasedType.TEAM },
+        { GameModes.TEAMDEATHMATCH, TeamBasedType.TEAM },
+        { GameModes.STEALTHEINTEL,  TeamBasedType.TEAM },
     };
 
     private static GameModeHandler _instance;

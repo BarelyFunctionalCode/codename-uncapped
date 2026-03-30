@@ -126,6 +126,7 @@ public class TeamStructure : NetworkBehaviour
     public int AddNewTeam(string team)
     {
         teams.Add(new FixedString512Bytes(team));
+//        teams[teams.Count - 1].ToString();
         return teams.Count - 1;
     }
 
