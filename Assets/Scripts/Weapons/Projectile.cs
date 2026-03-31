@@ -53,6 +53,7 @@ public class Projectile : NetworkBehaviour, IGravityModifiable
 
         audioSource = GetComponent<AudioSource>();
         audioSource.spatialBlend = 1;
+        audioSource.dopplerLevel = 0;
         audioSource.minDistance = soundMinDistance;
         audioSource.maxDistance = soundMaxDistance;
 
@@ -96,7 +97,7 @@ public class Projectile : NetworkBehaviour, IGravityModifiable
     private void OnCollisionEnter(Collision collision)
     {
         if (!IsServer) return;
-        if (!Weapon.interactionTags.Contains(collision.gameObject.tag)) return;
+        if (Weapon.interactionIgnoreTags.Contains(collision.gameObject.tag)) return;
 
         if (!DoImpactCheck(collision)) return;
 

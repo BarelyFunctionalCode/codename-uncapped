@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Reflection;
+using TMPro;
 using UnityEngine;
 
 public enum HUDMenu
@@ -13,12 +14,27 @@ public enum HUDMenu
 public class HUD : MonoBehaviour
 {
     [SerializeField] private Canvas mainCanvas;
+    [SerializeField] private TMP_Text leftObjectiveText;
+    [SerializeField] private TMP_Text rightObjectiveText;
+    [SerializeField] private TMP_Text countdownMinutesText;
+    [SerializeField] private TMP_Text countdownSecondsText;
+    [SerializeField] private TMP_Text currentPhaseText;
+    readonly Dictionary<Phase, Color> phaseColors = new()
+    {
+        { Phase.PRELOAD, Color.white },
+        { Phase.WARMUP, Color.yellow },
+        { Phase.ACTIVE, Color.green },
+        { Phase.ENDGAME, Color.red },
+    };
+
     [SerializeField] private CenterClusterUI centerClusterUI;
     [SerializeField] private Transform weaponsContainer;
     [SerializeField] private GameObject weaponUIPrefabObj;
     [SerializeField] private ThrowableUI throwableUI;
     [SerializeField] private Transform gearContainer;
     [SerializeField] private RectTransform dynamicReticle;
+    [SerializeField] private GameObject hitMarkerObj;
+    [SerializeField] private AudioSource hitMarkerSound;
 
     private PlayerController playerController;
     private PlayerControls playerControls;
@@ -30,6 +46,9 @@ public class HUD : MonoBehaviour
 
     private float dynamicReticleMaxMoveRange = 50f;
     private float dynamicReticleMaxVelocityDeflection = 50f;
+
+    private float hitmarkerDisplayTime = 0.07f;
+    private float hitmarkerTimer = 0f;
 
     private HUDMenu menuLock = HUDMenu.None;
 
@@ -48,6 +67,17 @@ public class HUD : MonoBehaviour
         Vector2 dynamicReticleTargetPos = new Vector2(deflectionX / dynamicReticleMaxVelocityDeflection * dynamicReticleMaxMoveRange,
                                                       deflectionY / dynamicReticleMaxVelocityDeflection * dynamicReticleMaxMoveRange);
         dynamicReticle.anchoredPosition = Vector2.Lerp(dynamicReticle.anchoredPosition, dynamicReticleTargetPos, Time.deltaTime * 10f);
+
+        // Update hitmarker timer
+        if (hitMarkerObj.activeSelf)
+        {
+            hitmarkerTimer += Time.deltaTime;
+            if (hitmarkerTimer >= hitmarkerDisplayTime)
+            {
+                hitMarkerObj.SetActive(false);
+                hitmarkerTimer = 0f;
+            }
+        }
     }
 
     private void OnDestroy()
@@ -61,6 +91,10 @@ public class HUD : MonoBehaviour
         
         playerControls.UI.Leaderboard.started -= ctx => leaderboard.ToggleMenu(true);
         playerControls.UI.Leaderboard.canceled -= ctx => leaderboard.ToggleMenu(false);
+
+        playerController.onAppliedDamage.RemoveListener(SetHitMarker);
+        GameModeHandler.Instance.currentPhaseCountdown.OnValueChanged -= SetCountDownTimer;
+        GameModeHandler.Instance.currentPhase.OnValueChanged -= SetCurrentPhaseData;
     }
 
     public void Initialize(PlayerController playerController)
@@ -83,12 +117,40 @@ public class HUD : MonoBehaviour
         loadoutMenu.Initialize(playerController.GetComponent<PlayerLoadoutManager>(), this);
         leaderboard.Initialize();
 
+        playerController.onAppliedDamage.AddListener(SetHitMarker);
+        GameModeHandler.Instance.currentPhaseCountdown.OnValueChanged += SetCountDownTimer;
+        GameModeHandler.Instance.currentPhase.OnValueChanged += SetCurrentPhaseData;
+
         isInitialized = true;
     }
 
     public void ToggleHUD()
     {
         if (mainCanvas != null) mainCanvas.enabled = !mainCanvas.enabled;
+    }
+
+    private void SetHitMarker(float damageAmount)
+    {
+        if (damageAmount <= 0) return;
+
+        hitMarkerObj.SetActive(true);
+        hitMarkerSound.Play();
+    }
+
+    private void SetCountDownTimer(float _, float timeRemaining)
+    {
+        int minutes = Mathf.FloorToInt(timeRemaining / 60f);
+        int seconds = Mathf.FloorToInt(timeRemaining % 60f);
+        countdownMinutesText.text = minutes.ToString("00");
+        countdownSecondsText.text = seconds.ToString("00");
+    }
+
+    private void SetCurrentPhaseData(Phase _, Phase phase)
+    {
+        currentPhaseText.text = phase.ToString();
+        currentPhaseText.color = phaseColors[phase];
+        if (phase == Phase.ACTIVE) currentPhaseText.gameObject.SetActive(false);
+        else currentPhaseText.gameObject.SetActive(true);
     }
 
     public void AddWeaponUI(Weapon weapon)

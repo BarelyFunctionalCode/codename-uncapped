@@ -1,6 +1,7 @@
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Entity : NetworkBehaviour, IDamageable
 {
@@ -9,9 +10,11 @@ public class Entity : NetworkBehaviour, IDamageable
     [Header("Entity Attributes")]
     [SerializeField] protected NetworkVariable<ulong> _entityId = new(0);
     [SerializeField] protected NetworkVariable<FixedString32Bytes> _entityName = new("");
-    [SerializeField] protected uint _teamId = 0;
+    [SerializeField] protected NetworkVariable<uint> _teamId = new(0);
     [SerializeField] private NetworkVariable<float> _health = new(0.0f);
     [SerializeField] private float _maxHealth;
+    public UnityEvent<float> onHealthChanged = new();
+    public UnityEvent<float> onAppliedDamage = new();
 
     [SerializeField] private NetworkVariable<float> _energy = new(0.0f);
     [SerializeField] private float _maxEnergy;
@@ -24,7 +27,7 @@ public class Entity : NetworkBehaviour, IDamageable
 
     public ulong EntityId => _entityId.Value;
     public string EntityName => _entityName.Value.ToString();
-    public uint TeamId { get { return _teamId; } set { _teamId = value; } }
+    public uint TeamId { get { return _teamId.Value; } set { _teamId.Value = value; } }
 
     public float Health => _health.Value;
     public float MaxHealth => _maxHealth;
@@ -65,20 +68,34 @@ public class Entity : NetworkBehaviour, IDamageable
         ApplyhealthDelta(-damage);
         attackerRef.TryGet(out PlayerController attacker);
 
-        GameModeHandler.Instance.StatEventReceiver(new StatEvent(
-            StatEventType.DAMAGE_DEALT,
-            damage,
-            attacker.EntityId
-        ));
+        if (attacker != null && attacker.EntityId != EntityId)
+        {
+            attacker.OnAppliedDamageRpc(damage);
+            GameModeHandler.Instance.StatEventReceiver(new StatEvent(
+                StatEventType.DAMAGE_DEALT,
+                damage,
+                attacker.EntityId
+            ));
+        }
 
         if (_health.Value <= 0) Die(attackerRef, weaponRef);
     }
+    [Rpc(SendTo.Owner)]
+    private void OnAppliedDamageRpc(float damage) => onAppliedDamage.Invoke(damage);
+
     public void ApplyhealthDelta(float amount)
     {
         if (!IsServer) return;
+        float oldHealth = _health.Value;
         _health.Value += amount;
         _health.Value = Mathf.Clamp(_health.Value, 0, _maxHealth);
+
+        float healthDeltaRatio = (_health.Value - oldHealth) / _maxHealth;
+        ApplyhealthDeltaRpc(healthDeltaRatio);
     }
+
+    [Rpc(SendTo.Owner)]
+    public void ApplyhealthDeltaRpc(float ratio) => onHealthChanged.Invoke(ratio);
 
     public void ApplyEnergyDelta(float amount)
     {
@@ -87,30 +104,34 @@ public class Entity : NetworkBehaviour, IDamageable
         _energy.Value = Mathf.Min(_energy.Value, _maxEnergy);
     }
 
-    private void Die(NetworkBehaviourReference attackerRef, NetworkBehaviourReference weaponRef)
+    public void Suicide() => Die(null, null, true);
+
+    private void Die(NetworkBehaviourReference attackerRef, NetworkBehaviourReference weaponRef, bool isSuicide = false)
     {
         if (!IsServer || _isDead.Value) return;
-        attackerRef.TryGet(out PlayerController attacker);
-        weaponRef.TryGet(out Weapon weapon);
-        ThrowableManager throwable = null;
-        if (weapon == null) weaponRef.TryGet(out throwable);
-        if (attacker != null && (weapon != null || throwable != null))
+
+        if (!isSuicide)
         {
-            // TODO: Call stats manager singleton to log damage dealt
-            // StatsManager.Instance.LogDamageDealt(ulong attackerClientId, ulong victimClientId, string weaponName, float damageAmount, bool isFatal);
-            // StatsManager.Instance.LogDamageDealt(attacker.OwnerClientId, OwnerClientId, weapon.Name, damage, health.Value <= 0);
-            GameModeHandler.Instance.StatEventReceiver(new StatEvent(StatEventType.DEATHS, 1.0f, EntityId));
-            GameModeHandler.Instance.StatEventReceiver(new StatEvent(StatEventType.KILL, 1.0f, attacker.EntityId));
+            string lethalSource = "gravity";
+            string weaponName = null;
 
-            GameObject weaponObj = weapon != null ? weapon.gameObject : throwable.gameObject;
-            Debug.Log($"Attacker: {attacker.EntityName}, Victim: {EntityName}, Weapon: {weaponObj.name}");
-            LoadoutItemSO itemSO = PlayerLoadout.GetLoadoutItemSOFromPrefab(weaponObj);
-            Debug.Log($"ItemSO: {itemSO}");
-            string weaponName = itemSO.itemName;
-            Debug.Log($"Weapon Name: {weaponName}");
-            NotificationManager.Instance.SendKillFeedNotificationRpc(EntityName, attacker.EntityName, weaponName);
+            attackerRef.TryGet(out PlayerController attacker);
+            weaponRef.TryGet(out Weapon weapon);
+            ThrowableManager throwable = null;
+            if (weapon == null) weaponRef.TryGet(out throwable);
+            if (attacker != null && (weapon != null || throwable != null))
+            {
+                GameModeHandler.Instance.StatEventReceiver(new StatEvent(StatEventType.DEATHS, 1.0f, EntityId));
+                GameModeHandler.Instance.StatEventReceiver(new StatEvent(StatEventType.KILL, 1.0f, attacker.EntityId));
+
+                GameObject weaponObj = weapon != null ? weapon.gameObject : throwable.gameObject;
+                LoadoutItemSO itemSO = PlayerLoadout.GetLoadoutItemSOFromPrefab(weaponObj);
+                weaponName = itemSO.itemName;
+
+                lethalSource = attacker.EntityName + "'s " + weaponName;
+            }
+            NotificationManager.Instance.SendKillFeedNotificationRpc(EntityName, lethalSource);
         }
-
 
         _isDead.Value = true;
         OnDie();

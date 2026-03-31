@@ -19,6 +19,21 @@ public class LevelManager : NetworkBehaviour
         transform.SetParent(null);
 	}
 
+    public sealed override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        if (GameManager.Instance == null || !GameManager.Instance.isInitialized) return;
+        if (IsHost) GameModeHandler.Instance.currentPhase.OnValueChanged += OnGameModePhaseChange;
+    }
+
+    public sealed override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+
+        if (GameModeHandler.Instance != null) GameModeHandler.Instance.currentPhase.OnValueChanged -= OnGameModePhaseChange;
+    }
+
     // Called after all the players have loaded into the scene
     public void OnPlayersLoaded()
     {
@@ -34,7 +49,28 @@ public class LevelManager : NetworkBehaviour
         if (!NetworkManager.Singleton.IsHost) return;
         stageGenerated = true;
 
+        if (GameModeHandler.Instance.GameModesTeamTypes[GameModeHandler.Instance.current_game_mode.game_mode_id] == TeamBasedType.SOLO)
+        {
+            GameObject[] teamBaseObjs = GameObject.FindGameObjectsWithTag("TeamBase");
+            foreach (var teamBaseObj in teamBaseObjs)            {
+                teamBaseObj.SetActive(false);
+            }
+        }
+
         OnLevelInitialized();
+    }
+
+    private void OnGameModePhaseChange(Phase _, Phase newPhase)
+    {
+        if (newPhase == Phase.ACTIVE)
+        {
+            foreach (var player in NetworkManager.Singleton.SpawnManager.PlayerObjects)
+            {
+                PlayerController playerController = player.GetComponentInChildren<PlayerController>();
+                if (playerController == null) continue;
+                playerController.Suicide();
+            }
+        }
     }
 
 
@@ -88,6 +124,18 @@ public class LevelManager : NetworkBehaviour
 
     public Transform GetSpawnPoint(uint teamId)
     {
+        if (GameModeHandler.Instance.GameModesTeamTypes[GameModeHandler.Instance.current_game_mode.game_mode_id] == TeamBasedType.TEAM)
+        {
+            return GetTeamSpawnPoint(teamId);
+        }
+        else
+        {
+            return GetSoloSpawnPoint();
+        }
+    }
+
+    private Transform GetTeamSpawnPoint(uint teamId)
+    {
         if (spawnPoints.ContainsKey(teamId) && spawnPoints[teamId].Count > 0)
         {
             for (int i = 0; i < spawnPoints[teamId].Count; i++)
@@ -123,6 +171,58 @@ public class LevelManager : NetworkBehaviour
         }
         return null;
     }
+
+    private Transform GetSoloSpawnPoint()
+    {
+        float maxTries = 10;
+        float spawnRadiusRatio = 0.75f; // How close to the center of the map the spawn points should be, between 0 and 1
+
+        // Get map size and center from terrain in level
+        Terrain terrain = Terrain.activeTerrain;
+        if (terrain == null) return null;
+        Vector3 terrainSize = terrain.terrainData.size;
+        Vector3 terrainCenter = terrain.transform.position + terrainSize / 2f;
+
+        // Get list of current players and their positions
+        List<Vector3> playerPositions = new List<Vector3>();
+        foreach (var player in NetworkManager.Singleton.SpawnManager.PlayerObjects)
+        {
+            PlayerController playerController = player.GetComponentInChildren<PlayerController>();
+            if (playerController == null) continue;
+            playerPositions.Add(playerController.transform.position);
+        }
+
+        for (int i = 0; i < maxTries; i++)
+        {
+            Vector3 randomPos = new Vector3(
+                Random.Range(terrainCenter.x - terrainSize.x / 2f * spawnRadiusRatio, terrainCenter.x + terrainSize.x / 2f * spawnRadiusRatio),
+                terrainCenter.y + terrainSize.y,
+                Random.Range(terrainCenter.z - terrainSize.z / 2f * spawnRadiusRatio, terrainCenter.z + terrainSize.z / 2f * spawnRadiusRatio)
+            );
+
+            RaycastHit hit;
+            if (Physics.Raycast(randomPos, Vector3.down, out hit, terrainSize.y * 2f, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
+            {
+                if (hit.collider.gameObject.TryGetComponent<Terrain>(out _))
+                {
+                    bool occupied = false;
+                    foreach (var playerPos in playerPositions)
+                    {
+                        if (Vector3.Distance(hit.point, playerPos) < 5f)
+                        {
+                            occupied = true;
+                            break;
+                        }
+                    }
+                    if (occupied) continue;
+
+                    GameObject spawnPoint = new GameObject("SoloSpawnPoint");
+                    spawnPoint.transform.SetPositionAndRotation(hit.point + Vector3.up * 2f, Quaternion.identity);
+                    Destroy(spawnPoint, 5f); // Cleanup spawn point after 5 seconds
+                    return spawnPoint.transform;
+                }
+            }
+        }
+        return null;
+    }
 }
-
-

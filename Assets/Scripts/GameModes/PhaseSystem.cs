@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 public enum Phase
 {
+    NULL,
     PRELOAD,
     WARMUP,
     ACTIVE,
@@ -29,7 +30,7 @@ public class PhaseSystem : MonoBehaviour
 {
     #region Properties
     [SerializeField]
-    private Phase _currentphase = Phase.PRELOAD;
+    private Phase _currentphase = Phase.NULL;
     public Phase CurrentPhase
     {
         get => _currentphase;
@@ -58,7 +59,7 @@ public class PhaseSystem : MonoBehaviour
         set
         {
             _countdown = value;
-            if (Countdown <= 0)
+            if (Countdown <= 0 && CurrentPhase != Phase.NULL)
             {
                 Step();
             }
@@ -126,19 +127,20 @@ public class PhaseSystem : MonoBehaviour
     private void SetCountdown(float f)
     {
         Countdown = f;
+        GameModeHandler.Instance.currentPhaseCountdown.Value = f;
     }
     #endregion
     
     #region Message Receivers
     private void FixedUpdate()
     {
-        SetCountdown(GetCountdown() - Time.fixedDeltaTime);
+        if (CurrentPhase != Phase.NULL) SetCountdown(GetCountdown() - Time.fixedDeltaTime);
     }
 
-    public void Awake()
-    {
-        SetCountdown(1.0f);
-    }
+    // public void Awake()
+    // {
+    //     SetCountdown(1.0f);
+    // }
 
     public void OnGameWon()
     {

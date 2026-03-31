@@ -13,6 +13,7 @@ public class PlayerLoadoutManager : NetworkBehaviour
     private int currentWeaponIndex = 0;
     private Weapon equippedPrimaryWeapon;
     private bool isPrimaryFiring = false;
+    private bool isRestocked = false;
 
     private ThrowableManager throwableManager;
 
@@ -29,16 +30,20 @@ public class PlayerLoadoutManager : NetworkBehaviour
     }
 
     [Rpc(SendTo.Server)]
-    public void UpdateLoadoutRpc(PlayerLoadout newLoadout) => tempLoadout = newLoadout;
+    public void UpdateLoadoutRpc(PlayerLoadout newLoadout, bool doKill = false)
+    {
+        tempLoadout = newLoadout;
+        if (doKill && playerController != null) playerController.Suicide();
+    }
 
-    public void Initialize(PlayerController newPlayerController = null)
+    public void Initialize(bool allowLoadoutChange = true, PlayerController newPlayerController = null)
     {
         if (!IsServer) return;
 
         if (newPlayerController != null) playerController = newPlayerController;
         else if (playerController == null) Debug.LogError("PlayerLoadoutManager: Initialize called without PlayerController set!");
 
-        if (tempLoadout != null)
+        if (allowLoadoutChange && tempLoadout != null)
         {
             currentLoadout.Value = new PlayerLoadout(tempLoadout);
             tempLoadout = null;
@@ -58,6 +63,7 @@ public class PlayerLoadoutManager : NetworkBehaviour
         equippedPrimaryWeapon = currentWeaponsObjList[0].GetComponent<Weapon>();
 
         AddThrowable(currentLoadout.Value.throwableSO.itemPrefab, playerController);
+        isRestocked = true;
     }
 
     public void Deinitialize()
@@ -83,6 +89,15 @@ public class PlayerLoadoutManager : NetworkBehaviour
             Destroy(throwableManager.gameObject);
             throwableManager = null;
         }
+    }
+
+    public void Restock()
+    {
+        if (!IsServer || isRestocked) return;
+
+        Deinitialize();
+        Initialize(false);
+        isRestocked = true;
     }
 
 
@@ -138,11 +153,19 @@ public class PlayerLoadoutManager : NetworkBehaviour
     }
 
     [Rpc(SendTo.Server)]
-    public void OnPrimaryFireStartedRpc() => isPrimaryFiring = true;
+    public void OnPrimaryFireStartedRpc()
+    {
+        isPrimaryFiring = true;
+        isRestocked = false;
+    }
     [Rpc(SendTo.Server)]
     public void OnPrimaryFireCanceledRpc() => isPrimaryFiring = false;
     [Rpc(SendTo.Server)]
-    public void OnThrowableStartedRpc() => throwableManager.StartThrow();
+    public void OnThrowableStartedRpc()
+    {
+        throwableManager.StartThrow();
+        isRestocked = false;
+    }
     [Rpc(SendTo.Server)]
     public void OnThrowableCanceledRpc() => throwableManager.ReleaseThrow();
 }

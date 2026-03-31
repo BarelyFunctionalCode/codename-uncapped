@@ -6,7 +6,7 @@ using UnityEngine.Events;
 [RequireComponent(typeof(AudioSource))]
 public class Weapon : NetworkBehaviour
 {
-    public static List<string> interactionTags = new() { "Terrain", "Player", "Throwable" };
+    public static List<string> interactionIgnoreTags = new() { "Projectile" };
     [Header("Visuals")]
     [SerializeField] private Transform projectileSpawnPoint;
     [SerializeField] private GameObject modelObj;
@@ -46,6 +46,9 @@ public class Weapon : NetworkBehaviour
         if (isInitialized) return;
         audioSource = GetComponent<AudioSource>();
         audioSource.spatialBlend = 1;
+        audioSource.dopplerLevel = 0;
+        audioSource.minDistance = 1;
+        audioSource.maxDistance = 10;
 
         if (IsServer)
         {
