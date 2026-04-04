@@ -1,5 +1,4 @@
 using UnityEngine;
-using System;
 
 /*
  * A single win condition, such as FLAG_CAPTURES, that will be compared
@@ -11,25 +10,7 @@ using System;
 public class WinConditionItem : ScriptableObject
 {
     // Stat type
-    [SerializeField]
-    private StatEventType StatType;
+    public StatEventType statType;
     // Required score
-    [SerializeField]
-    private float Value;
-
-    // Is the current score greater than or equal to the required score?
-    public bool Check(float v)
-    {
-        return v >= Value;
-    }
-
-    public StatEventType GetStatType()
-    {
-        return StatType;
-    }
-
-    public float GetStatValue()
-    {
-        return Value;
-    }
+    public float defaultValue;
 }

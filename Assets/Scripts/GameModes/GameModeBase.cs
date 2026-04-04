@@ -31,8 +31,13 @@ public class GameModeBase : NetworkBehaviour
         StatEventType.FLAG_CAPTURE,
     };
 
-    [SerializeField]
-    public GameModes game_mode_id;
+    private NetworkVariable<GameModes> _gameModeId = new();
+    public GameModes game_mode_id {
+        get => _gameModeId.Value;
+        set {
+            if (IsHost) _gameModeId.Value = value;
+        }
+    }
 
     #region Public Methods
     public void StatEventReceiver(StatEvent s)

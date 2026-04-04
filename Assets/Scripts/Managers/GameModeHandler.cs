@@ -56,6 +56,8 @@ public class GameModeHandler : NetworkBehaviour
     public NetworkVariable<Phase> currentPhase = new();
 
     #region Gamemode prefab cache
+    [SerializeField]
+    private GameObject gameModeBasePrefabObj;
     public static Dictionary<GameModes, GameModeSO> availableGameModes = new();
     #endregion
 
@@ -69,7 +71,7 @@ public class GameModeHandler : NetworkBehaviour
     
     // Game mode can be selected at any time. player voting, admin selection, in-game host selection should all call from here.
     // Psuedo
-    public void SelectNewMode(GameModes g)
+    public void SelectNewMode(GameModeData gameModeData)
     {
         if (!IsHost) return;
 
@@ -82,14 +84,18 @@ public class GameModeHandler : NetworkBehaviour
         }
 
         // Clone the prefab, add it as a child to the GameModeHandler
-        GameObject cloned_game_mode_object = Instantiate(availableGameModes[g].prefab, this.gameObject.transform);
+        GameObject cloned_game_mode_object = Instantiate(gameModeBasePrefabObj, gameObject.transform);
         cloned_game_mode_object.GetComponent<NetworkObject>().Spawn();
 
         // Fetch the clone's GameModeBase component
         GameModeBase game_mode = cloned_game_mode_object.GetComponent<GameModeBase>();
+        game_mode.game_mode_id = gameModeData.gameModeSO.gameModeName;
         current_game_mode = game_mode;
 
-        SelectNewModeRpc(g);
+        game_mode.GetComponent<WinConditions>().Initialize(gameModeData.winConditions);
+        game_mode.GetComponent<PhaseSystem>().countdowns[Phase.ACTIVE] = gameModeData.timeLimitMinutes * 60;
+
+        SelectNewModeRpc(gameModeData.gameModeSO.gameModeName);
 
         if (LevelManager.Instance) LevelManager.Instance.OnStageGenerated();
     }
@@ -97,6 +103,7 @@ public class GameModeHandler : NetworkBehaviour
     [Rpc(SendTo.Everyone)]
     private void SelectNewModeRpc(GameModes g)
     {
+        //TODO: Update game mode settings on the clients too
         OnGameModeChanged.Invoke(g);
     }
 

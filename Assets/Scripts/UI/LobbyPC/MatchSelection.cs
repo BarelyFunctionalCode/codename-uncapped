@@ -1,10 +1,8 @@
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class MatchSelection : NetworkBehaviour
 {
@@ -12,10 +10,10 @@ public class MatchSelection : NetworkBehaviour
     [SerializeField] private TMP_Dropdown gameModeSelectDropdown;
     [SerializeField] private TMP_Dropdown maxPlayersSelectDropdown;
     [SerializeField] private TMP_Dropdown timeLimitSelectDropdown;
-    [SerializeField] private TMP_Text objectiveLimitNameText;
-    [SerializeField] private TMP_Text objectiveLimitSelectText;
-    [SerializeField] private GameObject objectiveLimitSelectIncrementButtonContainer;
-    [SerializeField] private GameObject objectiveLimitSelectDecrementButtonContainer;
+    [SerializeField] private TMP_Text winConditionNameText;
+    [SerializeField] private TMP_Text winConditionValueText;
+    [SerializeField] private GameObject winConditionValueIncrementButtonContainer;
+    [SerializeField] private GameObject winConditionValueDecrementButtonContainer;
 
     [SerializeField] private TMP_Text selectedLevelTitleText;
     [SerializeField] private TMP_Text selectedLevelDescriptionText;
@@ -33,7 +31,7 @@ public class MatchSelection : NetworkBehaviour
     public GameModeSO selectedGameMode;
     private int selectedMaxPlayers;
     private int selectedTimeLimit;
-    private int selectedObjectiveLimit;
+    private int selectedWinConditionValue;
 
     [SerializeField] private LobbyPC lobbyPC;
 
@@ -92,9 +90,10 @@ public class MatchSelection : NetworkBehaviour
         timeLimitSelectDropdown.AddOptions(timeLimitOptions);
         timeLimitSelectDropdown.value = timeLimitOptions.IndexOf(selectedTimeLimit.ToString());
 
-        objectiveLimitNameText.text = selectedGameMode.objectiveName + " Limit";
-        objectiveLimitSelectText.text = selectedGameMode.defaultObjectiveLimit.ToString();
-        selectedObjectiveLimit = selectedGameMode.defaultObjectiveLimit;
+        WinCondition displayedWinCondition = selectedGameMode.winConditionsDefaults[0];
+        winConditionNameText.text = displayedWinCondition.readerFriendlyName + " Limit";
+        winConditionValueText.text = displayedWinCondition.GetStatValue().ToString();
+        selectedWinConditionValue = (int)displayedWinCondition.GetStatValue();
 
         if (!IsHost)
         {
@@ -102,8 +101,8 @@ public class MatchSelection : NetworkBehaviour
             gameModeSelectDropdown.interactable = false;
             maxPlayersSelectDropdown.interactable = false;
             timeLimitSelectDropdown.interactable = false;
-            objectiveLimitSelectIncrementButtonContainer.SetActive(false);
-            objectiveLimitSelectDecrementButtonContainer.SetActive(false);
+            winConditionValueIncrementButtonContainer.SetActive(false);
+            winConditionValueDecrementButtonContainer.SetActive(false);
         }
 
         playerListTeamSeparatorObj.SetActive(selectedGameMode.teamBasedType == TeamBasedType.TEAM);
@@ -188,23 +187,23 @@ public class MatchSelection : NetworkBehaviour
     {
         if (!IsHost) return;
 
-        selectedObjectiveLimit = Mathf.Min(666, selectedObjectiveLimit + 1);
-        OnObjectiveLimitSelectValueChangedRpc(selectedObjectiveLimit);
+        selectedWinConditionValue = Mathf.Min(666, selectedWinConditionValue + 1);
+        OnObjectiveLimitSelectValueChangedRpc(selectedWinConditionValue);
     }
 
     public void OnObjectiveLimitSelectDecremented()
     {       
         if (!IsHost) return;
 
-        selectedObjectiveLimit = Mathf.Max(1, selectedObjectiveLimit - 1);
-        OnObjectiveLimitSelectValueChangedRpc(selectedObjectiveLimit);
+        selectedWinConditionValue = Mathf.Max(1, selectedWinConditionValue - 1);
+        OnObjectiveLimitSelectValueChangedRpc(selectedWinConditionValue);
     }
 
     [Rpc(SendTo.Everyone)]
     private void OnObjectiveLimitSelectValueChangedRpc(int value)
     {
-        selectedObjectiveLimit = value;
-        objectiveLimitSelectText.text = selectedObjectiveLimit.ToString();
+        selectedWinConditionValue = value;
+        winConditionValueText.text = selectedWinConditionValue.ToString();
     }
 
     public void OnStartMatchButtonPressed()
@@ -213,8 +212,15 @@ public class MatchSelection : NetworkBehaviour
 
         lobbyPC.Reset();
         GameManager.Instance.SetLevel(selectedLevel.sceneName);
-        GameManager.Instance.SetGameMode(selectedGameMode.gameModeName);
-        // TODO: Set max players, time limit, objective limit, and team structure on GameMode
+
+        // TODO: What is the purpose of multiple win conditions?
+        List<float> selectedWinConditionValues = new() { selectedWinConditionValue };
+        GameModeData gameModeData = selectedGameMode.GetGameModeData(
+            selectedMaxPlayers,
+            selectedTimeLimit,
+            selectedWinConditionValues
+        );
+        GameManager.Instance.SetGameModeData(gameModeData);
         GameManager.Instance.LoadLevel();
     }
 

@@ -25,8 +25,40 @@ public class GameModeSO : ScriptableObject
     public string description;
     public MaxAllowedPlayersOptions maxAllowedPlayers;
     public MaxAllowedTimeLimitOptions maxAllowedTimeLimitMinutes;
-    public string objectiveName;
-    public int defaultObjectiveLimit;
+    public List<WinCondition> winConditionsDefaults;
     public TeamBasedType teamBasedType;
-    public GameObject prefab;
+
+    public GameModeData GetGameModeData(int maxPlayers = -1, int timeLimitMinutes = -1, List<float> winConditionValues = null)
+    {
+        if (maxPlayers == -1) maxPlayers = (int)maxAllowedPlayers;
+        if (timeLimitMinutes == -1) timeLimitMinutes = (int)maxAllowedTimeLimitMinutes;
+
+        List<WinCondition> winConditions = new(winConditionsDefaults);
+        if (winConditionValues != null)
+        {
+            for (int i = 0; i < winConditions.Count && i < winConditionValues.Count; i++)
+            {
+                winConditions[i].SetValue(winConditionValues[i]);
+            }
+        }
+
+        return new GameModeData(this, maxPlayers, timeLimitMinutes, winConditions);
+    }
+}
+
+public class GameModeData
+{
+    public GameModeData(GameModeSO gameModeSO, int maxPlayers, int timeLimitMinutes, List<WinCondition> winConditions)
+    {
+        this.gameModeSO = gameModeSO;
+        this.maxPlayers = maxPlayers;
+        this.timeLimitMinutes = timeLimitMinutes;
+        this.winConditions = winConditions;
+    }
+
+    public GameModeSO gameModeSO;
+    public int maxPlayers;
+    public int timeLimitMinutes;
+    public List<WinCondition> winConditions;
+    public int objectiveLimit;
 }

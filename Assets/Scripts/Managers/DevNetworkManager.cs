@@ -37,7 +37,7 @@ public class DevNetworkManager : MonoBehaviour
                 if (playerWaitTimer <= 0f)
                 {
                     GameManager.Instance.SetLevel(desiredSceneName);
-                    GameManager.Instance.SetGameMode(desiredGameMode);
+                    GameManager.Instance.SetGameModeData(GameModeHandler.availableGameModes[desiredGameMode].GetGameModeData());
                     GameManager.Instance.LoadLevel();
                     
                     Destroy(gameObject);
