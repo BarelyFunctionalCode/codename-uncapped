@@ -100,7 +100,7 @@ public class GameStats : MonoBehaviour
         Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> points = FetchStats();
         Dictionary<ulong, StatTracker> stat_group;
         ulong player_id = s.Source;
-        string team_name = gameObject.GetComponent<TeamStructure>().GetTeam(player_id);
+        string team_name = gameObject.GetComponent<TeamStructure>().GetPlayersTeam(player_id);
 
         // Check if player's stats has this stat added yet
         stat_group = points[StatsGroup.PLAYER];
