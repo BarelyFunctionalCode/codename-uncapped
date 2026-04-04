@@ -56,7 +56,7 @@ public class GameModeHandler : NetworkBehaviour
     public NetworkVariable<Phase> currentPhase = new();
 
     #region Gamemode prefab cache
-    public static Dictionary<GameModes, GameObject> game_mode_cache = new();
+    public static Dictionary<GameModes, GameModeSO> availableGameModes = new();
     #endregion
 
 
@@ -82,7 +82,7 @@ public class GameModeHandler : NetworkBehaviour
         }
 
         // Clone the prefab, add it as a child to the GameModeHandler
-        GameObject cloned_game_mode_object = Instantiate(game_mode_cache[g], this.gameObject.transform);
+        GameObject cloned_game_mode_object = Instantiate(availableGameModes[g].prefab, this.gameObject.transform);
         cloned_game_mode_object.GetComponent<NetworkObject>().Spawn();
 
         // Fetch the clone's GameModeBase component
@@ -136,15 +136,12 @@ public class GameModeHandler : NetworkBehaviour
 
         if (IsHost)
         {
-            if (game_mode_cache.Count == 0)
+            if (availableGameModes.Count == 0)
             {
-                var gamemodeObjects = Resources.LoadAll<GameObject>("Prefabs/GameModes/Variants");
-                game_mode_cache = new Dictionary<GameModes, GameObject>(gamemodeObjects.Length);
-                foreach (GameObject obj in gamemodeObjects)
-                {
-                    if (Enum.TryParse(obj.name, out GameModes gameMode))game_mode_cache.Add(gameMode, obj);
-                    else Debug.LogWarning($"GameModeHandler: Failed to parse GameMode from prefab name {obj.name}");
-                }
+                var gamemodeSOs = Resources.LoadAll<GameModeSO>("GameModeSOs");
+                availableGameModes = new Dictionary<GameModes, GameModeSO>(gamemodeSOs.Length);
+                
+                foreach (GameModeSO obj in gamemodeSOs) availableGameModes.Add(obj.gameModeName, obj);
             }
             GameManager.Instance.OnClientConnectedEvent.AddListener(OnClientJoined);
         }

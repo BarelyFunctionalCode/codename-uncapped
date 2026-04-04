@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 527efa8c8452842e3bcdc314cd511426, type: 3}
+  m_Name: DeathMatch
+  m_EditorClassIdentifier: Assembly-CSharp::GameModeSO
+  gameModeName: 1
+  displayName: Death Match
+  description: I was going to write some actual profound lore-connected description
+    but then I just didn't. KILL THEM ALL.
+  maxAllowedPlayers: 16
+  maxAllowedTimeLimitMinutes: 60
+  objectiveName: Kills
+  defaultObjectiveLimit: 20
+  teamBasedType: 1
+  prefab: {fileID: 761704925443465288, guid: 8360d081fa17942ae8b2f11c1d9323de, type: 3}
