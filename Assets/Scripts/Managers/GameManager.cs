@@ -64,6 +64,8 @@ public class GameManager : MonoBehaviour
 
         transform.SetParent(null);
         DontDestroyOnLoad(gameObject);
+
+        LevelManager.GenerateAvailableLevelsList();
     }
 
     private void Start()

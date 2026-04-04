@@ -6,6 +6,8 @@ public class LevelManager : NetworkBehaviour
 {
     public static LevelManager Instance { get; private set; } = null;
 
+    public static List<LevelSO> availableLevels = new();
+
     private bool playersLoaded = false;
     private bool stageGenerated = false;
 
@@ -32,6 +34,13 @@ public class LevelManager : NetworkBehaviour
         base.OnNetworkDespawn();
 
         if (GameModeHandler.Instance != null) GameModeHandler.Instance.currentPhase.OnValueChanged -= OnGameModePhaseChange;
+    }
+
+    public static void GenerateAvailableLevelsList()
+    {
+        availableLevels.Clear();
+        LevelSO[] levelSOs = Resources.LoadAll<LevelSO>("LevelSOs");
+        availableLevels.AddRange(levelSOs);
     }
 
     // Called after all the players have loaded into the scene

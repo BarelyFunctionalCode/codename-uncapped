@@ -1557,6 +1557,7 @@ GameObject:
   - component: {fileID: 3041668609388760468}
   - component: {fileID: 1558586244526576799}
   - component: {fileID: 2831160157384932774}
+  - component: {fileID: 2795583324901066426}
   m_Layer: 0
   m_Name: CinemachineCamera
   m_TagString: Untagged
@@ -1666,6 +1667,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineRotateWithFollowTarget
   Damping: 0
+--- !u!114 &2795583324901066426
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1412952431852196046}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 449ef5ebbe24720439ec31d15f7b6f3d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineVolumeSettings
+  Weight: 1
+  FocusTracking: 0
+  FocusTarget: {fileID: 0}
+  FocusOffset: 0
+  Profile: {fileID: 11400000, guid: c873e2a8c975d4021bd9b86357470fe7, type: 2}
 --- !u!1 &1463396499893029001
 GameObject:
   m_ObjectHideFlags: 0

@@ -50,7 +50,7 @@ public class LobbyPC : MonoBehaviour
 
     void Update()
     {
-        if (!isInitialized && GameManager.Instance.usingSteam && NetworkManager.Singleton != null && NetworkManager.Singleton.IsHost)
+        if (!isInitialized && NetworkManager.Singleton != null && NetworkManager.Singleton.IsHost)
         {
             if (autoInteract)
             {

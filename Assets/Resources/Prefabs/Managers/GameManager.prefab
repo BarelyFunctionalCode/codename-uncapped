@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7158343320024349726}
   - component: {fileID: 4866300083911765811}
+  - component: {fileID: 8122780637003568251}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -55,3 +56,15 @@ MonoBehaviour:
   OnClientDisconnectedEvent:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8122780637003568251
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3322502753240147291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 758e05c9ca1cd4c7aa51e565431b5f95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VolumeComponentUpdater

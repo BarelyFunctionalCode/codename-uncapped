@@ -16,5 +16,6 @@ MonoBehaviour:
   itemDescription: Soft launching soft launching
   itemType: 3
   itemPrefab: {fileID: 1645390600031970419, guid: 4bd496c84f7917647ac8f73f10c8d4bb, type: 3}
+  showcaseItemPrefab: {fileID: 8182502780126453879, guid: 76389706857f1da4d8fe12645b8e07c9, type: 3}
   applicableArmorClasses: 00000000
   isAvailable: 1

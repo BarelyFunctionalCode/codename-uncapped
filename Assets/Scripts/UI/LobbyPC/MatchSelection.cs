@@ -23,9 +23,7 @@ public class MatchSelection : NetworkBehaviour
     [SerializeField] private GameObject lobbyPlayerPrefabObj;
     private List<LobbyPlayer> lobbyPlayers = new();
 
-    private static List<string> levelNames = new();
-
-    private string selectedLevel;
+    private LevelSO selectedLevel;
     private GameModes selectedGameMode;
     private bool isGameModeTeamBased = false; // TODO: Change this to be based on the selected GameModeSO
     private int selectedMaxPlayers;
@@ -48,19 +46,14 @@ public class MatchSelection : NetworkBehaviour
 
     private void InitializeMenu()
     {
-        if (levelNames.Count == 0) // TODO: Change this out for LevelSO that will have nice title and description.
+        selectedLevel = LevelManager.availableLevels[0];
+        selectedLevelTitleText.text = selectedLevel.displayName;
+        selectedLevelDescriptionText.text = selectedLevel.description;
+        List<string> levelNames = new();
+        foreach (var level in LevelManager.availableLevels)
         {
-            string fullPath = Path.Combine(Application.dataPath, "Scenes/Levels");
-            string[] sceneFiles = Directory.GetFiles(fullPath, "*.unity");
-            foreach (string file in sceneFiles)
-            {
-                string fileName = Path.GetFileName(file);
-                levelNames.Add(Path.GetFileNameWithoutExtension(fileName));
-            }
+            levelNames.Add(level.displayName);
         }
-        selectedLevel = levelNames[0];
-        selectedLevelTitleText.text = selectedLevel; // TODO: Change this to be the title from the LevelSO
-        selectedLevelDescriptionText.text = "This is a description for " + selectedLevel; // TODO: Change this to be the description from the LevelSO
         levelSelectDropdown.AddOptions(levelNames);
 
         List<string> gameModeNames = new();
@@ -116,9 +109,9 @@ public class MatchSelection : NetworkBehaviour
     [Rpc(SendTo.Everyone)]
     private void OnLevelSelectValueChangedRpc(int index)
     {
-        selectedLevel = levelNames[index];
-        selectedLevelTitleText.text = selectedLevel; // TODO: Change this to be the title from the LevelSO
-        selectedLevelDescriptionText.text = "This is a description for " + selectedLevel; // TODO: Change this to be the description from the LevelSO
+        selectedLevel = LevelManager.availableLevels[index];
+        selectedLevelTitleText.text = selectedLevel.displayName;
+        selectedLevelDescriptionText.text = selectedLevel.description;
 
         if (IsHost) return;
         levelSelectDropdown.value = index;
@@ -175,7 +168,7 @@ public class MatchSelection : NetworkBehaviour
         if (!IsHost) return;
 
         lobbyPC.Reset();
-        GameManager.Instance.SetLevel(selectedLevel);
+        GameManager.Instance.SetLevel(selectedLevel.sceneName);
         GameManager.Instance.SetGameMode(selectedGameMode);
         GameManager.Instance.LoadLevel();
     }
