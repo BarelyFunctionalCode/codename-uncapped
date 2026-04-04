@@ -47,11 +47,20 @@ public class GameModeBase : NetworkBehaviour
     }
 
     // Entry point for the game mode to begin its session.
-    public void StartGame()
+    public void StartGame(List<string> custom_team_names)
     {
         if (!IsHost) return;
 
+        // Debugging
+        print("Starting game");
+
         team_structure.WipeTeams();
+        team_structure.InitializeTeamNames(custom_team_names);
+
+        // Debugging
+        team_structure.AddNewTeam("Red");
+        team_structure.AddNewTeam("Blue");
+
         phase_system.HardSet(Phase.PRELOAD);
     }
 

@@ -12,9 +12,13 @@ using System.Collections.Generic;
 public class TeamStructure : NetworkBehaviour
 {
     #region Properties
-
     // Team names, "Red" vs "Blue" for example.
-    public NetworkList<FixedString128Bytes> teams;
+    [SerializeField]
+    public NetworkList<FixedString512Bytes> teams;
+
+    // Default team names can be set in the unity inspector which will be used if custom team names aren't provided to `InitializeTeamNames`
+    [SerializeField]
+    public List<string> predefined_team_names;
 
     // Players are assigned here by PlayerHandler, referenced by their PlayerController.EntityId
     // Format: Dictionary[PlayerID, TeamIndex]
@@ -41,10 +45,14 @@ public class TeamStructure : NetworkBehaviour
         GameModeHandler.Instance.OnPlayerChangedTeam.Invoke(e);
     }
 
+    private void RemoveTeamAssignments()
+    {
+        team_assignment.Clear();
+    }
     #endregion
 
     #region public methods
-    public string GetTeam(ulong player_id)
+    public string GetPlayersTeam(ulong player_id)
     {
         team_assignment.TryGetValue(player_id, out int teamIndex);
         string result = teamIndex >= 0 && teamIndex < teams.Count ? teams[teamIndex].ToString() : "No Team";
@@ -57,10 +65,17 @@ public class TeamStructure : NetworkBehaviour
         return GetTeams().IndexOf(team_name);
     }
 
+    // Fetch a team from the list
+    // NetworkList<FixedString512Bytes>[index]
+    public string GetTeam(int index)
+    {
+        return teams[index].ToString();
+    }
+
     public List<string> GetTeams()
     {
         List<string> x = new List<string>();
-        foreach (FixedString128Bytes f in teams)
+        foreach (FixedString512Bytes f in teams)
         {
             x.Add(f.ToString());
         }
@@ -68,7 +83,27 @@ public class TeamStructure : NetworkBehaviour
         return x;
     }
 
-    // pseudo helper function
+    public void InitializeTeamNames(List<string> overrides)
+    {
+        List<string> consolidated_team_names;
+
+        if (overrides.Count > 0)
+        {   // We can send a custom list of team names to use
+            consolidated_team_names = overrides;
+        }
+        else
+        {   // Or use the team names predefined in the game mode
+            consolidated_team_names = predefined_team_names;
+        }
+
+        foreach(string Name in consolidated_team_names)
+        {
+            AddNewTeam(Name);
+        }
+    }
+
+    // FFA game modes force each player to be on their own team.
+    // Their entityId will be their "team name" in the background.
     public void SetPlayerTeamFFA(ulong entityId)
     {
         int teamIndex;
@@ -77,27 +112,35 @@ public class TeamStructure : NetworkBehaviour
         SetPlayerTeam(entityId, teamIndex);
     }
 
-    // pseudo
+    // Assign a player to a team.
     public void SetPlayerTeam(ulong player_id, int teamIndex)
     {
+        // The player is already on this team, no-op
         if (team_assignment.ContainsKey(player_id) && team_assignment[player_id] == teamIndex) return;
+
+        // Else, assign the player to the new team
         team_assignment[player_id] = teamIndex;
         EmitPlayerChangedTeam(new EventArgsPlayerChangedTeam(player_id, teamIndex));
     }
 
     public int AddNewTeam(string team)
     {
-        teams.Add(team);
+        teams.Add(new FixedString512Bytes(team));
+//        teams[teams.Count - 1].ToString();
         return teams.Count - 1;
     }
 
+    // Clear one team from the team list
     public void RemoveTeam(string team)
     {
-        if (teams.Contains(team)) { teams.Remove(team); }
+        FixedString512Bytes cast_team_name = new FixedString512Bytes(team);
+        if (teams.Contains(cast_team_name)) { teams.Remove(team); }
     }
 
+    // Clear all teams from the team list and any player team assignments
     public void WipeTeams()
     {
+        RemoveTeamAssignments();
         teams.Clear();
     }
     #endregion
@@ -105,7 +148,7 @@ public class TeamStructure : NetworkBehaviour
     #region Message Receivers
     private void Awake()
     {
-        teams = new NetworkList<FixedString128Bytes>(readPerm: NetworkVariableReadPermission.Everyone);
+        teams = new NetworkList<FixedString512Bytes>(readPerm: NetworkVariableReadPermission.Everyone);
     }
     #endregion
 }

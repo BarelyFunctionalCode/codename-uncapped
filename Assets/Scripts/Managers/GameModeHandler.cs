@@ -9,8 +9,10 @@ using UnityEngine.Events;
 public enum GameModes
 {
     NONE,
-    FFA,
-    CTF,
+    DEATHMATCH,
+    POWERSTRUGGLE,
+    TEAMDEATHMATCH,
+    STEALTHEINTEL,
 }
 
 public enum TeamBasedType
@@ -29,9 +31,11 @@ public class GameModeHandler : NetworkBehaviour
 {
     // Is a game mode FFA? Are players going to have a team?
     public Dictionary<GameModes, TeamBasedType> GameModesTeamTypes = new Dictionary<GameModes, TeamBasedType>() {
-        { GameModes.NONE, TeamBasedType.NONE },
-        { GameModes.FFA, TeamBasedType.SOLO },
-        { GameModes.CTF, TeamBasedType.TEAM },
+        { GameModes.NONE,           TeamBasedType.NONE },
+        { GameModes.DEATHMATCH,     TeamBasedType.SOLO },
+        { GameModes.POWERSTRUGGLE,  TeamBasedType.TEAM },
+        { GameModes.TEAMDEATHMATCH, TeamBasedType.TEAM },
+        { GameModes.STEALTHEINTEL,  TeamBasedType.TEAM },
     };
 
     private static GameModeHandler _instance;
@@ -77,16 +81,11 @@ public class GameModeHandler : NetworkBehaviour
             Destroy(current_game_mode.gameObject);
         }
 
-        // Fetch the new one and assign it
-        // GameObject game_mode = game_mode_cache[g];
         // Clone the prefab, add it as a child to the GameModeHandler
         GameObject cloned_game_mode_object = Instantiate(game_mode_cache[g], this.gameObject.transform);
-
-        // Uncommenting this line gives a nullreference exception?
-        // Is this spawn being called too early into initialization?
         cloned_game_mode_object.GetComponent<NetworkObject>().Spawn();
 
-        // Fetch the clones's GameModeBase component
+        // Fetch the clone's GameModeBase component
         GameModeBase game_mode = cloned_game_mode_object.GetComponent<GameModeBase>();
         current_game_mode = game_mode;
 
@@ -104,7 +103,7 @@ public class GameModeHandler : NetworkBehaviour
     public void StartGame()
     {
         if (!IsHost || current_game_mode == null) return;
-        current_game_mode.StartGame();
+        current_game_mode.StartGame(new List<string>());
     }
 
     public TeamBasedType FetchTeamBasedType(GameModes g)
