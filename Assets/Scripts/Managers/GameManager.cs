@@ -120,6 +120,7 @@ public class GameManager : MonoBehaviour
             {
                 GameModeHandler.Instance.SelectNewMode(desiredGameModeData);
                 LevelManager.Instance.OnPlayersLoaded();
+                desiredGameModeData = null;
                 desiredLevelName = "";
             }
 

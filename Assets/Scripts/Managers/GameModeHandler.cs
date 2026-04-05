@@ -76,11 +76,20 @@ public class GameModeHandler : NetworkBehaviour
         if (!IsHost) return;
 
         // Delete the current one
-        if (current_game_mode)
+        if (current_game_mode != null)
         {
             // Remember, a GameModeBase is just a component of a GameObject
             // so delete the game object, this deletes GameModeBase
             Destroy(current_game_mode.gameObject);
+        }
+        current_game_mode = null;
+
+        if (gameModeData == null)
+        {
+            SelectNewModeRpc(GameModes.NONE);
+            currentPhaseCountdown.Value = 0f;
+            currentPhase.Value = Phase.NULL;
+            return;
         }
 
         // Clone the prefab, add it as a child to the GameModeHandler

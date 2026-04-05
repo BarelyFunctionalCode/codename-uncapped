@@ -69,7 +69,7 @@ public class LevelManager : NetworkBehaviour
         OnLevelInitialized();
     }
 
-    private void OnGameModePhaseChange(Phase _, Phase newPhase)
+    private void OnGameModePhaseChange(Phase previousPhase, Phase newPhase)
     {
         if (newPhase == Phase.ACTIVE)
         {
@@ -79,6 +79,13 @@ public class LevelManager : NetworkBehaviour
                 if (playerController == null) continue;
                 playerController.Suicide();
             }
+        }
+
+        if (previousPhase == Phase.ENDGAME)
+        {
+            // TODO: Post Match UI
+            GameManager.Instance.SetLevel("Lobby");
+            GameManager.Instance.LoadLevel();
         }
     }
 

@@ -171,8 +171,8 @@ public class LoadoutMenu : MonoBehaviour
 
     public void OnConfirmClicked()
     {
-        bool doKill = GameModeHandler.Instance.currentPhase.Value != Phase.ACTIVE;
-        playerLoadoutManager.UpdateLoadoutRpc(tempLoadout, doKill);
+        bool applyImmediately = GameModeHandler.Instance.currentPhase.Value != Phase.ACTIVE;
+        playerLoadoutManager.UpdateLoadoutRpc(tempLoadout, applyImmediately);
         hud.ToggleMenu(HUDMenu.LoadoutMenu);
     }
 

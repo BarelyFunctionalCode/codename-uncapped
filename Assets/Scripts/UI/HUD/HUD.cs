@@ -118,6 +118,7 @@ public class HUD : MonoBehaviour
         leaderboard.Initialize();
 
         playerController.onAppliedDamage.AddListener(SetHitMarker);
+        GameModeHandler.Instance.OnStatUpdated.AddListener(SetObjectiveData);
         GameModeHandler.Instance.currentPhaseCountdown.OnValueChanged += SetCountDownTimer;
         GameModeHandler.Instance.currentPhase.OnValueChanged += SetCurrentPhaseData;
 
@@ -137,6 +138,22 @@ public class HUD : MonoBehaviour
         hitMarkerSound.Play();
     }
 
+    private void SetObjectiveData(StatEvent statEvent)
+    {
+        if (statEvent.StatType == StatEventType.WIN_CONDITION)
+        {
+            if (statEvent.Source == playerController.EntityId)
+            {
+                leftObjectiveText.text = statEvent.Value.ToString();
+            }
+            else
+            {
+                float.TryParse(rightObjectiveText.text, out float currentValue);
+                if (statEvent.Value > currentValue) rightObjectiveText.text = statEvent.Value.ToString();
+            }
+        }
+    }
+
     private void SetCountDownTimer(float _, float timeRemaining)
     {
         int minutes = Mathf.FloorToInt(timeRemaining / 60f);
@@ -147,6 +164,12 @@ public class HUD : MonoBehaviour
 
     private void SetCurrentPhaseData(Phase _, Phase phase)
     {
+        if (phase == Phase.NULL)
+        {
+            currentPhaseText.gameObject.SetActive(false);
+            return;
+        } 
+        
         currentPhaseText.text = phase.ToString();
         currentPhaseText.color = phaseColors[phase];
         if (phase == Phase.ACTIVE) currentPhaseText.gameObject.SetActive(false);
