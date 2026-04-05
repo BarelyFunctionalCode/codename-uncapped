@@ -90,10 +90,9 @@ public class MatchSelection : NetworkBehaviour
         timeLimitSelectDropdown.AddOptions(timeLimitOptions);
         timeLimitSelectDropdown.value = timeLimitOptions.IndexOf(selectedTimeLimit.ToString());
 
-        WinCondition displayedWinCondition = selectedGameMode.winConditionsDefaults[0];
-        winConditionNameText.text = displayedWinCondition.readerFriendlyName + " Limit";
-        winConditionValueText.text = displayedWinCondition.GetStatValue().ToString();
-        selectedWinConditionValue = (int)displayedWinCondition.GetStatValue();
+        winConditionNameText.text = selectedGameMode.winConditionReaderFriendlyName + " Limit";
+        winConditionValueText.text = selectedGameMode.winConditionDefaultValue.ToString();
+        selectedWinConditionValue = (int)selectedGameMode.winConditionDefaultValue;
 
         if (!IsHost)
         {
@@ -213,12 +212,10 @@ public class MatchSelection : NetworkBehaviour
         lobbyPC.Reset();
         GameManager.Instance.SetLevel(selectedLevel.sceneName);
 
-        // TODO: What is the purpose of multiple win conditions?
-        List<float> selectedWinConditionValues = new() { selectedWinConditionValue };
         GameModeData gameModeData = selectedGameMode.GetGameModeData(
             selectedMaxPlayers,
             selectedTimeLimit,
-            selectedWinConditionValues
+            selectedWinConditionValue
         );
         GameManager.Instance.SetGameModeData(gameModeData);
         GameManager.Instance.LoadLevel();

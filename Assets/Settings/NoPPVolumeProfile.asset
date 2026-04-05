@@ -13,8 +13,33 @@ MonoBehaviour:
   m_Name: NoPPVolumeProfile
   m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.VolumeProfile
   components:
-  - {fileID: 1238452510251571996}
+  - {fileID: 8076073081688224053}
 --- !u!114 &1238452510251571996
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ea62842ddb6960488930897ba9ce398, type: 3}
+  m_Name: RetroScreenSpaceEffects
+  m_EditorClassIdentifier: Assembly-CSharp::RetroScreenSpaceEffects
+  active: 1
+  ditherThreshold:
+    m_OverrideState: 1
+    m_Value: 30
+  ditherScale:
+    m_OverrideState: 1
+    m_Value: 0
+  pixelationValue:
+    m_OverrideState: 1
+    m_Value: 2048
+  colorPrecision:
+    m_OverrideState: 1
+    m_Value: 256
+--- !u!114 &8076073081688224053
 MonoBehaviour:
   m_ObjectHideFlags: 3
   m_CorrespondingSourceObject: {fileID: 0}

@@ -25,40 +25,35 @@ public class GameModeSO : ScriptableObject
     public string description;
     public MaxAllowedPlayersOptions maxAllowedPlayers;
     public MaxAllowedTimeLimitOptions maxAllowedTimeLimitMinutes;
-    public List<WinCondition> winConditionsDefaults;
+    public string winConditionReaderFriendlyName;
+    public StatEventType winConditionStatType;
+    public float winConditionDefaultValue;
     public TeamBasedType teamBasedType;
 
-    public GameModeData GetGameModeData(int maxPlayers = -1, int timeLimitMinutes = -1, List<float> winConditionValues = null)
+    public GameModeData GetGameModeData(int maxPlayers = -1, int timeLimitMinutes = -1,float winConditionValue = -1)
     {
         if (maxPlayers == -1) maxPlayers = (int)maxAllowedPlayers;
         if (timeLimitMinutes == -1) timeLimitMinutes = (int)maxAllowedTimeLimitMinutes;
+        if (winConditionValue == -1) winConditionValue = winConditionDefaultValue;
 
-        List<WinCondition> winConditions = new(winConditionsDefaults);
-        if (winConditionValues != null)
-        {
-            for (int i = 0; i < winConditions.Count && i < winConditionValues.Count; i++)
-            {
-                winConditions[i].SetValue(winConditionValues[i]);
-            }
-        }
-
-        return new GameModeData(this, maxPlayers, timeLimitMinutes, winConditions);
+        return new GameModeData(this, maxPlayers, timeLimitMinutes, winConditionValue);
     }
 }
 
 public class GameModeData
 {
-    public GameModeData(GameModeSO gameModeSO, int maxPlayers, int timeLimitMinutes, List<WinCondition> winConditions)
+    public GameModeData(GameModeSO gameModeSO, int maxPlayers, int timeLimitMinutes, float winConditionValue)
     {
         this.gameModeSO = gameModeSO;
         this.maxPlayers = maxPlayers;
         this.timeLimitMinutes = timeLimitMinutes;
-        this.winConditions = winConditions;
+        winConditionStatType = gameModeSO.winConditionStatType;
+        this.winConditionValue = winConditionValue;
     }
 
     public GameModeSO gameModeSO;
     public int maxPlayers;
     public int timeLimitMinutes;
-    public List<WinCondition> winConditions;
-    public int objectiveLimit;
+    public StatEventType winConditionStatType;
+    public float winConditionValue;
 }

@@ -92,8 +92,8 @@ public class GameModeHandler : NetworkBehaviour
         game_mode.game_mode_id = gameModeData.gameModeSO.gameModeName;
         current_game_mode = game_mode;
 
-        game_mode.GetComponent<WinConditions>().Initialize(gameModeData.winConditions);
-        game_mode.GetComponent<PhaseSystem>().countdowns[Phase.ACTIVE] = gameModeData.timeLimitMinutes * 60;
+        game_mode.GetComponent<WinConditions>().Initialize(gameModeData.winConditionStatType, gameModeData.winConditionValue);
+        game_mode.GetComponent<PhaseSystem>().SetActivePhaseTimeLimit(gameModeData.timeLimitMinutes * 60);
 
         SelectNewModeRpc(gameModeData.gameModeSO.gameModeName);
 
@@ -103,7 +103,6 @@ public class GameModeHandler : NetworkBehaviour
     [Rpc(SendTo.Everyone)]
     private void SelectNewModeRpc(GameModes g)
     {
-        //TODO: Update game mode settings on the clients too
         OnGameModeChanged.Invoke(g);
     }
 
