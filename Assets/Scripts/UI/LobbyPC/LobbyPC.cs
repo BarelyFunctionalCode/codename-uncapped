@@ -34,6 +34,8 @@ public class LobbyPC : MonoBehaviour
 
     void Awake()
     {
+        GameManager.Instance.OnLevelLoadedEvent.AddListener(OnLevelLoadedEvent);
+
         canvas = GetComponentInChildren<Canvas>();
         camToCanvasDistance = pcCam.GetComponent<CinemachinePositionComposer>().CameraDistance;
 
@@ -48,12 +50,18 @@ public class LobbyPC : MonoBehaviour
         activeTabButton.image.color = tabColor;
     }
 
+    void OnDestroy()
+    {
+        if (GameManager.Instance) GameManager.Instance.OnLevelLoadedEvent.RemoveListener(OnLevelLoadedEvent);
+    }
+
     void Update()
     {
         if (!isInitialized && NetworkManager.Singleton != null && NetworkManager.Singleton.IsHost)
         {
             if (autoInteract)
             {
+                autoInteract = false;
                 Interact();
                 Intro possibleIntro = FindAnyObjectByType<Intro>();
                 if (possibleIntro != null) possibleIntro.IsLoaded();
@@ -80,6 +88,20 @@ public class LobbyPC : MonoBehaviour
     {
         interactPromptObj.SetActive(showInteractPrompt && !isActive);
         showInteractPrompt = false;
+    }
+
+    private void OnLevelLoadedEvent(string levelName)
+    {
+        if (levelName == gameObject.scene.name)
+        {
+            foreach (var player in NetworkManager.Singleton.SpawnManager.PlayerObjects)
+            {
+                PlayerController playerController = player.GetComponentInChildren<PlayerController>();
+                if (playerController == null) continue;
+
+                playerController.Teleport(Vector3.zero, Quaternion.identity);
+            }
+        }
     }
 
     private void Interact()

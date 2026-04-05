@@ -1029,7 +1029,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     {
         if (!IsServer) return;
 
-        Transform respawnPoint = LevelManager.Instance.GetSpawnPoint(TeamId);
+        Transform respawnPoint = LevelManager.Instance ? LevelManager.Instance.GetSpawnPoint(TeamId) : null;
 
         if (respawnPoint)
         {

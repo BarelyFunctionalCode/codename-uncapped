@@ -50,6 +50,7 @@ public class GameManager : MonoBehaviour
 
     public UnityEvent<ulong> OnClientConnectedEvent = new();
     public UnityEvent<ulong> OnClientDisconnectedEvent = new();
+    public UnityEvent<string> OnLevelLoadedEvent = new();
 
 
     private void Awake()
@@ -119,7 +120,7 @@ public class GameManager : MonoBehaviour
             if (SceneManager.GetActiveScene().name == desiredLevelName)
             {
                 GameModeHandler.Instance.SelectNewMode(desiredGameModeData);
-                LevelManager.Instance.OnPlayersLoaded();
+                OnLevelLoadedEvent.Invoke(desiredLevelName);
                 desiredGameModeData = null;
                 desiredLevelName = "";
             }

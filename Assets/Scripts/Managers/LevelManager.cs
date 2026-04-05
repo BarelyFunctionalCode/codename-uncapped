@@ -11,12 +11,16 @@ public class LevelManager : NetworkBehaviour
     private bool playersLoaded = false;
     private bool stageGenerated = false;
 
+    private bool isInitialized = false;
+
     Dictionary<uint, List<Transform>> spawnPoints = new();
 
     private void Awake()
     {
         if (Instance != null || GameManager.Instance == null || !GameManager.Instance.isInitialized) Destroy(gameObject);
         else Instance = this;
+
+        GameManager.Instance.OnLevelLoadedEvent.AddListener(OnLevelLoadedEvent);
 
         transform.SetParent(null);
 	}
@@ -36,6 +40,21 @@ public class LevelManager : NetworkBehaviour
         if (GameModeHandler.Instance != null) GameModeHandler.Instance.currentPhase.OnValueChanged -= OnGameModePhaseChange;
     }
 
+    public override void OnDestroy()
+    {
+        GameManager.Instance.OnLevelLoadedEvent.RemoveListener(OnLevelLoadedEvent);
+        if (Instance == this) Instance = null;
+    }
+
+
+    private void OnLevelLoadedEvent(string levelName)
+    {
+        if (levelName == gameObject.scene.name)
+        {
+            OnPlayersLoaded();
+        }
+    }
+
     public static void GenerateAvailableLevelsList()
     {
         availableLevels.Clear();
@@ -44,9 +63,9 @@ public class LevelManager : NetworkBehaviour
     }
 
     // Called after all the players have loaded into the scene
-    public void OnPlayersLoaded()
+    private void OnPlayersLoaded()
     {
-        if (!NetworkManager.Singleton.IsHost) return;
+        if (!NetworkManager.Singleton.IsHost || isInitialized) return;
         playersLoaded = true;
 
         OnLevelInitialized();
@@ -55,7 +74,7 @@ public class LevelManager : NetworkBehaviour
     // Called after any runtime generation for the scene has finished
     public void OnStageGenerated()
     {
-        if (!NetworkManager.Singleton.IsHost) return;
+        if (!NetworkManager.Singleton.IsHost || isInitialized) return;
         stageGenerated = true;
 
         if (GameModeHandler.Instance.GameModesTeamTypes[GameModeHandler.Instance.current_game_mode.game_mode_id] == TeamBasedType.SOLO)
@@ -120,6 +139,7 @@ public class LevelManager : NetworkBehaviour
         }
 
         OnLevelReady();
+        isInitialized = true;
     }
 
     private void OnLevelReady()
