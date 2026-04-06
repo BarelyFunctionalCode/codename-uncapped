@@ -46,7 +46,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     // Camera
     [SerializeField] private GameObject playerCameraPrefabObj;
     private GameObject playerCameraObj;
-    private CinemachineCamera cineCam;
+    private CinemachineCamera thirdPersonCamera;
     private Transform freeLookTargetTransform;
     [PauseMenuOption("Horizontal Look", 0f, 100f)]
     public float horizontalRotationSpeed = 20f;
@@ -185,6 +185,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             playerControls.Character.DownJet.performed += ctx => DownJetInput(ctx.ReadValue<float>());
             playerControls.Character.DownJet.canceled += ctx => DownJetInput(ctx.ReadValue<float>());
             playerControls.Character.JumpJet.started += ctx => JumpInput();
+            playerControls.Character.ToggleCameraView.started += ctx => ToggleCameraView();
         }
     }
 
@@ -215,7 +216,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             playerControls.Character.DownJet.performed -= ctx => DownJetInput(ctx.ReadValue<float>());
             playerControls.Character.DownJet.canceled -= ctx => DownJetInput(ctx.ReadValue<float>());
             playerControls.Character.JumpJet.started -= ctx => JumpInput();
-
+            playerControls.Character.ToggleCameraView.started -= ctx => ToggleCameraView();
             // Disable audio listener
             if (audioListener) audioListener.enabled = false;
         }
@@ -379,8 +380,8 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         {
             playerCameraObj = Instantiate(playerCameraPrefabObj);
             audioListener = playerCameraObj.GetComponentInChildren<AudioListener>();
-            cineCam = playerCameraObj.GetComponentInChildren<CinemachineCamera>();
-            cineCam.Follow = freeLookTargetTransform;
+            thirdPersonCamera = playerCameraObj.GetComponentInChildren<CinemachineCamera>();
+            thirdPersonCamera.Follow = freeLookTargetTransform;
 
             Camera UIOverlayCamera = playerUIObj.GetComponentInChildren<Canvas>().worldCamera;
             Camera mainCamera = playerCameraObj.GetComponentInChildren<Camera>();
@@ -391,7 +392,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             audioListener.enabled = true;
 
             // Enable the camera
-            cineCam.Priority.Value = 1;
+            thirdPersonCamera.Priority.Value = 1;
         }
 
         InitializeServerRpc();
@@ -465,6 +466,13 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 
 
     #region Inputs
+    private void ToggleCameraView()
+    {
+        bool isThirdPerson = thirdPersonCamera.Priority.Value > 0;
+        thirdPersonCamera.Priority.Value = isThirdPerson ? 0 : 1;
+        playerType.ToggleFirstPersonCamera(isThirdPerson);
+    }
+
     [Rpc(SendTo.Server)]
     public void SetPlayerControlsRpc(bool enabled)
     {
@@ -1018,7 +1026,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             localPlayerCollider.enabled = false;
 
             // Disable the camera
-            if (cineCam) cineCam.Priority.Value = 0;
+            if (thirdPersonCamera) thirdPersonCamera.Priority.Value = 0;
 
             // TODO: Go to some other camera angle?
         }
@@ -1050,7 +1058,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         if (IsOwner)
         {
             // Enable the camera
-            if (cineCam) cineCam.Priority.Value = 99;
+            if (thirdPersonCamera) thirdPersonCamera.Priority.Value = 99;
 
             localRb.isKinematic = false;
             localPlayerCollider.enabled = true;

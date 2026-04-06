@@ -172,6 +172,15 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""ToggleCameraView"",
+                    ""type"": ""Button"",
+                    ""id"": ""ef931bfb-9d4c-4046-8d0c-8353f6737d4a"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -317,6 +326,17 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""action"": ""Down Jet"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e557455b-2dd6-4a7b-a1e4-e1597175fbff"",
+                    ""path"": ""<Keyboard>/tab"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleCameraView"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -418,7 +438,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""d9c54206-5a78-40a1-9236-e2a54815f44e"",
-                    ""path"": ""<Keyboard>/tab"",
+                    ""path"": ""<Keyboard>/backquote"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -442,6 +462,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Character_Ski = m_Character.FindAction("Ski", throwIfNotFound: true);
         m_Character_JumpJet = m_Character.FindAction("Jump / Jet", throwIfNotFound: true);
         m_Character_DownJet = m_Character.FindAction("Down Jet", throwIfNotFound: true);
+        m_Character_ToggleCameraView = m_Character.FindAction("ToggleCameraView", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_PauseMenu = m_UI.FindAction("PauseMenu", throwIfNotFound: true);
@@ -539,6 +560,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Character_Ski;
     private readonly InputAction m_Character_JumpJet;
     private readonly InputAction m_Character_DownJet;
+    private readonly InputAction m_Character_ToggleCameraView;
     /// <summary>
     /// Provides access to input actions defined in input action map "Character".
     /// </summary>
@@ -586,6 +608,10 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Character/DownJet".
         /// </summary>
         public InputAction @DownJet => m_Wrapper.m_Character_DownJet;
+        /// <summary>
+        /// Provides access to the underlying input action "Character/ToggleCameraView".
+        /// </summary>
+        public InputAction @ToggleCameraView => m_Wrapper.m_Character_ToggleCameraView;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -639,6 +665,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @DownJet.started += instance.OnDownJet;
             @DownJet.performed += instance.OnDownJet;
             @DownJet.canceled += instance.OnDownJet;
+            @ToggleCameraView.started += instance.OnToggleCameraView;
+            @ToggleCameraView.performed += instance.OnToggleCameraView;
+            @ToggleCameraView.canceled += instance.OnToggleCameraView;
         }
 
         /// <summary>
@@ -677,6 +706,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @DownJet.started -= instance.OnDownJet;
             @DownJet.performed -= instance.OnDownJet;
             @DownJet.canceled -= instance.OnDownJet;
+            @ToggleCameraView.started -= instance.OnToggleCameraView;
+            @ToggleCameraView.performed -= instance.OnToggleCameraView;
+            @ToggleCameraView.canceled -= instance.OnToggleCameraView;
         }
 
         /// <summary>
@@ -920,6 +952,13 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnDownJet(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ToggleCameraView" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnToggleCameraView(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

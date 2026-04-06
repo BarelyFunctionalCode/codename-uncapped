@@ -1,3 +1,4 @@
+using Unity.Cinemachine;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
@@ -22,6 +23,7 @@ public class PlayerType : NetworkBehaviour
     [SerializeField] private Rig hoverIKRig;
     [SerializeField] private ParticleSystem hoverEffectLeftFootParticleSystem;
     [SerializeField] private ParticleSystem hoverEffectRightFootParticleSystem;
+    [SerializeField] private CinemachineCamera firstPersonCamera;
 
 
     private Quaternion desiredLegsDirection;
@@ -38,6 +40,11 @@ public class PlayerType : NetworkBehaviour
         {
             playerController.OnPlayerTypeObjectSpawned(this);
         }
+    }
+
+    public void ToggleFirstPersonCamera(bool enable)
+    {
+        firstPersonCamera.Priority = enable ? 1 : 0;
     }
 
     public void HandleExtraMotion(Vector3 movementDirection, bool isHovering, Vector3 surfaceNormal)
