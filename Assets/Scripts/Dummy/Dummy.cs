@@ -37,30 +37,6 @@ public class Dummy : Entity, IIdentifiable
         material.color = Color.Lerp(Color.green, Color.red, 1.0f - HealthPercentage);
     }
 
-    protected override void OnDie()
-    {
-        OnDieRPC();
-    }
-
-    [Rpc(SendTo.Everyone)]
-    private void OnDieRPC()
-    {
-        GetComponent<MeshRenderer>().enabled = false;
-        explodeParticleObj.SetActive(true);
-    }
-
-    protected override void OnRespawn()
-    {
-        OnRespawnRPC();
-    }
-
-    [Rpc(SendTo.Everyone)]
-    private void OnRespawnRPC()
-    {
-        GetComponent<MeshRenderer>().enabled = true;
-        explodeParticleObj.SetActive(false);
-    }
-
     public IdentifierData GetIdentifierData()
     {
         Identification id_component = gameObject.GetComponent<Identification>();

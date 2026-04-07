@@ -66,9 +66,9 @@ public class LevelManager : NetworkBehaviour
         {
             foreach (var player in NetworkManager.Singleton.SpawnManager.PlayerObjects)
             {
-                PlayerController playerController = player.GetComponentInChildren<PlayerController>();
-                if (playerController == null) continue;
-                playerController.Suicide();
+                PlayerState playerState = player.GetComponentInChildren<PlayerState>();
+                if (playerState == null) continue;
+                playerState.Die();
             }
         }
     }

@@ -33,7 +33,7 @@ public class PlayerLoadoutManager : NetworkBehaviour
     public void UpdateLoadoutRpc(PlayerLoadout newLoadout, bool doKill = false)
     {
         tempLoadout = newLoadout;
-        if (doKill && playerController != null) playerController.Suicide();
+        if (doKill && playerController != null) playerController.GetComponent<PlayerState>().Die();
     }
 
     public void Initialize(bool allowLoadoutChange = true, PlayerController newPlayerController = null)

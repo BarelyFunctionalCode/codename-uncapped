@@ -16,6 +16,13 @@ using UnityEngine.SceneManagement;
 [RequireComponent(typeof(NetworkRigidbody))]
 public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 {
+    Identification playerIdentification;
+    PlayerState playerState;
+    Energy playerEnergy;
+    Health playerHealth;
+
+
+
     [Space(20)]
     // Debug
     [SerializeField] private DevVectorRenderer devVectorRenderer;
@@ -25,7 +32,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 
     [SerializeField] public GameObject playerTypePrefabObj;
     private GameObject playerTypeObj;
-    private PlayerType playerType;
+    public PlayerType playerType;
 
     [SerializeField] private GameObject playerPuppetPrefabObj;
     public GameObject playerPuppetObj;
@@ -41,12 +48,11 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     // Audio
     private AudioSource hoverAudioSource;
     private AudioSource windAudioSource;
-    [SerializeField] private AudioSource respawnAudioSource;
 
     // Camera
     [SerializeField] private GameObject playerCameraPrefabObj;
     private GameObject playerCameraObj;
-    private CinemachineCamera cineCam;
+    public CinemachineCamera cineCam;
     private Transform freeLookTargetTransform;
     [PauseMenuOption("Horizontal Look", 0f, 100f)]
     public float horizontalRotationSpeed = 20f;
@@ -86,7 +92,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     [SerializeField] private PhysicsMaterial skiMaterial;
     [SerializeField] private PhysicsMaterial normalMaterial;
     public Rigidbody localRb;
-    private CapsuleCollider localPlayerCollider;
+    public CapsuleCollider localPlayerCollider;
     Vector3 surfaceNormal = Vector3.up;
     Vector3 surfacePoint = Vector3.zero;
     float distanceToSurface = Mathf.Infinity;
@@ -144,6 +150,11 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     #region Lifecycle
     private void Awake()
     {
+        playerIdentification = GetComponent<Identification>();
+        playerState = GetComponent<PlayerState>();
+        playerEnergy = GetComponent<Energy>();
+        playerHealth = GetComponent<Health>();
+
         playerLoadout = GetComponent<PlayerLoadoutManager>();
     }
 
@@ -240,7 +251,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             if (changed) MoveDirectionRpc(newMovementDirection);
         }
 
-        if (gameObject.GetComponent<State>().IsDead) return;
+        if (playerState.IsDead) return;
 
         HandleGroundDetection();
 
@@ -259,7 +270,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     {
         if (!isInitialized || !IsOwner) return;
 
-        if (gameObject.GetComponent<State>().IsDead) return;
+        if (playerState.IsDead) return;
 
         // Handle camera pitch rotation on local client
         HandleCamera();
@@ -270,7 +281,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     void FixedUpdate()
     {
         if (!isInitialized || !(IsServer || IsOwner)) return;
-        if (gameObject.GetComponent<State>().IsDead) return;
+        if (playerState.IsDead) return;
 
         // First, we collect all of the inputs that go into moving the player, and create an input state
         HandleInputs();
@@ -553,7 +564,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 
     private void HandleInputs()
     {
-        State state_component = gameObject.GetComponent<State>();
+        State playerstate = playerState;
 
         // Get rotation input
         Vector3 rotationYaw = new(0f, rotationInputX, 0f);
@@ -570,7 +581,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         isDownJetting = downJettingInput && isSkiing;
         isJetting = isUpJetting || isDownJetting;
         isMoving = movement.magnitude > 0.0f;
-        isRunning = state_component.IsGrounded && isMoving && !isSkiing;
+        isRunning = playerstate.IsGrounded && isMoving && !isSkiing;
 
         if (controlsDisabledCount > 0)
         {
@@ -615,7 +626,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         localAnimator.SetFloat("yDir", animMovementDirection.y);
         localAnimator.SetFloat("zDir", animMovementDirection.z);
         localAnimator.SetFloat("yVel", localRb.linearVelocity.normalized.y);
-        localAnimator.SetBool("isGrounded", state_component.IsGrounded);
+        localAnimator.SetBool("isGrounded", playerstate.IsGrounded);
         localAnimator.SetBool("isRunning", isRunning);
         localAnimator.SetBool("isSkiing", isSkiing && !isUpJetting && !isDownJetting);
         localAnimator.SetBool("isJetting", isUpJetting || isDownJetting);
@@ -665,8 +676,8 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     private void HandleGroundDetection()
     {
         lastGroundedTime += Time.deltaTime;
-        State state_component = gameObject.GetComponent<State>();
-        state_component.SetIsGrounded(false);
+        State playerstate = playerState;
+        playerstate.SetIsGrounded(false);
 
         distanceToSurface = Mathf.Infinity;
         surfaceNormal = Vector3.up;
@@ -685,7 +696,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         );
         if (didHit)
         {
-            if (playerTelemetry != null) playerTelemetry.isGrounded = state_component.IsGrounded;
+            if (playerTelemetry != null) playerTelemetry.isGrounded = playerstate.IsGrounded;
             
             // Surface too steep
             float slope = Vector3.Dot(hit.normal, Vector3.up);
@@ -702,25 +713,22 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 
             if (distanceToSurface <= 0.25f)
             {
-                state_component.SetIsGrounded(true);
+                playerstate.SetIsGrounded(true);
                 lastGroundedTime = 0f;
             }
-            else if (lastGroundedTime < 0.2f) state_component.SetIsGrounded(true);
-            else state_component.SetIsGrounded(false);
+            else if (lastGroundedTime < 0.2f) playerstate.SetIsGrounded(true);
+            else playerstate.SetIsGrounded(false);
 
-            if (state_component.IsGrounded) surfaceNormal = hit.normal;
+            if (playerstate.IsGrounded) surfaceNormal = hit.normal;
         }
 
-        if (playerTelemetry != null) playerTelemetry.isGrounded = state_component.IsGrounded;
+        if (playerTelemetry != null) playerTelemetry.isGrounded = playerstate.IsGrounded;
         if (playerTelemetry != null) playerTelemetry.surfaceNormal = surfaceNormal;
         
     }
 
     private void HandleMovement()
     {
-        State state_component = gameObject.GetComponent<State>();
-        Energy energy_component = gameObject.GetComponent<Energy>();
-
         Vector3 currentVelocity = localRb.linearVelocity;
         Vector3 desiredAcc = Vector3.zero;
         Vector3 groundImpulse = Vector3.zero;
@@ -729,7 +737,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         float gravityMagnitude = Physics.gravity.magnitude * gravityModifier.Value;
 
         // Air Control
-        if (!state_component.IsGrounded && !isJetting && !isSkiing)
+        if (!playerState.IsGrounded && !isJetting && !isSkiing)
         {
             Vector3 airDirection = movementDirection.normalized;
             Vector3 airControlAcc = airDirection * airControl;
@@ -745,7 +753,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         }
 
         // Jumping
-        if (isJumping && state_component.IsGrounded && currentVelocity.y <= maxJumpSpeed)
+        if (isJumping && playerState.IsGrounded && currentVelocity.y <= maxJumpSpeed)
         {
             float jumpScale = 1.0f;
 
@@ -811,7 +819,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         }
 
         // Skiing Movement
-        if (isSkiing && energy_component.CurrentEnergy > 0.0f)
+        if (isSkiing && playerEnergy.CurrentEnergy > 0.0f)
         {
             // Hovering
             // More force the closer to the surface...
@@ -854,15 +862,15 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             }
 
             // Directional Control while Jetting/Skiing
-            if (isSkiing && movementDirection.magnitude > 0.01f && energy_component.CurrentEnergy > 0.0f)
+            if (isSkiing && movementDirection.magnitude > 0.01f && playerEnergy.CurrentEnergy > 0.0f)
             {
                 float lateralForce = jetDirectionalForceXY / localRb.mass * accelScale * Time.fixedDeltaTime;
                 desiredAcc += movementDirection * lateralForce;
-                energy_component.ApplyEnergyDelta(-jetSkateEnergyDrain * accelScale * Time.fixedDeltaTime);
+                playerEnergy.ApplyEnergyDelta(-jetSkateEnergyDrain * accelScale * Time.fixedDeltaTime);
             }
 
             // Up Jetting
-            if (isJetting && energy_component.CurrentEnergy > 0.01f)
+            if (isJetting && playerEnergy.CurrentEnergy > 0.01f)
             {
                 float force = 0f;
                 if (isUpJetting)
@@ -880,7 +888,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
                 }
 
                 desiredVerticalAcc = force;
-                energy_component.ApplyEnergyDelta(- (isUpJetting ? upJettingEnergyDrain : downJettingEnergyDrain) * accelScale * Time.fixedDeltaTime);
+                playerEnergy.ApplyEnergyDelta(- (isUpJetting ? upJettingEnergyDrain : downJettingEnergyDrain) * accelScale * Time.fixedDeltaTime);
             }
         }
 
@@ -1001,7 +1009,8 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         if (ouchyThreshold > Mathf.Cos(minimumOuchyAngle * Mathf.Deg2Rad) && impactSpeed > minimumDamageSpeed)
         {
             float damage = impactSpeed * ouchyThreshold * scaleFactor;
-            TakeDamage(damage);
+            TryGetComponent<IDamageable>(out var damageable);
+            if (damageable != null) damageable.TakeDamage(damage);
         }
     }
 
@@ -1010,77 +1019,16 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 
 
     #region Player State
-    protected override void OnDie()
-    {
-        if (!IsServer) return;
-
-        SetPlayerControlsRpc(false);
-        localRb.isKinematic = true;
-        localPlayerCollider.enabled = false;
-        OnDieRpc();
-    }
-    [Rpc(SendTo.Everyone)]
-    private void OnDieRpc()
-    {
-        if (IsOwner)
-        {
-            localRb.isKinematic = true;
-            localPlayerCollider.enabled = false;
-
-            // Disable the camera
-            if (cineCam) cineCam.Priority.Value = 0;
-
-            // TODO: Go to some other camera angle?
-        }
-        playerType.OnDie();
-    }
-
-    protected override void OnRespawn()
-    {
-        if (!IsServer) return;
-        Identification id_component = gameObject.GetComponent<Identification>();
-
-        Transform respawnPoint = LevelManager.Instance.GetSpawnPoint(id_component.FetchTeamId());
-
-        if (respawnPoint)
-        {
-            Teleport(respawnPoint.position, respawnPoint.rotation);
-        }
-
-        localPlayerCollider.enabled = true;
-        localRb.isKinematic = false;
-        playerLoadout.Deinitialize();
-        playerLoadout.Initialize();
-
-        OnRespawnRpc();
-        SetPlayerControlsRpc(true);
-    }
-    [Rpc(SendTo.Everyone)]
-    private void OnRespawnRpc()
-    {
-        if (IsOwner)
-        {
-            // Enable the camera
-            if (cineCam) cineCam.Priority.Value = 99;
-
-            localRb.isKinematic = false;
-            localPlayerCollider.enabled = true;
-        }
-        playerType.OnRespawn();
-        respawnAudioSource.Play();
-    }
+    
 
     public IdentifierData GetIdentifierData()
     {
-        Identification id_component = gameObject.GetComponent<Identification>();
-        Health hp_component = gameObject.GetComponent<Health>();
-
         return new IdentifierData
         {
-            color = IdentifierManager.TempTeamColors[id_component.FetchTeamId()],
-            topText = id_component.FetchEntityName(),
-            bottomText = $"{Mathf.CeilToInt(hp_component.HealthPercentage * 100f)}%",
-            isActive = hp_component.CurrentHealth > 0
+            color = IdentifierManager.TempTeamColors[playerIdentification.FetchTeamId()],
+            topText = playerIdentification.FetchEntityName(),
+            bottomText = $"{Mathf.CeilToInt(playerHealth.HealthPercentage * 100f)}%",
+            isActive = playerHealth.CurrentHealth > 0
         };
     }
     #endregion

@@ -2,8 +2,9 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class Health : EntityAttributes
+public class Health : EntityAttributes, IDamageable
 {
+    private State entityState;
     public UnityEvent<float> onHealthChanged = new();
     public UnityEvent<float> onAppliedDamage = new();
 
@@ -15,7 +16,28 @@ public class Health : EntityAttributes
     public float HealthPercentage => MaxHealth > 0f ? CurrentHealth / MaxHealth : 0f;
 
 
-    public void OnDamageTaken(
+    public override void Initialize(ulong ParentNetworkObjectId)
+    {
+        base.Initialize(ParentNetworkObjectId);
+
+        _health.Value = _maxHealth;
+        TryGetComponent(out entityState);
+        if (entityState != null) entityState.onStateChange.AddListener(OnEntityStateChange);
+    }
+
+    public void OnEntityStateChange(EntityStates s)
+    {
+        switch (s)
+        {
+            case EntityStates.RESPAWN:
+                _health.Value = _maxHealth;
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void TakeDamage(
         float damage,
         NetworkBehaviourReference attackerRef = default,
         NetworkBehaviourReference weaponRef = default
@@ -38,18 +60,8 @@ public class Health : EntityAttributes
 
         if (CurrentHealth <= 0.0f)
         {
-            Die((attackerRef, weaponRef, false));
+            Die((attackerRef, weaponRef));
         }
-    }
-
-    public void InitializeComponents()
-    {
-        _health.Value = _maxHealth;
-    }
-
-    public void OnEntityRespawn()
-    {
-        _health.Value = _maxHealth;
     }
 
     public void ApplyhealthDelta(float amount)
@@ -61,100 +73,75 @@ public class Health : EntityAttributes
 
         float healthDeltaRatio = (_health.Value - oldHealth) / _maxHealth;
 
-        // Omitted - not necessary?
-        // SendMessage("HealthValueChanged", _health.Value);
-
         ApplyhealthDeltaRpc(healthDeltaRatio);
     }
 
     [Rpc(SendTo.Owner)]
-    public void ApplyhealthDeltaRpc(float ratio)
-    {
-        onHealthChanged.Invoke(ratio);
-    }
-
+    public void ApplyhealthDeltaRpc(float ratio) => onHealthChanged.Invoke(ratio);
     [Rpc(SendTo.Owner)]
     private void OnAppliedDamageRpc(float damage) => onAppliedDamage.Invoke(damage);
 
-    public void StateChanged()
-    {
-
-    }
-
-    public void Die(
+    private void Die(
         ( NetworkBehaviourReference, /* Attacker */
-          NetworkBehaviourReference, /* Weapon */
-          bool /* IsSuicide */ )msg
+          NetworkBehaviourReference  /* Weapon */ )msg
     ) {
         // Destructure the msg
         ( NetworkBehaviourReference attackerRef,
-          NetworkBehaviourReference weaponRef,
-          bool                      isSuicide
+          NetworkBehaviourReference weaponRef
         ) = msg;
 
-        if (!IsServer || gameObject.GetComponent<State>().IsDead) return;
+        if (!IsServer || entityState.IsDead) return;
 
-        if (!isSuicide)
+        string lethalSource = "gravity";
+        string weaponName = null;
+
+        // Self identification
+        Identification entity_identification = gameObject.GetComponent<Identification>();
+
+        string EntityName = entity_identification.FetchEntityName();
+        ulong EntityId = entity_identification.FetchEntityId();
+
+        // Attacker identification
+        attackerRef.TryGet(out PlayerController attacker);
+
+        entity_identification = attacker.gameObject.GetComponent<Identification>();
+        string AttackerEntityName = entity_identification.FetchEntityName();
+        ulong AttackerEntityId = entity_identification.FetchEntityId();
+
+        weaponRef.TryGet(out Weapon weapon);
+        ThrowableManager throwable = null;
+
+        if (weapon == null) weaponRef.TryGet(out throwable);
+
+        if (attacker != null && (weapon != null || throwable != null))
         {
-            string lethalSource = "gravity";
-            string weaponName = null;
+            GameModeHandler.Instance.StatEventReceiver(
+                new StatEvent(
+                    StatEventType.DEATHS,
+                    1.0f,
+                    EntityId
+            ));
 
-            // Self identification
-            Identification entity_identification = gameObject.GetComponent<Identification>();
+            GameModeHandler.Instance.StatEventReceiver(
+                new StatEvent(
+                    StatEventType.KILL,
+                    1.0f,
+                    AttackerEntityId
+            ));
 
-            string EntityName = entity_identification.FetchEntityName();
-            ulong EntityId = entity_identification.FetchEntityId();
+            GameObject weaponObj = weapon != null ? weapon.gameObject : throwable.gameObject;
+            LoadoutItemSO itemSO = PlayerLoadout.GetLoadoutItemSOFromPrefab(weaponObj);
+            weaponName = itemSO.itemName;
 
-            // Attacker identification
-            attackerRef.TryGet(out PlayerController attacker);
-
-            entity_identification = attacker.gameObject.GetComponent<Identification>();
-            string AttackerEntityName = entity_identification.FetchEntityName();
-            ulong AttackerEntityId = entity_identification.FetchEntityId();
-
-            weaponRef.TryGet(out Weapon weapon);
-            ThrowableManager throwable = null;
-
-            if (weapon == null) weaponRef.TryGet(out throwable);
-
-            if (attacker != null && (weapon != null || throwable != null))
-            {
-                GameModeHandler.Instance.StatEventReceiver(
-                    new StatEvent(
-                        StatEventType.DEATHS,
-                        1.0f,
-                        EntityId
-                ));
-
-                GameModeHandler.Instance.StatEventReceiver(
-                    new StatEvent(
-                        StatEventType.KILL,
-                        1.0f,
-                        AttackerEntityId
-                ));
-
-                GameObject weaponObj = weapon != null ? weapon.gameObject : throwable.gameObject;
-                LoadoutItemSO itemSO = PlayerLoadout.GetLoadoutItemSOFromPrefab(weaponObj);
-                weaponName = itemSO.itemName;
-
-                lethalSource = AttackerEntityName + "'s " + weaponName;
-            }
-            NotificationManager.Instance.SendKillFeedNotificationRpc(EntityName, lethalSource);
+            lethalSource = AttackerEntityName + "'s " + weaponName;
         }
+        NotificationManager.Instance.SendKillFeedNotificationRpc(EntityName, lethalSource);
 
-        // TODO Refactor these messages
+        entityState.Die();
 
-        // Message to components
-        SendMessage("Died");
-
-        // Callback for inherited types
-        SendMessage("OnDie");
-        // OnDie();
-
-        // Callback for inherited types
-        SendMessage("Respawn", 3f);
-        // Invoke(nameof(Respawn), 3f);
+        // TODO: Move this to a more proper place instead of just automatically respawning after 3 seconds
+        Invoke(nameof(_Respawn), 3f);
     }
 
-
+    private void _Respawn() => entityState.Respawn();
 }

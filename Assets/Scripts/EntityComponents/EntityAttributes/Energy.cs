@@ -18,15 +18,15 @@ public class Energy : EntityAttributes
     public float MaxEnergy => _maxEnergy;
     public float EnergyPercentage => MaxEnergy > 0f ? CurrentEnergy / MaxEnergy : 0f;
 
-    // Triggered by Entity.OnNetworkSpawn
-    public void InitializeComponents()
-    {
-        _energy.Value = _maxEnergy;
-    }
 
-    public void OnEntityRespawn()
+    public override void Initialize(ulong ParentNetworkObjectId)
     {
+        base.Initialize(ParentNetworkObjectId);
+
         _energy.Value = _maxEnergy;
+
+        TryGetComponent(out State stateComponent);
+        if (stateComponent != null) stateComponent.onStateChange.AddListener(OnEntityStateChange);
     }
 
     public void OnEntityStateChange(EntityStates s)
@@ -43,6 +43,9 @@ public class Energy : EntityAttributes
                 break;
             case EntityStates.DEAD:
                 _currentEnergyRegenRate = 0.0f;
+                break;
+            case EntityStates.RESPAWN:
+                _energy.Value = _maxEnergy;
                 break;
             default:
                 break;
