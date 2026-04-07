@@ -52,6 +52,7 @@ public class LobbyPC : MonoBehaviour
 
     void OnDestroy()
     {
+        Reset();
         if (GameManager.Instance) GameManager.Instance.OnLevelLoadedEvent.RemoveListener(OnLevelLoadedEvent);
     }
 
@@ -71,7 +72,7 @@ public class LobbyPC : MonoBehaviour
 
         musicSource.spatialBlend = Mathf.Lerp(musicSource.spatialBlend, isActive ? 0f : 1f, Time.deltaTime);
 
-        if (cursorObj != null && isActive)
+        if (Camera.main != null && cursorObj != null && isActive)
         {
             Vector2 mousePosition = Mouse.current.position.ReadValue();
             Vector3 cursorPosition = Camera.main.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, camToCanvasDistance));
@@ -112,7 +113,6 @@ public class LobbyPC : MonoBehaviour
         if (playerController.isInitialized == false) return;
         playerController.SetPlayerControlsRpc(false);
         interactingPlayerController = playerController;
-        interactingPlayerController.playerHUD.ToggleHUD();
 
         // Sets priority to PC Cam and then unlocks the cursor
         Camera.main.cullingMask = noPlayerMask;
@@ -126,6 +126,8 @@ public class LobbyPC : MonoBehaviour
 
     public void Reset()
     {
+        if (!isActive) return;
+
         // Resets priority to PC Cam and then locks the cursor
         isActive = false;
         cursorObj.SetActive(false);
@@ -135,7 +137,6 @@ public class LobbyPC : MonoBehaviour
         Cursor.visible = true;
 
         interactingPlayerController.SetPlayerControlsRpc(true);
-        interactingPlayerController.playerHUD.ToggleHUD();
         interactingPlayerController = null;
     }
 

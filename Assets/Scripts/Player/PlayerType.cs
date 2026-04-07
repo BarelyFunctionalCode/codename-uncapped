@@ -108,6 +108,7 @@ public class PlayerType : NetworkBehaviour
 
     public void OnDie()
     {
+        Debug.Log($"{name} is dying.");
         modelObj.SetActive(false);
         if (deathEffectPrefab != null)
         {

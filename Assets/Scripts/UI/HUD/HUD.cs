@@ -53,10 +53,11 @@ public class HUD : MonoBehaviour
     private HUDMenu menuLock = HUDMenu.None;
 
     private bool isInitialized = false;
+    private bool isActive = true;
 
     private void Update()
     {
-        if (!isInitialized) return;
+        if (!isInitialized || !isActive) return;
 
         // Update dynamic reticle position based on player velocity
         if (playerController == null || playerController.localRb == null) return;
@@ -123,12 +124,20 @@ public class HUD : MonoBehaviour
         GameModeHandler.Instance.currentPhase.OnValueChanged += SetCurrentPhaseData;
 
         isInitialized = true;
+        SetHUDActive(false);
     }
 
     public void ToggleHUD()
     {
-        if (mainCanvas != null) mainCanvas.enabled = !mainCanvas.enabled;
+        SetHUDActive(!isActive);
     }
+
+    public void SetHUDActive(bool isActive)
+    {
+        this.isActive = isActive;
+        if (mainCanvas != null) mainCanvas.enabled = isActive;
+    }
+
 
     private void SetHitMarker(float damageAmount)
     {
@@ -191,7 +200,7 @@ public class HUD : MonoBehaviour
     public void ToggleMenu(HUDMenu menu, bool forceOpen = false)
     {
         // Don't do anything if the HUD is disabled.
-        if (!mainCanvas.enabled) return;
+        if (!isActive) return;
 
         // If no menu is specified, close the last-opened menu.
         if (menu == HUDMenu.None)

@@ -42,7 +42,7 @@ public class LevelManager : NetworkBehaviour
 
     public override void OnDestroy()
     {
-        GameManager.Instance.OnLevelLoadedEvent.RemoveListener(OnLevelLoadedEvent);
+        if (GameManager.Instance != null) GameManager.Instance.OnLevelLoadedEvent.RemoveListener(OnLevelLoadedEvent);
         if (Instance == this) Instance = null;
     }
 
@@ -135,7 +135,8 @@ public class LevelManager : NetworkBehaviour
             
             playerController.Teleport(spawnPoint.position, spawnPoint.rotation);
             playerController.SetPlayerControlsRpc(false);
-            playerController.OpenLoadoutMenuRpc();
+            playerController.playerHUD.SetHUDActive(true);
+            // playerController.OpenLoadoutMenuRpc();
         }
 
         OnLevelReady();

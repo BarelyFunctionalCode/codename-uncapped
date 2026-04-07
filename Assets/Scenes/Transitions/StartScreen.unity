@@ -119,6 +119,17 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!114 &380987112 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9000547688109330244, guid: 658c6c5a911531e49abda0ec7dccc3d9, type: 3}
+  m_PrefabInstance: {fileID: 1491540557}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44dd247a00edbfa44b77868d755af6ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &450595206
 GameObject:
   m_ObjectHideFlags: 0
@@ -312,17 +323,6 @@ Animator:
   m_CorrespondingSourceObject: {fileID: 8756165944051087193, guid: 1eeb01397653f3c5db444949aa4f63da, type: 3}
   m_PrefabInstance: {fileID: 4901231123597515003}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1037882939 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6762333154693323172, guid: 658c6c5a911531e49abda0ec7dccc3d9, type: 3}
-  m_PrefabInstance: {fileID: 1491540557}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6960e84d07fb87f47956e7a81d71c4e6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &1491540557
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -333,14 +333,22 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2430232713215566780, guid: 658c6c5a911531e49abda0ec7dccc3d9, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4051288645741705643, guid: 658c6c5a911531e49abda0ec7dccc3d9, type: 3}
       propertyPath: m_PresetReference
-      value: 7910074723467526226
+      value: 8471562441466314837
       objectReference: {fileID: 0}
     - target: {fileID: 4051288645741705643, guid: 658c6c5a911531e49abda0ec7dccc3d9, type: 3}
       propertyPath: 'managedReferences[7910074723467526226]'
+      value: Unity.Multiplayer.Tools.NetworkSimulator.Runtime Unity.Multiplayer.Tools.NetworkSimulator.Runtime.NetworkSimulatorPreset
+      objectReference: {fileID: 0}
+    - target: {fileID: 4051288645741705643, guid: 658c6c5a911531e49abda0ec7dccc3d9, type: 3}
+      propertyPath: 'managedReferences[8471562441466314835]'
+      value: Unity.Multiplayer.Tools.NetworkSimulator.Runtime Unity.Multiplayer.Tools.NetworkSimulator.Runtime.NetworkSimulatorPreset
+      objectReference: {fileID: 0}
+    - target: {fileID: 4051288645741705643, guid: 658c6c5a911531e49abda0ec7dccc3d9, type: 3}
+      propertyPath: 'managedReferences[8471562441466314837]'
       value: Unity.Multiplayer.Tools.NetworkSimulator.Runtime Unity.Multiplayer.Tools.NetworkSimulator.Runtime.NetworkSimulatorPreset
       objectReference: {fileID: 0}
     - target: {fileID: 4051288645741705643, guid: 658c6c5a911531e49abda0ec7dccc3d9, type: 3}
@@ -348,7 +356,23 @@ PrefabInstance:
       value: None
       objectReference: {fileID: 0}
     - target: {fileID: 4051288645741705643, guid: 658c6c5a911531e49abda0ec7dccc3d9, type: 3}
+      propertyPath: managedReferences[8471562441466314835].<Name>k__BackingField
+      value: None
+      objectReference: {fileID: 0}
+    - target: {fileID: 4051288645741705643, guid: 658c6c5a911531e49abda0ec7dccc3d9, type: 3}
+      propertyPath: managedReferences[8471562441466314837].<Name>k__BackingField
+      value: None
+      objectReference: {fileID: 0}
+    - target: {fileID: 4051288645741705643, guid: 658c6c5a911531e49abda0ec7dccc3d9, type: 3}
       propertyPath: managedReferences[7910074723467526226].<Description>k__BackingField
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 4051288645741705643, guid: 658c6c5a911531e49abda0ec7dccc3d9, type: 3}
+      propertyPath: managedReferences[8471562441466314835].<Description>k__BackingField
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 4051288645741705643, guid: 658c6c5a911531e49abda0ec7dccc3d9, type: 3}
+      propertyPath: managedReferences[8471562441466314837].<Description>k__BackingField
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 4051288645741705643, guid: 658c6c5a911531e49abda0ec7dccc3d9, type: 3}
@@ -356,7 +380,23 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4051288645741705643, guid: 658c6c5a911531e49abda0ec7dccc3d9, type: 3}
+      propertyPath: managedReferences[8471562441466314835].<PacketDelayMs>k__BackingField
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4051288645741705643, guid: 658c6c5a911531e49abda0ec7dccc3d9, type: 3}
+      propertyPath: managedReferences[8471562441466314837].<PacketDelayMs>k__BackingField
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4051288645741705643, guid: 658c6c5a911531e49abda0ec7dccc3d9, type: 3}
       propertyPath: managedReferences[7910074723467526226].<PacketJitterMs>k__BackingField
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4051288645741705643, guid: 658c6c5a911531e49abda0ec7dccc3d9, type: 3}
+      propertyPath: managedReferences[8471562441466314835].<PacketJitterMs>k__BackingField
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4051288645741705643, guid: 658c6c5a911531e49abda0ec7dccc3d9, type: 3}
+      propertyPath: managedReferences[8471562441466314837].<PacketJitterMs>k__BackingField
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4051288645741705643, guid: 658c6c5a911531e49abda0ec7dccc3d9, type: 3}
@@ -364,7 +404,23 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4051288645741705643, guid: 658c6c5a911531e49abda0ec7dccc3d9, type: 3}
+      propertyPath: managedReferences[8471562441466314835].<PacketLossPercent>k__BackingField
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4051288645741705643, guid: 658c6c5a911531e49abda0ec7dccc3d9, type: 3}
+      propertyPath: managedReferences[8471562441466314837].<PacketLossPercent>k__BackingField
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4051288645741705643, guid: 658c6c5a911531e49abda0ec7dccc3d9, type: 3}
       propertyPath: managedReferences[7910074723467526226].<PacketLossInterval>k__BackingField
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4051288645741705643, guid: 658c6c5a911531e49abda0ec7dccc3d9, type: 3}
+      propertyPath: managedReferences[8471562441466314835].<PacketLossInterval>k__BackingField
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4051288645741705643, guid: 658c6c5a911531e49abda0ec7dccc3d9, type: 3}
+      propertyPath: managedReferences[8471562441466314837].<PacketLossInterval>k__BackingField
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5111251971209746703, guid: 658c6c5a911531e49abda0ec7dccc3d9, type: 3}
@@ -418,7 +474,7 @@ PrefabInstance:
     - target: {fileID: 8973531377348340993, guid: 658c6c5a911531e49abda0ec7dccc3d9, type: 3}
       propertyPath: NetworkConfig.NetworkTransport
       value: 
-      objectReference: {fileID: 1037882939}
+      objectReference: {fileID: 380987112}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

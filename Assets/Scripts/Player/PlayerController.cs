@@ -1027,9 +1027,8 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 
             // Disable the camera
             if (thirdPersonCamera) thirdPersonCamera.Priority.Value = 0;
-
-            // TODO: Go to some other camera angle?
         }
+        Debug.Log($"{name} died.");
         playerType.OnDie();
     }
 
