@@ -3,7 +3,22 @@ guid: aa40019f73618fb44b2a2c1b13e5da81
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Base
+    second: {fileID: 2100000, guid: 369723225bbd622458f8d4591999ce86, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Eye Lense
+    second: {fileID: 2100000, guid: c2abb281d72ac41c78aefb32a3e37ee5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Joints
+    second: {fileID: 2100000, guid: e790c526960680ca8af8924dd00ad412, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

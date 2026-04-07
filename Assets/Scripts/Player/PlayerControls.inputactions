@@ -86,6 +86,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "ToggleCameraView",
+                    "type": "Button",
+                    "id": "ef931bfb-9d4c-4046-8d0c-8353f6737d4a",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -231,6 +240,17 @@
                     "action": "Down Jet",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e557455b-2dd6-4a7b-a1e4-e1597175fbff",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleCameraView",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
@@ -332,7 +352,7 @@
                 {
                     "name": "",
                     "id": "d9c54206-5a78-40a1-9236-e2a54815f44e",
-                    "path": "<Keyboard>/tab",
+                    "path": "<Keyboard>/backquote",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
