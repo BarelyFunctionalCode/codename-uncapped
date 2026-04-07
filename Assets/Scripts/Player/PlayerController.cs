@@ -221,9 +221,10 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         }
     }
 
-    protected override void Update()
+    private void Update()
     {
-        base.Update();
+        // Entity.Update() was removed when Entity components were added, which was just energy regen
+//        base.Update();
         if (!playerTypeObj && IsServer && GameManager.Instance.isInitialized) SetPlayerType(playerTypePrefabObj);
         if (!isInitialized || !(IsServer || IsOwner)) return;
 
@@ -239,7 +240,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             if (changed) MoveDirectionRpc(newMovementDirection);
         }
 
-        if (IsDead) return;
+        if (gameObject.GetComponent<State>().IsDead) return;
 
         HandleGroundDetection();
 
@@ -258,7 +259,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     {
         if (!isInitialized || !IsOwner) return;
 
-        if (IsDead) return;
+        if (gameObject.GetComponent<State>().IsDead) return;
 
         // Handle camera pitch rotation on local client
         HandleCamera();
@@ -269,7 +270,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     void FixedUpdate()
     {
         if (!isInitialized || !(IsServer || IsOwner)) return;
-        if (IsDead) return;
+        if (gameObject.GetComponent<State>().IsDead) return;
 
         // First, we collect all of the inputs that go into moving the player, and create an input state
         HandleInputs();
@@ -401,15 +402,17 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     [Rpc(SendTo.Server)]
     private void InitializeServerRpc()
     {
-        _entityName.Value = $"Player {OwnerClientId}";
-        _entityId.Value = OwnerClientId;
-        _teamId.Value = (uint)OwnerClientId;
+        Identification id_component = gameObject.GetComponent<Identification>();
+
+        id_component.SetEntityName($"Player {OwnerClientId}");
+        id_component.SetEntityId(OwnerClientId);
+        id_component.SetTeamId((uint)OwnerClientId);
 
         // Get Player's Steam ID
         if (GameManager.Instance?.usingSteam == true)
         {
             _steamId = SteamClient.SteamId.Value;
-            _entityName.Value = new Friend(_steamId).Name;
+            id_component.SetEntityName(new Friend(_steamId).Name);
         }
 
         playerLoadout.Initialize(true, this);
@@ -550,8 +553,10 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 
     private void HandleInputs()
     {
+        State state_component = gameObject.GetComponent<State>();
+
         // Get rotation input
-        Vector3 rotationYaw = new(0f, rotationInputX, 0f);;
+        Vector3 rotationYaw = new(0f, rotationInputX, 0f);
         rotationInputX = 0f;
         rotationYaw *= horizontalRotationSpeed * Time.fixedDeltaTime;
         rotationDeltaYaw = Vector3.ClampMagnitude(rotationYaw, horizontalRotationLimit);
@@ -565,7 +570,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         isDownJetting = downJettingInput && isSkiing;
         isJetting = isUpJetting || isDownJetting;
         isMoving = movement.magnitude > 0.0f;
-        isRunning = IsGrounded && isMoving && !isSkiing;
+        isRunning = state_component.IsGrounded && isMoving && !isSkiing;
 
         if (controlsDisabledCount > 0)
         {
@@ -610,7 +615,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         localAnimator.SetFloat("yDir", animMovementDirection.y);
         localAnimator.SetFloat("zDir", animMovementDirection.z);
         localAnimator.SetFloat("yVel", localRb.linearVelocity.normalized.y);
-        localAnimator.SetBool("isGrounded", IsGrounded);
+        localAnimator.SetBool("isGrounded", state_component.IsGrounded);
         localAnimator.SetBool("isRunning", isRunning);
         localAnimator.SetBool("isSkiing", isSkiing && !isUpJetting && !isDownJetting);
         localAnimator.SetBool("isJetting", isUpJetting || isDownJetting);
@@ -660,7 +665,9 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     private void HandleGroundDetection()
     {
         lastGroundedTime += Time.deltaTime;
-        _isGrounded = false;
+        State state_component = gameObject.GetComponent<State>();
+        state_component.SetIsGrounded(false);
+
         distanceToSurface = Mathf.Infinity;
         surfaceNormal = Vector3.up;
         surfacePoint = Vector3.zero;
@@ -678,7 +685,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         );
         if (didHit)
         {
-            if (playerTelemetry != null) playerTelemetry.isGrounded = IsGrounded;
+            if (playerTelemetry != null) playerTelemetry.isGrounded = state_component.IsGrounded;
             
             // Surface too steep
             float slope = Vector3.Dot(hit.normal, Vector3.up);
@@ -695,22 +702,25 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 
             if (distanceToSurface <= 0.25f)
             {
-                _isGrounded = true;
+                state_component.SetIsGrounded(true);
                 lastGroundedTime = 0f;
             }
-            else if (lastGroundedTime < 0.2f) _isGrounded = true;
-            else _isGrounded = false;
+            else if (lastGroundedTime < 0.2f) state_component.SetIsGrounded(true);
+            else state_component.SetIsGrounded(false);
 
-            if (IsGrounded) surfaceNormal = hit.normal;
+            if (state_component.IsGrounded) surfaceNormal = hit.normal;
         }
 
-        if (playerTelemetry != null) playerTelemetry.isGrounded = IsGrounded;
+        if (playerTelemetry != null) playerTelemetry.isGrounded = state_component.IsGrounded;
         if (playerTelemetry != null) playerTelemetry.surfaceNormal = surfaceNormal;
         
     }
 
     private void HandleMovement()
     {
+        State state_component = gameObject.GetComponent<State>();
+        Energy energy_component = gameObject.GetComponent<Energy>();
+
         Vector3 currentVelocity = localRb.linearVelocity;
         Vector3 desiredAcc = Vector3.zero;
         Vector3 groundImpulse = Vector3.zero;
@@ -719,7 +729,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         float gravityMagnitude = Physics.gravity.magnitude * gravityModifier.Value;
 
         // Air Control
-        if (!IsGrounded && !isJetting && !isSkiing)
+        if (!state_component.IsGrounded && !isJetting && !isSkiing)
         {
             Vector3 airDirection = movementDirection.normalized;
             Vector3 airControlAcc = airDirection * airControl;
@@ -735,7 +745,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         }
 
         // Jumping
-        if (isJumping && IsGrounded && currentVelocity.y <= maxJumpSpeed)
+        if (isJumping && state_component.IsGrounded && currentVelocity.y <= maxJumpSpeed)
         {
             float jumpScale = 1.0f;
 
@@ -801,7 +811,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         }
 
         // Skiing Movement
-        if (isSkiing && Energy > 0.0f)
+        if (isSkiing && energy_component.CurrentEnergy > 0.0f)
         {
             // Hovering
             // More force the closer to the surface...
@@ -844,15 +854,15 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             }
 
             // Directional Control while Jetting/Skiing
-            if (isSkiing && movementDirection.magnitude > 0.01f && Energy > 0.0f)
+            if (isSkiing && movementDirection.magnitude > 0.01f && energy_component.CurrentEnergy > 0.0f)
             {
                 float lateralForce = jetDirectionalForceXY / localRb.mass * accelScale * Time.fixedDeltaTime;
                 desiredAcc += movementDirection * lateralForce;
-                ApplyEnergyDelta(-jetSkateEnergyDrain * accelScale * Time.fixedDeltaTime);
+                energy_component.ApplyEnergyDelta(-jetSkateEnergyDrain * accelScale * Time.fixedDeltaTime);
             }
 
             // Up Jetting
-            if (isJetting && Energy > 0.01f)
+            if (isJetting && energy_component.CurrentEnergy > 0.01f)
             {
                 float force = 0f;
                 if (isUpJetting)
@@ -870,7 +880,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
                 }
 
                 desiredVerticalAcc = force;
-                ApplyEnergyDelta(- (isUpJetting ? upJettingEnergyDrain : downJettingEnergyDrain) * accelScale * Time.fixedDeltaTime);
+                energy_component.ApplyEnergyDelta(- (isUpJetting ? upJettingEnergyDrain : downJettingEnergyDrain) * accelScale * Time.fixedDeltaTime);
             }
         }
 
@@ -1028,8 +1038,9 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     protected override void OnRespawn()
     {
         if (!IsServer) return;
+        Identification id_component = gameObject.GetComponent<Identification>();
 
-        Transform respawnPoint = LevelManager.Instance.GetSpawnPoint(TeamId);
+        Transform respawnPoint = LevelManager.Instance.GetSpawnPoint(id_component.FetchTeamId());
 
         if (respawnPoint)
         {
@@ -1061,12 +1072,15 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 
     public IdentifierData GetIdentifierData()
     {
+        Identification id_component = gameObject.GetComponent<Identification>();
+        Health hp_component = gameObject.GetComponent<Health>();
+
         return new IdentifierData
         {
-            color = IdentifierManager.TempTeamColors[TeamId],
-            topText = EntityName,
-            bottomText = $"{Mathf.CeilToInt(HealthPercentage * 100f)}%",
-            isActive = Health > 0
+            color = IdentifierManager.TempTeamColors[id_component.FetchTeamId()],
+            topText = id_component.FetchEntityName(),
+            bottomText = $"{Mathf.CeilToInt(hp_component.HealthPercentage * 100f)}%",
+            isActive = hp_component.CurrentHealth > 0
         };
     }
     #endregion

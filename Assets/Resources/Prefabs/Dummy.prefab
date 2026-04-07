@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 4144366904977847459}
   - component: {fileID: 7800112957262979857}
   - component: {fileID: 8218493042420417279}
+  - component: {fileID: 5134754892965056189}
   m_Layer: 0
   m_Name: Dummy
   m_TagString: Player
@@ -157,7 +158,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2829448636
+  GlobalObjectIdHash: 2425690734
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -183,16 +184,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  identifier: 
-  teamId: 0
-  health:
-    m_InternalValue: 0
-  maxHealth: 1
-  energy:
-    m_InternalValue: 0
-  maxEnergy: 0
-  energyRegenRate: 0
-  energyRegenFactor: 1
   explodeParticleObj: {fileID: 4263086704108371467}
 --- !u!114 &7800112957262979857
 MonoBehaviour:
@@ -257,6 +248,28 @@ MonoBehaviour:
   UseRigidBodyForMotion: 1
   AutoUpdateKinematicState: 1
   AutoSetKinematicOnDespawn: 1
+--- !u!114 &5134754892965056189
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1508689169738560456}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: baebb9870148d6311a2b933966c8407a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Health
+  ShowTopMostFoldoutHeaderGroup: 1
+  onHealthChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  onAppliedDamage:
+    m_PersistentCalls:
+      m_Calls: []
+  _health:
+    m_InternalValue: 0
+  _maxHealth: 50
 --- !u!1 &4263086704108371467
 GameObject:
   m_ObjectHideFlags: 0

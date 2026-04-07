@@ -15,7 +15,7 @@ public class PlayerCameraEffects : MonoBehaviour
     {
         noise = cam.GetComponent<CinemachineBasicMultiChannelPerlin>();
 
-        NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerController>().onHealthChanged.AddListener(DamageScreenshake);
+        NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<Health>().onHealthChanged.AddListener(DamageScreenshake);
     }
 
     // Update is called once per frame

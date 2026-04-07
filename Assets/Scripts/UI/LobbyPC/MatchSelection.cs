@@ -191,8 +191,10 @@ public class MatchSelection : NetworkBehaviour
         PlayerController playerController = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject.GetComponent<PlayerController>();
         if (!playerController.isInitialized) return;
 
-        string playerName = playerController.EntityName;
-        int teamId = isGameModeTeamBased ? (int)playerController.TeamId : -1;
+        Identification id_component = playerController.gameObject.GetComponent<Identification>();
+
+        string playerName = id_component.FetchEntityName();
+        int teamId = isGameModeTeamBased ? (int)id_component.FetchTeamId() : -1;
 
         AddPlayerRpc(clientId, playerName, teamId);
     }
@@ -200,8 +202,6 @@ public class MatchSelection : NetworkBehaviour
     [Rpc(SendTo.Everyone)]
     private void AddPlayerRpc(ulong clientId, string playerName, int teamId)
     {
-
-
         Transform parentColumn = teamId == 0 ? playerListColumn0 : playerListColumn1;
         if (!isGameModeTeamBased) parentColumn = playerListColumn0.childCount <= playerListColumn1.childCount ? playerListColumn0 : playerListColumn1;
 

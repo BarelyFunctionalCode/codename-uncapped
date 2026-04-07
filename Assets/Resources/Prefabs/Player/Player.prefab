@@ -17,6 +17,10 @@ GameObject:
   - component: {fileID: 1390792732641620680}
   - component: {fileID: 6729894158467347934}
   - component: {fileID: 6495883347945834671}
+  - component: {fileID: 5280059116635807099}
+  - component: {fileID: 1938606634265984670}
+  - component: {fileID: 4839206399656961561}
+  - component: {fileID: 6396055069320642075}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -51,7 +55,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1947508556
+  GlobalObjectIdHash: 148429366
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -77,59 +81,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _entityId:
-    m_InternalValue: 0
-  _entityName:
-    m_InternalValue:
-      utf8LengthInBytes: 0
-      bytes:
-        offset0000:
-          byte0000: 0
-          byte0001: 0
-          byte0002: 0
-          byte0003: 0
-          byte0004: 0
-          byte0005: 0
-          byte0006: 0
-          byte0007: 0
-          byte0008: 0
-          byte0009: 0
-          byte0010: 0
-          byte0011: 0
-          byte0012: 0
-          byte0013: 0
-          byte0014: 0
-          byte0015: 0
-        byte0016: 0
-        byte0017: 0
-        byte0018: 0
-        byte0019: 0
-        byte0020: 0
-        byte0021: 0
-        byte0022: 0
-        byte0023: 0
-        byte0024: 0
-        byte0025: 0
-        byte0026: 0
-        byte0027: 0
-        byte0028: 0
-        byte0029: 0
-  _teamId:
-    m_InternalValue: 0
-  _health:
-    m_InternalValue: 0
-  _maxHealth: 100
-  onHealthChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  onAppliedDamage:
-    m_PersistentCalls:
-      m_Calls: []
-  _energy:
-    m_InternalValue: 0
-  _maxEnergy: 33
-  _energyRegenRate: 5.625
-  _energyRegenFactor: 1
   devVectorRenderer: {fileID: 5320158334529817789}
   localTransform: {fileID: 0}
   playerTypePrefabObj: {fileID: 7282026672141897861, guid: 4c68cd604176642a282ea4f5c810a151, type: 3}
@@ -367,3 +318,108 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &5280059116635807099
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2197781301028936190}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: baebb9870148d6311a2b933966c8407a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Health
+  ShowTopMostFoldoutHeaderGroup: 1
+  onHealthChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  onAppliedDamage:
+    m_PersistentCalls:
+      m_Calls: []
+  _health:
+    m_InternalValue: 0
+  _maxHealth: 50
+--- !u!114 &1938606634265984670
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2197781301028936190}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7488adad3fbcc7d4cae8b24056cd0c8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::State
+  ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &4839206399656961561
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2197781301028936190}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc01fc206895dfd72a24d0329dd99e0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Identification
+  ShowTopMostFoldoutHeaderGroup: 1
+  _entityId:
+    m_InternalValue: 0
+  _entityName:
+    m_InternalValue:
+      utf8LengthInBytes: 0
+      bytes:
+        offset0000:
+          byte0000: 0
+          byte0001: 0
+          byte0002: 0
+          byte0003: 0
+          byte0004: 0
+          byte0005: 0
+          byte0006: 0
+          byte0007: 0
+          byte0008: 0
+          byte0009: 0
+          byte0010: 0
+          byte0011: 0
+          byte0012: 0
+          byte0013: 0
+          byte0014: 0
+          byte0015: 0
+        byte0016: 0
+        byte0017: 0
+        byte0018: 0
+        byte0019: 0
+        byte0020: 0
+        byte0021: 0
+        byte0022: 0
+        byte0023: 0
+        byte0024: 0
+        byte0025: 0
+        byte0026: 0
+        byte0027: 0
+        byte0028: 0
+        byte0029: 0
+  _teamId:
+    m_InternalValue: 0
+--- !u!114 &6396055069320642075
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2197781301028936190}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7400d8977c756e2ba451143d26e5bb9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Energy
+  ShowTopMostFoldoutHeaderGroup: 1
+  _energy:
+    m_InternalValue: 0
+  _maxEnergy: 0
+  _ungroundedEnergyRegenRate: 0
+  _energyRegenFactor: 1

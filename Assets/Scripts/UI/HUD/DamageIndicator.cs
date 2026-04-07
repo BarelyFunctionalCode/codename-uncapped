@@ -16,7 +16,13 @@ public class DamageIndicator : MonoBehaviour
 
     void Awake()
     {
-        NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerController>().onHealthChanged.AddListener(OnHealthChanged);
+        NetworkManager
+        .Singleton
+        .LocalClient
+        .PlayerObject
+        .GetComponent<Health>()
+        .onHealthChanged
+        .AddListener(OnHealthChanged);
     }
 
     // Update is called once per frame

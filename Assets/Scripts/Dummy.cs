@@ -20,14 +20,20 @@ public class Dummy : Entity, IIdentifiable
         base.OnNetworkSpawn();
         if (!IsServer) return;
 
-        _entityName.Value = $"{namePartOneList[Random.Range(0, namePartOneList.Length)]} {namePartTwoList[Random.Range(0, namePartTwoList.Length)]}";
+        Identification entity_identification = gameObject.GetComponent<Identification>();
+        if (entity_identification != null)
+        {
+            entity_identification.SetEntityName($"{namePartOneList[Random.Range(0, namePartOneList.Length)]} {namePartTwoList[Random.Range(0, namePartTwoList.Length)]}");
+        }
+
     }
 
     // Update is called once per frame
-    protected override void Update()
+    protected virtual void Update()
     {
-        base.Update();
-
+        // Entity has no Update function anymore
+        // base.Update();
+        float HealthPercentage = gameObject.GetComponent<Health>().HealthPercentage;
         material.color = Color.Lerp(Color.green, Color.red, 1.0f - HealthPercentage);
     }
 
@@ -57,6 +63,14 @@ public class Dummy : Entity, IIdentifiable
 
     public IdentifierData GetIdentifierData()
     {
+        Identification id_component = gameObject.GetComponent<Identification>();
+        ulong TeamId = id_component.FetchTeamId();
+        string EntityName = id_component.FetchEntityName();
+
+        Health h_component = gameObject.GetComponent<Health>();
+        float HealthPercentage = h_component.HealthPercentage;
+        float Health = h_component.CurrentHealth;
+
         return new IdentifierData
         {
             color = IdentifierManager.TempTeamColors[TeamId],

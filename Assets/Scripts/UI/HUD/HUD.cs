@@ -92,7 +92,7 @@ public class HUD : MonoBehaviour
         playerControls.UI.Leaderboard.started -= ctx => leaderboard.ToggleMenu(true);
         playerControls.UI.Leaderboard.canceled -= ctx => leaderboard.ToggleMenu(false);
 
-        playerController.onAppliedDamage.RemoveListener(SetHitMarker);
+        playerController.gameObject.GetComponent<Health>().onAppliedDamage.RemoveListener(SetHitMarker);
         GameModeHandler.Instance.currentPhaseCountdown.OnValueChanged -= SetCountDownTimer;
         GameModeHandler.Instance.currentPhase.OnValueChanged -= SetCurrentPhaseData;
     }
@@ -117,7 +117,7 @@ public class HUD : MonoBehaviour
         loadoutMenu.Initialize(playerController.GetComponent<PlayerLoadoutManager>(), this);
         leaderboard.Initialize();
 
-        playerController.onAppliedDamage.AddListener(SetHitMarker);
+        playerController.gameObject.GetComponent<Health>().onAppliedDamage.AddListener(SetHitMarker);
         GameModeHandler.Instance.currentPhaseCountdown.OnValueChanged += SetCountDownTimer;
         GameModeHandler.Instance.currentPhase.OnValueChanged += SetCurrentPhaseData;
 

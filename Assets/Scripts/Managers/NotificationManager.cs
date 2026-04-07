@@ -70,10 +70,14 @@ public class NotificationManager : NetworkBehaviour
         // TODO: Add some checks here, like message length, profanity filter, etc.
         ulong senderClientId = rpcParams.Receive.SenderClientId;
         NetworkManager.Singleton.ConnectedClients[senderClientId].PlayerObject.TryGetComponent(out PlayerController playerController);
-        Color playerColor = playerController.TeamId == 0 ? Color.blue : Color.red;
+        Identification id = playerController.GetComponent<Identification>();
+        ulong TeamId = id.FetchEntityId();
+        string EntityName = id.FetchEntityName();
+
+        Color playerColor = TeamId == 0 ? Color.blue : Color.red;
         NotificationData notificationData = new(
             NotificationType.ChatMessage,
-            playerController.EntityName,
+            EntityName,
             message,
             playerColor
         );
