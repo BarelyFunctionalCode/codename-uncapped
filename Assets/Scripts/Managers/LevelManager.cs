@@ -93,11 +93,11 @@ public class LevelManager : NetworkBehaviour
             PlayerController playerController = player.GetComponentInChildren<PlayerController>();
             if (playerController == null) continue;
 
-            Identification id_component = playerController.gameObject.GetComponent<Identification>();
+            Identification entityIdentification = playerController.gameObject.GetComponent<Identification>();
 
-            GameModeHandler.Instance.OnClientJoined(id_component.FetchEntityId());
+            GameModeHandler.Instance.OnClientJoined(entityIdentification.FetchEntityId());
             
-            Transform spawnPoint = GetSpawnPoint(id_component.FetchTeamId());
+            Transform spawnPoint = GetSpawnPoint(entityIdentification.FetchTeamId());
             if (spawnPoint == null) continue;
             
             playerController.Teleport(spawnPoint.position, spawnPoint.rotation);

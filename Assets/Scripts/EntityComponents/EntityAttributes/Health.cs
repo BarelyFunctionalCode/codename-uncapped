@@ -2,6 +2,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Events;
 
+[RequireComponent(typeof(State))]
 public class Health : EntityAttributes, IDamageable
 {
     private State entityState;
@@ -20,9 +21,10 @@ public class Health : EntityAttributes, IDamageable
     {
         base.Initialize(ParentNetworkObjectId);
 
+        entityState = GetComponent<State>();
+        entityState.onStateChange.AddListener(OnEntityStateChange);
+
         _health.Value = _maxHealth;
-        TryGetComponent(out entityState);
-        if (entityState != null) entityState.onStateChange.AddListener(OnEntityStateChange);
     }
 
     public void OnEntityStateChange(EntityStates s)
@@ -42,13 +44,19 @@ public class Health : EntityAttributes, IDamageable
         NetworkBehaviourReference attackerRef = default,
         NetworkBehaviourReference weaponRef = default
     ) {
-        ulong entityId = gameObject.GetComponent<Identification>().FetchEntityId();
-        attackerRef.TryGet(out PlayerController attacker);
-        ulong attackerEntityId = attacker.gameObject.GetComponent<Identification>().FetchEntityId();
+        gameObject.TryGetComponent(out Identification entityIdentification);
+        ulong entityId = entityIdentification != null ? entityIdentification.FetchEntityId() : ulong.MaxValue;
 
-        if (attacker != null && attackerEntityId != entityId)
+        Identification attackerIdentification = null;
+        attackerRef.TryGet(out PlayerController attacker);
+        if (attacker != null) attacker.gameObject.TryGetComponent(out attackerIdentification);
+        ulong attackerEntityId = attackerIdentification != null ? attackerIdentification.FetchEntityId() : ulong.MaxValue;
+
+        bool doStatUpdates = !(attackerEntityId.Equals(ulong.MaxValue) || entityId.Equals(ulong.MaxValue));
+        if (doStatUpdates)
         {
-            attacker.GetComponent<Health>()?.OnAppliedDamageRpc(damage);
+            attacker.TryGetComponent(out Health attackerHealth);
+            if (attackerHealth != null) attackerHealth.OnAppliedDamageRpc(damage);
             GameModeHandler.Instance.StatEventReceiver(new StatEvent(
                 StatEventType.DAMAGE_DEALT,
                 damage,
@@ -92,56 +100,56 @@ public class Health : EntityAttributes, IDamageable
 
         if (!IsServer || entityState.IsDead) return;
 
-        string lethalSource = "gravity";
-        string weaponName = null;
+        string lethalSource = "The Game";
+        string weaponName = "mysterious ways";
 
         // Self identification
-        Identification entity_identification = gameObject.GetComponent<Identification>();
-
-        string EntityName = entity_identification.FetchEntityName();
-        ulong EntityId = entity_identification.FetchEntityId();
+        gameObject.TryGetComponent(out Identification entityIdentification);
+        string entityName = entityIdentification != null ? entityIdentification.FetchEntityName() : null;
+        ulong entityId = entityIdentification != null ? entityIdentification.FetchEntityId() : ulong.MaxValue;
 
         // Attacker identification
+        Identification attackerIdentification = null;
         attackerRef.TryGet(out PlayerController attacker);
-
-        entity_identification = attacker.gameObject.GetComponent<Identification>();
-        string AttackerEntityName = entity_identification.FetchEntityName();
-        ulong AttackerEntityId = entity_identification.FetchEntityId();
+        if (attacker != null) attacker.gameObject.TryGetComponent(out attackerIdentification);
+        string attackerEntityName = attackerIdentification != null ? attackerIdentification.FetchEntityName() : null;
+        ulong attackerEntityId = attackerIdentification != null ? attackerIdentification.FetchEntityId() : ulong.MaxValue;
 
         weaponRef.TryGet(out Weapon weapon);
         ThrowableManager throwable = null;
-
         if (weapon == null) weaponRef.TryGet(out throwable);
 
-        if (attacker != null && (weapon != null || throwable != null))
+        bool doStatUpdates = !(attackerEntityId.Equals(ulong.MaxValue) || entityId.Equals(ulong.MaxValue));
+        if (doStatUpdates)
         {
             GameModeHandler.Instance.StatEventReceiver(
                 new StatEvent(
                     StatEventType.DEATHS,
                     1.0f,
-                    EntityId
+                    entityId
             ));
 
             GameModeHandler.Instance.StatEventReceiver(
                 new StatEvent(
                     StatEventType.KILL,
                     1.0f,
-                    AttackerEntityId
+                    attackerEntityId
             ));
-
-            GameObject weaponObj = weapon != null ? weapon.gameObject : throwable.gameObject;
-            LoadoutItemSO itemSO = PlayerLoadout.GetLoadoutItemSOFromPrefab(weaponObj);
-            weaponName = itemSO.itemName;
-
-            lethalSource = AttackerEntityName + "'s " + weaponName;
         }
-        NotificationManager.Instance.SendKillFeedNotificationRpc(EntityName, lethalSource);
+
+        if (entityName != null)
+        {
+            if (attackerEntityName != null) lethalSource = attackerEntityName;
+            if (weapon != null || throwable != null)
+            {
+                GameObject weaponObj = weapon != null ? weapon.gameObject : throwable.gameObject;
+                LoadoutItemSO itemSO = PlayerLoadout.GetLoadoutItemSOFromPrefab(weaponObj);
+                weaponName = itemSO.itemName;
+            }
+            lethalSource += "'s " + weaponName;
+            NotificationManager.Instance.SendKillFeedNotificationRpc(entityName, lethalSource);
+        }
 
         entityState.Die();
-
-        // TODO: Move this to a more proper place instead of just automatically respawning after 3 seconds
-        Invoke(nameof(_Respawn), 3f);
     }
-
-    private void _Respawn() => entityState.Respawn();
 }

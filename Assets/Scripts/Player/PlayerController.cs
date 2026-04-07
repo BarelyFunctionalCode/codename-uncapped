@@ -14,6 +14,10 @@ using UnityEngine.SceneManagement;
 [RequireComponent(typeof(PlayerLoadoutManager))]
 [RequireComponent(typeof(PlayerNetworkTransform))]
 [RequireComponent(typeof(NetworkRigidbody))]
+[RequireComponent(typeof(Identification))]
+[RequireComponent(typeof(PlayerState))]
+[RequireComponent(typeof(Energy))]
+[RequireComponent(typeof(Health))]
 public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 {
     Identification playerIdentification;
@@ -413,17 +417,15 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     [Rpc(SendTo.Server)]
     private void InitializeServerRpc()
     {
-        Identification id_component = gameObject.GetComponent<Identification>();
-
-        id_component.SetEntityName($"Player {OwnerClientId}");
-        id_component.SetEntityId(OwnerClientId);
-        id_component.SetTeamId((uint)OwnerClientId);
+        playerIdentification.SetEntityName($"Player {OwnerClientId}");
+        playerIdentification.SetEntityId(OwnerClientId);
+        playerIdentification.SetTeamId((uint)OwnerClientId);
 
         // Get Player's Steam ID
         if (GameManager.Instance?.usingSteam == true)
         {
             _steamId = SteamClient.SteamId.Value;
-            id_component.SetEntityName(new Friend(_steamId).Name);
+            playerIdentification.SetEntityName(new Friend(_steamId).Name);
         }
 
         playerLoadout.Initialize(true, this);

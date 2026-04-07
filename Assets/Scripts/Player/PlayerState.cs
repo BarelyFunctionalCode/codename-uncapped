@@ -1,16 +1,19 @@
 using Unity.Netcode;
 using UnityEngine;
 
+[RequireComponent(typeof(PlayerController))]
+[RequireComponent(typeof(Identification))]
 public class PlayerState : State
 {
+    private Identification playerIdentification;
     private PlayerController playerController;
     [SerializeField] private AudioSource respawnAudioSource;
 
     public override void Initialize(ulong ParentNetworkObjectId)
     {
         base.Initialize(ParentNetworkObjectId);
-        TryGetComponent(out playerController);
-        if (playerController == null) Debug.LogError("PlayerState requires a PlayerController component on the same GameObject.");
+        playerController = GetComponent<PlayerController>();
+        playerIdentification = GetComponent<Identification>();
     }
 
     protected override void OnDie()
@@ -41,9 +44,8 @@ public class PlayerState : State
     protected override void OnRespawn()
     {
         if (!IsServer) return;
-        Identification id_component = gameObject.GetComponent<Identification>();
 
-        Transform respawnPoint = LevelManager.Instance.GetSpawnPoint(id_component.FetchTeamId());
+        Transform respawnPoint = LevelManager.Instance.GetSpawnPoint(playerIdentification.FetchTeamId());
 
         if (respawnPoint)
         {

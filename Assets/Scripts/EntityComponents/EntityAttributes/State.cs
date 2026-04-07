@@ -1,4 +1,5 @@
 using Unity.Netcode;
+using UnityEngine;
 using UnityEngine.Events;
 
 public enum EntityStates
@@ -27,8 +28,8 @@ public class State : EntityAttributes
     public void SetIsGrounded(bool b)
     {
         _isGrounded = b;
-        if (b) ChangeState(EntityStates.GROUNDED);
-        else ChangeState(EntityStates.UNGROUNDED);
+        // if (b) ChangeState(EntityStates.GROUNDED);
+        // else ChangeState(EntityStates.UNGROUNDED);
     }
 
     public void Die()
@@ -37,6 +38,8 @@ public class State : EntityAttributes
         _isDead.Value = true;
         ChangeState(EntityStates.DEAD);
         OnDie();
+
+        Invoke("Respawn", 3f); // TODO: Move somewhere that actually manages respawning
     }
     protected virtual void OnDie() {}
 

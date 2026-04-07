@@ -142,7 +142,7 @@ public class GameModeHandler : NetworkBehaviour
                 game_mode_cache = new Dictionary<GameModes, GameObject>(gamemodeObjects.Length);
                 foreach (GameObject obj in gamemodeObjects)
                 {
-                    if (Enum.TryParse(obj.name, out GameModes gameMode))game_mode_cache.Add(gameMode, obj);
+                    if (Enum.TryParse(obj.name, true, out GameModes gameMode))game_mode_cache.Add(gameMode, obj);
                     else Debug.LogWarning($"GameModeHandler: Failed to parse GameMode from prefab name {obj.name}");
                 }
             }

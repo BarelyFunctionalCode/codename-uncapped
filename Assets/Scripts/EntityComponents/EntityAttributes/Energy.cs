@@ -2,8 +2,10 @@ using Unity.Netcode;
 using UnityEngine;
 using System;
 
+[RequireComponent(typeof(State))]
 public class Energy : EntityAttributes
 {
+    private State entityState;
     private const float groundEnergyRegenRate = 12.5f;
 
     [SerializeField] private NetworkVariable<float> _energy = new(0.0f);
@@ -22,11 +24,11 @@ public class Energy : EntityAttributes
     public override void Initialize(ulong ParentNetworkObjectId)
     {
         base.Initialize(ParentNetworkObjectId);
+        
+        entityState = GetComponent<State>();
+        entityState.onStateChange.AddListener(OnEntityStateChange);
 
         _energy.Value = _maxEnergy;
-
-        TryGetComponent(out State stateComponent);
-        if (stateComponent != null) stateComponent.onStateChange.AddListener(OnEntityStateChange);
     }
 
     public void OnEntityStateChange(EntityStates s)
