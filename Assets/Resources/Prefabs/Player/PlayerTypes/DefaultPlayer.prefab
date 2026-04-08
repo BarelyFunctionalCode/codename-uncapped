@@ -21007,7 +21007,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2522661745
+  GlobalObjectIdHash: 1985361469
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -21050,6 +21050,8 @@ MonoBehaviour:
   hoverEffectLeftFootParticleSystem: {fileID: 7814916142874155482}
   hoverEffectRightFootParticleSystem: {fileID: 6945677122996283940}
   firstPersonCamera: {fileID: 8720235529502056656}
+  verticalRotationSpeed: 24
+  verticalRotationLimit: 100
   legsRotateSpeed: 10
   mass: 75
 --- !u!82 &2586262519341678390

@@ -1,9 +1,8 @@
 # Things not working
 
-- Host sees death screen when a client dies.
+- Players killing themselves counts as a kill
 - Clients no FF indicators.
 - Client weird error about PlayerCameraEffects class not initializing correctly.
-- Client incorrect walking animation (probably something to do with the animation variables set in the PlayerController).
 
 # Things to do
 

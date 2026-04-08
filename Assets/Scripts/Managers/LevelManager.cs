@@ -135,7 +135,7 @@ public class LevelManager : NetworkBehaviour
             
             playerController.Teleport(spawnPoint.position, spawnPoint.rotation);
             playerController.SetPlayerControlsRpc(false);
-            playerController.playerHUD.SetHUDActive(true);
+            playerController.SetHUDActiveRpc(true);
             // playerController.OpenLoadoutMenuRpc();
         }
 

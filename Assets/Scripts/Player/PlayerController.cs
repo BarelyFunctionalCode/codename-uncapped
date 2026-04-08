@@ -8,9 +8,6 @@ using UnityEngine.SceneManagement;
 
 
 [RequireComponent(typeof(Rigidbody))]
-// [RequireComponent(typeof(CapsuleCollider))]
-// [RequireComponent(typeof(Animator))]
-// [RequireComponent(typeof(NetworkAnimator))]
 [RequireComponent(typeof(PlayerLoadoutManager))]
 [RequireComponent(typeof(PlayerNetworkTransform))]
 [RequireComponent(typeof(NetworkRigidbody))]
@@ -25,7 +22,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 
     [SerializeField] public GameObject playerTypePrefabObj;
     private GameObject playerTypeObj;
-    private PlayerType playerType;
+    private PlayerType localPlayerType;
 
     [SerializeField] private GameObject playerPuppetPrefabObj;
     public GameObject playerPuppetObj;
@@ -34,26 +31,16 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     private SteamId _steamId;
     public SteamId SteamId { get { return _steamId; } }
 
-    // Animation
-    private Animator localAnimator;
-    private Vector3 animMovementDirection = Vector3.zero;
-
     // Audio
-    private AudioSource hoverAudioSource;
-    private AudioSource windAudioSource;
     [SerializeField] private AudioSource respawnAudioSource;
 
     // Camera
     [SerializeField] private GameObject playerCameraPrefabObj;
     private GameObject playerCameraObj;
     private CinemachineCamera thirdPersonCamera;
-    private Transform freeLookTargetTransform;
     [PauseMenuOption("Horizontal Look", 0f, 100f)]
     public float horizontalRotationSpeed = 20f;
     private readonly float horizontalRotationLimit = 100f;
-    [PauseMenuOption("Vertical Look", 0f, 100f)]
-    public float verticalRotationSpeed = 24f;
-    public float verticalRotationLimit = 100f;
     private AudioListener audioListener;
 
     // UI
@@ -70,7 +57,6 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     float rotationInputX = 0f;
     float rotationInputY = 0f;
     Vector3 rotationDeltaYaw = Vector3.zero;
-    Vector3 rotationDeltaPitch = Vector3.zero;
     bool isJumping = false;
     bool isSkiing = false;
     bool upJettingInput = false;
@@ -262,9 +248,9 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         if (IsDead) return;
 
         // Handle camera pitch rotation on local client
-        HandleCamera();
-
-        playerType.HandleExtraMotion(movementDirection, isSkiing, surfaceNormal);
+        localPlayerType.HandleCamera(rotationInputY, controlsDisabledCount);
+        localPlayerType.HandleExtraMotion(movementDirection, isSkiing, surfaceNormal);
+        rotationInputY = 0f;
     }
 
     void FixedUpdate()
@@ -312,18 +298,18 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         );
     }
 
-    public void OnPlayerTypeObjectSpawned(PlayerType playerType)
+    public void OnPlayerTypeObjectSpawned(PlayerType playerType, bool isPuppet = false)
     {
-        this.playerType = playerType;
+        localPlayerType = playerType;
         localPlayerCollider = playerType.playerCollider;
         localPlayerCollider.material = normalMaterial;
-        localAnimator = playerType.playerAnimator;
-        freeLookTargetTransform = playerType.freeLookTargetTransform;
-        weaponMountPoint = playerType.weaponMountPoint;
-        throwableMountPoint = playerType.throwableMountPoint;
-        hoverAudioSource = playerType.hoverAudioSource;
-        windAudioSource = playerType.windAudioSource;
-        localRb.mass = playerType.mass;
+
+        if (!isPuppet)
+        {
+            localRb.mass = playerType.mass;
+            weaponMountPoint = playerType.weaponMountPoint;
+            throwableMountPoint = playerType.throwableMountPoint;
+        }
 
         if (IsOwner) InitializeOwner();
     }
@@ -334,13 +320,13 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         if (!IsHost && !playerPuppetObj)
         {
             // Hide all visuals on authoritative player object
-            foreach (Renderer r in GetComponentsInChildren<Renderer>())
+            foreach (Renderer r in localPlayerType.gameObject.GetComponentsInChildren<Renderer>())
             {
                 r.enabled = false;
             }
 
             // Disable audio sources
-            foreach (AudioSource a in GetComponentsInChildren<AudioSource>())
+            foreach (AudioSource a in localPlayerType.gameObject.GetComponentsInChildren<AudioSource>())
             {
                 a.enabled = false;
             }
@@ -356,16 +342,8 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             // Set the local player's transform, collider, and rigidbody references to the puppet's so that the rest of the
             // player controller code can work as normal regardless of whether it's running on the server or client
             localTransform = playerPuppetObj.transform;
-            localPlayerCollider = playerPuppet.playerCollider;
             localRb = playerPuppet.rb;
-            localAnimator = playerPuppet.playerAnimator;
-
-            // Get the free look target transform from the puppet so that the camera can follow it
-            freeLookTargetTransform = playerPuppet.freeLookTargetTransform;
-
-            // Set Audio Sources
-            hoverAudioSource = playerPuppet.hoverAudioSource;
-            windAudioSource = playerPuppet.windAudioSource;
+            return;
         }
 
         // Initialize Player UI
@@ -381,7 +359,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             playerCameraObj = Instantiate(playerCameraPrefabObj);
             audioListener = playerCameraObj.GetComponentInChildren<AudioListener>();
             thirdPersonCamera = playerCameraObj.GetComponentInChildren<CinemachineCamera>();
-            thirdPersonCamera.Follow = freeLookTargetTransform;
+            thirdPersonCamera.Follow = localPlayerType.freeLookTargetTransform;
 
             Camera UIOverlayCamera = playerUIObj.GetComponentInChildren<Canvas>().worldCamera;
             Camera mainCamera = playerCameraObj.GetComponentInChildren<Camera>();
@@ -470,7 +448,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     {
         bool isThirdPerson = thirdPersonCamera.Priority.Value > 0;
         thirdPersonCamera.Priority.Value = isThirdPerson ? 0 : 1;
-        playerType.ToggleFirstPersonCamera(isThirdPerson);
+        localPlayerType.ToggleFirstPersonCamera(isThirdPerson);
     }
 
     [Rpc(SendTo.Server)]
@@ -487,6 +465,11 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         else playerControls.Character.Disable();
     }
 
+    [Rpc(SendTo.Owner)]
+    public void SetHUDActiveRpc(bool enabled)
+    {
+        playerHUD.SetHUDActive(enabled);
+    }
     [Rpc(SendTo.Owner)]
     public void OpenLoadoutMenuRpc()
     {
@@ -596,32 +579,10 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         }
 
         // Set audio values
-        if (hoverAudioSource)
-        {
-            float maxVolume = 0.3f;
-            hoverAudioSource.volume = Mathf.Lerp(hoverAudioSource.volume, isSkiing ? maxVolume : 0f, Time.fixedDeltaTime * 5f);
-            hoverAudioSource.pitch = 0.9f + 0.05f * (localRb.linearVelocity.magnitude / 20f);
-        }
-        if (windAudioSource)
-        {
-            float cappedSpeed = (localRb.linearVelocity.magnitude - 20f) / 80f;
-            float targetVolume = Mathf.Lerp(0f, 0.02f, cappedSpeed);
-            float targetPitch = Mathf.Lerp(0.9f, 1.5f, cappedSpeed);
-            windAudioSource.volume = Mathf.Lerp(windAudioSource.volume, targetVolume, Time.fixedDeltaTime * 20f);
-            windAudioSource.pitch = Mathf.Lerp(windAudioSource.pitch, targetPitch, Time.fixedDeltaTime * 20f);
-        }
+        localPlayerType.HandleAudio(localRb.linearVelocity, isSkiing);
 
         // Set animator values
-        Vector3 animMovementDirectionNewY = Vector3.up * (isDownJetting ? -1f : (isUpJetting ? 1f : 0f));
-        animMovementDirection = Vector3.Lerp(animMovementDirection, movement.normalized + animMovementDirectionNewY, Time.fixedDeltaTime * 10f);
-        localAnimator.SetFloat("xDir", animMovementDirection.x);
-        localAnimator.SetFloat("yDir", animMovementDirection.y);
-        localAnimator.SetFloat("zDir", animMovementDirection.z);
-        localAnimator.SetFloat("yVel", localRb.linearVelocity.normalized.y);
-        localAnimator.SetBool("isGrounded", IsGrounded);
-        localAnimator.SetBool("isRunning", isRunning);
-        localAnimator.SetBool("isSkiing", isSkiing && !isUpJetting && !isDownJetting);
-        localAnimator.SetBool("isJetting", isUpJetting || isDownJetting);
+        localPlayerType.UpdateAnimationData(movement, localRb.linearVelocity, IsGrounded, isRunning, isSkiing, isDownJetting, isUpJetting);
     }
     #endregion
 
@@ -649,20 +610,6 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         localPlayerCollider.enabled = true;
         localRb.isKinematic = false;
         SetPlayerControlsRpc(true);
-    }
-
-    private void HandleCamera()
-    {
-        // Get pitch rotation from inputs and rotate the camera look target
-        Vector3 rotationPitch = new(rotationInputY, 0f, 0f);
-        rotationPitch *= verticalRotationSpeed * Time.deltaTime;
-        rotationDeltaPitch = Vector3.ClampMagnitude(rotationPitch, verticalRotationLimit);
-        rotationInputY = 0f;
-        float currentXRotation = freeLookTargetTransform.eulerAngles.x < 180f ? freeLookTargetTransform.eulerAngles.x : freeLookTargetTransform.eulerAngles.x - 360f;
-        rotationDeltaPitch.x = Mathf.Clamp(currentXRotation + rotationDeltaPitch.x, -83.0f, 83.0f) - currentXRotation;
-        if (controlsDisabledCount > 0) rotationDeltaPitch = Vector3.zero;
-        
-        freeLookTargetTransform.Rotate(rotationDeltaPitch);
     }
 
     private void HandleGroundDetection()
@@ -770,7 +717,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
                 Vector3.zero;
             desiredVerticalAcc = jumpSurfaceNormal.y * playerScaleFactor * jumpForceFinal * jumpScale;
             lastGroundedTime = 1f;
-            localAnimator.SetTrigger("triggerJump");
+            localPlayerType.HandleJump();
         }
         // Running Movement
         else if (isRunning)
@@ -1028,8 +975,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             // Disable the camera
             if (thirdPersonCamera) thirdPersonCamera.Priority.Value = 0;
         }
-        Debug.Log($"{name} died.");
-        playerType.OnDie();
+        localPlayerType.OnDie();
     }
 
     protected override void OnRespawn()
@@ -1062,7 +1008,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             localRb.isKinematic = false;
             localPlayerCollider.enabled = true;
         }
-        playerType.OnRespawn();
+        localPlayerType.OnRespawn();
         respawnAudioSource.Play();
     }
 

@@ -126,7 +126,7 @@ public class LobbyPC : MonoBehaviour
 
     public void Reset()
     {
-        if (!isActive) return;
+        if (!NetworkManager.Singleton.IsListening || !isActive) return;
 
         // Resets priority to PC Cam and then locks the cursor
         isActive = false;
