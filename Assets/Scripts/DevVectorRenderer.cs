@@ -50,7 +50,7 @@ public class DevVectorRenderer : MonoBehaviour
         {
             if (Time.time - vector.createdAt > vector.duration) continue;
             Vector3 start = vector.start;
-            Vector3 end = vector.start + vector.dir;
+            Vector3 end = vector.start + (vector.dir * 3f);
             Vector3 direction = vector.dir.normalized;
             Vector3 left = Vector3.Cross(direction, transform.forward).normalized;
             Vector3 backward = Vector3.Cross(direction, left).normalized;

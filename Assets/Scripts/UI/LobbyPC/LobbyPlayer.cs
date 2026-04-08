@@ -20,8 +20,31 @@ public class LobbyPlayer : MonoBehaviour
         teamIndex = team;
     
         if (!isHost) return;
-        if (teamIndex == 0) leftArrowButtonObj.SetActive(true);
-        else if (teamIndex == 1) rightArrowButtonObj.SetActive(true);
+
+        if (matchSelection.selectedGameMode.teamBasedType != TeamBasedType.TEAM)
+        {
+            leftArrowButtonObj.SetActive(false);
+            rightArrowButtonObj.SetActive(false);
+        }
+        else
+        {
+            if (teamIndex == 0) rightArrowButtonObj.SetActive(true);
+            else if (teamIndex == 1) leftArrowButtonObj.SetActive(true);
+        }
+    }
+
+    public void UpdateTeamButtons(bool isTeamBased)
+    {
+        if (!isTeamBased)
+        {
+            leftArrowButtonObj.SetActive(false);
+            rightArrowButtonObj.SetActive(false);
+        }
+        else
+        {
+            leftArrowButtonObj.SetActive(teamIndex == 1);
+            rightArrowButtonObj.SetActive(teamIndex == 0);
+        }
     }
 
     public void OnTeamChangeButtonPressed(int team)
@@ -33,7 +56,7 @@ public class LobbyPlayer : MonoBehaviour
     public void OnTeamChange(int newTeam)
     {
         teamIndex = newTeam;
-        leftArrowButtonObj.SetActive(teamIndex != 0);
-        rightArrowButtonObj.SetActive(teamIndex != 1);
+        leftArrowButtonObj.SetActive(teamIndex == 1);
+        rightArrowButtonObj.SetActive(teamIndex == 0);
     }
 }

@@ -58,12 +58,14 @@ public class PlayerPuppet : MonoBehaviour
     public void Initialize(PlayerController playerController)
     {
         this.playerController = playerController;
-        SetPlayerType(playerController.playerTypePrefabObj);
+        PlayerType playerTypeData = SetPlayerType(playerController.playerTypePrefabObj);
         playerController.GetComponent<PlayerNetworkTransform>().onNewLocalTransformState.AddListener(OnNewLocalTransformState);
         isInitialized = true;
+
+        playerController.OnPlayerTypeObjectSpawned(playerTypeData, true);
     }
 
-    private void SetPlayerType(GameObject playerTypePrefabObj)
+    private PlayerType SetPlayerType(GameObject playerTypePrefabObj)
     {
         if (playerTypeObj != null) Destroy(playerTypeObj);
         playerTypeObj = Instantiate(playerTypePrefabObj, transform.position, transform.rotation, transform);
@@ -76,6 +78,8 @@ public class PlayerPuppet : MonoBehaviour
         hoverAudioSource = playerTypeData.hoverAudioSource;
         windAudioSource = playerTypeData.windAudioSource;
         rb.mass = playerTypeData.mass;
+
+        return playerTypeData;
     }
 
     private void OnNewLocalTransformState(NetworkTransformState newState)

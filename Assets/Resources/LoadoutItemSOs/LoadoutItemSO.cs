@@ -8,6 +8,8 @@ public class LoadoutItemSO : ScriptableObject
     public string itemDescription;
     public LoadoutItemType itemType;
     public GameObject itemPrefab;
+    public GameObject showcaseItemPrefab = null;
+    public float showcaseAdditionalCameraDistance = 0f;
 
 
     public List<LoadoutArmorClass> applicableArmorClasses = new() { LoadoutArmorClass.Any };

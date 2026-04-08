@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 527efa8c8452842e3bcdc314cd511426, type: 3}
+  m_Name: PowerStruggle
+  m_EditorClassIdentifier: Assembly-CSharp::GameModeSO
+  gameModeName: 2
+  displayName: Power Struggle
+  description: 'Capture the enemy team''s energy cores and return them back to your
+    base. Only one ship is getting off this rock. '
+  maxAllowedPlayers: 16
+  maxAllowedTimeLimitMinutes: 30
+  winConditionReaderFriendlyName: Captures
+  winConditionStatType: 6
+  winConditionDefaultValue: 4
+  teamBasedType: 2

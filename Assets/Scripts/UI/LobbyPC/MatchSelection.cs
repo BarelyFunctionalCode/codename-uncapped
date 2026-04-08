@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using System.IO;
+using System.Linq;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
@@ -10,6 +10,10 @@ public class MatchSelection : NetworkBehaviour
     [SerializeField] private TMP_Dropdown gameModeSelectDropdown;
     [SerializeField] private TMP_Dropdown maxPlayersSelectDropdown;
     [SerializeField] private TMP_Dropdown timeLimitSelectDropdown;
+    [SerializeField] private TMP_Text winConditionNameText;
+    [SerializeField] private TMP_Text winConditionValueText;
+    [SerializeField] private GameObject winConditionValueIncrementButtonContainer;
+    [SerializeField] private GameObject winConditionValueDecrementButtonContainer;
 
     [SerializeField] private TMP_Text selectedLevelTitleText;
     [SerializeField] private TMP_Text selectedLevelDescriptionText;
@@ -23,13 +27,11 @@ public class MatchSelection : NetworkBehaviour
     [SerializeField] private GameObject lobbyPlayerPrefabObj;
     private List<LobbyPlayer> lobbyPlayers = new();
 
-    private static List<string> levelNames = new();
-
-    private string selectedLevel;
-    private GameModes selectedGameMode;
-    private bool isGameModeTeamBased = false; // TODO: Change this to be based on the selected GameModeSO
+    private LevelSO selectedLevel;
+    public GameModeSO selectedGameMode;
     private int selectedMaxPlayers;
     private int selectedTimeLimit;
+    private int selectedWinConditionValue;
 
     [SerializeField] private LobbyPC lobbyPC;
 
@@ -48,47 +50,49 @@ public class MatchSelection : NetworkBehaviour
 
     private void InitializeMenu()
     {
-        if (levelNames.Count == 0) // TODO: Change this out for LevelSO that will have nice title and description.
+        if (levelSelectDropdown.options.Count == 0)
         {
-            string fullPath = Path.Combine(Application.dataPath, "Scenes/Levels");
-            string[] sceneFiles = Directory.GetFiles(fullPath, "*.unity");
-            foreach (string file in sceneFiles)
-            {
-                string fileName = Path.GetFileName(file);
-                levelNames.Add(Path.GetFileNameWithoutExtension(fileName));
-            }
+            selectedLevel = LevelManager.availableLevels[0];
+            selectedLevelTitleText.text = selectedLevel.displayName;
+            selectedLevelDescriptionText.text = selectedLevel.description;
+            List<string> levelNames = LevelManager.availableLevels.Select(level => level.displayName).ToList();
+            levelSelectDropdown.AddOptions(levelNames);
         }
-        selectedLevel = levelNames[0];
-        selectedLevelTitleText.text = selectedLevel; // TODO: Change this to be the title from the LevelSO
-        selectedLevelDescriptionText.text = "This is a description for " + selectedLevel; // TODO: Change this to be the description from the LevelSO
-        levelSelectDropdown.AddOptions(levelNames);
 
-        List<string> gameModeNames = new();
-        bool isFirst = true;
-        foreach (GameModes gameMode in System.Enum.GetValues(typeof(GameModes)))
+        if (gameModeSelectDropdown.options.Count == 0)
         {
-            if (isFirst) 
-            {
-                isFirst = false;
-                continue; // Skip None
-            }
-            
-            gameModeNames.Add(gameMode.ToString());
+            List<string> gameModeNames = GameModeHandler.availableGameModes.Values.Select(gm => gm.displayName).ToList();
+            selectedGameMode = GameModeHandler.availableGameModes[(GameModes)1];
+            selectedGameModeTitleText.text = selectedGameMode.displayName;
+            selectedGameModeDescriptionText.text = selectedGameMode.description;
+            gameModeSelectDropdown.AddOptions(gameModeNames);
         }
-        selectedGameMode = (GameModes)1;
-        selectedGameModeTitleText.text = selectedGameMode.ToString(); // TODO: Change this to be the title from the GameModeSO
-        selectedGameModeDescriptionText.text = "This is a description for " + selectedGameMode; // TODO: Change this to be the description from the GameModeSO
-        gameModeSelectDropdown.AddOptions(gameModeNames);
 
-        List<string> maxPlayerOptions = new() { "2", "4", "8", "16" }; // TODO: Change this to be dynamic based on the selected level and gamemode
-        selectedMaxPlayers = int.Parse(maxPlayerOptions[0]);
+        maxPlayersSelectDropdown.ClearOptions();
+        MaxAllowedPlayersOptions maxPlayersOptionDefault = selectedGameMode.maxAllowedPlayers;
+        List<string> maxPlayerOptions = System.Enum.GetValues(typeof(MaxAllowedPlayersOptions))
+            .Cast<MaxAllowedPlayersOptions>()
+            .Where(option => option <= maxPlayersOptionDefault)
+            .Select(option => ((int)option).ToString())
+            .ToList();
+        selectedMaxPlayers = int.Parse(maxPlayerOptions[^1]);
         maxPlayersSelectDropdown.AddOptions(maxPlayerOptions);
+        maxPlayersSelectDropdown.value = maxPlayerOptions.IndexOf(selectedMaxPlayers.ToString());
 
-        List<string> timeLimitOptions = new() { "5", "10", "15", "20", "30", "60" }; // TODO: Change this to be dynamic based on the selected level and gamemode
-        selectedTimeLimit = int.Parse(timeLimitOptions[0]);
+        timeLimitSelectDropdown.ClearOptions();
+        MaxAllowedTimeLimitOptions timeLimitOptionDefault = selectedGameMode.maxAllowedTimeLimitMinutes;
+        List<string> timeLimitOptions = System.Enum.GetValues(typeof(MaxAllowedTimeLimitOptions))
+            .Cast<MaxAllowedTimeLimitOptions>()
+            .Where(option => option <= timeLimitOptionDefault)
+            .Select(option => ((int)option).ToString())
+            .ToList();
+        selectedTimeLimit = int.Parse(timeLimitOptions[^1]);
         timeLimitSelectDropdown.AddOptions(timeLimitOptions);
+        timeLimitSelectDropdown.value = timeLimitOptions.IndexOf(selectedTimeLimit.ToString());
 
-        // TODO: For Objective based gamemodes, add dropdown for objective selection that is populated based on the selected level.
+        winConditionNameText.text = selectedGameMode.winConditionReaderFriendlyName + " Limit";
+        winConditionValueText.text = selectedGameMode.winConditionDefaultValue.ToString();
+        selectedWinConditionValue = (int)selectedGameMode.winConditionDefaultValue;
 
         if (!IsHost)
         {
@@ -96,9 +100,11 @@ public class MatchSelection : NetworkBehaviour
             gameModeSelectDropdown.interactable = false;
             maxPlayersSelectDropdown.interactable = false;
             timeLimitSelectDropdown.interactable = false;
+            winConditionValueIncrementButtonContainer.SetActive(false);
+            winConditionValueDecrementButtonContainer.SetActive(false);
         }
 
-        playerListTeamSeparatorObj.SetActive(isGameModeTeamBased);
+        playerListTeamSeparatorObj.SetActive(selectedGameMode.teamBasedType == TeamBasedType.TEAM);
         if (IsHost)
         {
             foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
@@ -116,10 +122,11 @@ public class MatchSelection : NetworkBehaviour
     [Rpc(SendTo.Everyone)]
     private void OnLevelSelectValueChangedRpc(int index)
     {
-        selectedLevel = levelNames[index];
-        selectedLevelTitleText.text = selectedLevel; // TODO: Change this to be the title from the LevelSO
-        selectedLevelDescriptionText.text = "This is a description for " + selectedLevel; // TODO: Change this to be the description from the LevelSO
+        selectedLevel = LevelManager.availableLevels[index];
+        selectedLevelTitleText.text = selectedLevel.displayName;
+        selectedLevelDescriptionText.text = selectedLevel.description;
 
+        InitializeMenu();
         if (IsHost) return;
         levelSelectDropdown.value = index;
     }
@@ -127,17 +134,22 @@ public class MatchSelection : NetworkBehaviour
     public void OnGameModeSelectValueChanged(TMP_Dropdown dropdown)
     {
         if (!IsHost) return;
-        OnGameModeSelectValueChangedRpc(dropdown.value + 1); // Account for None value in enum
+        OnGameModeSelectValueChangedRpc(dropdown.value);
     }
     [Rpc(SendTo.Everyone)]
     private void OnGameModeSelectValueChangedRpc(int index)
     {
-        selectedGameMode = (GameModes)index;
-        selectedGameModeTitleText.text = selectedGameMode.ToString(); // TODO: Change this to be the title from the GameModeSO
-        selectedGameModeDescriptionText.text = "This is a description for " + selectedGameMode; // TODO: Change this to be the description from the GameModeSO
-        isGameModeTeamBased = false; // TODO: Change this to be based on the selected GameModeSO
-        playerListTeamSeparatorObj.SetActive(isGameModeTeamBased);
+        selectedGameMode = GameModeHandler.availableGameModes.Values.ToList()[index];
+        selectedGameModeTitleText.text = selectedGameMode.displayName;
+        selectedGameModeDescriptionText.text = selectedGameMode.description;
+        playerListTeamSeparatorObj.SetActive(selectedGameMode.teamBasedType == TeamBasedType.TEAM);
 
+        foreach (LobbyPlayer lobbyPlayer in lobbyPlayers)
+        {
+            lobbyPlayer.UpdateTeamButtons(selectedGameMode.teamBasedType == TeamBasedType.TEAM);
+        }
+
+        InitializeMenu();
         if (IsHost) return;
         gameModeSelectDropdown.value = index;
     }
@@ -170,13 +182,42 @@ public class MatchSelection : NetworkBehaviour
         timeLimitSelectDropdown.value = index;
     }
 
+    public void OnObjectiveLimitSelectIncremented()
+    {
+        if (!IsHost) return;
+
+        selectedWinConditionValue = Mathf.Min(666, selectedWinConditionValue + 1);
+        OnObjectiveLimitSelectValueChangedRpc(selectedWinConditionValue);
+    }
+
+    public void OnObjectiveLimitSelectDecremented()
+    {       
+        if (!IsHost) return;
+
+        selectedWinConditionValue = Mathf.Max(1, selectedWinConditionValue - 1);
+        OnObjectiveLimitSelectValueChangedRpc(selectedWinConditionValue);
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void OnObjectiveLimitSelectValueChangedRpc(int value)
+    {
+        selectedWinConditionValue = value;
+        winConditionValueText.text = selectedWinConditionValue.ToString();
+    }
+
     public void OnStartMatchButtonPressed()
     {
         if (!IsHost) return;
 
         lobbyPC.Reset();
-        GameManager.Instance.SetLevel(selectedLevel);
-        GameManager.Instance.SetGameMode(selectedGameMode);
+        GameManager.Instance.SetLevel(selectedLevel.sceneName);
+
+        GameModeData gameModeData = selectedGameMode.GetGameModeData(
+            selectedMaxPlayers,
+            selectedTimeLimit,
+            selectedWinConditionValue
+        );
+        GameManager.Instance.SetGameModeData(gameModeData);
         GameManager.Instance.LoadLevel();
     }
 
@@ -192,7 +233,7 @@ public class MatchSelection : NetworkBehaviour
         if (!playerController.isInitialized) return;
 
         string playerName = playerController.EntityName;
-        int teamId = isGameModeTeamBased ? (int)playerController.TeamId : -1;
+        int teamId = (int)playerController.TeamId;
 
         AddPlayerRpc(clientId, playerName, teamId);
     }
@@ -200,10 +241,12 @@ public class MatchSelection : NetworkBehaviour
     [Rpc(SendTo.Everyone)]
     private void AddPlayerRpc(ulong clientId, string playerName, int teamId)
     {
-
-
         Transform parentColumn = teamId == 0 ? playerListColumn0 : playerListColumn1;
-        if (!isGameModeTeamBased) parentColumn = playerListColumn0.childCount <= playerListColumn1.childCount ? playerListColumn0 : playerListColumn1;
+        if (selectedGameMode.teamBasedType != TeamBasedType.TEAM)
+        {
+            parentColumn = playerListColumn0.childCount <= playerListColumn1.childCount ? playerListColumn0 : playerListColumn1;
+            teamId = parentColumn == playerListColumn0 ? 0 : 1;
+        }
 
         GameObject lobbyPlayerObj = Instantiate(lobbyPlayerPrefabObj, parentColumn);
         LobbyPlayer lobbyPlayer = lobbyPlayerObj.GetComponent<LobbyPlayer>();
@@ -231,14 +274,14 @@ public class MatchSelection : NetworkBehaviour
     public void TryChangePlayerTeam(ulong clientId, int newTeam)
     {
         if (!IsHost) return;
-        // TODO: Check to see if the team change is valid based on the current game mode and team sizes before sending the RPC
+        if (selectedGameMode.teamBasedType != TeamBasedType.TEAM) return;
+        if ((newTeam == 0 ? playerListColumn0 : playerListColumn1).childCount >= selectedMaxPlayers / 2) return;
         ChangePlayerTeamRpc(clientId, newTeam);
     }
 
     [Rpc(SendTo.Everyone)]
     private void ChangePlayerTeamRpc(ulong clientId, int newTeam)
     {
-        if (!isGameModeTeamBased) return;
         LobbyPlayer lobbyPlayer = lobbyPlayers.Find(lp => lp.GetComponent<LobbyPlayer>().clientId == clientId);
         if (lobbyPlayer != null)
         {

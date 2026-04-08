@@ -33,5 +33,8 @@ public class LeaderboardEntry : MonoBehaviour
         capturesText.gameObject.SetActive(enableCapturesStat);
     }
 
-    public void UpdateStats(StatEvent statEvent) => statUpdaters[statEvent.StatType](statEvent.Value);
+    public void UpdateStats(StatEvent statEvent)
+    {
+        if (statUpdaters.ContainsKey(statEvent.StatType)) statUpdaters[statEvent.StatType](statEvent.Value);
+    }
 }

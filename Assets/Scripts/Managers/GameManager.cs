@@ -46,10 +46,11 @@ public class GameManager : MonoBehaviour
     private bool sceneUnloaded = false;
 
     private string desiredLevelName = "";
-    private GameModes desiredGameMode = GameModes.NONE;
+    private GameModeData desiredGameModeData = null;
 
     public UnityEvent<ulong> OnClientConnectedEvent = new();
     public UnityEvent<ulong> OnClientDisconnectedEvent = new();
+    public UnityEvent<string> OnLevelLoadedEvent = new();
 
 
     private void Awake()
@@ -64,6 +65,8 @@ public class GameManager : MonoBehaviour
 
         transform.SetParent(null);
         DontDestroyOnLoad(gameObject);
+
+        LevelManager.GenerateAvailableLevelsList();
     }
 
     private void Start()
@@ -116,8 +119,9 @@ public class GameManager : MonoBehaviour
 
             if (SceneManager.GetActiveScene().name == desiredLevelName)
             {
-                GameModeHandler.Instance.SelectNewMode(desiredGameMode);
-                LevelManager.Instance.OnPlayersLoaded();
+                GameModeHandler.Instance.SelectNewMode(desiredGameModeData);
+                OnLevelLoadedEvent.Invoke(desiredLevelName);
+                desiredGameModeData = null;
                 desiredLevelName = "";
             }
 
@@ -461,9 +465,9 @@ public class GameManager : MonoBehaviour
         desiredLevelName = levelSceneName;
     }
 
-    public void SetGameMode(GameModes gameMode)
+    public void SetGameModeData(GameModeData gameModeData)
     {
         if (!NetworkManager.Singleton.IsHost) return;
-        desiredGameMode = gameMode;
+        desiredGameModeData = gameModeData;
     }
 }

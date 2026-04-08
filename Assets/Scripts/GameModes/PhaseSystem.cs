@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using Unity.Netcode;
 
 
 public enum Phase
@@ -26,7 +27,7 @@ public enum Phase
  *        - Cleanup post game phase has a timer of 30 seconds, allows for voting on the next map
  */
 
-public class PhaseSystem : MonoBehaviour
+public class PhaseSystem : NetworkBehaviour
 {
     #region Properties
     [SerializeField]
@@ -42,8 +43,9 @@ public class PhaseSystem : MonoBehaviour
         }
     }
 
-    [SerializeField]
-    public Dictionary<Phase, float> countdowns = new Dictionary<Phase, float>()
+    private NetworkVariable<float> _activePhaseTimeLimit = new();
+
+    public Dictionary<Phase, float> countdowns = new()
     {
         { Phase.PRELOAD,    15.0f  },
         { Phase.WARMUP,     15.0f  },
@@ -69,11 +71,23 @@ public class PhaseSystem : MonoBehaviour
     // private bool stepping = true;
     #endregion
 
-    #region Public methods
-    public Phase GetCurrentPhase()
+    public override void OnNetworkSpawn()
     {
-        return CurrentPhase;
+        base.OnNetworkSpawn();
+
+        _activePhaseTimeLimit.OnValueChanged += OnActivePhaseTimeLimitChanged;
+        _activePhaseTimeLimit.SetDirty(true);
     }
+
+    private void OnActivePhaseTimeLimitChanged(float oldValue, float newValue)
+    {
+        countdowns[Phase.ACTIVE] = newValue;
+    }
+
+    #region Public methods
+    public void SetActivePhaseTimeLimit(float time) => _activePhaseTimeLimit.Value = time;
+
+    public Phase GetCurrentPhase() => CurrentPhase;
 
     // Step phase forward
     public void Step()

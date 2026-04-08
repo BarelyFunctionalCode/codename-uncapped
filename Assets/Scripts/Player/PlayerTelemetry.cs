@@ -11,7 +11,10 @@ public class PlayerTelemetry
     private DevVectorRenderer devVectorRenderer;
 
     public Vector3 position;
-    public Vector3 velocity;
+    public Vector3 rawInputVelocity;
+    public Vector3 jetResistVelocity;
+    public Vector3 cappedSpeedVelocity;
+    public Vector3 finalVelocity;
 
     public Vector3 movementDirection;
 
@@ -29,7 +32,10 @@ public class PlayerTelemetry
     {
         this.devVectorRenderer = devVectorRenderer;
         this.position = Vector3.zero;
-        this.velocity = Vector3.zero;
+        this.rawInputVelocity = Vector3.zero;
+        this.jetResistVelocity = Vector3.zero;
+        this.cappedSpeedVelocity = Vector3.zero;
+        this.finalVelocity = Vector3.zero;
         this.movementDirection = Vector3.zero;
         this.surfaceNormal = Vector3.zero;
         this.surfacePoint = Vector3.zero;
@@ -57,11 +63,11 @@ public class PlayerTelemetry
 
         if (enableMovementDebug)
         {
-            devVectorRenderer.AddDevVector(position, velocity.normalized, Color.blue, 5.0f);
+            devVectorRenderer.AddDevVector(position, finalVelocity.normalized, Color.blue, 5.0f);
 
             DebugWidgetManager.Instance.SetDebugText("Velocity",
-            $"Speed: {velocity.magnitude:F2}\nDirection: {velocity.normalized:F1}\nDesired Direction: {movementDirection:F1}\nIs Grounded: {isGrounded}\nIs Skiing: {isSkiing}\nIs Up Jetting: {isUpJetting}\nIs Down Jetting: {isDownJetting}",
-            100, -300);
+            $"Input Speed: {rawInputVelocity.magnitude:F2}\nJet Resist Speed: {jetResistVelocity.magnitude:F2}\nCapped Speed: {cappedSpeedVelocity.magnitude:F2}\nFinal Speed: {finalVelocity.magnitude:F2}\nDirection: {finalVelocity.normalized:F1}\nDesired Direction: {movementDirection:F1}\nIs Grounded: {isGrounded}\nIs Skiing: {isSkiing}\nIs Up Jetting: {isUpJetting}\nIs Down Jetting: {isDownJetting}",
+            100, -400);
         }
         else
         {

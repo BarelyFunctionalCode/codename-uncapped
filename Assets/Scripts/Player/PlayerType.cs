@@ -1,3 +1,4 @@
+using Unity.Cinemachine;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
@@ -22,8 +23,13 @@ public class PlayerType : NetworkBehaviour
     [SerializeField] private Rig hoverIKRig;
     [SerializeField] private ParticleSystem hoverEffectLeftFootParticleSystem;
     [SerializeField] private ParticleSystem hoverEffectRightFootParticleSystem;
+    [SerializeField] private CinemachineCamera firstPersonCamera;
 
+    [PauseMenuOption("Vertical Look", 0f, 100f)]
+    public float verticalRotationSpeed = 24f;
+    public float verticalRotationLimit = 100f;
 
+    private Vector3 animMovementDirection = Vector3.zero;
     private Quaternion desiredLegsDirection;
     private Quaternion currentLegsDirection;
     [SerializeField] private float legsRotateSpeed = 10f;
@@ -37,6 +43,40 @@ public class PlayerType : NetworkBehaviour
         if (networkObject != null && networkObject.TryGetComponent(out PlayerController playerController))
         {
             playerController.OnPlayerTypeObjectSpawned(this);
+        }
+    }
+
+    public void ToggleFirstPersonCamera(bool enable) => firstPersonCamera.Priority = enable ? 1 : 0;
+
+    public void HandleCamera(float rotationInputY, int controlsDisabledCount)
+    {
+        // Get pitch rotation from inputs and rotate the camera look target
+        Vector3 rotationPitch = new(rotationInputY, 0f, 0f);
+        rotationPitch *= verticalRotationSpeed * Time.deltaTime;
+        Vector3 rotationDeltaPitch = Vector3.ClampMagnitude(rotationPitch, verticalRotationLimit);
+        float currentXRotation = freeLookTargetTransform.eulerAngles.x < 180f ? freeLookTargetTransform.eulerAngles.x : freeLookTargetTransform.eulerAngles.x - 360f;
+        rotationDeltaPitch.x = Mathf.Clamp(currentXRotation + rotationDeltaPitch.x, -83.0f, 83.0f) - currentXRotation;
+        if (controlsDisabledCount > 0) rotationDeltaPitch = Vector3.zero;
+        
+        freeLookTargetTransform.Rotate(rotationDeltaPitch);
+    }
+
+    public void HandleAudio(Vector3 velocity, bool isSkiing)
+    {
+        // Set audio values
+        if (hoverAudioSource)
+        {
+            float maxVolume = 0.3f;
+            hoverAudioSource.volume = Mathf.Lerp(hoverAudioSource.volume, isSkiing ? maxVolume : 0f, Time.fixedDeltaTime * 5f);
+            hoverAudioSource.pitch = 0.9f + 0.05f * (velocity.magnitude / 20f);
+        }
+        if (windAudioSource)
+        {
+            float cappedSpeed = (velocity.magnitude - 20f) / 80f;
+            float targetVolume = Mathf.Lerp(0f, 0.02f, cappedSpeed);
+            float targetPitch = Mathf.Lerp(0.9f, 1.5f, cappedSpeed);
+            windAudioSource.volume = Mathf.Lerp(windAudioSource.volume, targetVolume, Time.fixedDeltaTime * 20f);
+            windAudioSource.pitch = Mathf.Lerp(windAudioSource.pitch, targetPitch, Time.fixedDeltaTime * 20f);
         }
     }
 
@@ -81,11 +121,44 @@ public class PlayerType : NetworkBehaviour
         leftEmission.rateOverTime = Mathf.Lerp(leftEmission.rateOverTime.constant, emmissionRate, Time.deltaTime * 5f);
         rightEmission.rateOverTime = Mathf.Lerp(rightEmission.rateOverTime.constant, emmissionRate, Time.deltaTime * 5f);
 
+        if (NetworkObject.IsSpawned) HandleHoverRpc(isHovering, hoverIKRig.weight);
+
         if (!isHovering) return;
         Vector3 targetDirection = Vector3.Cross(-surfaceNormal, legsDirectionTransform.right).normalized;
         Quaternion targetRotation = Quaternion.LookRotation(targetDirection, -surfaceNormal);
         leftFootIKTargetTransform.rotation = Quaternion.Slerp(leftFootIKTargetTransform.rotation, targetRotation, Time.deltaTime * 5f);
         rightFootIKTargetTransform.rotation = Quaternion.Slerp(rightFootIKTargetTransform.rotation, targetRotation, Time.deltaTime * 5f);
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void HandleHoverRpc(bool isHovering, float ikRigWeight)
+    {
+        if (IsServer) return;
+        
+        hoverIKRig.weight = ikRigWeight;
+
+        float emmissionRate = isHovering ? 50f : 0f;
+        var leftEmission = hoverEffectLeftFootParticleSystem.emission;
+        var rightEmission = hoverEffectRightFootParticleSystem.emission;
+        leftEmission.rateOverTime = Mathf.Lerp(leftEmission.rateOverTime.constant, emmissionRate, Time.deltaTime * 5f);
+        rightEmission.rateOverTime = Mathf.Lerp(rightEmission.rateOverTime.constant, emmissionRate, Time.deltaTime * 5f);
+    }
+
+    public void HandleJump() => playerAnimator.SetTrigger("triggerJump");
+
+    public void UpdateAnimationData(Vector3 movement, Vector3 velocity, bool isGrounded,
+                                    bool isRunning, bool isSkiing, bool isDownJetting, bool isUpJetting)
+    {
+        Vector3 animMovementDirectionNewY = Vector3.up * (isDownJetting ? -1f : (isUpJetting ? 1f : 0f));
+        animMovementDirection = Vector3.Lerp(animMovementDirection, movement.normalized + animMovementDirectionNewY, Time.fixedDeltaTime * 10f);
+        playerAnimator.SetFloat("xDir", animMovementDirection.x);
+        playerAnimator.SetFloat("yDir", animMovementDirection.y);
+        playerAnimator.SetFloat("zDir", animMovementDirection.z);
+        playerAnimator.SetFloat("yVel", velocity.normalized.y);
+        playerAnimator.SetBool("isGrounded", isGrounded);
+        playerAnimator.SetBool("isRunning", isRunning);
+        playerAnimator.SetBool("isSkiing", isSkiing && !isUpJetting && !isDownJetting);
+        playerAnimator.SetBool("isJetting", isUpJetting || isDownJetting);
     }
 
     public void AnimationFootstepEvent(int footIndex)
@@ -105,11 +178,7 @@ public class PlayerType : NetworkBehaviour
         if (deathEffectPrefab != null)
         {
             deathObj = Instantiate(deathEffectPrefab, transform.position, Quaternion.identity);
-            foreach (Rigidbody rb in deathObj.GetComponentsInChildren<Rigidbody>())
-            {
-                rb.AddExplosionForce(3000f, deathObj.transform.position, 10f);
-            }
-            Destroy(deathObj, 5f);
+            deathObj.GetComponent<PlayerDeath>().Initialize(!NetworkObject.IsSpawned || IsOwner);
         }
     }
 

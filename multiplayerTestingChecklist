@@ -1,0 +1,39 @@
+# Things not working
+
+- Move IIdentifiable to PlayerType instead of PlayerController
+- FF Indicator objects not being parented correctly
+- LobbyPC Not showing players or chat messages for clients
+- Players killing themselves counts as a kill (fix after Entity class changes are merged)
+- Need to take into account final-player sourceed damage for when a player dies to fall damage
+- Clients no FF indicators.
+- Client weird error about PlayerCameraEffects class not initializing correctly.
+
+# Things to do
+
+- Make SpawnManager send events to clients as well.
+- Move control of the cursor to a centralized location in the HUD class.
+
+# Multiplayer Checklist
+
+These are the things to check on both host and client to make sure that all the networking is working.
+
+## Lobby
+
+- Player damage, weapons, and HUD all disabled in lobby? (May not be implemented yet)
+- Other players rotate in place?
+- Can you hear music?
+- See Match options update as host changes settings?
+- See everyone listed on the Match Selection player list UI?
+- Send and receive chat messages?
+
+## Match
+
+- Loadout menu look correct?
+- HUD game time and objective data accurate?
+- Leaderboard updating correctly?
+- Weapon ammo and selected weapon correct in HUD?
+- FF Indicators showing?
+- Other player particle effects and sounds working?
+- Other player death effect visible?
+- Kill feed notifications showing up?
+- Chat messages showing up?
