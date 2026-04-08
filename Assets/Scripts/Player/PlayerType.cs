@@ -121,11 +121,27 @@ public class PlayerType : NetworkBehaviour
         leftEmission.rateOverTime = Mathf.Lerp(leftEmission.rateOverTime.constant, emmissionRate, Time.deltaTime * 5f);
         rightEmission.rateOverTime = Mathf.Lerp(rightEmission.rateOverTime.constant, emmissionRate, Time.deltaTime * 5f);
 
+        if (NetworkObject.IsSpawned) HandleHoverRpc(isHovering, hoverIKRig.weight);
+
         if (!isHovering) return;
         Vector3 targetDirection = Vector3.Cross(-surfaceNormal, legsDirectionTransform.right).normalized;
         Quaternion targetRotation = Quaternion.LookRotation(targetDirection, -surfaceNormal);
         leftFootIKTargetTransform.rotation = Quaternion.Slerp(leftFootIKTargetTransform.rotation, targetRotation, Time.deltaTime * 5f);
         rightFootIKTargetTransform.rotation = Quaternion.Slerp(rightFootIKTargetTransform.rotation, targetRotation, Time.deltaTime * 5f);
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void HandleHoverRpc(bool isHovering, float ikRigWeight)
+    {
+        if (IsServer) return;
+        
+        hoverIKRig.weight = ikRigWeight;
+
+        float emmissionRate = isHovering ? 50f : 0f;
+        var leftEmission = hoverEffectLeftFootParticleSystem.emission;
+        var rightEmission = hoverEffectRightFootParticleSystem.emission;
+        leftEmission.rateOverTime = Mathf.Lerp(leftEmission.rateOverTime.constant, emmissionRate, Time.deltaTime * 5f);
+        rightEmission.rateOverTime = Mathf.Lerp(rightEmission.rateOverTime.constant, emmissionRate, Time.deltaTime * 5f);
     }
 
     public void HandleJump() => playerAnimator.SetTrigger("triggerJump");

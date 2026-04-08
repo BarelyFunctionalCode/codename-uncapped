@@ -243,14 +243,14 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 
     void LateUpdate()
     {
-        if (!isInitialized || !IsOwner) return;
+        if (!isInitialized || !(IsOwner || IsServer)) return;
 
         if (IsDead) return;
 
         // Handle camera pitch rotation on local client
         localPlayerType.HandleCamera(rotationInputY, controlsDisabledCount);
-        localPlayerType.HandleExtraMotion(movementDirection, isSkiing, surfaceNormal);
         rotationInputY = 0f;
+        localPlayerType.HandleExtraMotion(movementDirection, isSkiing, surfaceNormal);
     }
 
     void FixedUpdate()
@@ -277,7 +277,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         if (playerTelemetry != null)
         {
             playerTelemetry.position = localTransform.position;
-            playerTelemetry.velocity = localRb.linearVelocity;
+            playerTelemetry.finalVelocity = localRb.linearVelocity;
         }
     }
     #endregion
@@ -648,7 +648,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             // Breakaway vertical speed check
             if (localRb.linearVelocity.y > 20.0f) return;
 
-            if (distanceToSurface <= 0.25f)
+            if (distanceToSurface <= 0.6f)
             {
                 _isGrounded = true;
                 lastGroundedTime = 0f;
@@ -829,8 +829,11 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             }
         }
 
+        if (playerTelemetry != null) playerTelemetry.rawInputVelocity = currentVelocity + desiredAcc + groundImpulse;
+
         // Apply Jet Resistance
         currentVelocity += CalculateJetResistance(currentVelocity, desiredVerticalAcc, desiredAcc);
+        if (playerTelemetry != null) playerTelemetry.jetResistVelocity = currentVelocity;
 
         // Apply desired acceleration, jetting accelration, walking acceleration, and gravity
         desiredAcc.y += desiredVerticalAcc;
@@ -840,6 +843,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 
         // Apply velocity caps
         currentVelocity += CalculateVelocityCaps(currentVelocity);
+        if (playerTelemetry != null) playerTelemetry.cappedSpeedVelocity = currentVelocity;
         // Debug.Log($"Current Velocity: {rb.linearVelocity:F2}\t Desired Acc: {desiredAcc:F2}\t Jet Resistance: {jetResistance:F2}\t Capped Excess: {velocityCappedExcess:F2}\t Final Velocity: {currentVelocity:F2}");
     
         // Calculate final change in velocity to apply

@@ -1,6 +1,10 @@
 # Things not working
 
-- Players killing themselves counts as a kill
+- Move IIdentifiable to PlayerType instead of PlayerController
+- FF Indicator objects not being parented correctly
+- LobbyPC Not showing players or chat messages for clients
+- Players killing themselves counts as a kill (fix after Entity class changes are merged)
+- Need to take into account final-player sourceed damage for when a player dies to fall damage
 - Clients no FF indicators.
 - Client weird error about PlayerCameraEffects class not initializing correctly.
 

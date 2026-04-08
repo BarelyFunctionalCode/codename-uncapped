@@ -39,9 +39,8 @@ public class FragGrenade : Throwable
         {
             blastWaveFactor -= Time.fixedDeltaTime * blastWaveRadiusIncreaseRate;
 
-            blastWaveObj.localScale = Vector3.Lerp(Vector3.one * blastWaveRadius, Vector3.zero, blastWaveFactor);
             effectRadius = 1 + blastWaveRadius * (1 - blastWaveFactor);
-            VisualRpc(blastWaveFactor);
+            VisualRpc(blastWaveFactor, blastWaveRadius);
         }
         else
         {
@@ -49,8 +48,9 @@ public class FragGrenade : Throwable
         }
     }
     [Rpc(SendTo.Everyone)]
-    private void VisualRpc(float blastWaveFactor)
+    private void VisualRpc(float blastWaveFactor, float blastWaveRadius)
     {
+        blastWaveObj.localScale = Vector3.Lerp(Vector3.one * blastWaveRadius, Vector3.zero, blastWaveFactor);
         blastWaveObj.GetComponent<MeshRenderer>().material.color = Color.Lerp(endColor, startColor, blastWaveFactor);
     }
 

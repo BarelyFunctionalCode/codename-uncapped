@@ -171,8 +171,9 @@ public class LobbyPC : MonoBehaviour
     {
         if (isActive) return;
 
-        other.TryGetComponent(out PlayerController playerController);
-        if (playerController != null && playerController.IsLocalPlayer)
+        PlayerController playerController = other.GetComponentInParent<PlayerController>();
+        PlayerPuppet playerPuppet = other.GetComponentInParent<PlayerPuppet>();
+        if ((playerController != null && playerController.IsLocalPlayer) || playerPuppet != null)
         {
             interactPromptObj.SetActive(true);
             showInteractPrompt = true;

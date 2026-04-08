@@ -1561,6 +1561,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Backbone
       objectReference: {fileID: 0}
+    - target: {fileID: 4031944517337735888, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
+      propertyPath: doAutoStart
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5285240888001139251, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
       propertyPath: m_LocalPosition.x
       value: -782.2

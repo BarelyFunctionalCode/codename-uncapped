@@ -77,15 +77,21 @@ public class LevelManager : NetworkBehaviour
         if (!NetworkManager.Singleton.IsHost || isInitialized) return;
         stageGenerated = true;
 
-        if (GameModeHandler.Instance.GameModesTeamTypes[GameModeHandler.Instance.current_game_mode.game_mode_id] == TeamBasedType.SOLO)
+        OnStageGenerationRpc(GameModeHandler.Instance.GameModesTeamTypes[GameModeHandler.Instance.current_game_mode.game_mode_id] == TeamBasedType.SOLO);
+
+        OnLevelInitialized();
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void OnStageGenerationRpc(bool soloGameMode)
+    {
+        if (soloGameMode)
         {
             GameObject[] teamBaseObjs = GameObject.FindGameObjectsWithTag("TeamBase");
             foreach (var teamBaseObj in teamBaseObjs)            {
                 teamBaseObj.SetActive(false);
             }
         }
-
-        OnLevelInitialized();
     }
 
     private void OnGameModePhaseChange(Phase previousPhase, Phase newPhase)
