@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62f8191820d564054a86b9c5a0b33499, type: 3}
+  m_Name: MultiplayerTestLevel
+  m_EditorClassIdentifier: Assembly-CSharp::LevelSO
+  displayName: Multiplayer Test Level
+  description: It ain't much, but it's honest work. Test level made for the development
+    of the game.
+  sceneName: MultiplayerTestLevel

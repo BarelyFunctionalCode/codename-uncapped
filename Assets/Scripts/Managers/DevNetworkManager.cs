@@ -9,6 +9,7 @@ public class DevNetworkManager : MonoBehaviour
 {
     [SerializeField] private GameObject networkManagerPrefab;
 
+    [SerializeField] private bool doAutoStart = true;
     private float playerWaitTimer = 10f;
 
     private string desiredSceneName;
@@ -36,9 +37,12 @@ public class DevNetworkManager : MonoBehaviour
                 // Wait for all players are joined.
                 if (playerWaitTimer <= 0f)
                 {
-                    GameManager.Instance.SetLevel(desiredSceneName);
-                    GameManager.Instance.SetGameMode(desiredGameMode);
-                    GameManager.Instance.LoadLevel();
+                    if (doAutoStart)
+                    {
+                        GameManager.Instance.SetLevel(desiredSceneName);
+                        GameManager.Instance.SetGameModeData(GameModeHandler.availableGameModes[desiredGameMode].GetGameModeData());
+                        GameManager.Instance.LoadLevel();
+                    }
                     
                     Destroy(gameObject);
                 }

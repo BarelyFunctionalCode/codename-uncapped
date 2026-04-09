@@ -39,9 +39,8 @@ public class BoostGrenade : Throwable
         {
             boostForceFactor -= Time.fixedDeltaTime * blastWaveRadiusIncreaseRate;
 
-            blastWaveObj.localScale = Vector3.Lerp(Vector3.one * blastWaveRadius, Vector3.zero, boostForceFactor);
             effectRadius = 1 + blastWaveRadius * (1 - boostForceFactor);
-            VisualRpc(boostForceFactor);
+            VisualRpc(boostForceFactor, blastWaveRadius);
         }
         else
         {
@@ -49,8 +48,9 @@ public class BoostGrenade : Throwable
         }
     }
     [Rpc(SendTo.Everyone)]
-    private void VisualRpc(float boostForceFactor)
+    private void VisualRpc(float boostForceFactor, float blastWaveRadius)
     {
+        blastWaveObj.localScale = Vector3.Lerp(Vector3.one * blastWaveRadius, Vector3.zero, boostForceFactor);
         blastWaveObj.GetComponent<MeshRenderer>().material.color = Color.Lerp(endColor, startColor, boostForceFactor);
     }
 

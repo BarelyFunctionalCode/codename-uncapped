@@ -15,9 +15,9 @@ RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 10
   m_Fog: 1
-  m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  m_FogColor: {r: 0.4528302, g: 0.38761523, b: 0.33535066, a: 1}
   m_FogMode: 2
-  m_FogDensity: 0.001
+  m_FogDensity: 0.002
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
@@ -1555,11 +1555,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1931757068917247694, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
       propertyPath: debugMode
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3737175516416455173, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
       propertyPath: m_Name
       value: Backbone
+      objectReference: {fileID: 0}
+    - target: {fileID: 4031944517337735888, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
+      propertyPath: doAutoStart
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5285240888001139251, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
       propertyPath: m_LocalPosition.x

@@ -119,8 +119,8 @@ public class GameStats : MonoBehaviour
         );
 
         // Then add to the teams' stats ONLY IF the stat is being tracked by winconditions
-        List<StatEventType> win_condition_stats = gameObject.GetComponent<WinConditions>().GetWinConditionStats();
-        if (win_condition_stats.Contains(s.StatType))
+        StatEventType win_condition_stat = gameObject.GetComponent<WinConditions>().GetWinConditionStat();
+        if (win_condition_stat == s.StatType)
         {
             stat_group = points[StatsGroup.TEAM];
             int team_index = gameObject.GetComponent<TeamStructure>().GetTeamIndex(team_name);

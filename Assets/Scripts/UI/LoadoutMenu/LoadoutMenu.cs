@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class LoadoutMenu : MonoBehaviour
 {
+    [SerializeField] private GameObject showcasePrefabObj;
+    private Showcase showcaseInstance;
     [SerializeField] private ExpandableList armorClassesList;
     [SerializeField] private ExpandableList weapons1List;
     [SerializeField] private ExpandableList weapons2List;
@@ -46,6 +48,19 @@ public class LoadoutMenu : MonoBehaviour
             tempLoadout = new PlayerLoadout(playerLoadoutManager.currentLoadout.Value);
             selectedArmorClass = tempLoadout.armorClass;
             BuildLoadoutLists();
+            if (showcaseInstance == null) showcaseInstance = Instantiate(showcasePrefabObj).GetComponent<Showcase>();
+            else showcaseInstance.Clear();
+            if (tempLoadout.weapon1SO != null) showcaseInstance.AddObject(
+                                                    tempLoadout.weapon1SO.showcaseItemPrefab != null ?
+                                                    tempLoadout.weapon1SO.showcaseItemPrefab :
+                                                    tempLoadout.weapon1SO.itemPrefab,
+                                                    tempLoadout.weapon1SO.showcaseAdditionalCameraDistance
+                                                );
+        }
+        else
+        {
+            if (showcaseInstance != null) Destroy(showcaseInstance.gameObject);
+            showcaseInstance = null;
         }
         return gameObject.activeSelf;
     }
@@ -143,12 +158,21 @@ public class LoadoutMenu : MonoBehaviour
         {
             tempLoadout.coreSO = loadoutItem;
         }
+
+        if (showcaseInstance != null)
+        {
+            showcaseInstance.Clear();
+            showcaseInstance.AddObject(
+                loadoutItem.showcaseItemPrefab != null ? loadoutItem.showcaseItemPrefab : loadoutItem.itemPrefab,
+                loadoutItem.showcaseAdditionalCameraDistance
+            );
+        }
     }
 
     public void OnConfirmClicked()
     {
-        bool doKill = GameModeHandler.Instance.currentPhase.Value != Phase.ACTIVE;
-        playerLoadoutManager.UpdateLoadoutRpc(tempLoadout, doKill);
+        bool applyImmediately = GameModeHandler.Instance.currentPhase.Value != Phase.ACTIVE;
+        playerLoadoutManager.UpdateLoadoutRpc(tempLoadout, applyImmediately);
         hud.ToggleMenu(HUDMenu.LoadoutMenu);
     }
 

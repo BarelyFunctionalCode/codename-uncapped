@@ -6,8 +6,12 @@ public class LevelManager : NetworkBehaviour
 {
     public static LevelManager Instance { get; private set; } = null;
 
+    public static List<LevelSO> availableLevels = new();
+
     private bool playersLoaded = false;
     private bool stageGenerated = false;
+
+    private bool isInitialized = false;
 
     Dictionary<uint, List<Transform>> spawnPoints = new();
 
@@ -15,6 +19,8 @@ public class LevelManager : NetworkBehaviour
     {
         if (Instance != null || GameManager.Instance == null || !GameManager.Instance.isInitialized) Destroy(gameObject);
         else Instance = this;
+
+        GameManager.Instance.OnLevelLoadedEvent.AddListener(OnLevelLoadedEvent);
 
         transform.SetParent(null);
 	}
@@ -34,10 +40,32 @@ public class LevelManager : NetworkBehaviour
         if (GameModeHandler.Instance != null) GameModeHandler.Instance.currentPhase.OnValueChanged -= OnGameModePhaseChange;
     }
 
-    // Called after all the players have loaded into the scene
-    public void OnPlayersLoaded()
+    public override void OnDestroy()
     {
-        if (!NetworkManager.Singleton.IsHost) return;
+        if (GameManager.Instance != null) GameManager.Instance.OnLevelLoadedEvent.RemoveListener(OnLevelLoadedEvent);
+        if (Instance == this) Instance = null;
+    }
+
+
+    private void OnLevelLoadedEvent(string levelName)
+    {
+        if (levelName == gameObject.scene.name)
+        {
+            OnPlayersLoaded();
+        }
+    }
+
+    public static void GenerateAvailableLevelsList()
+    {
+        availableLevels.Clear();
+        LevelSO[] levelSOs = Resources.LoadAll<LevelSO>("LevelSOs");
+        availableLevels.AddRange(levelSOs);
+    }
+
+    // Called after all the players have loaded into the scene
+    private void OnPlayersLoaded()
+    {
+        if (!NetworkManager.Singleton.IsHost || isInitialized) return;
         playersLoaded = true;
 
         OnLevelInitialized();
@@ -46,21 +74,27 @@ public class LevelManager : NetworkBehaviour
     // Called after any runtime generation for the scene has finished
     public void OnStageGenerated()
     {
-        if (!NetworkManager.Singleton.IsHost) return;
+        if (!NetworkManager.Singleton.IsHost || isInitialized) return;
         stageGenerated = true;
 
-        if (GameModeHandler.Instance.GameModesTeamTypes[GameModeHandler.Instance.current_game_mode.game_mode_id] == TeamBasedType.SOLO)
+        OnStageGenerationRpc(GameModeHandler.Instance.GameModesTeamTypes[GameModeHandler.Instance.current_game_mode.game_mode_id] == TeamBasedType.SOLO);
+
+        OnLevelInitialized();
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void OnStageGenerationRpc(bool soloGameMode)
+    {
+        if (soloGameMode)
         {
             GameObject[] teamBaseObjs = GameObject.FindGameObjectsWithTag("TeamBase");
             foreach (var teamBaseObj in teamBaseObjs)            {
                 teamBaseObj.SetActive(false);
             }
         }
-
-        OnLevelInitialized();
     }
 
-    private void OnGameModePhaseChange(Phase _, Phase newPhase)
+    private void OnGameModePhaseChange(Phase previousPhase, Phase newPhase)
     {
         if (newPhase == Phase.ACTIVE)
         {
@@ -70,6 +104,13 @@ public class LevelManager : NetworkBehaviour
                 if (playerController == null) continue;
                 playerController.Suicide();
             }
+        }
+
+        if (previousPhase == Phase.ENDGAME)
+        {
+            // TODO: Post Match UI
+            GameManager.Instance.SetLevel("Lobby");
+            GameManager.Instance.LoadLevel();
         }
     }
 
@@ -100,10 +141,12 @@ public class LevelManager : NetworkBehaviour
             
             playerController.Teleport(spawnPoint.position, spawnPoint.rotation);
             playerController.SetPlayerControlsRpc(false);
-            playerController.OpenLoadoutMenuRpc();
+            playerController.SetHUDActiveRpc(true);
+            // playerController.OpenLoadoutMenuRpc();
         }
 
         OnLevelReady();
+        isInitialized = true;
     }
 
     private void OnLevelReady()

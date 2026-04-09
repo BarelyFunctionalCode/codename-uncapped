@@ -76,6 +76,7 @@ public class IdentifierManager : MonoBehaviour
 
     public void RegisterIdentifier(GameObject obj)
     {
+        if (!NetworkManager.Singleton || !NetworkManager.Singleton.IsListening || !NetworkManager.Singleton.LocalClient.PlayerObject) return;
         if (obj == NetworkManager.Singleton.LocalClient.PlayerObject.gameObject) return;
         if (!obj.TryGetComponent<IIdentifiable>(out var identifiable)) return;
         if (activeIdentifiers.Exists(identifier => identifier.identifiable == identifiable)) return;
