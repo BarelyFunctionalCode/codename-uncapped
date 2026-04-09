@@ -1245,20 +1245,6 @@
         {
             "m_OutputSlot": {
                 "m_Node": {
-                    "m_Id": "67be97af32d9499cbee0741dcfeb7c14"
-                },
-                "m_SlotId": 0
-            },
-            "m_InputSlot": {
-                "m_Node": {
-                    "m_Id": "d2b53b81b387498296bad196c4338f06"
-                },
-                "m_SlotId": 0
-            }
-        },
-        {
-            "m_OutputSlot": {
-                "m_Node": {
                     "m_Id": "690a0c8b9bde406e8ab40eefb1ba4d56"
                 },
                 "m_SlotId": 0
@@ -1308,6 +1294,20 @@
             "m_InputSlot": {
                 "m_Node": {
                     "m_Id": "366b4bfa44d941818e07d0051e7b06b1"
+                },
+                "m_SlotId": 0
+            }
+        },
+        {
+            "m_OutputSlot": {
+                "m_Node": {
+                    "m_Id": "7706beb7a1454ba2a6bdb08f0a0da368"
+                },
+                "m_SlotId": 2
+            },
+            "m_InputSlot": {
+                "m_Node": {
+                    "m_Id": "d2b53b81b387498296bad196c4338f06"
                 },
                 "m_SlotId": 0
             }
@@ -2788,7 +2788,7 @@
     "m_ObjectId": "0a13e827cdfd469e87dda752ac9ed76a",
     "m_Title": "NormalMap",
     "m_Position": {
-        "x": -909.0,
+        "x": -908.9998779296875,
         "y": 319.0
     }
 }
@@ -3401,7 +3401,7 @@
     "m_Title": "Parallax",
     "m_Position": {
         "x": -2098.0,
-        "y": 274.0
+        "y": 274.0001220703125
     }
 }
 
@@ -5303,8 +5303,8 @@
     "m_ObjectId": "30eb404d377b4ee995f488277ff0881a",
     "m_Title": "Emission",
     "m_Position": {
-        "x": -919.0,
-        "y": 920.0
+        "x": -918.9998779296875,
+        "y": 920.0001220703125
     }
 }
 
@@ -7216,7 +7216,7 @@
     "m_ObjectId": "5e93511e3b064f71b54a63214c2b625c",
     "m_Title": "Main UVs",
     "m_Position": {
-        "x": -1939.0,
+        "x": -1938.9998779296875,
         "y": 522.0
     }
 }
@@ -9190,8 +9190,8 @@
     "m_ObjectId": "840e4948a2894ca1bd6c9e7e0d9bf623",
     "m_Title": "Metallic",
     "m_Position": {
-        "x": -868.0,
-        "y": -324.0
+        "x": -867.9998779296875,
+        "y": -324.00006103515627
     }
 }
 
@@ -10847,7 +10847,7 @@
     "m_Title": "BaseColor",
     "m_Position": {
         "x": -61.0,
-        "y": -490.0
+        "y": -490.00006103515627
     }
 }
 
@@ -11321,8 +11321,8 @@
     "m_ObjectId": "b2b9a4313d984ffc87575fd0102198b8",
     "m_Title": "Detail Maps",
     "m_Position": {
-        "x": -190.0,
-        "y": 343.0
+        "x": -189.99977111816407,
+        "y": 343.0001220703125
     }
 }
 
@@ -11436,7 +11436,7 @@
     "m_ObjectId": "b4ab1432e21d4fdcadb52c542f96596b",
     "m_Title": "Occlusion",
     "m_Position": {
-        "x": -888.0,
+        "x": -887.9998779296875,
         "y": 618.0
     }
 }
@@ -13316,8 +13316,8 @@
     "m_ObjectId": "d4e1442d04854ba19c672a0dc0154e44",
     "m_Title": "Detail UVs",
     "m_Position": {
-        "x": -793.0,
-        "y": 1222.0
+        "x": -792.9998779296875,
+        "y": 1222.0001220703125
     }
 }
 
@@ -15091,7 +15091,7 @@
     "m_ObjectId": "f4abc26fcbb04c9c82fae6329be6c22b",
     "m_Title": "Specular",
     "m_Position": {
-        "x": -918.0,
+        "x": -917.9999389648438,
         "y": 5.0
     }
 }

@@ -21,6 +21,7 @@ public class PlayerType : NetworkBehaviour
     [SerializeField] private Transform leftFootIKTargetTransform;
     [SerializeField] private Transform rightFootIKTargetTransform;
     [SerializeField] private Rig hoverIKRig;
+    private float hoverParticleMaxEmissionRate = 15f;
     [SerializeField] private ParticleSystem hoverEffectLeftFootParticleSystem;
     [SerializeField] private ParticleSystem hoverEffectRightFootParticleSystem;
     [SerializeField] private CinemachineCamera firstPersonCamera;
@@ -115,7 +116,7 @@ public class PlayerType : NetworkBehaviour
         float ikRigTargetWeight = isHovering ? 1f : 0f;
         hoverIKRig.weight = Mathf.Lerp(hoverIKRig.weight, ikRigTargetWeight, Time.deltaTime * 5f);
 
-        float emmissionRate = isHovering ? 50f : 0f;
+        float emmissionRate = isHovering ? hoverParticleMaxEmissionRate : 0f;
         var leftEmission = hoverEffectLeftFootParticleSystem.emission;
         var rightEmission = hoverEffectRightFootParticleSystem.emission;
         leftEmission.rateOverTime = Mathf.Lerp(leftEmission.rateOverTime.constant, emmissionRate, Time.deltaTime * 5f);
@@ -137,7 +138,7 @@ public class PlayerType : NetworkBehaviour
         
         hoverIKRig.weight = ikRigWeight;
 
-        float emmissionRate = isHovering ? 50f : 0f;
+        float emmissionRate = isHovering ? hoverParticleMaxEmissionRate : 0f;
         var leftEmission = hoverEffectLeftFootParticleSystem.emission;
         var rightEmission = hoverEffectRightFootParticleSystem.emission;
         leftEmission.rateOverTime = Mathf.Lerp(leftEmission.rateOverTime.constant, emmissionRate, Time.deltaTime * 5f);

@@ -109,7 +109,7 @@ public class PlayerLoadoutManager : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        GameObject newWeapon = SpawnManager.Spawn(
+        GameObject newWeapon = SpawnManager.Instance.Spawn(
             weaponPrefabObj,
             false,
             playerController.weaponMountPoint.position,
@@ -127,7 +127,7 @@ public class PlayerLoadoutManager : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        GameObject newThrowable = SpawnManager.Spawn(
+        GameObject newThrowable = SpawnManager.Instance.Spawn(
             throwablePrefabObj,
             false,
             playerController.throwableMountPoint.position,

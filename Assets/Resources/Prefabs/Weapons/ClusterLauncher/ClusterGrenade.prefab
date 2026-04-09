@@ -119,7 +119,7 @@ MonoBehaviour:
   maxImpactForce: 3000
   damageRadius: 10
   selfDestructTimer: 15
-  armingTimer: 0
+  armingTimer: 0.1
   hasHoldModifier: 1
   isFired: 0
   isClusterMode: 0

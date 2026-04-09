@@ -43,6 +43,14 @@ public class Projectile : NetworkBehaviour, IGravityModifiable
         rb = GetComponent<Rigidbody>();
         previousPosition = rb.position;
         if (damageRadiusTrigger != null) damageRadiusTrigger.radius = damageRadius * 2;
+
+        ownerRef.TryGet(out PlayerController owner);
+        if (owner != null)
+        {
+            Collider ownerCollider = owner.GetComponentInChildren<PlayerType>().playerCollider;
+            Physics.IgnoreCollision(projectileCollider, ownerCollider);
+            if (damageRadiusTrigger != null) Physics.IgnoreCollision(damageRadiusTrigger, ownerCollider);
+        }
     }
 
     public sealed override void OnNetworkSpawn()

@@ -11,11 +11,11 @@ public class PlayerCameraEffects : MonoBehaviour
     private float minShakeValue = 0;
     private float maxShakeValue = 5;
 
+    private bool isInitialized = false;
+
     void Awake()
     {
         noise = cam.GetComponent<CinemachineBasicMultiChannelPerlin>();
-
-        NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerController>().onHealthChanged.AddListener(DamageScreenshake);
     }
 
     void OnDestroy()
@@ -27,6 +27,15 @@ public class PlayerCameraEffects : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!isInitialized)
+        {
+            if (NetworkManager.Singleton && NetworkManager.Singleton.LocalClient.PlayerObject)
+            {
+                NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerController>().onHealthChanged.AddListener(DamageScreenshake);
+                isInitialized = true;
+            }
+        }
+
         noise.FrequencyGain = Mathf.Lerp(noise.FrequencyGain, minShakeValue, Time.deltaTime * 5);
         if (noise.FrequencyGain < 0.01f) noise.FrequencyGain = 0;
     }

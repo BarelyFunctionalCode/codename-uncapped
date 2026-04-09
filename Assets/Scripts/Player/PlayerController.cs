@@ -211,6 +211,8 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     protected override void Update()
     {
         base.Update();
+        if (IsServer && localTransform.position.y < -1000f) Suicide();
+
         if (!playerTypeObj && IsServer && GameManager.Instance.isInitialized) SetPlayerType(playerTypePrefabObj);
         if (!isInitialized || !(IsServer || IsOwner)) return;
 
@@ -288,7 +290,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     {
         if (!IsServer) return;
         if (playerTypeObj != null) Destroy(playerTypeObj);
-        playerTypeObj = SpawnManager.Spawn(
+        playerTypeObj = SpawnManager.Instance.Spawn(
             playerTypePrefabObj,
             false,
             transform.position,
@@ -373,12 +375,12 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             thirdPersonCamera.Priority.Value = 1;
         }
 
-        InitializeServerRpc();
+        InitializeServerRpc(GameManager.Instance?.usingSteam == true ? SteamClient.SteamId.Value : 0);
         isInitialized = true;
     }
 
     [Rpc(SendTo.Server)]
-    private void InitializeServerRpc()
+    private void InitializeServerRpc(ulong steamId)
     {
         _entityName.Value = $"Player {OwnerClientId}";
         _entityId.Value = OwnerClientId;
@@ -387,7 +389,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         // Get Player's Steam ID
         if (GameManager.Instance?.usingSteam == true)
         {
-            _steamId = SteamClient.SteamId.Value;
+            _steamId = steamId;
             _entityName.Value = new Friend(_steamId).Name;
         }
 
@@ -975,9 +977,6 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         {
             localRb.isKinematic = true;
             localPlayerCollider.enabled = false;
-
-            // Disable the camera
-            if (thirdPersonCamera) thirdPersonCamera.Priority.Value = 0;
         }
         localPlayerType.OnDie();
     }
@@ -988,10 +987,8 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 
         Transform respawnPoint = LevelManager.Instance ? LevelManager.Instance.GetSpawnPoint(TeamId) : null;
 
-        if (respawnPoint)
-        {
-            Teleport(respawnPoint.position, respawnPoint.rotation);
-        }
+        if (respawnPoint) Teleport(respawnPoint.position, respawnPoint.rotation);
+        else Teleport(Vector3.zero, Quaternion.identity);
 
         localPlayerCollider.enabled = true;
         localRb.isKinematic = false;
@@ -1006,9 +1003,6 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     {
         if (IsOwner)
         {
-            // Enable the camera
-            if (thirdPersonCamera) thirdPersonCamera.Priority.Value = 99;
-
             localRb.isKinematic = false;
             localPlayerCollider.enabled = true;
         }

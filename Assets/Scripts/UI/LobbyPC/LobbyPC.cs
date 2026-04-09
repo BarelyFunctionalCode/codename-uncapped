@@ -99,7 +99,8 @@ public class LobbyPC : MonoBehaviour
             {
                 PlayerController playerController = player.GetComponentInChildren<PlayerController>();
                 if (playerController == null) continue;
-
+                
+                playerController.SetHUDActiveRpc(false);
                 playerController.Teleport(Vector3.zero, Quaternion.identity);
             }
         }

@@ -25,6 +25,8 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private GameObject notificationManagerPrefabObj;
     private GameObject notificationManagerObj;
+    [SerializeField] private GameObject spawnManagerPrefabObj;
+    private GameObject spawnManagerObj;
     [SerializeField] private GameObject gameModeHandlerPrefabObj;
     private GameObject gameModeHandlerObj;
     private FacepunchTransport facepunchTransport;
@@ -211,9 +213,13 @@ public class GameManager : MonoBehaviour
 		NetworkManager.Singleton.StartHost();
         NetworkManager.Singleton.SceneManager.ActiveSceneSynchronizationEnabled = true;
 
-        // Create Chat Manager
+        // Create Notification Manager
         notificationManagerObj = Instantiate(notificationManagerPrefabObj);
         notificationManagerObj.GetComponent<NetworkObject>().Spawn();
+
+        // Create Spawn Manager
+        spawnManagerObj = Instantiate(spawnManagerPrefabObj);
+        spawnManagerObj.GetComponent<NetworkObject>().Spawn();
 
         // Create Game Mode Handler
         gameModeHandlerObj = Instantiate(gameModeHandlerPrefabObj);
@@ -251,6 +257,7 @@ public class GameManager : MonoBehaviour
         }
         // if (PlayerManager.Instance != null) PlayerManager.Instance.Clear();
         if (notificationManagerObj != null) Destroy(notificationManagerObj);
+        if (spawnManagerObj != null) Destroy(spawnManagerObj);
         if (gameModeHandlerObj != null) Destroy(gameModeHandlerObj);
 		NetworkManager.Singleton.Shutdown();
 	}

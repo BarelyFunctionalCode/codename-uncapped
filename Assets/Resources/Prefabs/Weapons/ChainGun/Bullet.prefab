@@ -5096,7 +5096,7 @@ MonoBehaviour:
   maxImpactForce: 0
   damageRadius: 0
   selfDestructTimer: 5
-  armingTimer: 0
+  armingTimer: 0.05
   hasHoldModifier: 0
   isFired: 0
 --- !u!54 &6671363704883467044

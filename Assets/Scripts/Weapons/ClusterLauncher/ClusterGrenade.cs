@@ -80,7 +80,7 @@ public class ClusterGrenade : Projectile
             Vector3 spawnPos = GetComponent<Rigidbody>().position + Quaternion.Euler(0, angle, 0) * transform.forward * 0.1f;
             if (isGrounded) spawnPos += Vector3.up * 0.5f;
 
-            GameObject newGrenadeObj = SpawnManager.Spawn(
+            GameObject newGrenadeObj = SpawnManager.Instance.Spawn(
                 grenadePrefabObj,
                 true,
                 spawnPos,

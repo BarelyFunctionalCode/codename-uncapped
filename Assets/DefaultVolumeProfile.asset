@@ -142,10 +142,10 @@ MonoBehaviour:
   active: 1
   ditherThreshold:
     m_OverrideState: 1
-    m_Value: 30
+    m_Value: 7.94
   ditherScale:
     m_OverrideState: 1
-    m_Value: 10
+    m_Value: 0.1
   pixelationValue:
     m_OverrideState: 1
     m_Value: 256
@@ -238,7 +238,7 @@ MonoBehaviour:
     m_Value: {x: 0.5, y: 0.5}
   intensity:
     m_OverrideState: 1
-    m_Value: 0.25
+    m_Value: 0
   smoothness:
     m_OverrideState: 1
     m_Value: 0.2
@@ -266,7 +266,7 @@ MonoBehaviour:
     m_Value: 0.6
   intensity:
     m_OverrideState: 1
-    m_Value: 0.15
+    m_Value: 0.03
   scatter:
     m_OverrideState: 1
     m_Value: 0.7
@@ -310,7 +310,7 @@ MonoBehaviour:
   active: 1
   intensity:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0.26
   tintColor:
     m_OverrideState: 1
     m_Value: {r: 1, g: 1, b: 1, a: 1}
@@ -361,7 +361,7 @@ MonoBehaviour:
     m_Value: 4
   chromaticAbberationIntensity:
     m_OverrideState: 1
-    m_Value: 0.2
+    m_Value: 0.312
 --- !u!114 &-3461648107490404076
 MonoBehaviour:
   m_ObjectHideFlags: 3

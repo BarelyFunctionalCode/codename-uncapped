@@ -175,7 +175,7 @@ public class Weapon : NetworkBehaviour
         if (!IsServer || !canFire) return;
         if (currentProjectile == null)
         {
-            GameObject newProjectileObj = SpawnManager.Spawn(
+            GameObject newProjectileObj = SpawnManager.Instance.Spawn(
                 projectilePrefabObj,
                 true,
                 projectileSpawnPoint.position,
