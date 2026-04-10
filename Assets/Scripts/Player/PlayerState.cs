@@ -32,13 +32,8 @@ public class PlayerState : State
         {
             playerController.localRb.isKinematic = true;
             playerController.localPlayerCollider.enabled = false;
-
-            // Disable the camera
-            if (playerController.cineCam) playerController.cineCam.Priority.Value = 0;
-
-            // TODO: Go to some other camera angle?
         }
-        playerController.playerType.OnDie();
+        playerController.localPlayerType.OnDie();
     }
 
     protected override void OnRespawn()
@@ -47,10 +42,8 @@ public class PlayerState : State
 
         Transform respawnPoint = LevelManager.Instance.GetSpawnPoint(playerIdentification.FetchTeamId());
 
-        if (respawnPoint)
-        {
-            playerController.Teleport(respawnPoint.position, respawnPoint.rotation);
-        }
+        if (respawnPoint) playerController.Teleport(respawnPoint.position, respawnPoint.rotation);
+        else playerController.Teleport(Vector3.zero, Quaternion.identity);
 
         playerController.localPlayerCollider.enabled = true;
         playerController.localRb.isKinematic = false;
@@ -65,13 +58,10 @@ public class PlayerState : State
     {
         if (IsOwner)
         {
-            // Enable the camera
-            if (playerController.cineCam) playerController.cineCam.Priority.Value = 99;
-
             playerController.localRb.isKinematic = false;
             playerController.localPlayerCollider.enabled = true;
+            respawnAudioSource.Play();
         }
-        playerController.playerType.OnRespawn();
-        respawnAudioSource.Play();
+        playerController.localPlayerType.OnRespawn();
     }
 }

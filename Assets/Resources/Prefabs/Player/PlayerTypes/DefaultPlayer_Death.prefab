@@ -4953,7 +4953,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4122576558322224609
 Transform:
   m_ObjectHideFlags: 0
@@ -5461,7 +5461,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 54.95
+  m_fontSize: 53.85
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -10443,7 +10443,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &4964698256401887119
 RectTransform:
   m_ObjectHideFlags: 0
@@ -11414,6 +11414,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4772610538889077206, guid: 4c68cd604176642a282ea4f5c810a151, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4808916902903486237, guid: 4c68cd604176642a282ea4f5c810a151, type: 3}
       propertyPath: m_Layer
       value: 0
@@ -11926,6 +11930,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7814916142874155482, guid: 4c68cd604176642a282ea4f5c810a151, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7970629777248528053, guid: 4c68cd604176642a282ea4f5c810a151, type: 3}
       propertyPath: m_Layer
       value: 0
@@ -11945,6 +11953,10 @@ PrefabInstance:
     - target: {fileID: 8392692755461559365, guid: 4c68cd604176642a282ea4f5c810a151, type: 3}
       propertyPath: m_LocalPosition.y
       value: 0.015249463
+      objectReference: {fileID: 0}
+    - target: {fileID: 8392692755461559365, guid: 4c68cd604176642a282ea4f5c810a151, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.0027236093
       objectReference: {fileID: 0}
     - target: {fileID: 8392692755461559365, guid: 4c68cd604176642a282ea4f5c810a151, type: 3}
       propertyPath: m_LocalRotation.x
@@ -11969,6 +11981,10 @@ PrefabInstance:
     - target: {fileID: 8699163469410529005, guid: 4c68cd604176642a282ea4f5c810a151, type: 3}
       propertyPath: m_Layer
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8720235529502056656, guid: 4c68cd604176642a282ea4f5c810a151, type: 3}
+      propertyPath: Target.TrackingTarget
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 8822942340209113645, guid: 4c68cd604176642a282ea4f5c810a151, type: 3}
       propertyPath: m_Layer
@@ -12052,6 +12068,9 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 6127570991690721603}
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7282026672141897861, guid: 4c68cd604176642a282ea4f5c810a151, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2210858184070933263}
     - targetCorrespondingSourceObject: {fileID: 977815393389088661, guid: 4c68cd604176642a282ea4f5c810a151, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8846165242020556142}
@@ -12255,6 +12274,25 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.0013190424, y: 0.002387519, z: 0.0017587654}
   m_Center: {x: 0.0006027021, y: 0.0038062509, z: 0.00026014505}
+--- !u!1 &1159695035474069200 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7282026672141897861, guid: 4c68cd604176642a282ea4f5c810a151, type: 3}
+  m_PrefabInstance: {fileID: 8437182536626951765}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2210858184070933263
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1159695035474069200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de87e8e18335a4916b76e50923b5a60a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerDeath
+  deathCam: {fileID: 4333543031633481409}
+  deathUI: {fileID: 7382782409433638142}
 --- !u!1 &1320238608740656553 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7441225134649209852, guid: 4c68cd604176642a282ea4f5c810a151, type: 3}

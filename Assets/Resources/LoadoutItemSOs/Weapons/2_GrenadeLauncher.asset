@@ -16,4 +16,7 @@ MonoBehaviour:
   itemDescription: Donk....... poo
   itemType: 1
   itemPrefab: {fileID: 5600182896950481145, guid: 89973e295c3589a40a198d7a5b275649, type: 3}
+  showcaseItemPrefab: {fileID: 0}
+  showcaseAdditionalCameraDistance: 0.5
+  applicableArmorClasses: 00000000
   isAvailable: 1

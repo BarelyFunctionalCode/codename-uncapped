@@ -25,6 +25,8 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private GameObject notificationManagerPrefabObj;
     private GameObject notificationManagerObj;
+    [SerializeField] private GameObject spawnManagerPrefabObj;
+    private GameObject spawnManagerObj;
     [SerializeField] private GameObject gameModeHandlerPrefabObj;
     private GameObject gameModeHandlerObj;
     private FacepunchTransport facepunchTransport;
@@ -46,10 +48,11 @@ public class GameManager : MonoBehaviour
     private bool sceneUnloaded = false;
 
     private string desiredLevelName = "";
-    private GameModes desiredGameMode = GameModes.NONE;
+    private GameModeData desiredGameModeData = null;
 
     public UnityEvent<ulong> OnClientConnectedEvent = new();
     public UnityEvent<ulong> OnClientDisconnectedEvent = new();
+    public UnityEvent<string> OnLevelLoadedEvent = new();
 
 
     private void Awake()
@@ -64,6 +67,10 @@ public class GameManager : MonoBehaviour
 
         transform.SetParent(null);
         DontDestroyOnLoad(gameObject);
+
+        Cursor.lockState = CursorLockMode.Locked;
+
+        LevelManager.GenerateAvailableLevelsList();
     }
 
     private void Start()
@@ -116,8 +123,9 @@ public class GameManager : MonoBehaviour
 
             if (SceneManager.GetActiveScene().name == desiredLevelName)
             {
-                GameModeHandler.Instance.SelectNewMode(desiredGameMode);
-                LevelManager.Instance.OnPlayersLoaded();
+                GameModeHandler.Instance.SelectNewMode(desiredGameModeData);
+                OnLevelLoadedEvent.Invoke(desiredLevelName);
+                desiredGameModeData = null;
                 desiredLevelName = "";
             }
 
@@ -207,9 +215,13 @@ public class GameManager : MonoBehaviour
 		NetworkManager.Singleton.StartHost();
         NetworkManager.Singleton.SceneManager.ActiveSceneSynchronizationEnabled = true;
 
-        // Create Chat Manager
+        // Create Notification Manager
         notificationManagerObj = Instantiate(notificationManagerPrefabObj);
         notificationManagerObj.GetComponent<NetworkObject>().Spawn();
+
+        // Create Spawn Manager
+        spawnManagerObj = Instantiate(spawnManagerPrefabObj);
+        spawnManagerObj.GetComponent<NetworkObject>().Spawn();
 
         // Create Game Mode Handler
         gameModeHandlerObj = Instantiate(gameModeHandlerPrefabObj);
@@ -247,6 +259,7 @@ public class GameManager : MonoBehaviour
         }
         // if (PlayerManager.Instance != null) PlayerManager.Instance.Clear();
         if (notificationManagerObj != null) Destroy(notificationManagerObj);
+        if (spawnManagerObj != null) Destroy(spawnManagerObj);
         if (gameModeHandlerObj != null) Destroy(gameModeHandlerObj);
 		NetworkManager.Singleton.Shutdown();
 	}
@@ -461,9 +474,9 @@ public class GameManager : MonoBehaviour
         desiredLevelName = levelSceneName;
     }
 
-    public void SetGameMode(GameModes gameMode)
+    public void SetGameModeData(GameModeData gameModeData)
     {
         if (!NetworkManager.Singleton.IsHost) return;
-        desiredGameMode = gameMode;
+        desiredGameModeData = gameModeData;
     }
 }

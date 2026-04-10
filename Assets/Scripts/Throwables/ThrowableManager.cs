@@ -147,7 +147,7 @@ public class ThrowableManager : NetworkBehaviour
     {
         if (!IsServer || !canThrow || !startedThrow) return;
 
-        GameObject throwableObj = SpawnManager.Spawn(
+        GameObject throwableObj = SpawnManager.Instance.Spawn(
             throwablePrefabObj,
             true,
             transform.position + transform.forward,

@@ -31,12 +31,16 @@ public class IdentifierManager : MonoBehaviour
     private float cleanupInterval = 5f;
     private float cleanupTimer = 0f;
 
+    private float sweepDelay = 1f;
+    private float sweepDelayTimer = -1f;
+
     private void Awake()
     {
         parentCanvas = GetComponent<Canvas>();
 
-        SceneManager.activeSceneChanged += (_, _) => RegisterSweep();
-        SpawnManager.objectSpawnedEvent.AddListener(RegisterIdentifier);
+        SceneManager.activeSceneChanged += (_, _) => sweepDelayTimer = 0f;
+        GameManager.Instance.OnClientConnectedEvent.AddListener((_) => sweepDelayTimer = 0f);
+        SpawnManager.Instance.objectSpawnedEvent.AddListener(RegisterIdentifier);
     }
 
     private void Update()
@@ -54,12 +58,23 @@ public class IdentifierManager : MonoBehaviour
             }
             cleanupTimer = 0f;
         }
+
+        if (sweepDelayTimer >= 0f)
+        {
+            sweepDelayTimer += Time.deltaTime;
+            if (sweepDelayTimer >= sweepDelay)
+            {
+                RegisterSweep();
+                sweepDelayTimer = -1f;
+            }
+        }
     }
 
     private void OnDestroy()
     {
-        SceneManager.activeSceneChanged -= (_, _) => RegisterSweep(); // TODO: This is fucked
-        SpawnManager.objectSpawnedEvent.RemoveListener(RegisterIdentifier);
+        SceneManager.activeSceneChanged -= (_, _) => sweepDelayTimer = 0f;
+        GameManager.Instance.OnClientConnectedEvent.RemoveListener((_) => sweepDelayTimer = 0f);
+        SpawnManager.Instance.objectSpawnedEvent.RemoveListener(RegisterIdentifier);
     }
 
 
@@ -76,6 +91,7 @@ public class IdentifierManager : MonoBehaviour
 
     public void RegisterIdentifier(GameObject obj)
     {
+        if (!NetworkManager.Singleton || !NetworkManager.Singleton.IsListening || !NetworkManager.Singleton.LocalClient.PlayerObject) return;
         if (obj == NetworkManager.Singleton.LocalClient.PlayerObject.gameObject) return;
         if (!obj.TryGetComponent<IIdentifiable>(out var identifiable)) return;
         if (activeIdentifiers.Exists(identifier => identifier.identifiable == identifiable)) return;

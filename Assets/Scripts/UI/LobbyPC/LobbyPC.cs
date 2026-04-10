@@ -34,6 +34,8 @@ public class LobbyPC : MonoBehaviour
 
     void Awake()
     {
+        GameManager.Instance.OnLevelLoadedEvent.AddListener(OnLevelLoadedEvent);
+
         canvas = GetComponentInChildren<Canvas>();
         camToCanvasDistance = pcCam.GetComponent<CinemachinePositionComposer>().CameraDistance;
 
@@ -48,12 +50,19 @@ public class LobbyPC : MonoBehaviour
         activeTabButton.image.color = tabColor;
     }
 
+    void OnDestroy()
+    {
+        Reset();
+        if (GameManager.Instance) GameManager.Instance.OnLevelLoadedEvent.RemoveListener(OnLevelLoadedEvent);
+    }
+
     void Update()
     {
-        if (!isInitialized && GameManager.Instance.usingSteam && NetworkManager.Singleton != null && NetworkManager.Singleton.IsHost)
+        if (!isInitialized && NetworkManager.Singleton != null && NetworkManager.Singleton.IsHost)
         {
             if (autoInteract)
             {
+                autoInteract = false;
                 Interact();
                 Intro possibleIntro = FindAnyObjectByType<Intro>();
                 if (possibleIntro != null) possibleIntro.IsLoaded();
@@ -63,7 +72,7 @@ public class LobbyPC : MonoBehaviour
 
         musicSource.spatialBlend = Mathf.Lerp(musicSource.spatialBlend, isActive ? 0f : 1f, Time.deltaTime);
 
-        if (cursorObj != null && isActive)
+        if (Camera.main != null && cursorObj != null && isActive)
         {
             Vector2 mousePosition = Mouse.current.position.ReadValue();
             Vector3 cursorPosition = Camera.main.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, camToCanvasDistance));
@@ -82,6 +91,21 @@ public class LobbyPC : MonoBehaviour
         showInteractPrompt = false;
     }
 
+    private void OnLevelLoadedEvent(string levelName)
+    {
+        if (levelName == gameObject.scene.name)
+        {
+            foreach (var player in NetworkManager.Singleton.SpawnManager.PlayerObjects)
+            {
+                PlayerController playerController = player.GetComponentInChildren<PlayerController>();
+                if (playerController == null) continue;
+                
+                playerController.SetHUDActiveRpc(false);
+                playerController.Teleport(Vector3.zero, Quaternion.identity);
+            }
+        }
+    }
+
     private void Interact()
     {
         GetComponent<AudioListener>().enabled = false;
@@ -90,13 +114,11 @@ public class LobbyPC : MonoBehaviour
         if (playerController.isInitialized == false) return;
         playerController.SetPlayerControlsRpc(false);
         interactingPlayerController = playerController;
-        interactingPlayerController.playerHUD.ToggleHUD();
 
         // Sets priority to PC Cam and then unlocks the cursor
         Camera.main.cullingMask = noPlayerMask;
         pcCam.Priority.Value = 99;
-        Cursor.lockState = CursorLockMode.Confined;
-        Cursor.visible = false;
+        interactingPlayerController.SetCursorStateRpc(true, true);
         cursorObj.SetActive(true);
         isActive = true;
         autoInteract = false;
@@ -104,16 +126,15 @@ public class LobbyPC : MonoBehaviour
 
     public void Reset()
     {
+        if (!NetworkManager.Singleton.IsListening || !isActive) return;
+
         // Resets priority to PC Cam and then locks the cursor
         isActive = false;
         cursorObj.SetActive(false);
         Camera.main.cullingMask = -1;
         pcCam.Priority.Value = 0;
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = true;
-
+        interactingPlayerController.SetCursorStateRpc(false);
         interactingPlayerController.SetPlayerControlsRpc(true);
-        interactingPlayerController.playerHUD.ToggleHUD();
         interactingPlayerController = null;
     }
 
@@ -148,8 +169,9 @@ public class LobbyPC : MonoBehaviour
     {
         if (isActive) return;
 
-        other.TryGetComponent(out PlayerController playerController);
-        if (playerController != null && playerController.IsLocalPlayer)
+        PlayerController playerController = other.GetComponentInParent<PlayerController>();
+        PlayerPuppet playerPuppet = other.GetComponentInParent<PlayerPuppet>();
+        if ((playerController != null && playerController.IsLocalPlayer) || playerPuppet != null)
         {
             interactPromptObj.SetActive(true);
             showInteractPrompt = true;

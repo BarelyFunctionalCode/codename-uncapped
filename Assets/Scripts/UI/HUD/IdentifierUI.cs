@@ -29,6 +29,9 @@ public class IdentifierUI : MonoBehaviour
     private float offscreenHideTime = 5f;
     private float offscreenHideTimer = 0f;
 
+    private float mainHideTime = 5f;
+    private float mainHideTimer = 0f;
+
     private float mainInfoShowTime = 0.3f;
     private float mainInfoShowTimer = 0f;
 
@@ -213,6 +216,8 @@ public class IdentifierUI : MonoBehaviour
 
     private void FadeOutMainIndicator(Color teamColor)
     {
+        mainHideTimer += Time.deltaTime;
+        if (mainHideTimer < mainHideTime) return;
         bool done = FadeElementAlpha(mainIndicator, teamColor, 0f);
         done = FadeElementAlpha(identifierTopText, teamColor, 0f) && done;
         done = FadeElementAlpha(identifierBottomText, teamColor, 0f) && done;
@@ -229,6 +234,7 @@ public class IdentifierUI : MonoBehaviour
         SetElementAlpha(identifierBottomText, teamColor, 0f);
         identifierRect.sizeDelta = new Vector2(Screen.width * 2f, Screen.height * 2f);
         mainInfoShowTimer = 0f;
+        mainHideTimer = 0f;
     }
     #endregion
 

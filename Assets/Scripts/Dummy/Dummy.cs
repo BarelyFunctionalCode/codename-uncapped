@@ -1,6 +1,6 @@
-using Unity.Netcode;
 using UnityEngine;
 
+[RequireComponent(typeof(DummyState))]
 [RequireComponent(typeof(Identification))]
 [RequireComponent(typeof(Health))]
 public class Dummy : Entity, IIdentifiable
@@ -13,7 +13,6 @@ public class Dummy : Entity, IIdentifiable
 
     private Material material;
 
-    [SerializeField] private GameObject explodeParticleObj;
 
     private void Awake()
     {
@@ -30,11 +29,8 @@ public class Dummy : Entity, IIdentifiable
         dummyIdentification.SetEntityName($"{namePartOneList[Random.Range(0, namePartOneList.Length)]} {namePartTwoList[Random.Range(0, namePartTwoList.Length)]}");
     }
 
-    // Update is called once per frame
     protected virtual void Update()
     {
-        // Entity has no Update function anymore
-        // base.Update();
         float HealthPercentage = dummyHealth.HealthPercentage;
         material.color = Color.Lerp(Color.green, Color.red, 1.0f - HealthPercentage);
     }

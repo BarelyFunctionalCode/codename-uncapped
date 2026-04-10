@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 4027266403
+  GlobalObjectIdHash: 3829992422
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -78,3 +78,11 @@ MonoBehaviour:
   OnPlayerChangedTeam:
     m_PersistentCalls:
       m_Calls: []
+  OnGameModeChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  currentPhaseCountdown:
+    m_InternalValue: 0
+  currentPhase:
+    m_InternalValue: 0
+  gameModeBasePrefabObj: {fileID: 6000883229529177411, guid: 748e2087d5405f9e3a66ded8a692b96b, type: 3}

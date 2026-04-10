@@ -8,9 +8,6 @@ using UnityEngine.SceneManagement;
 
 
 [RequireComponent(typeof(Rigidbody))]
-// [RequireComponent(typeof(CapsuleCollider))]
-// [RequireComponent(typeof(Animator))]
-// [RequireComponent(typeof(NetworkAnimator))]
 [RequireComponent(typeof(PlayerLoadoutManager))]
 [RequireComponent(typeof(PlayerNetworkTransform))]
 [RequireComponent(typeof(NetworkRigidbody))]
@@ -20,10 +17,10 @@ using UnityEngine.SceneManagement;
 [RequireComponent(typeof(Health))]
 public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 {
-    Identification playerIdentification;
-    PlayerState playerState;
-    Energy playerEnergy;
-    Health playerHealth;
+    public Identification playerIdentification;
+    public PlayerState playerState;
+    public Energy playerEnergy;
+    public Health playerHealth;
 
 
 
@@ -36,7 +33,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 
     [SerializeField] public GameObject playerTypePrefabObj;
     private GameObject playerTypeObj;
-    public PlayerType playerType;
+    public PlayerType localPlayerType;
 
     [SerializeField] private GameObject playerPuppetPrefabObj;
     public GameObject playerPuppetObj;
@@ -45,25 +42,16 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     private SteamId _steamId;
     public SteamId SteamId { get { return _steamId; } }
 
-    // Animation
-    private Animator localAnimator;
-    private Vector3 animMovementDirection = Vector3.zero;
-
     // Audio
-    private AudioSource hoverAudioSource;
-    private AudioSource windAudioSource;
+    [SerializeField] private AudioSource respawnAudioSource;
 
     // Camera
     [SerializeField] private GameObject playerCameraPrefabObj;
     private GameObject playerCameraObj;
-    public CinemachineCamera cineCam;
-    private Transform freeLookTargetTransform;
+    private CinemachineCamera thirdPersonCamera;
     [PauseMenuOption("Horizontal Look", 0f, 100f)]
     public float horizontalRotationSpeed = 20f;
     private readonly float horizontalRotationLimit = 100f;
-    [PauseMenuOption("Vertical Look", 0f, 100f)]
-    public float verticalRotationSpeed = 24f;
-    public float verticalRotationLimit = 100f;
     private AudioListener audioListener;
 
     // UI
@@ -80,7 +68,6 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     float rotationInputX = 0f;
     float rotationInputY = 0f;
     Vector3 rotationDeltaYaw = Vector3.zero;
-    Vector3 rotationDeltaPitch = Vector3.zero;
     bool isJumping = false;
     bool isSkiing = false;
     bool upJettingInput = false;
@@ -109,6 +96,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     public PlayerLoadoutManager playerLoadout;
 
     // Movement Parameters
+    [SerializeField] private LayerMask groundeDetectionLayerMask;
     private readonly float hoverHeightMax = 0.4f;
 
     private readonly float upJetForce = 7031.25f; // TODO: This force value need to be moved to the elsewhere since they differ by class
@@ -174,10 +162,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         if (IsServer) gravityModifier.Value = 1f;
 
         if (IsOwner)
-        {
-            // Capture the mouse cursor
-            Cursor.lockState = CursorLockMode.Locked;
-
+        {            
             // Set up the player controls
             playerControls = new PlayerControls();
 
@@ -200,6 +185,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             playerControls.Character.DownJet.performed += ctx => DownJetInput(ctx.ReadValue<float>());
             playerControls.Character.DownJet.canceled += ctx => DownJetInput(ctx.ReadValue<float>());
             playerControls.Character.JumpJet.started += ctx => JumpInput();
+            playerControls.Character.ToggleCameraView.started += ctx => ToggleCameraView();
         }
     }
 
@@ -230,7 +216,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             playerControls.Character.DownJet.performed -= ctx => DownJetInput(ctx.ReadValue<float>());
             playerControls.Character.DownJet.canceled -= ctx => DownJetInput(ctx.ReadValue<float>());
             playerControls.Character.JumpJet.started -= ctx => JumpInput();
-
+            playerControls.Character.ToggleCameraView.started -= ctx => ToggleCameraView();
             // Disable audio listener
             if (audioListener) audioListener.enabled = false;
         }
@@ -238,8 +224,8 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 
     private void Update()
     {
-        // Entity.Update() was removed when Entity components were added, which was just energy regen
-//        base.Update();
+        if (IsServer && localTransform.position.y < -1000f) playerState.Die();
+
         if (!playerTypeObj && IsServer && GameManager.Instance.isInitialized) SetPlayerType(playerTypePrefabObj);
         if (!isInitialized || !(IsServer || IsOwner)) return;
 
@@ -272,14 +258,14 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 
     void LateUpdate()
     {
-        if (!isInitialized || !IsOwner) return;
+        if (!isInitialized || !(IsOwner || IsServer)) return;
 
         if (playerState.IsDead) return;
 
         // Handle camera pitch rotation on local client
-        HandleCamera();
-
-        playerType.HandleExtraMotion(movementDirection, isSkiing, surfaceNormal);
+        localPlayerType.HandleCamera(rotationInputY, controlsDisabledCount);
+        rotationInputY = 0f;
+        localPlayerType.HandleExtraMotion(movementDirection, isSkiing, surfaceNormal);
     }
 
     void FixedUpdate()
@@ -292,6 +278,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 
         // Finally, we process the inputs to move the player locally and on the server
         HandleMovement();
+        if (IsOwner && !IsHost) ClientAuthorityRotationSyncRpc(localRb.rotation);
 
         if (IsServer)
         {
@@ -306,7 +293,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         if (playerTelemetry != null)
         {
             playerTelemetry.position = localTransform.position;
-            playerTelemetry.velocity = localRb.linearVelocity;
+            playerTelemetry.finalVelocity = localRb.linearVelocity;
         }
     }
     #endregion
@@ -317,7 +304,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     {
         if (!IsServer) return;
         if (playerTypeObj != null) Destroy(playerTypeObj);
-        playerTypeObj = SpawnManager.Spawn(
+        playerTypeObj = SpawnManager.Instance.Spawn(
             playerTypePrefabObj,
             false,
             transform.position,
@@ -327,18 +314,18 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         );
     }
 
-    public void OnPlayerTypeObjectSpawned(PlayerType playerType)
+    public void OnPlayerTypeObjectSpawned(PlayerType playerType, bool isPuppet = false)
     {
-        this.playerType = playerType;
+        localPlayerType = playerType;
         localPlayerCollider = playerType.playerCollider;
         localPlayerCollider.material = normalMaterial;
-        localAnimator = playerType.playerAnimator;
-        freeLookTargetTransform = playerType.freeLookTargetTransform;
-        weaponMountPoint = playerType.weaponMountPoint;
-        throwableMountPoint = playerType.throwableMountPoint;
-        hoverAudioSource = playerType.hoverAudioSource;
-        windAudioSource = playerType.windAudioSource;
-        localRb.mass = playerType.mass;
+
+        if (!isPuppet)
+        {
+            localRb.mass = playerType.mass;
+            weaponMountPoint = playerType.weaponMountPoint;
+            throwableMountPoint = playerType.throwableMountPoint;
+        }
 
         if (IsOwner) InitializeOwner();
     }
@@ -349,13 +336,13 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         if (!IsHost && !playerPuppetObj)
         {
             // Hide all visuals on authoritative player object
-            foreach (Renderer r in GetComponentsInChildren<Renderer>())
+            foreach (Renderer r in localPlayerType.gameObject.GetComponentsInChildren<Renderer>())
             {
                 r.enabled = false;
             }
 
             // Disable audio sources
-            foreach (AudioSource a in GetComponentsInChildren<AudioSource>())
+            foreach (AudioSource a in localPlayerType.gameObject.GetComponentsInChildren<AudioSource>())
             {
                 a.enabled = false;
             }
@@ -371,16 +358,8 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             // Set the local player's transform, collider, and rigidbody references to the puppet's so that the rest of the
             // player controller code can work as normal regardless of whether it's running on the server or client
             localTransform = playerPuppetObj.transform;
-            localPlayerCollider = playerPuppet.playerCollider;
             localRb = playerPuppet.rb;
-            localAnimator = playerPuppet.playerAnimator;
-
-            // Get the free look target transform from the puppet so that the camera can follow it
-            freeLookTargetTransform = playerPuppet.freeLookTargetTransform;
-
-            // Set Audio Sources
-            hoverAudioSource = playerPuppet.hoverAudioSource;
-            windAudioSource = playerPuppet.windAudioSource;
+            return;
         }
 
         // Initialize Player UI
@@ -395,8 +374,8 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         {
             playerCameraObj = Instantiate(playerCameraPrefabObj);
             audioListener = playerCameraObj.GetComponentInChildren<AudioListener>();
-            cineCam = playerCameraObj.GetComponentInChildren<CinemachineCamera>();
-            cineCam.Follow = freeLookTargetTransform;
+            thirdPersonCamera = playerCameraObj.GetComponentInChildren<CinemachineCamera>();
+            thirdPersonCamera.Follow = localPlayerType.freeLookTargetTransform;
 
             Camera UIOverlayCamera = playerUIObj.GetComponentInChildren<Canvas>().worldCamera;
             Camera mainCamera = playerCameraObj.GetComponentInChildren<Camera>();
@@ -407,15 +386,15 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             audioListener.enabled = true;
 
             // Enable the camera
-            cineCam.Priority.Value = 1;
+            thirdPersonCamera.Priority.Value = 1;
         }
 
-        InitializeServerRpc();
+        InitializeServerRpc(GameManager.Instance?.usingSteam == true ? SteamClient.SteamId.Value : 0);
         isInitialized = true;
     }
 
     [Rpc(SendTo.Server)]
-    private void InitializeServerRpc()
+    private void InitializeServerRpc(ulong steamId)
     {
         playerIdentification.SetEntityName($"Player {OwnerClientId}");
         playerIdentification.SetEntityId(OwnerClientId);
@@ -424,7 +403,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         // Get Player's Steam ID
         if (GameManager.Instance?.usingSteam == true)
         {
-            _steamId = SteamClient.SteamId.Value;
+            _steamId = steamId;
             playerIdentification.SetEntityName(new Friend(_steamId).Name);
         }
 
@@ -481,6 +460,13 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 
 
     #region Inputs
+    private void ToggleCameraView()
+    {
+        bool isThirdPerson = thirdPersonCamera.Priority.Value > 0;
+        thirdPersonCamera.Priority.Value = isThirdPerson ? 0 : 1;
+        localPlayerType.ToggleFirstPersonCamera(isThirdPerson);
+    }
+
     [Rpc(SendTo.Server)]
     public void SetPlayerControlsRpc(bool enabled)
     {
@@ -496,9 +482,19 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     }
 
     [Rpc(SendTo.Owner)]
+    public void SetHUDActiveRpc(bool enabled)
+    {
+        playerHUD.SetHUDActive(enabled);
+    }
+    [Rpc(SendTo.Owner)]
     public void OpenLoadoutMenuRpc()
     {
         playerHUD.ToggleMenu(HUDMenu.LoadoutMenu, true);
+    }
+    [Rpc(SendTo.Owner)]
+    public void SetCursorStateRpc(bool enabled, bool usingCustomCursor = false)
+    {
+        playerHUD.SetCursorState(enabled, usingCustomCursor);
     }
 
     private void MoveInput(Vector2 rawMovementInput)
@@ -606,32 +602,10 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         }
 
         // Set audio values
-        if (hoverAudioSource)
-        {
-            float maxVolume = 0.3f;
-            hoverAudioSource.volume = Mathf.Lerp(hoverAudioSource.volume, isSkiing ? maxVolume : 0f, Time.fixedDeltaTime * 5f);
-            hoverAudioSource.pitch = 0.9f + 0.05f * (localRb.linearVelocity.magnitude / 20f);
-        }
-        if (windAudioSource)
-        {
-            float cappedSpeed = (localRb.linearVelocity.magnitude - 20f) / 80f;
-            float targetVolume = Mathf.Lerp(0f, 0.02f, cappedSpeed);
-            float targetPitch = Mathf.Lerp(0.9f, 1.5f, cappedSpeed);
-            windAudioSource.volume = Mathf.Lerp(windAudioSource.volume, targetVolume, Time.fixedDeltaTime * 20f);
-            windAudioSource.pitch = Mathf.Lerp(windAudioSource.pitch, targetPitch, Time.fixedDeltaTime * 20f);
-        }
+        localPlayerType.HandleAudio(localRb.linearVelocity, isSkiing);
 
         // Set animator values
-        Vector3 animMovementDirectionNewY = Vector3.up * (isDownJetting ? -1f : (isUpJetting ? 1f : 0f));
-        animMovementDirection = Vector3.Lerp(animMovementDirection, movement.normalized + animMovementDirectionNewY, Time.fixedDeltaTime * 10f);
-        localAnimator.SetFloat("xDir", animMovementDirection.x);
-        localAnimator.SetFloat("yDir", animMovementDirection.y);
-        localAnimator.SetFloat("zDir", animMovementDirection.z);
-        localAnimator.SetFloat("yVel", localRb.linearVelocity.normalized.y);
-        localAnimator.SetBool("isGrounded", playerstate.IsGrounded);
-        localAnimator.SetBool("isRunning", isRunning);
-        localAnimator.SetBool("isSkiing", isSkiing && !isUpJetting && !isDownJetting);
-        localAnimator.SetBool("isJetting", isUpJetting || isDownJetting);
+        localPlayerType.UpdateAnimationData(movement, localRb.linearVelocity, playerState.IsGrounded, isRunning, isSkiing, isDownJetting, isUpJetting);
     }
     #endregion
 
@@ -661,20 +635,6 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         SetPlayerControlsRpc(true);
     }
 
-    private void HandleCamera()
-    {
-        // Get pitch rotation from inputs and rotate the camera look target
-        Vector3 rotationPitch = new(rotationInputY, 0f, 0f);
-        rotationPitch *= verticalRotationSpeed * Time.deltaTime;
-        rotationDeltaPitch = Vector3.ClampMagnitude(rotationPitch, verticalRotationLimit);
-        rotationInputY = 0f;
-        float currentXRotation = freeLookTargetTransform.eulerAngles.x < 180f ? freeLookTargetTransform.eulerAngles.x : freeLookTargetTransform.eulerAngles.x - 360f;
-        rotationDeltaPitch.x = Mathf.Clamp(currentXRotation + rotationDeltaPitch.x, -83.0f, 83.0f) - currentXRotation;
-        if (controlsDisabledCount > 0) rotationDeltaPitch = Vector3.zero;
-        
-        freeLookTargetTransform.Rotate(rotationDeltaPitch);
-    }
-
     private void HandleGroundDetection()
     {
         lastGroundedTime += Time.deltaTime;
@@ -694,7 +654,8 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
                 Vector3.down
             ),
             out hit,
-            distanceToSurface
+            distanceToSurface,
+            groundeDetectionLayerMask
         );
         if (didHit)
         {
@@ -713,7 +674,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             // Breakaway vertical speed check
             if (localRb.linearVelocity.y > 20.0f) return;
 
-            if (distanceToSurface <= 0.25f)
+            if (distanceToSurface <= 0.6f)
             {
                 playerstate.SetIsGrounded(true);
                 lastGroundedTime = 0f;
@@ -727,6 +688,12 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         if (playerTelemetry != null) playerTelemetry.isGrounded = playerstate.IsGrounded;
         if (playerTelemetry != null) playerTelemetry.surfaceNormal = surfaceNormal;
         
+    }
+
+    [Rpc(SendTo.Server)]
+    private void ClientAuthorityRotationSyncRpc(Quaternion ownerRotation)
+    {
+        localRb.rotation = Quaternion.RotateTowards(localRb.rotation, ownerRotation, horizontalRotationLimit);
     }
 
     private void HandleMovement()
@@ -782,7 +749,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
                 Vector3.zero;
             desiredVerticalAcc = jumpSurfaceNormal.y * playerScaleFactor * jumpForceFinal * jumpScale;
             lastGroundedTime = 1f;
-            localAnimator.SetTrigger("triggerJump");
+            localPlayerType.HandleJump();
         }
         // Running Movement
         else if (isRunning)
@@ -894,8 +861,11 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             }
         }
 
+        if (playerTelemetry != null) playerTelemetry.rawInputVelocity = currentVelocity + desiredAcc + groundImpulse;
+
         // Apply Jet Resistance
         currentVelocity += CalculateJetResistance(currentVelocity, desiredVerticalAcc, desiredAcc);
+        if (playerTelemetry != null) playerTelemetry.jetResistVelocity = currentVelocity;
 
         // Apply desired acceleration, jetting accelration, walking acceleration, and gravity
         desiredAcc.y += desiredVerticalAcc;
@@ -905,6 +875,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 
         // Apply velocity caps
         currentVelocity += CalculateVelocityCaps(currentVelocity);
+        if (playerTelemetry != null) playerTelemetry.cappedSpeedVelocity = currentVelocity;
         // Debug.Log($"Current Velocity: {rb.linearVelocity:F2}\t Desired Acc: {desiredAcc:F2}\t Jet Resistance: {jetResistance:F2}\t Capped Excess: {velocityCappedExcess:F2}\t Final Velocity: {currentVelocity:F2}");
     
         // Calculate final change in velocity to apply
@@ -991,28 +962,28 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     private void OnCollisionEnter(Collision collision)
     {
         if (!IsServer) return;
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Projectile")) return;
 
-        if (localRb.linearVelocity.y > 0.0f) return; // Only take collision damage if moving downwards
-
-        float minimumDamageSpeed = 20f; // Minimum speed for a collision to cause damage
-        float minimumOuchyAngle = 30f; // Minimum angle for a collision to cause damage
+        float minimumDamageSpeed = 40f; // Minimum speed for a collision to cause damage
+        float minimumOuchyAngle = 15f; // Minimum angle for a collision to cause damage
         float scaleFactor = 0.4f; // Overall scale factor for damage, can be tweaked for balance
 
         Vector3 relativeVelocity = collision.relativeVelocity;
 
-        float impactSpeed = relativeVelocity.magnitude;
         Vector3 impactDirection = relativeVelocity.normalized;
 
         ContactPoint contact = collision.GetContact(0);
         Vector3 surfaceNormal = contact.normal;
 
+        Vector3 damagingVelocity = Vector3.Project(relativeVelocity, surfaceNormal);
+        float damagingSpeed = damagingVelocity.magnitude;
+
         float ouchyThreshold = Vector3.Dot(impactDirection, surfaceNormal);
 
-        if (ouchyThreshold > Mathf.Cos(minimumOuchyAngle * Mathf.Deg2Rad) && impactSpeed > minimumDamageSpeed)
+        if (ouchyThreshold > Mathf.Sin(minimumOuchyAngle * Mathf.Deg2Rad) && damagingSpeed > minimumDamageSpeed)
         {
-            float damage = impactSpeed * ouchyThreshold * scaleFactor;
-            TryGetComponent<IDamageable>(out var damageable);
-            if (damageable != null) damageable.TakeDamage(damage);
+            float damage = (damagingSpeed - minimumDamageSpeed) * ouchyThreshold * scaleFactor;
+            playerHealth.TakeDamage(damage);
         }
     }
 

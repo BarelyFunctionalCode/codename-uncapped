@@ -86,7 +86,7 @@ public class PauseMenu : MonoBehaviour
         }
 
         // Initialize player controls in pause menu
-        List<string> controlIgnoreList = new() { "Pause","Move", "Look" };
+        List<string> controlIgnoreList = new() { "Pause", "Move", "Look" };
         // InputActionMap movementMap = playerControls.Movement;
         foreach (var actionMap in playerControls.asset.actionMaps)
         {

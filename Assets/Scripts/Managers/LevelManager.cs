@@ -6,8 +6,12 @@ public class LevelManager : NetworkBehaviour
 {
     public static LevelManager Instance { get; private set; } = null;
 
+    public static List<LevelSO> availableLevels = new();
+
     private bool playersLoaded = false;
     private bool stageGenerated = false;
+
+    private bool isInitialized = false;
 
     Dictionary<uint, List<Transform>> spawnPoints = new();
 
@@ -15,6 +19,8 @@ public class LevelManager : NetworkBehaviour
     {
         if (Instance != null || GameManager.Instance == null || !GameManager.Instance.isInitialized) Destroy(gameObject);
         else Instance = this;
+
+        GameManager.Instance.OnLevelLoadedEvent.AddListener(OnLevelLoadedEvent);
 
         transform.SetParent(null);
 	}
@@ -24,7 +30,10 @@ public class LevelManager : NetworkBehaviour
         base.OnNetworkSpawn();
 
         if (GameManager.Instance == null || !GameManager.Instance.isInitialized) return;
-        if (IsHost) GameModeHandler.Instance.currentPhase.OnValueChanged += OnGameModePhaseChange;
+        if (IsHost) {
+            GameModeHandler.Instance.currentPhase.OnValueChanged += OnGameModePhaseChange;
+            GameManager.Instance.OnClientConnectedEvent.AddListener(LateJoiningClient);
+        }
     }
 
     public sealed override void OnNetworkDespawn()
@@ -32,12 +41,53 @@ public class LevelManager : NetworkBehaviour
         base.OnNetworkDespawn();
 
         if (GameModeHandler.Instance != null) GameModeHandler.Instance.currentPhase.OnValueChanged -= OnGameModePhaseChange;
+        if (GameManager.Instance != null) GameManager.Instance.OnClientConnectedEvent.RemoveListener(LateJoiningClient);
+    }
+
+    public override void OnDestroy()
+    {
+        if (GameManager.Instance != null) GameManager.Instance.OnLevelLoadedEvent.RemoveListener(OnLevelLoadedEvent);
+        if (Instance == this) Instance = null;
+    }
+
+    private void LateJoiningClient(ulong clientId)
+    {
+        if (!IsHost) return;
+
+        PlayerController playerController = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(clientId).GetComponentInChildren<PlayerController>();
+        if (playerController == null) return;
+
+        Identification entityIdentification = playerController.gameObject.GetComponent<Identification>();
+
+        GameModeHandler.Instance.OnClientJoined(entityIdentification.FetchEntityId());
+        
+        Transform spawnPoint = GetSpawnPoint(entityIdentification.FetchTeamId());
+        if (spawnPoint == null) return;
+
+        playerController.Teleport(spawnPoint.position, spawnPoint.rotation);
+        playerController.SetHUDActiveRpc(true);
+    }
+
+
+    private void OnLevelLoadedEvent(string levelName)
+    {
+        if (levelName == gameObject.scene.name)
+        {
+            OnPlayersLoaded();
+        }
+    }
+
+    public static void GenerateAvailableLevelsList()
+    {
+        availableLevels.Clear();
+        LevelSO[] levelSOs = Resources.LoadAll<LevelSO>("LevelSOs");
+        availableLevels.AddRange(levelSOs);
     }
 
     // Called after all the players have loaded into the scene
-    public void OnPlayersLoaded()
+    private void OnPlayersLoaded()
     {
-        if (!NetworkManager.Singleton.IsHost) return;
+        if (!NetworkManager.Singleton.IsHost || isInitialized) return;
         playersLoaded = true;
 
         OnLevelInitialized();
@@ -46,21 +96,27 @@ public class LevelManager : NetworkBehaviour
     // Called after any runtime generation for the scene has finished
     public void OnStageGenerated()
     {
-        if (!NetworkManager.Singleton.IsHost) return;
+        if (!NetworkManager.Singleton.IsHost || isInitialized) return;
         stageGenerated = true;
 
-        if (GameModeHandler.Instance.GameModesTeamTypes[GameModeHandler.Instance.current_game_mode.game_mode_id] == TeamBasedType.SOLO)
+        OnStageGenerationRpc(GameModeHandler.Instance.GameModesTeamTypes[GameModeHandler.Instance.current_game_mode.game_mode_id] == TeamBasedType.SOLO);
+
+        OnLevelInitialized();
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void OnStageGenerationRpc(bool soloGameMode)
+    {
+        if (soloGameMode)
         {
             GameObject[] teamBaseObjs = GameObject.FindGameObjectsWithTag("TeamBase");
             foreach (var teamBaseObj in teamBaseObjs)            {
                 teamBaseObj.SetActive(false);
             }
         }
-
-        OnLevelInitialized();
     }
 
-    private void OnGameModePhaseChange(Phase _, Phase newPhase)
+    private void OnGameModePhaseChange(Phase previousPhase, Phase newPhase)
     {
         if (newPhase == Phase.ACTIVE)
         {
@@ -70,6 +126,13 @@ public class LevelManager : NetworkBehaviour
                 if (playerState == null) continue;
                 playerState.Die();
             }
+        }
+
+        if (previousPhase == Phase.ENDGAME)
+        {
+            // TODO: Post Match UI
+            GameManager.Instance.SetLevel("Lobby");
+            GameManager.Instance.LoadLevel();
         }
     }
 
@@ -101,11 +164,12 @@ public class LevelManager : NetworkBehaviour
             if (spawnPoint == null) continue;
             
             playerController.Teleport(spawnPoint.position, spawnPoint.rotation);
+            playerController.SetHUDActiveRpc(true);
             playerController.SetPlayerControlsRpc(false);
-            playerController.OpenLoadoutMenuRpc();
         }
 
         OnLevelReady();
+        isInitialized = true;
     }
 
     private void OnLevelReady()

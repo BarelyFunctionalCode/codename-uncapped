@@ -9904,7 +9904,6 @@ MonoBehaviour:
   maxImpactForce: 3000
   damageRadius: 10
   selfDestructTimer: 10
-  armingTimer: 0
   hasHoldModifier: 0
   isFired: 0
 --- !u!114 &7223086891563822557
@@ -9932,7 +9931,7 @@ MonoBehaviour:
   ScaleLerpSmoothing: 1
   ScaleMaxInterpolationTime: 0.1
   AuthorityMode: 0
-  TickSyncChildren: 0
+  TickSyncChildren: 1
   UseUnreliableDeltas: 0
   SyncPositionX: 1
   SyncPositionY: 1
@@ -9950,8 +9949,8 @@ MonoBehaviour:
   UseQuaternionCompression: 0
   UseHalfFloatPrecision: 0
   InLocalSpace: 0
-  SwitchTransformSpaceWhenParented: 0
-  Interpolate: 1
+  SwitchTransformSpaceWhenParented: 1
+  Interpolate: 0
   SlerpPosition: 0
 --- !u!114 &3879947381388008662
 MonoBehaviour:
@@ -10118,6 +10117,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: aa80db3c62206e446afa4a0792a7175b, type: 3}
       propertyPath: m_Name
       value: Rocket
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: aa80db3c62206e446afa4a0792a7175b, type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

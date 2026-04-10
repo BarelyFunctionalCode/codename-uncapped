@@ -31,8 +31,13 @@ public class GameModeBase : NetworkBehaviour
         StatEventType.FLAG_CAPTURE,
     };
 
-    [SerializeField]
-    public GameModes game_mode_id;
+    private NetworkVariable<GameModes> _gameModeId = new();
+    public GameModes game_mode_id {
+        get => _gameModeId.Value;
+        set {
+            if (IsHost) _gameModeId.Value = value;
+        }
+    }
 
     #region Public Methods
     public void StatEventReceiver(StatEvent s)
@@ -149,6 +154,15 @@ public class GameModeBase : NetworkBehaviour
     [Rpc(SendTo.Everyone)]
     private void OnStatChangeRPC(StatEvent statEvent)
     {
+        if (statEvent.StatType == win_conditions.GetWinConditionStat())
+        {
+            StatEvent winConditionEvent = new(
+                StatEventType.WIN_CONDITION,
+                statEvent.Value,
+                statEvent.Source
+            );
+            GameModeHandler.Instance.OnStatUpdated.Invoke(winConditionEvent);
+        }
         // Broadcast updated player stat to all clients, if the stat event is one we care about
         if (broadcastedStatEvents.Contains(statEvent.StatType))
         {

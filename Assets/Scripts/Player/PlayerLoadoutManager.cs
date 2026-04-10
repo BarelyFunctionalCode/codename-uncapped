@@ -30,10 +30,14 @@ public class PlayerLoadoutManager : NetworkBehaviour
     }
 
     [Rpc(SendTo.Server)]
-    public void UpdateLoadoutRpc(PlayerLoadout newLoadout, bool doKill = false)
+    public void UpdateLoadoutRpc(PlayerLoadout newLoadout, bool applyImmediately = false)
     {
         tempLoadout = newLoadout;
-        if (doKill && playerController != null) playerController.GetComponent<PlayerState>().Die();
+        if (applyImmediately && playerController != null)
+        {
+            Deinitialize();
+            Initialize(true);
+        }
     }
 
     public void Initialize(bool allowLoadoutChange = true, PlayerController newPlayerController = null)
@@ -105,7 +109,7 @@ public class PlayerLoadoutManager : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        GameObject newWeapon = SpawnManager.Spawn(
+        GameObject newWeapon = SpawnManager.Instance.Spawn(
             weaponPrefabObj,
             false,
             playerController.weaponMountPoint.position,
@@ -123,7 +127,7 @@ public class PlayerLoadoutManager : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        GameObject newThrowable = SpawnManager.Spawn(
+        GameObject newThrowable = SpawnManager.Instance.Spawn(
             throwablePrefabObj,
             false,
             playerController.throwableMountPoint.position,

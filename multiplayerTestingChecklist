@@ -1,0 +1,45 @@
+# Things not working
+
+- (fixed) Post-Processing on builds were inconsistently causing massive pixelation (UI included)
+- (fixed) Respawn sound plays for all players
+- (fixed) late-joining players have no HUD (need more robust way to enable HUD when player joins match)
+- (fixed) projectile don't explode when aiming down (tweak arming time on projectile prefabs)
+- (fixed) client rotation desync (client projectiles spawning/aiming in different direction than authoritative player character)
+- (fixed) Fall damage is major fucked
+- hover particle effects not always working for clients (client can't see any hover particles)
+- screen shake not always working
+- LobbyPC Not showing players or chat messages for clients
+- Players killing themselves counts as a kill (fix after Entity class changes are merged)
+- Need to take into account final-player sourceed damage for when a player dies to fall damage (fix after Entity class changes are merged)
+
+# Things to do
+
+- (done) Move control of the cursor to a centralized location in the HUD class.
+- (done) Add back the mouse/keyboard control bindings.
+- Refactor LobbyPC to use Network Variables for everything.
+- Move IIdentifiable to PlayerType instead of PlayerController.
+
+# Multiplayer Checklist
+
+These are the things to check on both host and client to make sure that all the networking is working.
+
+## Lobby
+
+- Player damage, weapons, and HUD all disabled in lobby? (May not be implemented yet)
+- Other players rotate in place?
+- Can you hear music?
+- See Match options update as host changes settings?
+- See everyone listed on the Match Selection player list UI?
+- Send and receive chat messages?
+
+## Match
+
+- Loadout menu look correct?
+- HUD game time and objective data accurate?
+- Leaderboard updating correctly?
+- Weapon ammo and selected weapon correct in HUD?
+- FF Indicators showing?
+- Other player particle effects and sounds working?
+- Other player death effect visible?
+- Kill feed notifications showing up?
+- Chat messages showing up?

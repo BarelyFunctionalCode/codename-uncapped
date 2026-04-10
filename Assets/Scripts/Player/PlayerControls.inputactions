@@ -86,6 +86,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "Toggle Camera View",
+                    "type": "Button",
+                    "id": "ef931bfb-9d4c-4046-8d0c-8353f6737d4a",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -231,6 +240,17 @@
                     "action": "Down Jet",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e557455b-2dd6-4a7b-a1e4-e1597175fbff",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Toggle Camera View",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
@@ -239,7 +259,7 @@
             "id": "982abddc-7cf8-4d3d-be8d-96e5711a70ae",
             "actions": [
                 {
-                    "name": "PauseMenu",
+                    "name": "Pause Menu",
                     "type": "Button",
                     "id": "07028ae3-1ad2-4a9f-ab57-c0d17623d3a2",
                     "expectedControlType": "",
@@ -257,7 +277,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "LoadoutMenu",
+                    "name": "Loadout Menu",
                     "type": "Button",
                     "id": "85f2fb69-b642-4ed3-bfc4-8e339a4f10e1",
                     "expectedControlType": "",
@@ -292,7 +312,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "PauseMenu",
+                    "action": "Pause Menu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -303,7 +323,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "LoadoutMenu",
+                    "action": "Loadout Menu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -332,7 +352,7 @@
                 {
                     "name": "",
                     "id": "d9c54206-5a78-40a1-9236-e2a54815f44e",
-                    "path": "<Keyboard>/tab",
+                    "path": "<Keyboard>/backquote",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

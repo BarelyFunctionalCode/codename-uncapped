@@ -15,9 +15,9 @@ RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 10
   m_Fog: 1
-  m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  m_FogMode: 2
-  m_FogDensity: 0.001
+  m_FogColor: {r: 0.4528302, g: 0.38761523, b: 0.33535066, a: 1}
+  m_FogMode: 3
+  m_FogDensity: 0.002
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
@@ -34,7 +34,7 @@ RenderSettings:
   m_SpotCookie: {fileID: 10001, guid: 0000000000000000e000000000000000, type: 0}
   m_DefaultReflectionMode: 0
   m_DefaultReflectionResolution: 128
-  m_ReflectionBounces: 1
+  m_ReflectionBounces: 2
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 806630784}
@@ -93,7 +93,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 20201, guid: 0000000000000000f000000000000000, type: 0}
+  m_LightingDataAsset: {fileID: 112000000, guid: cba64cacad26e8a0fa8e426bde9275fb, type: 2}
   m_LightingSettings: {fileID: 4890085278179872738, guid: 69ae36dc8c4028975937c7d5fe67a46e, type: 2}
 --- !u!196 &4
 NavMeshSettings:
@@ -702,7 +702,7 @@ Light:
   serializedVersion: 12
   m_Type: 1
   m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
-  m_Intensity: 1.91
+  m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -741,7 +741,7 @@ Light:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RenderingLayerMask: 1
-  m_Lightmapping: 4
+  m_Lightmapping: 1
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
@@ -1337,7 +1337,7 @@ GameObject:
   m_TagString: TeamBase
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 2147483647
+  m_StaticEditorFlags: 126
   m_IsActive: 1
 --- !u!65 &1756532409
 BoxCollider:
@@ -1555,11 +1555,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1931757068917247694, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
       propertyPath: debugMode
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3737175516416455173, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
       propertyPath: m_Name
       value: Backbone
+      objectReference: {fileID: 0}
+    - target: {fileID: 4031944517337735888, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
+      propertyPath: doAutoStart
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5285240888001139251, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2057,7 +2061,7 @@ GameObject:
   m_TagString: TeamBase
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 2147483647
+  m_StaticEditorFlags: 126
   m_IsActive: 1
 --- !u!65 &2133765496
 BoxCollider:
@@ -2091,7 +2095,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
+  m_StaticShadowCaster: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
