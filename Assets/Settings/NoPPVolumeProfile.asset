@@ -14,17 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RetroScreenSpaceEffects
   active: 1
   ditherThreshold:
-    m_OverrideState: 0
-    m_Value: 30
-  ditherScale:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: 10
+  ditherScale:
+    m_OverrideState: 1
+    m_Value: 0
   pixelationValue:
-    m_OverrideState: 0
-    m_Value: 128
+    m_OverrideState: 1
+    m_Value: 4096
   colorPrecision:
-    m_OverrideState: 0
-    m_Value: 32
+    m_OverrideState: 1
+    m_Value: 4096
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
