@@ -118,8 +118,7 @@ public class LobbyPC : MonoBehaviour
         // Sets priority to PC Cam and then unlocks the cursor
         Camera.main.cullingMask = noPlayerMask;
         pcCam.Priority.Value = 99;
-        Cursor.lockState = CursorLockMode.Confined;
-        Cursor.visible = false;
+        interactingPlayerController.SetCursorStateRpc(true, true);
         cursorObj.SetActive(true);
         isActive = true;
         autoInteract = false;
@@ -134,9 +133,7 @@ public class LobbyPC : MonoBehaviour
         cursorObj.SetActive(false);
         Camera.main.cullingMask = -1;
         pcCam.Priority.Value = 0;
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = true;
-
+        interactingPlayerController.SetCursorStateRpc(false);
         interactingPlayerController.SetPlayerControlsRpc(true);
         interactingPlayerController = null;
     }

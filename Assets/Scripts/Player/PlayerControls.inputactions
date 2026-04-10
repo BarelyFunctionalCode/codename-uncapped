@@ -88,7 +88,7 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "ToggleCameraView",
+                    "name": "Toggle Camera View",
                     "type": "Button",
                     "id": "ef931bfb-9d4c-4046-8d0c-8353f6737d4a",
                     "expectedControlType": "",
@@ -248,7 +248,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "ToggleCameraView",
+                    "action": "Toggle Camera View",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
@@ -259,7 +259,7 @@
             "id": "982abddc-7cf8-4d3d-be8d-96e5711a70ae",
             "actions": [
                 {
-                    "name": "PauseMenu",
+                    "name": "Pause Menu",
                     "type": "Button",
                     "id": "07028ae3-1ad2-4a9f-ab57-c0d17623d3a2",
                     "expectedControlType": "",
@@ -277,7 +277,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "LoadoutMenu",
+                    "name": "Loadout Menu",
                     "type": "Button",
                     "id": "85f2fb69-b642-4ed3-bfc4-8e339a4f10e1",
                     "expectedControlType": "",
@@ -312,7 +312,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "PauseMenu",
+                    "action": "Pause Menu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -323,7 +323,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "LoadoutMenu",
+                    "action": "Loadout Menu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

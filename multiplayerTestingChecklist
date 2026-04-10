@@ -1,23 +1,23 @@
 # Things not working
 
-- Post-Processing on builds were inconsistently causing massive pixelation (UI included)
+- (fixed) Post-Processing on builds were inconsistently causing massive pixelation (UI included)
+- (fixed) Respawn sound plays for all players
+- (fixed) late-joining players have no HUD (need more robust way to enable HUD when player joins match)
 - LobbyPC Not showing players or chat messages for clients
-- Players killing themselves counts as a kill (fix after Entity class changes are merged)
-- Need to take into account final-player sourceed damage for when a player dies to fall damage (fix after Entity class changes are merged)
-- Respawn sound plays for all players
-- late-joining players have no HUD (need more robust way to enable HUD when player joins match)
 - hover particle effects not always working for clients (client can't see any hover particles)
 - screen shake not always working
 - client rotation desync (client projectiles spawning/aiming in different direction than authoritative player character)
 - projectile don't explode when aiming down (tweak arming time on projectile prefabs)
 - Fall damage is major fucked
+- Players killing themselves counts as a kill (fix after Entity class changes are merged)
+- Need to take into account final-player sourceed damage for when a player dies to fall damage (fix after Entity class changes are merged)
 
 # Things to do
 
+- (done) Move control of the cursor to a centralized location in the HUD class.
+- (done) Add back the mouse/keyboard control bindings.
 - Refactor LobbyPC to use Network Variables for everything.
 - Move IIdentifiable to PlayerType instead of PlayerController.
-- Move control of the cursor to a centralized location in the HUD class.
-- Add back the mouse/keyboard control bindings.
 
 # Multiplayer Checklist
 

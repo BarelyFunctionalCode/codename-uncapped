@@ -217,7 +217,7 @@ public class IdentifierUI : MonoBehaviour
     private void FadeOutMainIndicator(Color teamColor)
     {
         mainHideTimer += Time.deltaTime;
-        if (mainInfoShowTimer < mainInfoShowTime) return;
+        if (mainHideTimer < mainHideTime) return;
         bool done = FadeElementAlpha(mainIndicator, teamColor, 0f);
         done = FadeElementAlpha(identifierTopText, teamColor, 0f) && done;
         done = FadeElementAlpha(identifierBottomText, teamColor, 0f) && done;

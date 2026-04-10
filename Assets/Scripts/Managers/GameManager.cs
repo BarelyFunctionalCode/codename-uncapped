@@ -68,6 +68,8 @@ public class GameManager : MonoBehaviour
         transform.SetParent(null);
         DontDestroyOnLoad(gameObject);
 
+        Cursor.lockState = CursorLockMode.Locked;
+
         LevelManager.GenerateAvailableLevelsList();
     }
 

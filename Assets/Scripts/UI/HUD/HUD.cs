@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public enum HUDMenu
 {
@@ -43,6 +44,7 @@ public class HUD : MonoBehaviour
     [SerializeField] public LoadoutMenu loadoutMenu;
     [SerializeField] private PauseMenu pauseMenu;
     [SerializeField] private Leaderboard leaderboard;
+    int cursorLockCounter = 0;
 
     private float dynamicReticleMaxMoveRange = 50f;
     private float dynamicReticleMaxVelocityDeflection = 50f;
@@ -54,6 +56,11 @@ public class HUD : MonoBehaviour
 
     private bool isInitialized = false;
     private bool isActive = true;
+
+    private void Awake()
+    {
+        SceneManager.activeSceneChanged += (_, _) => ResetCursorState();
+    }
 
     private void Update()
     {
@@ -88,7 +95,7 @@ public class HUD : MonoBehaviour
         playerControls.UI.PauseMenu.performed -= ctx => ToggleMenu(HUDMenu.PauseMenu);
         playerControls.UI.LoadoutMenu.performed -= ctx => ToggleMenu(HUDMenu.LoadoutMenu);
         playerControls.UI.Chat.performed -= ctx => ToggleMenu(HUDMenu.Chat, true);
-        playerControls.UI.Close.performed -= ctx => ToggleMenu(HUDMenu.None);
+        playerControls.UI.Close.performed -= ctx => HandleCloseInput();
         
         playerControls.UI.Leaderboard.started -= ctx => leaderboard.ToggleMenu(true);
         playerControls.UI.Leaderboard.canceled -= ctx => leaderboard.ToggleMenu(false);
@@ -96,6 +103,7 @@ public class HUD : MonoBehaviour
         playerController.onAppliedDamage.RemoveListener(SetHitMarker);
         GameModeHandler.Instance.currentPhaseCountdown.OnValueChanged -= SetCountDownTimer;
         GameModeHandler.Instance.currentPhase.OnValueChanged -= SetCurrentPhaseData;
+        SceneManager.activeSceneChanged -= (_, _) => ResetCursorState();
     }
 
     public void Initialize(PlayerController playerController)
@@ -107,7 +115,7 @@ public class HUD : MonoBehaviour
         playerControls.UI.PauseMenu.performed += ctx => ToggleMenu(HUDMenu.PauseMenu);
         playerControls.UI.LoadoutMenu.performed += ctx => ToggleMenu(HUDMenu.LoadoutMenu);
         playerControls.UI.Chat.performed += ctx => ToggleMenu(HUDMenu.Chat, true);
-        playerControls.UI.Close.performed += ctx => ToggleMenu(HUDMenu.None);
+        playerControls.UI.Close.performed += ctx => HandleCloseInput();
 
         playerControls.UI.Leaderboard.started += ctx => leaderboard.ToggleMenu(true);
         playerControls.UI.Leaderboard.canceled += ctx => leaderboard.ToggleMenu(false);
@@ -197,6 +205,28 @@ public class HUD : MonoBehaviour
         throwableUI.Initialize(throwableManager);
     }
 
+    public void SetCursorState(bool enabled, bool usingCustomCursor = false)
+    {
+        if (enabled) cursorLockCounter++;
+        else cursorLockCounter--;
+
+        Cursor.visible = !(usingCustomCursor && enabled);
+        Cursor.lockState = cursorLockCounter > 0 ? CursorLockMode.Confined : CursorLockMode.Locked;
+    }
+
+    public void ResetCursorState()
+    {
+        cursorLockCounter = 0;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.Locked;
+    }
+
+    private void HandleCloseInput()
+    {
+        if (openMenus.Count > 0) ToggleMenu(HUDMenu.None);
+        else ToggleMenu(HUDMenu.PauseMenu);
+    }
+
     public void ToggleMenu(HUDMenu menu, bool forceOpen = false)
     {
         // Don't do anything if the HUD is disabled.
@@ -235,13 +265,13 @@ public class HUD : MonoBehaviour
         {
             openMenus.Remove(menu);
             if (openMenus.Count == 0) playerController.SetPlayerControlsRpc(true);
+            SetCursorState(false);
         }
         else
         {
+            SetCursorState(true);
             if (openMenus.Count == 0) playerController.SetPlayerControlsRpc(false);
             openMenus.Add(menu);
         }
-
-        Cursor.lockState = openMenus.Count > 0 ? CursorLockMode.Confined : CursorLockMode.Locked;
     }
 }

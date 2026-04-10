@@ -145,10 +145,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         if (IsServer) gravityModifier.Value = 1f;
 
         if (IsOwner)
-        {
-            // Capture the mouse cursor
-            Cursor.lockState = CursorLockMode.Locked;
-
+        {            
             // Set up the player controls
             playerControls = new PlayerControls();
 
@@ -476,6 +473,11 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     public void OpenLoadoutMenuRpc()
     {
         playerHUD.ToggleMenu(HUDMenu.LoadoutMenu, true);
+    }
+    [Rpc(SendTo.Owner)]
+    public void SetCursorStateRpc(bool enabled, bool usingCustomCursor = false)
+    {
+        playerHUD.SetCursorState(enabled, usingCustomCursor);
     }
 
     private void MoveInput(Vector2 rawMovementInput)
@@ -1005,9 +1007,9 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         {
             localRb.isKinematic = false;
             localPlayerCollider.enabled = true;
+            respawnAudioSource.Play();
         }
         localPlayerType.OnRespawn();
-        respawnAudioSource.Play();
     }
 
     public IdentifierData GetIdentifierData()

@@ -30,7 +30,10 @@ public class LevelManager : NetworkBehaviour
         base.OnNetworkSpawn();
 
         if (GameManager.Instance == null || !GameManager.Instance.isInitialized) return;
-        if (IsHost) GameModeHandler.Instance.currentPhase.OnValueChanged += OnGameModePhaseChange;
+        if (IsHost) {
+            GameModeHandler.Instance.currentPhase.OnValueChanged += OnGameModePhaseChange;
+            GameManager.Instance.OnClientConnectedEvent.AddListener(LateJoiningClient);
+        }
     }
 
     public sealed override void OnNetworkDespawn()
@@ -38,12 +41,29 @@ public class LevelManager : NetworkBehaviour
         base.OnNetworkDespawn();
 
         if (GameModeHandler.Instance != null) GameModeHandler.Instance.currentPhase.OnValueChanged -= OnGameModePhaseChange;
+        if (GameManager.Instance != null) GameManager.Instance.OnClientConnectedEvent.RemoveListener(LateJoiningClient);
     }
 
     public override void OnDestroy()
     {
         if (GameManager.Instance != null) GameManager.Instance.OnLevelLoadedEvent.RemoveListener(OnLevelLoadedEvent);
         if (Instance == this) Instance = null;
+    }
+
+    private void LateJoiningClient(ulong clientId)
+    {
+        if (!IsHost) return;
+
+        PlayerController playerController = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(clientId).GetComponentInChildren<PlayerController>();
+        if (playerController == null) return;
+
+        GameModeHandler.Instance.OnClientJoined(playerController.EntityId);
+
+        Transform spawnPoint = GetSpawnPoint(playerController.TeamId);
+        if (spawnPoint == null) return;
+
+        playerController.Teleport(spawnPoint.position, spawnPoint.rotation);
+        playerController.SetHUDActiveRpc(true);
     }
 
 
@@ -135,14 +155,12 @@ public class LevelManager : NetworkBehaviour
             if (playerController == null) continue;
 
             GameModeHandler.Instance.OnClientJoined(playerController.EntityId);
-            
             Transform spawnPoint = GetSpawnPoint(playerController.TeamId);
             if (spawnPoint == null) continue;
             
             playerController.Teleport(spawnPoint.position, spawnPoint.rotation);
-            playerController.SetPlayerControlsRpc(false);
             playerController.SetHUDActiveRpc(true);
-            // playerController.OpenLoadoutMenuRpc();
+            playerController.SetPlayerControlsRpc(false);
         }
 
         OnLevelReady();
