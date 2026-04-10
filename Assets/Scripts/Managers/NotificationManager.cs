@@ -89,7 +89,7 @@ public class NotificationManager : NetworkBehaviour
     {
         NotificationData notificationData = new(
             NotificationType.KillFeed,
-            $"{victimName} was killed by {lethalSource}"
+            $"{victimName} {lethalSource}"
         );
         SendNotificationRpc(notificationData);
     }

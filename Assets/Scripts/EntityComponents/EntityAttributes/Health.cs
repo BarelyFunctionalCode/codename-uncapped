@@ -1,6 +1,49 @@
+using System.Collections.Generic;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Events;
+
+public class DamageTracker
+{
+    public NetworkBehaviourReference attackerRef;
+    public NetworkBehaviourReference lastWeaponRef;
+    private float TotalDamage;
+
+    private const float DecayRate = 2f; // Example decay rate per second
+    private float decayTimer = 0f;
+    public float relevance => TotalDamage > 0f ? decayTimer / TotalDamage : 0f;
+
+
+    public DamageTracker(NetworkBehaviourReference attackerRef, NetworkBehaviourReference lastWeaponRef, float initialDamage)
+    {
+        this.attackerRef = attackerRef;
+        this.lastWeaponRef = lastWeaponRef;
+        TotalDamage = initialDamage;
+        decayTimer = initialDamage;
+    }
+
+    public void Update(NetworkBehaviourReference newWeaponRef, float additionalDamage)
+    {
+        lastWeaponRef = newWeaponRef;
+        TotalDamage += additionalDamage;
+        decayTimer = TotalDamage; // Reset decay timer on new damage
+    }
+
+    public void Decay(float deltaTime)
+    {
+        if (TotalDamage <= 0f) return;
+
+        decayTimer -= deltaTime * DecayRate;
+        if (decayTimer <= 0f)
+        {
+            attackerRef = default;
+            lastWeaponRef = default;
+            TotalDamage = 0f;
+            decayTimer = 0f;
+        }
+    }
+}
 
 [RequireComponent(typeof(State))]
 public class Health : EntityAttributes, IDamageable
@@ -15,6 +58,8 @@ public class Health : EntityAttributes, IDamageable
     public float CurrentHealth => _health.Value;
     public float MaxHealth => _maxHealth;
     public float HealthPercentage => MaxHealth > 0f ? CurrentHealth / MaxHealth : 0f;
+
+    List<DamageTracker> damageTrackers = new();
 
 
     public override void Initialize(ulong ParentNetworkObjectId)
@@ -52,23 +97,33 @@ public class Health : EntityAttributes, IDamageable
         if (attacker != null) attacker.gameObject.TryGetComponent(out attackerIdentification);
         ulong attackerEntityId = attackerIdentification != null ? attackerIdentification.FetchEntityId() : ulong.MaxValue;
 
-        bool doStatUpdates = !(attackerEntityId.Equals(ulong.MaxValue) || entityId.Equals(ulong.MaxValue));
-        if (doStatUpdates)
+        if (!entityId.Equals(attackerEntityId))
         {
-            attacker.TryGetComponent(out Health attackerHealth);
-            if (attackerHealth != null) attackerHealth.OnAppliedDamageRpc(damage);
-            GameModeHandler.Instance.StatEventReceiver(new StatEvent(
-                StatEventType.DAMAGE_DEALT,
-                damage,
-                attackerEntityId
-            ));
+            if (attackerEntityId != ulong.MaxValue)
+            {
+                DamageTracker existingTracker = damageTrackers.Find(dt => dt.attackerRef.Equals(attackerRef));
+                if (existingTracker != null) existingTracker.Update(weaponRef, damage);
+                else damageTrackers.Add(new DamageTracker(attackerRef, weaponRef, damage));
+            }
+
+            bool doStatUpdates = !(attackerEntityId.Equals(ulong.MaxValue) || entityId.Equals(ulong.MaxValue));
+            if (doStatUpdates)
+            {
+                attacker.TryGetComponent(out Health attackerHealth);
+                if (attackerHealth != null) attackerHealth.OnAppliedDamageRpc(damage);
+                GameModeHandler.Instance.StatEventReceiver(new StatEvent(
+                    StatEventType.DAMAGE_DEALT,
+                    damage,
+                    attackerEntityId
+                ));
+            }
         }
 
         ApplyhealthDelta(-damage);
 
         if (CurrentHealth <= 0.0f)
         {
-            Die((attackerRef, weaponRef));
+            Die();
         }
     }
 
@@ -89,32 +144,52 @@ public class Health : EntityAttributes, IDamageable
     [Rpc(SendTo.Owner)]
     private void OnAppliedDamageRpc(float damage) => onAppliedDamage.Invoke(damage);
 
-    private void Die(
-        ( NetworkBehaviourReference, /* Attacker */
-          NetworkBehaviourReference  /* Weapon */ )msg
-    ) {
-        // Destructure the msg
-        ( NetworkBehaviourReference attackerRef,
-          NetworkBehaviourReference weaponRef
-        ) = msg;
-
+    private void Die() {
         if (!IsServer || entityState.IsDead) return;
-
-        string lethalSource = "The Game";
-        string weaponName = "mysterious ways";
 
         // Self identification
         gameObject.TryGetComponent(out Identification entityIdentification);
         string entityName = entityIdentification != null ? entityIdentification.FetchEntityName() : null;
         ulong entityId = entityIdentification != null ? entityIdentification.FetchEntityId() : ulong.MaxValue;
 
+        // Get most relevant damage tracker
+        damageTrackers.Sort((a, b) => b.relevance.CompareTo(a.relevance));
+        DamageTracker mostRelevantDamage = damageTrackers.FirstOrDefault();
+        damageTrackers.Remove(mostRelevantDamage);
+
+        // Give assists to the rest
+        foreach (DamageTracker dt in damageTrackers)
+        {
+            NetworkBehaviourReference assistAttackerRef = dt.attackerRef;
+            assistAttackerRef.TryGet(out PlayerController assistAttacker);
+            if (assistAttacker != null)
+            {
+                assistAttacker.TryGetComponent(out Identification assistAttackerIdentification);
+                ulong assistAttackerEntityId = assistAttackerIdentification != null ? assistAttackerIdentification.FetchEntityId() : ulong.MaxValue;
+
+                bool doAssistStatUpdates = !(assistAttackerEntityId.Equals(ulong.MaxValue) || entityId.Equals(ulong.MaxValue));
+                if (doAssistStatUpdates)
+                {
+                    GameModeHandler.Instance.StatEventReceiver(new StatEvent(
+                        StatEventType.KILL_ASSIST,
+                        1.0f,
+                        assistAttackerEntityId
+                    ));
+                }
+            }
+        }
+        damageTrackers.Clear();
+
         // Attacker identification
+        NetworkBehaviourReference attackerRef = mostRelevantDamage?.attackerRef ?? default;
         Identification attackerIdentification = null;
         attackerRef.TryGet(out PlayerController attacker);
         if (attacker != null) attacker.gameObject.TryGetComponent(out attackerIdentification);
         string attackerEntityName = attackerIdentification != null ? attackerIdentification.FetchEntityName() : null;
         ulong attackerEntityId = attackerIdentification != null ? attackerIdentification.FetchEntityId() : ulong.MaxValue;
 
+        // Weapon identification
+        NetworkBehaviourReference weaponRef = mostRelevantDamage?.lastWeaponRef ?? default;
         weaponRef.TryGet(out Weapon weapon);
         ThrowableManager throwable = null;
         if (weapon == null) weaponRef.TryGet(out throwable);
@@ -139,14 +214,22 @@ public class Health : EntityAttributes, IDamageable
 
         if (entityName != null)
         {
-            if (attackerEntityName != null) lethalSource = attackerEntityName;
-            if (weapon != null || throwable != null)
+            string lethalSource = "";
+            if (attackerEntityName != null)
             {
-                GameObject weaponObj = weapon != null ? weapon.gameObject : throwable.gameObject;
-                LoadoutItemSO itemSO = PlayerLoadout.GetLoadoutItemSOFromPrefab(weaponObj);
-                weaponName = itemSO.itemName;
+                if (mostRelevantDamage.relevance > 0.3f)
+                {
+                    lethalSource += $"was killed by {attackerEntityName}";
+                    if (weapon != null || throwable != null)
+                    {
+                        GameObject weaponObj = weapon != null ? weapon.gameObject : throwable.gameObject;
+                        LoadoutItemSO itemSO = PlayerLoadout.GetLoadoutItemSOFromPrefab(weaponObj);
+                        lethalSource += $"'s {itemSO.itemName}";
+                    }
+                }
+                else lethalSource = $"died while trying to escape {attackerEntityName}";
             }
-            lethalSource += "'s " + weaponName;
+            else lethalSource = "was killed by The Game's mysterious ways";
             NotificationManager.Instance.SendKillFeedNotificationRpc(entityName, lethalSource);
         }
 
