@@ -172,8 +172,8 @@ public class GameModeHandler : NetworkBehaviour
                 .Singleton
                 .ConnectedClients[ClientID]
                 .PlayerObject
-                .GetComponent<PlayerController>()
-                .EntityId;
+                .GetComponent<Identification>()
+                .FetchEntityId();
 
             current_game_mode?.GetComponent<TeamStructure>().SetPlayerTeamFFA(entityId);
         }

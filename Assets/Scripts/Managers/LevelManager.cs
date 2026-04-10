@@ -57,9 +57,11 @@ public class LevelManager : NetworkBehaviour
         PlayerController playerController = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(clientId).GetComponentInChildren<PlayerController>();
         if (playerController == null) return;
 
-        GameModeHandler.Instance.OnClientJoined(playerController.EntityId);
+        Identification entityIdentification = playerController.gameObject.GetComponent<Identification>();
 
-        Transform spawnPoint = GetSpawnPoint(playerController.TeamId);
+        GameModeHandler.Instance.OnClientJoined(entityIdentification.FetchEntityId());
+        
+        Transform spawnPoint = GetSpawnPoint(entityIdentification.FetchTeamId());
         if (spawnPoint == null) return;
 
         playerController.Teleport(spawnPoint.position, spawnPoint.rotation);
@@ -120,9 +122,9 @@ public class LevelManager : NetworkBehaviour
         {
             foreach (var player in NetworkManager.Singleton.SpawnManager.PlayerObjects)
             {
-                PlayerController playerController = player.GetComponentInChildren<PlayerController>();
-                if (playerController == null) continue;
-                playerController.Suicide();
+                PlayerState playerState = player.GetComponentInChildren<PlayerState>();
+                if (playerState == null) continue;
+                playerState.Die();
             }
         }
 
@@ -154,8 +156,11 @@ public class LevelManager : NetworkBehaviour
             PlayerController playerController = player.GetComponentInChildren<PlayerController>();
             if (playerController == null) continue;
 
-            GameModeHandler.Instance.OnClientJoined(playerController.EntityId);
-            Transform spawnPoint = GetSpawnPoint(playerController.TeamId);
+            Identification entityIdentification = playerController.gameObject.GetComponent<Identification>();
+
+            GameModeHandler.Instance.OnClientJoined(entityIdentification.FetchEntityId());
+            
+            Transform spawnPoint = GetSpawnPoint(entityIdentification.FetchTeamId());
             if (spawnPoint == null) continue;
             
             playerController.Teleport(spawnPoint.position, spawnPoint.rotation);

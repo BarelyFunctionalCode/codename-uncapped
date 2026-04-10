@@ -15,8 +15,11 @@ GameObject:
   - component: {fileID: 8014669234044714396}
   - component: {fileID: 3951079537604871613}
   - component: {fileID: 4144366904977847459}
+  - component: {fileID: 5134754892965056189}
+  - component: {fileID: 3719590068672017592}
   - component: {fileID: 7800112957262979857}
   - component: {fileID: 8218493042420417279}
+  - component: {fileID: 8112710913476603543}
   m_Layer: 0
   m_Name: Dummy
   m_TagString: Player
@@ -157,7 +160,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2829448636
+  GlobalObjectIdHash: 4010956902
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -183,17 +186,81 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  identifier: 
-  teamId: 0
-  health:
-    m_InternalValue: 0
-  maxHealth: 1
-  energy:
-    m_InternalValue: 0
-  maxEnergy: 0
-  energyRegenRate: 0
-  energyRegenFactor: 1
   explodeParticleObj: {fileID: 4263086704108371467}
+--- !u!114 &5134754892965056189
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1508689169738560456}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: baebb9870148d6311a2b933966c8407a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Health
+  ShowTopMostFoldoutHeaderGroup: 1
+  onHealthChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  onAppliedDamage:
+    m_PersistentCalls:
+      m_Calls: []
+  _health:
+    m_InternalValue: 0
+  _maxHealth: 10
+--- !u!114 &3719590068672017592
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1508689169738560456}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc01fc206895dfd72a24d0329dd99e0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Identification
+  ShowTopMostFoldoutHeaderGroup: 1
+  _entityId:
+    m_InternalValue: 0
+  _entityName:
+    m_InternalValue:
+      utf8LengthInBytes: 0
+      bytes:
+        offset0000:
+          byte0000: 0
+          byte0001: 0
+          byte0002: 0
+          byte0003: 0
+          byte0004: 0
+          byte0005: 0
+          byte0006: 0
+          byte0007: 0
+          byte0008: 0
+          byte0009: 0
+          byte0010: 0
+          byte0011: 0
+          byte0012: 0
+          byte0013: 0
+          byte0014: 0
+          byte0015: 0
+        byte0016: 0
+        byte0017: 0
+        byte0018: 0
+        byte0019: 0
+        byte0020: 0
+        byte0021: 0
+        byte0022: 0
+        byte0023: 0
+        byte0024: 0
+        byte0025: 0
+        byte0026: 0
+        byte0027: 0
+        byte0028: 0
+        byte0029: 0
+  _teamId:
+    m_InternalValue: 0
 --- !u!114 &7800112957262979857
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -257,6 +324,23 @@ MonoBehaviour:
   UseRigidBodyForMotion: 1
   AutoUpdateKinematicState: 1
   AutoSetKinematicOnDespawn: 1
+--- !u!114 &8112710913476603543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1508689169738560456}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f136a6dc4ef9a60a9ed674fd8558ddd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DummyState
+  ShowTopMostFoldoutHeaderGroup: 1
+  onStateChange:
+    m_PersistentCalls:
+      m_Calls: []
+  explodeParticleObj: {fileID: 4263086704108371467}
 --- !u!1 &4263086704108371467
 GameObject:
   m_ObjectHideFlags: 0

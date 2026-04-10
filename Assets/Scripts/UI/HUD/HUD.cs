@@ -38,6 +38,7 @@ public class HUD : MonoBehaviour
     [SerializeField] private AudioSource hitMarkerSound;
 
     private PlayerController playerController;
+    private Health playerHealth;
     private PlayerControls playerControls;
     private List<HUDMenu> openMenus = new();
     [SerializeField] private ChatWindow chatWindow;
@@ -100,7 +101,7 @@ public class HUD : MonoBehaviour
         playerControls.UI.Leaderboard.started -= ctx => leaderboard.ToggleMenu(true);
         playerControls.UI.Leaderboard.canceled -= ctx => leaderboard.ToggleMenu(false);
 
-        playerController.onAppliedDamage.RemoveListener(SetHitMarker);
+        if (playerHealth != null) playerHealth.onAppliedDamage.RemoveListener(SetHitMarker);
         GameModeHandler.Instance.currentPhaseCountdown.OnValueChanged -= SetCountDownTimer;
         GameModeHandler.Instance.currentPhase.OnValueChanged -= SetCurrentPhaseData;
         SceneManager.activeSceneChanged -= (_, _) => ResetCursorState();
@@ -111,7 +112,9 @@ public class HUD : MonoBehaviour
         if (isInitialized) return;
 
         this.playerController = playerController;
+        playerHealth = playerController.GetComponent<Health>();
         playerControls = playerController.playerControls;
+        
         playerControls.UI.PauseMenu.performed += ctx => ToggleMenu(HUDMenu.PauseMenu);
         playerControls.UI.LoadoutMenu.performed += ctx => ToggleMenu(HUDMenu.LoadoutMenu);
         playerControls.UI.Chat.performed += ctx => ToggleMenu(HUDMenu.Chat, true);
@@ -126,7 +129,7 @@ public class HUD : MonoBehaviour
         loadoutMenu.Initialize(playerController.GetComponent<PlayerLoadoutManager>(), this);
         leaderboard.Initialize();
 
-        playerController.onAppliedDamage.AddListener(SetHitMarker);
+        playerHealth.onAppliedDamage.AddListener(SetHitMarker);
         GameModeHandler.Instance.OnStatUpdated.AddListener(SetObjectiveData);
         GameModeHandler.Instance.currentPhaseCountdown.OnValueChanged += SetCountDownTimer;
         GameModeHandler.Instance.currentPhase.OnValueChanged += SetCurrentPhaseData;
@@ -159,7 +162,7 @@ public class HUD : MonoBehaviour
     {
         if (statEvent.StatType == StatEventType.WIN_CONDITION)
         {
-            if (statEvent.Source == playerController.EntityId)
+            if (statEvent.Source == playerController.playerIdentification.FetchEntityId())
             {
                 leftObjectiveText.text = statEvent.Value.ToString();
             }

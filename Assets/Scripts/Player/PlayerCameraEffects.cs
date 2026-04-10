@@ -21,7 +21,7 @@ public class PlayerCameraEffects : MonoBehaviour
     void OnDestroy()
     {
         if (NetworkManager.Singleton && NetworkManager.Singleton.LocalClient.PlayerObject)
-            NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerController>().onHealthChanged.RemoveListener(DamageScreenshake);
+            NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<Health>().onHealthChanged.RemoveListener(DamageScreenshake);
     }
 
     // Update is called once per frame
@@ -31,7 +31,7 @@ public class PlayerCameraEffects : MonoBehaviour
         {
             if (NetworkManager.Singleton && NetworkManager.Singleton.LocalClient.PlayerObject)
             {
-                NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerController>().onHealthChanged.AddListener(DamageScreenshake);
+                NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<Health>().onHealthChanged.AddListener(DamageScreenshake);
                 isInitialized = true;
             }
         }
