@@ -9904,7 +9904,6 @@ MonoBehaviour:
   maxImpactForce: 3000
   damageRadius: 10
   selfDestructTimer: 10
-  armingTimer: 0.1
   hasHoldModifier: 0
   isFired: 0
 --- !u!114 &7223086891563822557
@@ -10118,6 +10117,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: aa80db3c62206e446afa4a0792a7175b, type: 3}
       propertyPath: m_Name
       value: Rocket
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: aa80db3c62206e446afa4a0792a7175b, type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

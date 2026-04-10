@@ -85,6 +85,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     public PlayerLoadoutManager playerLoadout;
 
     // Movement Parameters
+    [SerializeField] private LayerMask groundeDetectionLayerMask;
     private readonly float hoverHeightMax = 0.4f;
 
     private readonly float upJetForce = 7031.25f; // TODO: This force value need to be moved to the elsewhere since they differ by class
@@ -262,6 +263,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 
         // Finally, we process the inputs to move the player locally and on the server
         HandleMovement();
+        if (IsOwner && !IsHost) ClientAuthorityRotationSyncRpc(localRb.rotation);
 
         if (IsServer)
         {
@@ -633,7 +635,8 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
                 Vector3.down
             ),
             out hit,
-            distanceToSurface
+            distanceToSurface,
+            groundeDetectionLayerMask
         );
         if (didHit)
         {
@@ -666,6 +669,12 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         if (playerTelemetry != null) playerTelemetry.isGrounded = IsGrounded;
         if (playerTelemetry != null) playerTelemetry.surfaceNormal = surfaceNormal;
         
+    }
+
+    [Rpc(SendTo.Server)]
+    private void ClientAuthorityRotationSyncRpc(Quaternion ownerRotation)
+    {
+        localRb.rotation = Quaternion.RotateTowards(localRb.rotation, ownerRotation, horizontalRotationLimit);
     }
 
     private void HandleMovement()
@@ -934,26 +943,31 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     private void OnCollisionEnter(Collision collision)
     {
         if (!IsServer) return;
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Projectile")) return;
 
-        if (localRb.linearVelocity.y > 0.0f) return; // Only take collision damage if moving downwards
-
-        float minimumDamageSpeed = 20f; // Minimum speed for a collision to cause damage
-        float minimumOuchyAngle = 30f; // Minimum angle for a collision to cause damage
+        float minimumDamageSpeed = 40f; // Minimum speed for a collision to cause damage
+        float minimumOuchyAngle = 15f; // Minimum angle for a collision to cause damage
         float scaleFactor = 0.4f; // Overall scale factor for damage, can be tweaked for balance
 
         Vector3 relativeVelocity = collision.relativeVelocity;
 
-        float impactSpeed = relativeVelocity.magnitude;
         Vector3 impactDirection = relativeVelocity.normalized;
 
         ContactPoint contact = collision.GetContact(0);
         Vector3 surfaceNormal = contact.normal;
 
-        float ouchyThreshold = Vector3.Dot(impactDirection, surfaceNormal);
+        Vector3 damagingVelocity = Vector3.Project(relativeVelocity, surfaceNormal);
+        float damagingSpeed = damagingVelocity.magnitude;
 
-        if (ouchyThreshold > Mathf.Cos(minimumOuchyAngle * Mathf.Deg2Rad) && impactSpeed > minimumDamageSpeed)
+        float ouchyThreshold = Vector3.Dot(impactDirection, surfaceNormal);
+        Debug.DrawRay(contact.point, surfaceNormal, Color.red, 30f);
+        Debug.DrawRay(contact.point, relativeVelocity, Color.blue, 30f);
+        Debug.DrawRay(contact.point, damagingVelocity, Color.green, 30f);
+        Debug.Log($"Collision detected with {collision.gameObject.name}. Relative Velocity: {relativeVelocity:F2}, Damaging Velocity: {damagingVelocity:F2}, Ouchy Threshold: {ouchyThreshold:F2} (needs {Mathf.Sin(minimumOuchyAngle * Mathf.Deg2Rad):F2}), Damaging Speed: {damagingSpeed:F2}");
+
+        if (ouchyThreshold > Mathf.Sin(minimumOuchyAngle * Mathf.Deg2Rad) && damagingSpeed > minimumDamageSpeed)
         {
-            float damage = impactSpeed * ouchyThreshold * scaleFactor;
+            float damage = (damagingSpeed - minimumDamageSpeed) * ouchyThreshold * scaleFactor;
             TakeDamage(damage);
         }
     }

@@ -22,7 +22,7 @@ public class Projectile : NetworkBehaviour, IGravityModifiable
     [SerializeField] protected float maxImpactForce = 2000;
     [SerializeField] private float damageRadius = 1f;
     [SerializeField] private float selfDestructTimer = 10;
-    [SerializeField] protected float armingTimer = 0f;
+    private float armingTimer = 0.5f;
     [SerializeField] public bool hasHoldModifier = false;
 
     private NetworkVariable<float> gravityModifier = new();
@@ -37,6 +37,7 @@ public class Projectile : NetworkBehaviour, IGravityModifiable
 
     public bool isFired = false;
     private bool hasImpacted = false;
+    private bool isArmed = false;
 
     protected virtual void Awake()
     {
@@ -49,7 +50,6 @@ public class Projectile : NetworkBehaviour, IGravityModifiable
         {
             Collider ownerCollider = owner.GetComponentInChildren<PlayerType>().playerCollider;
             Physics.IgnoreCollision(projectileCollider, ownerCollider);
-            if (damageRadiusTrigger != null) Physics.IgnoreCollision(damageRadiusTrigger, ownerCollider);
         }
     }
 
@@ -87,6 +87,16 @@ public class Projectile : NetworkBehaviour, IGravityModifiable
 
         selfDestructTimer -= Time.fixedDeltaTime;
         armingTimer -= Time.fixedDeltaTime;
+        if (!isArmed && armingTimer <= 0)
+        {
+            isArmed = true;
+            ownerRef.TryGet(out PlayerController owner);
+            if (owner != null)
+            {
+                Collider ownerCollider = owner.GetComponentInChildren<PlayerType>().playerCollider;
+                Physics.IgnoreCollision(projectileCollider, ownerCollider, false);
+            }
+        }
         if (selfDestructTimer <= 0)
         {
             Impact();
@@ -111,9 +121,7 @@ public class Projectile : NetworkBehaviour, IGravityModifiable
 
         selfDestructTimer /= 2.0f;
 
-        Collider impactCollider = null;
-        if (collision.gameObject.CompareTag("Player")) impactCollider = collision.collider;
-        if (impactCollider != null || armingTimer <= 0) Impact(impactCollider);
+        Impact(collision.collider);
     }
 
     protected virtual bool DoImpactCheck(Collision collision) { return true; }
@@ -132,10 +140,22 @@ public class Projectile : NetworkBehaviour, IGravityModifiable
 
     private void AddDamageReceiver(Collider receiverCollider)
     {
-        // TODO: Need to add some logic to disregard anything passing through the trigger while the projectile is still in flight.
         if (!IsServer) return;
-        if (!receiverCollider.gameObject.CompareTag("Player")) return;
-        if (!damagedReceivers.Contains(receiverCollider)) damagedReceivers.Add(receiverCollider);
+        IDamageable damageable = receiverCollider.gameObject.GetComponentInParent<IDamageable>();
+        Rigidbody rb = receiverCollider.gameObject.GetComponentInParent<Rigidbody>();
+        if (damageable == null && rb == null) return;
+
+        foreach (Collider c in damagedReceivers)
+        {
+            IDamageable cDamageable = c.gameObject.GetComponentInParent<IDamageable>();
+            Rigidbody cRb = c.gameObject.GetComponentInParent<Rigidbody>();
+
+            if (c == receiverCollider) return;
+            if (cDamageable != null && cDamageable == damageable) return;
+            if (cRb != null && cRb == rb) return;
+        }
+
+        damagedReceivers.Add(receiverCollider);
     }
 
     public void Fire(NetworkBehaviourReference ownerRef, NetworkBehaviourReference weaponRef, float maxDamage)
@@ -185,12 +205,25 @@ public class Projectile : NetworkBehaviour, IGravityModifiable
 
         if (directImpactCollider != null)
         {
+            IDamageable damageable = directImpactCollider.gameObject.GetComponentInParent<IDamageable>();
+            Rigidbody rb = directImpactCollider.gameObject.GetComponentInParent<Rigidbody>();
             ApplyDamage(directImpactCollider.gameObject, maxDamage);
-            if (directImpactCollider.transform.GetComponentInParent<Rigidbody>() != null) directImpactCollider.transform.GetComponentInParent<Rigidbody>().AddForce(
+            if (rb != null) rb.AddForce(
                 transform.forward * maxImpactForce,
                 ForceMode.Impulse
             );
-            if (damagedReceivers.Contains(directImpactCollider)) damagedReceivers.Remove(directImpactCollider);
+            foreach (Collider c in damagedReceivers.ToList())
+            {
+                IDamageable cDamageable = c.gameObject.GetComponentInParent<IDamageable>();
+                Rigidbody cRb = c.gameObject.GetComponentInParent<Rigidbody>();
+
+                bool doRemove = false;
+                if (c == directImpactCollider) doRemove = true;
+                else if (cDamageable != null && cDamageable == damageable) doRemove = true;
+                else if (cRb != null && cRb == rb) doRemove = true;
+
+                if (doRemove) damagedReceivers.Remove(c);
+            }
         }
 
         foreach (Collider receiver in damagedReceivers)

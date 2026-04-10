@@ -5068,7 +5068,6 @@ MonoBehaviour:
   maxImpactForce: 3000
   damageRadius: 5
   selfDestructTimer: 5
-  armingTimer: 0.1
   hasHoldModifier: 0
   isFired: 0
   impactVelocityThreshold: 50
@@ -10132,6 +10131,14 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: c93af6d41f327d143b05637a13d76ff2, type: 3}
       propertyPath: m_Name
       value: Grenade
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: c93af6d41f327d143b05637a13d76ff2, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 3665872839099263342, guid: c93af6d41f327d143b05637a13d76ff2, type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:

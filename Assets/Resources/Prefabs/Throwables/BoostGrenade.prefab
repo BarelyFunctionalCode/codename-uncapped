@@ -5341,9 +5341,9 @@ MonoBehaviour:
   detonateSound: {fileID: 8300000, guid: c87283ddf01431f80b146e6bb951efe2, type: 3}
   soundMinDistance: 30
   soundMaxDistance: 500
-  throwMaxForce: 20
-  throwMinForce: 5
-  effectRadius: 1
+  throwMaxForce: 60
+  throwMinForce: 20
+  effectRadius: 2
   selfDestructTimer: 1
   isThrown: 0
   blastWaveObj: {fileID: 5192207323381064966}

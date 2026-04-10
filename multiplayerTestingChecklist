@@ -3,12 +3,12 @@
 - (fixed) Post-Processing on builds were inconsistently causing massive pixelation (UI included)
 - (fixed) Respawn sound plays for all players
 - (fixed) late-joining players have no HUD (need more robust way to enable HUD when player joins match)
-- LobbyPC Not showing players or chat messages for clients
+- (fixed) projectile don't explode when aiming down (tweak arming time on projectile prefabs)
+- (fixed) client rotation desync (client projectiles spawning/aiming in different direction than authoritative player character)
+- (fixed) Fall damage is major fucked
 - hover particle effects not always working for clients (client can't see any hover particles)
 - screen shake not always working
-- client rotation desync (client projectiles spawning/aiming in different direction than authoritative player character)
-- projectile don't explode when aiming down (tweak arming time on projectile prefabs)
-- Fall damage is major fucked
+- LobbyPC Not showing players or chat messages for clients
 - Players killing themselves counts as a kill (fix after Entity class changes are merged)
 - Need to take into account final-player sourceed damage for when a player dies to fall damage (fix after Entity class changes are merged)
 

@@ -10380,7 +10380,6 @@ MonoBehaviour:
   maxImpactForce: 2000
   damageRadius: 1
   selfDestructTimer: 10
-  armingTimer: 0.1
   hasHoldModifier: 0
   isFired: 0
 --- !u!114 &6770213719600926105

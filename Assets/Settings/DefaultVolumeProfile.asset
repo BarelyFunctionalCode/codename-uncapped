@@ -142,7 +142,7 @@ MonoBehaviour:
   active: 1
   ditherThreshold:
     m_OverrideState: 1
-    m_Value: 7.94
+    m_Value: 7.37
   ditherScale:
     m_OverrideState: 1
     m_Value: 0.1
@@ -263,10 +263,10 @@ MonoBehaviour:
     m_Value: 1
   threshold:
     m_OverrideState: 1
-    m_Value: 0.6
+    m_Value: 1.41
   intensity:
     m_OverrideState: 1
-    m_Value: 0.03
+    m_Value: 0.15
   scatter:
     m_OverrideState: 1
     m_Value: 0.7
@@ -310,7 +310,7 @@ MonoBehaviour:
   active: 1
   intensity:
     m_OverrideState: 1
-    m_Value: 0.26
+    m_Value: 0.54
   tintColor:
     m_OverrideState: 1
     m_Value: {r: 1, g: 1, b: 1, a: 1}

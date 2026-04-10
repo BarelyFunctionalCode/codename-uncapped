@@ -1247,9 +1247,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   quitButton: {fileID: 4103192860239606905}
   leaveButton: {fileID: 8052348680931205380}
-  testLevelButton: {fileID: 4851599205649461725}
-  lobbiesTabButton: {fileID: 0}
-  lobbiesContainerObj: {fileID: 0}
   optionsTabButton: {fileID: 2096491526656524946}
   optionsListObj: {fileID: 4588752156663479301}
   optionsContainerObj: {fileID: 5384657655062886939}
@@ -2918,7 +2915,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 8921786948204616756}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.50857145
+  m_Size: 0.33857143
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -3617,8 +3614,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Leave
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: ae97450b3c1bd7f4993c6caf1812e9d9, type: 2}
-  m_sharedMaterial: {fileID: -2902624285474892195, guid: ae97450b3c1bd7f4993c6caf1812e9d9, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 217af16c3b94046a59146215b4ae2f40, type: 2}
+  m_sharedMaterial: {fileID: -4479449131171202838, guid: 217af16c3b94046a59146215b4ae2f40, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3642,13 +3639,13 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 50
-  m_fontSizeBase: 50
+  m_fontSize: 28
+  m_fontSizeBase: 28
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 17
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -3808,7 +3805,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 3766608658632090569}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.50857145
+  m_Size: 0.33857143
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -3934,7 +3931,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 7282227816683693445}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.50857145
+  m_Size: 0.33857143
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

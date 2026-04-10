@@ -14,8 +14,8 @@ public class Throwable : NetworkBehaviour
 
     [SerializeField] [Range(0, 1000)] private float soundMinDistance = 100;
     [SerializeField] [Range(0, 1000)] private float soundMaxDistance = 1000;
-    [SerializeField] private float throwMaxForce = 2000f;
-    [SerializeField] private float throwMinForce = 500f;
+    [SerializeField] private float throwMaxForce = 4000f;
+    [SerializeField] private float throwMinForce = 1000f;
     [SerializeField] protected float effectRadius = 1f;
     [SerializeField] private float selfDestructTimer = 1.5f;
 
