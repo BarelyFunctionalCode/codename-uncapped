@@ -61,6 +61,18 @@ public class Health : EntityAttributes, IDamageable
 
     List<DamageTracker> damageTrackers = new();
 
+    private void Update()
+    {
+        if (!IsServer) return;
+
+        float deltaTime = Time.deltaTime;
+        foreach (DamageTracker dt in damageTrackers)
+        {
+            dt.Decay(deltaTime);
+        }
+        damageTrackers.RemoveAll(dt => dt.relevance <= 0f);
+    }
+
 
     public override void Initialize(ulong ParentNetworkObjectId)
     {
