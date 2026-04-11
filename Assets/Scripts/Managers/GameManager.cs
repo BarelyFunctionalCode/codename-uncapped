@@ -167,7 +167,6 @@ public class GameManager : MonoBehaviour
     {
         if (scene.name != "Lobby") return;
         isInitialized = true;
-        FindAnyObjectByType<GameStart>()?.IsLoaded();
         SceneManager.activeSceneChanged -= SetInitialized;
     }
 

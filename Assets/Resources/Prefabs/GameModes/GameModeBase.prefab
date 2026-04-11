@@ -79,10 +79,6 @@ MonoBehaviour:
   phase_system: {fileID: -4189097990456723710}
   game_stats: {fileID: 5088351037047258174}
   win_conditions: {fileID: 1446111806336827319}
-  OnStatEventReceived:
-    m_PersistentCalls:
-      m_Calls: []
-  game_mode_id: 0
 --- !u!114 &4152407925966231162
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -96,9 +92,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TeamStructure
   ShowTopMostFoldoutHeaderGroup: 1
-  OnPlayerChangedTeam:
-    m_PersistentCalls:
-      m_Calls: []
+  predefined_team_names: []
   AllowChangeTeams: 1
   ForceCaptainChangeTeams: 0
 --- !u!114 &-4189097990456723710
@@ -113,6 +107,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63c963ea24eb59b62b63eec99471067e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PhaseSystem
+  ShowTopMostFoldoutHeaderGroup: 1
   _currentphase: 0
   _countdown: 0
 --- !u!114 &5088351037047258174
@@ -140,4 +135,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3aac6f8dbf7fd87da298e3307a69965, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WinConditions
-  win_conditions: []
+  ShowTopMostFoldoutHeaderGroup: 1
