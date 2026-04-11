@@ -13,7 +13,7 @@ public class ClusterGrenade : Projectile
     {
         base.Awake();
 
-        if (grenadePrefabObj == null) grenadePrefabObj = Resources.Load<GameObject>("Prefabs/Weapons/ClusterLauncher/ClusterGrenade");
+        if (grenadePrefabObj == null) grenadePrefabObj = Resources.Load<GameObject>("Weapons/ClusterLauncher/ClusterGrenade");
     }
 
     protected override void FixedUpdate()
