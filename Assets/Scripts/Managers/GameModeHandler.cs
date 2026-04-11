@@ -101,7 +101,7 @@ public class GameModeHandler : NetworkBehaviour
         game_mode.game_mode_id = gameModeData.gameModeSO.gameModeName;
         current_game_mode = game_mode;
 
-        game_mode.GetComponent<WinConditions>().Initialize(gameModeData.winConditionStatType, gameModeData.winConditionValue);
+        game_mode.GetComponent<WinCondition>().Initialize(gameModeData.winConditionStatType, gameModeData.winConditionValue);
         game_mode.GetComponent<PhaseSystem>().SetActivePhaseTimeLimit(gameModeData.timeLimitMinutes * 60);
 
         SelectNewModeRpc(gameModeData.gameModeSO.gameModeName);

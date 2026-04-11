@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Unity.Netcode;
 
-public class WinConditions : NetworkBehaviour
+public class WinCondition : NetworkBehaviour
 {
     private NetworkVariable<StatEventType> winConditionStatType = new();
     private NetworkVariable<float> winConditionValue = new();

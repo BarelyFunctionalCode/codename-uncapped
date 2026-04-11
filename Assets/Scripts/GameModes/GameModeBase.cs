@@ -14,7 +14,7 @@ public class GameModeBase : NetworkBehaviour
     [SerializeField]
     private GameStats     game_stats;
     [SerializeField]
-    private WinConditions win_conditions;
+    private WinCondition win_conditions;
     #endregion
 
     #region State
