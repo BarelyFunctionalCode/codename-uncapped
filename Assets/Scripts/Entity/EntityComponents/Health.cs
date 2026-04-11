@@ -74,13 +74,14 @@ public class Health : EntityComponent, IDamageable
     }
 
 
-    public override void Initialize(ulong ParentNetworkObjectId)
+    public override void Initialize(ulong ParentNetworkObjectId, bool isServer)
     {
-        base.Initialize(ParentNetworkObjectId);
+        base.Initialize(ParentNetworkObjectId, isServer);
 
         entityState = GetComponent<State>();
-        entityState.onStateChange.AddListener(OnEntityStateChange);
 
+        if (!isServer) return;
+        entityState.onStateChange.AddListener(OnEntityStateChange);
         _health.Value = _maxHealth;
     }
 

@@ -232,7 +232,7 @@ public class MatchSelection : NetworkBehaviour
         PlayerController playerController = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject.GetComponent<PlayerController>();
         if (!playerController.isInitialized) return;
 
-        Identification entityIdentification = playerController.gameObject.GetComponent<Identification>();
+        Identification entityIdentification = playerController.identification;
 
         string playerName = entityIdentification.FetchEntityName();
         int teamId = (selectedGameMode.teamBasedType == TeamBasedType.TEAM) ? (int)entityIdentification.FetchTeamId() : -1;

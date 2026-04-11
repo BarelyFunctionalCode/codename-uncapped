@@ -13,10 +13,11 @@ public class Identification : EntityComponent
     public uint TeamId { get { return _teamId.Value; } set { _teamId.Value = value; } }
 
 
-    public override void Initialize(ulong ParentNetworkObjectId)
+    public override void Initialize(ulong ParentNetworkObjectId, bool isServer)
     {
-        base.Initialize(ParentNetworkObjectId);
+        base.Initialize(ParentNetworkObjectId, isServer);
 
+        if (!isServer) return;
         if (_entityId.Value == 0)
             _entityId.Value = ParentNetworkObjectId + 5000; // Arbitrary offset to avoid conflicts with player IDs, which are based on client IDs
     }

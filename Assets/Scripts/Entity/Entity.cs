@@ -2,17 +2,26 @@ using Unity.Netcode;
 
 public class Entity : NetworkBehaviour
 {
-    #region Virtual Overrides
+    public State state = null;
+    public Identification identification = null;
+    public Health health = null;
+    public Energy energy = null;
+
+    protected bool baseEntityInitialized = false;
+
     public override void OnNetworkSpawn()
     {
-        base.OnNetworkSpawn();
+        TryGetComponent(out state);
+        TryGetComponent(out identification);
+        TryGetComponent(out health);
+        TryGetComponent(out energy);
 
-        if (!IsServer) return;
+        base.OnNetworkSpawn();
 
         foreach (var component in GetComponentsInChildren<EntityComponent>())
         {
-            component.Initialize(NetworkObjectId);
+            component.Initialize(NetworkObjectId, IsServer);
         }
+        baseEntityInitialized = true;
     }
-    #endregion
 }

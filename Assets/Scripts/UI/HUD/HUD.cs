@@ -112,7 +112,7 @@ public class HUD : MonoBehaviour
         if (isInitialized) return;
 
         this.playerController = playerController;
-        playerHealth = playerController.GetComponent<Health>();
+        playerHealth = playerController.health;
         playerControls = playerController.playerControls;
         
         playerControls.UI.PauseMenu.performed += ctx => ToggleMenu(HUDMenu.PauseMenu);
@@ -162,7 +162,7 @@ public class HUD : MonoBehaviour
     {
         if (statEvent.StatType == StatEventType.WIN_CONDITION)
         {
-            if (statEvent.Source == playerController.playerIdentification.FetchEntityId())
+            if (statEvent.Source == playerController.identification.FetchEntityId())
             {
                 leftObjectiveText.text = statEvent.Value.ToString();
             }

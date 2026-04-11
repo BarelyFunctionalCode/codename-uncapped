@@ -57,7 +57,7 @@ public class LevelManager : NetworkBehaviour
         PlayerController playerController = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(clientId).GetComponentInChildren<PlayerController>();
         if (playerController == null) return;
 
-        Identification entityIdentification = playerController.gameObject.GetComponent<Identification>();
+        Identification entityIdentification = playerController.identification;
 
         GameModeHandler.Instance.OnClientJoined(entityIdentification.FetchEntityId());
         
@@ -156,7 +156,7 @@ public class LevelManager : NetworkBehaviour
             PlayerController playerController = player.GetComponentInChildren<PlayerController>();
             if (playerController == null) continue;
 
-            Identification entityIdentification = playerController.gameObject.GetComponent<Identification>();
+            Identification entityIdentification = playerController.identification;
 
             GameModeHandler.Instance.OnClientJoined(entityIdentification.FetchEntityId());
             

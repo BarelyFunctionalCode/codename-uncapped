@@ -47,6 +47,11 @@ public class PlayerType : NetworkBehaviour
         }
     }
 
+    private void Start()
+    {
+        if (!NetworkObject.IsSpawned || IsOwner) firstPersonCamera.gameObject.SetActive(true);
+    }
+
     public void ToggleFirstPersonCamera(bool enable) => firstPersonCamera.Priority = enable ? 1 : 0;
 
     public void HandleCamera(float rotationInputY, int controlsDisabledCount)

@@ -17,8 +17,8 @@ public class CenterClusterUI : MonoBehaviour
         isInitialized = true;
 
         this.entity = entity;
-        entityHealth = entity.gameObject.GetComponent<Health>();
-        entityEnergy = entity.gameObject.GetComponent<Energy>();
+        entityHealth = entity.health;
+        entityEnergy = entity.energy;
     }
 
     private void Update()

@@ -6,9 +6,10 @@ public class DummyState : State
     [SerializeField] private GameObject explodeParticleObj;
     private MeshRenderer meshRenderer;
 
-    public override void Initialize(ulong ParentNetworkObjectId)
+    public override void Initialize(ulong ParentNetworkObjectId, bool isServer)
     {
-        base.Initialize(ParentNetworkObjectId);
+        base.Initialize(ParentNetworkObjectId, isServer);
+        
         meshRenderer = GetComponent<MeshRenderer>();
     }
 

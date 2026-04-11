@@ -9,9 +9,10 @@ public class PlayerState : State
     private PlayerController playerController;
     [SerializeField] private AudioSource respawnAudioSource;
 
-    public override void Initialize(ulong ParentNetworkObjectId)
+    public override void Initialize(ulong ParentNetworkObjectId, bool isServer)
     {
-        base.Initialize(ParentNetworkObjectId);
+        base.Initialize(ParentNetworkObjectId, isServer);
+        
         playerController = GetComponent<PlayerController>();
         playerIdentification = GetComponent<Identification>();
     }

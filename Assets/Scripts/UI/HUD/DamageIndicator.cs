@@ -20,7 +20,8 @@ public class DamageIndicator : MonoBehaviour
         .Singleton
         .LocalClient
         .PlayerObject
-        .GetComponent<Health>()
+        .GetComponent<PlayerController>()
+        .health
         .onHealthChanged
         .AddListener(OnHealthChanged);
     }

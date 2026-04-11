@@ -6,10 +6,10 @@
 - (fixed) projectile don't explode when aiming down (tweak arming time on projectile prefabs)
 - (fixed) client rotation desync (client projectiles spawning/aiming in different direction than authoritative player character)
 - (fixed) Fall damage is major fucked
-- (fixed) Players killing themselves counts as a kill (fix after Entity class changes are merged)
-- (fixed) Need to take into account final-player sourceed damage for when a player dies to fall damage (fix after Entity class changes are merged)
-- hover particle effects not always working for clients (client can't see any hover particles)
-- screen shake not always working
+- (fixed) Players killing themselves counts as a kill
+- (fixed) Need to take into account final-player sourceed damage for when a player dies to fall damage
+- (Maybe Fixed?) hover particle effects not always working for clients (client can't see any hover particles)
+- (Maybe fixed?) screen shake not always working
 - LobbyPC Not showing players or chat messages for clients
 
 # Things to do

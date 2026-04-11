@@ -21,13 +21,14 @@ public class Energy : EntityComponent
     public float EnergyPercentage => MaxEnergy > 0f ? CurrentEnergy / MaxEnergy : 0f;
 
 
-    public override void Initialize(ulong ParentNetworkObjectId)
+    public override void Initialize(ulong ParentNetworkObjectId, bool isServer)
     {
-        base.Initialize(ParentNetworkObjectId);
+        base.Initialize(ParentNetworkObjectId, isServer);
         
         entityState = GetComponent<State>();
-        entityState.onStateChange.AddListener(OnEntityStateChange);
 
+        if (!isServer) return;
+        entityState.onStateChange.AddListener(OnEntityStateChange);
         _energy.Value = _maxEnergy;
     }
 
