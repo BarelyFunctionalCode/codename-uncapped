@@ -11,7 +11,7 @@ public enum EntityStates
     UNGROUNDED,
 }
 
-public class State : EntityAttributes
+public class State : EntityComponent
 {
     public UnityEvent<EntityStates> onStateChange = new();
 

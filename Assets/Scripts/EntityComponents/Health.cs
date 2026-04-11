@@ -46,7 +46,7 @@ public class DamageTracker
 }
 
 [RequireComponent(typeof(State))]
-public class Health : EntityAttributes, IDamageable
+public class Health : EntityComponent, IDamageable
 {
     private State entityState;
     public UnityEvent<float> onHealthChanged = new();

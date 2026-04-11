@@ -9,7 +9,7 @@ public class Entity : NetworkBehaviour
 
         if (!IsServer) return;
 
-        foreach (var component in GetComponentsInChildren<EntityAttributes>())
+        foreach (var component in GetComponentsInChildren<EntityComponent>())
         {
             component.Initialize(NetworkObjectId);
         }

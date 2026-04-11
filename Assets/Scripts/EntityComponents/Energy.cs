@@ -3,7 +3,7 @@ using UnityEngine;
 using System;
 
 [RequireComponent(typeof(State))]
-public class Energy : EntityAttributes
+public class Energy : EntityComponent
 {
     private State entityState;
     private const float groundEnergyRegenRate = 12.5f;

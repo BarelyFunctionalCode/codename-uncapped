@@ -2,7 +2,7 @@ using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
-public class Identification : EntityAttributes
+public class Identification : EntityComponent
 {
     [SerializeField] protected NetworkVariable<ulong> _entityId = new(0);
     [SerializeField] protected NetworkVariable<FixedString32Bytes> _entityName = new("");
