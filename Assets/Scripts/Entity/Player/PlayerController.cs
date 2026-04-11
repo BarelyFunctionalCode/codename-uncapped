@@ -97,7 +97,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 
     // Movement Parameters
     [SerializeField] private LayerMask groundeDetectionLayerMask;
-    private readonly float hoverHeightMax = 0.4f;
+    private readonly float hoverHeightMax = 0.02f;
 
     private readonly float upJetForce = 7031.25f; // TODO: This force value need to be moved to the elsewhere since they differ by class
     private readonly float downJetForce = 5156.25f; // TODO: This force value need to be moved to the elsewhere since they differ by class
@@ -666,7 +666,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             if (slope <= 0.1f) return;
 
             surfacePoint = hit.point;
-            distanceToSurface = Mathf.Max(Vector3.Distance(surfacePoint, groundCheckPoint) - localPlayerCollider.bounds.extents.y, 0.0f);
+            distanceToSurface = Mathf.Max(Vector3.Distance(surfacePoint, groundCheckPoint) - localPlayerCollider.bounds.extents.y - 0.2f, 0.0f);
 
             if (playerTelemetry != null) playerTelemetry.distanceToSurface = distanceToSurface;
             if (playerTelemetry != null) playerTelemetry.surfacePoint = surfacePoint;

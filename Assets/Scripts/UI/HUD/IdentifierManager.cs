@@ -73,8 +73,8 @@ public class IdentifierManager : MonoBehaviour
     private void OnDestroy()
     {
         SceneManager.activeSceneChanged -= (_, _) => sweepDelayTimer = 0f;
-        GameManager.Instance.OnClientConnectedEvent.RemoveListener((_) => sweepDelayTimer = 0f);
-        SpawnManager.Instance.objectSpawnedEvent.RemoveListener(RegisterIdentifier);
+        if (GameManager.Instance != null) GameManager.Instance.OnClientConnectedEvent.RemoveListener((_) => sweepDelayTimer = 0f);
+        if (SpawnManager.Instance != null) SpawnManager.Instance.objectSpawnedEvent.RemoveListener(RegisterIdentifier);
     }
 
 

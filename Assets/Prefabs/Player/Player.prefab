@@ -393,7 +393,7 @@ MonoBehaviour:
   onStateChange:
     m_PersistentCalls:
       m_Calls: []
-  respawnAudioSource: {fileID: 0}
+  respawnAudioSource: {fileID: 6495883347945834671}
 --- !u!114 &2406336326154046552
 MonoBehaviour:
   m_ObjectHideFlags: 0
