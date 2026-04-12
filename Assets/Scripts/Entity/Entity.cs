@@ -1,11 +1,12 @@
 using Unity.Netcode;
+using UnityEngine;
 
 public class Entity : NetworkBehaviour
 {
-    public State state = null;
-    public Identification identification = null;
-    public Health health = null;
-    public Energy energy = null;
+    [HideInInspector] public State state = null;
+    [HideInInspector] public Identification identification = null;
+    [HideInInspector] public Health health = null;
+    [HideInInspector] public Energy energy = null;
 
     protected bool baseEntityInitialized = false;
 
