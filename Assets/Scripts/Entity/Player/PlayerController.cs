@@ -162,8 +162,8 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             playerControls.Character.Look.canceled += ctx => LookInput(ctx.ReadValue<Vector2>());
             playerControls.Character.PrimaryFire.started += ctx => playerLoadout.OnPrimaryFireStartedRpc();
             playerControls.Character.PrimaryFire.canceled += ctx => playerLoadout.OnPrimaryFireCanceledRpc();
-            playerControls.Character.Throwable.started += ctx => playerLoadout.OnThrowableStartedRpc();
-            playerControls.Character.Throwable.canceled += ctx => playerLoadout.OnThrowableCanceledRpc();
+            playerControls.Character.Throwable.started += ctx => ThrowableStarted();
+            playerControls.Character.Throwable.canceled += ctx => ThrowableReleased();
             playerControls.Character.NextWeapon.started += ctx => playerLoadout.NextWeaponRpc();
             playerControls.Character.PreviousWeapon.started += ctx => playerLoadout.PreviousWeaponRpc();
             playerControls.Character.Ski.performed += ctx => SkiInput(ctx.ReadValue<float>());
@@ -193,8 +193,8 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             playerControls.Character.Look.canceled -= ctx => LookInput(ctx.ReadValue<Vector2>());
             playerControls.Character.PrimaryFire.started -= ctx => playerLoadout.OnPrimaryFireStartedRpc();
             playerControls.Character.PrimaryFire.canceled -= ctx => playerLoadout.OnPrimaryFireCanceledRpc();
-            playerControls.Character.Throwable.started -= ctx => playerLoadout.OnThrowableStartedRpc();
-            playerControls.Character.Throwable.canceled -= ctx => playerLoadout.OnThrowableCanceledRpc();
+            playerControls.Character.Throwable.started -= ctx => ThrowableStarted();
+            playerControls.Character.Throwable.canceled -= ctx => ThrowableReleased();
             playerControls.Character.NextWeapon.started -= ctx => playerLoadout.NextWeaponRpc();
             playerControls.Character.PreviousWeapon.started -= ctx => playerLoadout.PreviousWeaponRpc();
             playerControls.Character.Ski.performed -= ctx => SkiInput(ctx.ReadValue<float>());
@@ -314,6 +314,8 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             weaponMountPoint = playerType.weaponMountPoint;
             throwableMountPoint = playerType.throwableMountPoint;
         }
+
+        GetComponent<PickupContainer>().pickupHoldPoint = playerType.pickupContainerHoldPoint;
 
         if (IsOwner) InitializeOwner();
     }
@@ -483,6 +485,28 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     public void SetCursorStateRpc(bool enabled, bool usingCustomCursor = false)
     {
         playerHUD.SetCursorState(enabled, usingCustomCursor);
+    }
+
+    private void ThrowableStarted()
+    {
+        if (pickupContainer.CurrentlyHeldPickup != null)
+        {
+            pickupContainer.StartPutDownRpc();
+        }
+        else
+        {
+            playerLoadout.OnThrowableStartedRpc();
+        }
+    }
+
+    private void ThrowableReleased()
+    {
+        if (pickupContainer.CurrentlyHeldPickup != null)
+        {
+            Vector3 throwDirection = localPlayerType.freeLookTargetTransform.forward;
+            pickupContainer.TryPutDownRpc(throwDirection);
+        }
+        playerLoadout.OnThrowableCanceledRpc();
     }
 
     private void MoveInput(Vector2 rawMovementInput)

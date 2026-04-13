@@ -7,6 +7,8 @@ public class Entity : NetworkBehaviour
     [HideInInspector] public Identification identification = null;
     [HideInInspector] public Health health = null;
     [HideInInspector] public Energy energy = null;
+    [HideInInspector] public PickupContainer pickupContainer = null;
+    [HideInInspector] public Pickup pickup = null;
 
     protected bool baseEntityInitialized = false;
 
@@ -16,6 +18,8 @@ public class Entity : NetworkBehaviour
         TryGetComponent(out identification);
         TryGetComponent(out health);
         TryGetComponent(out energy);
+        TryGetComponent(out pickupContainer);
+        TryGetComponent(out pickup);
 
         base.OnNetworkSpawn();
 

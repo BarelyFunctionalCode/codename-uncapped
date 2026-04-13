@@ -1,9 +1,13 @@
-using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public class Pickup : EntityComponent
 {
+    [SerializeField] private SphereCollider pickupTrigger;
+    [SerializeField] private float throwMinForce = 20f;
+    [SerializeField] private float throwMaxForce = 40f;
+    [SerializeField] private bool canBePickedUpOnSpawn = false;
     [HideInInspector] public NetworkVariable<bool> CanBePickedUp = new(false);
 
     public bool isConsumable = true;
@@ -19,13 +23,21 @@ public class Pickup : EntityComponent
 
     private void Awake()
     {
-        Rb = GetComponentInChildren<Rigidbody>();
+        Rb = GetComponent<Rigidbody>();
         if (Rb != null)
         {
             PreviousCollisionMode = Rb.collisionDetectionMode;
             PreviousIsKinematic = Rb.isKinematic;
             PreviousUseGravity = Rb.useGravity;
         }
+    }
+
+    public override void Initialize(ulong ParentNetworkObjectId, bool isServer)
+    {
+        base.Initialize(ParentNetworkObjectId, isServer);
+
+        if (!isServer) pickupTrigger.enabled = false;
+        else CanBePickedUp.Value = canBePickedUpOnSpawn;
     }
 
     public bool PickUp(PickupContainer pickerUpper)
@@ -59,15 +71,66 @@ public class Pickup : EntityComponent
 
         // Move pickup object to the picker upper
         NetworkObject.TrySetParent(pickerUpper.NetworkObject, true);
-        if (Rb != null)
+        Rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+        Rb.isKinematic = true;
+        Rb.useGravity = false;
+        foreach (Collider col in GetComponentsInChildren<Collider>())
         {
-            Rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
-            Rb.isKinematic = true;
-            Rb.useGravity = false;
+            col.enabled = false;
         }
+        pickupTrigger.enabled = false;
         isPickedUp = true;
         return true;
     }
 
     protected virtual void PickUpState() { }
+
+    public void PutDown(Vector3 throwVector = default)
+    {
+        if (!IsServer)
+        {
+            Debug.LogWarning("PutDown() called on client side for " + name + " on " + gameObject.name);
+            return;
+        }
+
+        // Reversing the pickup process basically
+        isPickedUp = false;
+        pickupTrigger.enabled = true;
+        foreach (Collider col in GetComponentsInChildren<Collider>())
+        {
+            col.enabled = true;
+        }
+        Rb.collisionDetectionMode = PreviousCollisionMode;
+        Rb.isKinematic = PreviousIsKinematic;
+        Rb.useGravity = PreviousUseGravity;
+        NetworkObject.TryRemoveParent();
+
+        // Run derived class specific code
+        PutDownState();
+
+        pickerUpper = null;
+
+        // If specified, add force to the pickup to throw it
+        Debug.Log("Throw vector: " + throwVector);
+        if (throwVector != default)
+        {
+            float throwForce = Mathf.Lerp(throwMinForce, throwMaxForce, throwVector.magnitude);
+            throwVector = throwVector.normalized * throwForce;
+            Debug.Log("Applied throw vector: " + throwVector);
+            Rb.AddForce(throwVector);
+        }
+    }
+
+    protected virtual void PutDownState() { }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (!IsServer) return;
+        if (!CanBePickedUp.Value || isPickedUp) return;
+
+        PickupContainer pickupContainer = other.GetComponentInParent<PickupContainer>();
+        if (pickupContainer == null) return;
+        
+        pickupContainer.TryPickUp(this);
+    }
 }

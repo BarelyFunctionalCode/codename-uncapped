@@ -26,6 +26,8 @@ public class PlayerType : NetworkBehaviour
     [SerializeField] private ParticleSystem hoverEffectRightFootParticleSystem;
     [SerializeField] private CinemachineCamera firstPersonCamera;
 
+    [SerializeField] public Transform pickupContainerHoldPoint;
+
     [PauseMenuOption("Vertical Look", 0f, 100f)]
     public float verticalRotationSpeed = 24f;
     public float verticalRotationLimit = 100f;

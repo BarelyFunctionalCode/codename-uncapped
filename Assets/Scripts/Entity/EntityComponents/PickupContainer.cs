@@ -1,21 +1,41 @@
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public class PickupContainer : EntityComponent
 {   
+    private State entityState;
+    public Transform pickupHoldPoint;
     [SerializeField] private List<string> pickupNameWhitelist = new();
-    [SerializeField] private float pickupRange = 2f;
     public Pickup CurrentlyHeldPickup { get; private set; }
+
+    private float maxThrowTime = 2f;
+    private float startPutDownTime = -1f;
 
     public override void Initialize(ulong ParentNetworkObjectId, bool isServer)
     {
         base.Initialize(ParentNetworkObjectId, isServer);
 
-        if (!isServer) return;
+        entityState = GetComponent<State>();
 
-        SphereCollider col = GetComponent<SphereCollider>();
-        col.enabled = true;
-        col.radius = pickupRange;
+        if (!isServer) return;
+        entityState.onStateChange.AddListener(OnEntityStateChange);
+    }
+
+    public void OnEntityStateChange(EntityStates s)
+    {
+        switch (s)
+        {
+            case EntityStates.DEAD:
+                if (CurrentlyHeldPickup != null)
+                {
+                    startPutDownTime = 0f;
+                    TryPutDownRpc(Vector3.up);
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     public void TryPickUp(Pickup pickup)
@@ -25,20 +45,39 @@ public class PickupContainer : EntityComponent
             Debug.LogWarning("TryPickUp() called on client side for " + name + " on " + gameObject.name);
             return;
         }
+        if (pickupNameWhitelist.Count > 0 && !pickupNameWhitelist.Contains(pickup.name)) return;
 
         bool success = pickup.PickUp(this);
+
+        if (pickupHoldPoint != null)
+        {
+            pickup.transform.position = pickupHoldPoint.position;
+            pickup.transform.rotation = pickupHoldPoint.rotation;
+        }
+        else
+        {
+            pickup.transform.position = transform.position;
+            pickup.transform.rotation = transform.rotation;
+        }
+
         if (success) CurrentlyHeldPickup = pickup;
     }
 
-    private void OnTriggerStay(Collider other)
-    {
-        if (!IsServer) return;
+    [Rpc(SendTo.Server)]
+    public void StartPutDownRpc() => startPutDownTime = Time.time;
 
-        Pickup pickup = other.GetComponentInParent<Pickup>();
-        if (pickup == null) return;
-        if (pickupNameWhitelist.Count > 0 && !pickupNameWhitelist.Contains(pickup.name)) return;
-        if (!pickup.CanBePickedUp.Value || pickup.isPickedUp) return;
-        
-        TryPickUp(pickup);
+    [Rpc(SendTo.Server)]
+    public void TryPutDownRpc(Vector3 throwDirection, bool doMaxThrow = false)
+    {
+        if (startPutDownTime < 0) return;
+        if (CurrentlyHeldPickup == null) return;
+
+        CurrentlyHeldPickup.transform.transform.position = pickupHoldPoint.position + transform.forward * 3f;
+        Physics.SyncTransforms();
+
+        if (!doMaxThrow) throwDirection *= Mathf.Clamp01((Time.time - startPutDownTime) / maxThrowTime);
+        CurrentlyHeldPickup.PutDown(throwDirection);
+        CurrentlyHeldPickup = null;
+        startPutDownTime = -1f;
     }
 }
