@@ -48,7 +48,6 @@ public class DamageTracker
 [RequireComponent(typeof(State))]
 public class Health : EntityComponent, IDamageable
 {
-    private State entityState;
     public UnityEvent<float> onHealthChanged = new();
     public UnityEvent<float> onAppliedDamage = new();
 
@@ -74,14 +73,11 @@ public class Health : EntityComponent, IDamageable
     }
 
 
-    public override void Initialize(ulong ParentNetworkObjectId, bool isServer)
+    public override void Initialize(Entity entity)
     {
-        base.Initialize(ParentNetworkObjectId, isServer);
+        base.Initialize(entity, OnEntityStateChange);
 
-        entityState = GetComponent<State>();
-
-        if (!isServer) return;
-        entityState.onStateChange.AddListener(OnEntityStateChange);
+        if (!IsServer) return;
         _health.Value = _maxHealth;
     }
 
@@ -158,7 +154,7 @@ public class Health : EntityComponent, IDamageable
     private void OnAppliedDamageRpc(float damage) => onAppliedDamage.Invoke(damage);
 
     private void Die() {
-        if (!IsServer || entityState.IsDead) return;
+        if (!IsServer || entity.state.IsDead) return;
 
         // Self identification
         gameObject.TryGetComponent(out Identification entityIdentification);
@@ -246,6 +242,6 @@ public class Health : EntityComponent, IDamageable
             NotificationManager.Instance.SendKillFeedNotificationRpc(entityName, lethalSource);
         }
 
-        entityState.Die();
+        entity.state.Die();
     }
 }

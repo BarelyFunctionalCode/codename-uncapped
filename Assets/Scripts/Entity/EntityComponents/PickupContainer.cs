@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class PickupContainer : EntityComponent
 {   
-    private State entityState;
     public Transform pickupHoldPoint;
     [SerializeField] private List<string> pickupNameWhitelist = new();
     public Pickup CurrentlyHeldPickup { get; private set; }
@@ -12,14 +11,9 @@ public class PickupContainer : EntityComponent
     private float maxThrowTime = 2f;
     private float startPutDownTime = -1f;
 
-    public override void Initialize(ulong ParentNetworkObjectId, bool isServer)
+    public override void Initialize(Entity entity)
     {
-        base.Initialize(ParentNetworkObjectId, isServer);
-
-        entityState = GetComponent<State>();
-
-        if (!isServer) return;
-        entityState.onStateChange.AddListener(OnEntityStateChange);
+        base.Initialize(entity, OnEntityStateChange);
     }
 
     public void OnEntityStateChange(EntityStates s)

@@ -5,23 +5,23 @@ using UnityEngine;
 [RequireComponent(typeof(Identification))]
 public class PlayerState : State
 {
-    private Identification playerIdentification;
     private PlayerController playerController;
+    private PlayerInputs playerInputs;
     [SerializeField] private AudioSource respawnAudioSource;
 
-    public override void Initialize(ulong ParentNetworkObjectId, bool isServer)
+    private void Awake()
     {
-        base.Initialize(ParentNetworkObjectId, isServer);
+        base.Initialize(entity);
         
         playerController = GetComponent<PlayerController>();
-        playerIdentification = GetComponent<Identification>();
+        playerInputs = playerController.playerInputs;
     }
 
     protected override void OnDie()
     {
         if (!IsServer) return;
 
-        playerController.SetPlayerControlsRpc(false);
+        playerInputs.SetPlayerControlsRpc(false);
         playerController.localRb.isKinematic = true;
         playerController.localPlayerCollider.enabled = false;
         OnDieRpc();
@@ -41,7 +41,7 @@ public class PlayerState : State
     {
         if (!IsServer) return;
 
-        Transform respawnPoint = LevelManager.Instance.GetSpawnPoint(playerIdentification.FetchTeamId());
+        Transform respawnPoint = LevelManager.Instance.GetSpawnPoint(entity.identification.FetchTeamId());
 
         if (respawnPoint) playerController.Teleport(respawnPoint.position, respawnPoint.rotation);
         else playerController.Teleport(Vector3.zero, Quaternion.identity);
@@ -52,7 +52,7 @@ public class PlayerState : State
         playerController.playerLoadout.Initialize();
 
         OnRespawnRpc();
-        playerController.SetPlayerControlsRpc(true);
+        playerInputs.SetPlayerControlsRpc(true);
     }
     [Rpc(SendTo.Everyone)]
     private void OnRespawnRpc()

@@ -25,8 +25,17 @@ public class Entity : NetworkBehaviour
 
         foreach (var component in GetComponentsInChildren<EntityComponent>())
         {
-            component.Initialize(NetworkObjectId, IsServer);
+            component.Initialize(this);
         }
         baseEntityInitialized = true;
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        foreach (var component in GetComponentsInChildren<EntityComponent>())
+        {
+            component.Deinitialize();
+        }
+        base.OnNetworkDespawn();
     }
 }

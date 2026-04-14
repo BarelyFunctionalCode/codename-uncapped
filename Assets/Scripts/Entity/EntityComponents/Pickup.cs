@@ -32,11 +32,11 @@ public class Pickup : EntityComponent
         }
     }
 
-    public override void Initialize(ulong ParentNetworkObjectId, bool isServer)
+    public override void Initialize(Entity entity)
     {
-        base.Initialize(ParentNetworkObjectId, isServer);
+        base.Initialize(entity);
 
-        if (!isServer) pickupTrigger.enabled = false;
+        if (!IsServer) pickupTrigger.enabled = false;
         else CanBePickedUp.Value = canBePickedUpOnSpawn;
     }
 

@@ -100,7 +100,7 @@ public class LobbyPC : MonoBehaviour
                 PlayerController playerController = player.GetComponentInChildren<PlayerController>();
                 if (playerController == null) continue;
                 
-                playerController.SetHUDActiveRpc(false);
+                playerController.playerInputs.SetHUDActiveRpc(false);
                 playerController.Teleport(Vector3.zero, Quaternion.identity);
             }
         }
@@ -112,13 +112,13 @@ public class LobbyPC : MonoBehaviour
         if (isActive) return;
         NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject().TryGetComponent(out PlayerController playerController);
         if (playerController.isInitialized == false) return;
-        playerController.SetPlayerControlsRpc(false);
+        playerController.playerInputs.SetPlayerControlsRpc(false);
         interactingPlayerController = playerController;
 
         // Sets priority to PC Cam and then unlocks the cursor
         Camera.main.cullingMask = noPlayerMask;
         pcCam.Priority.Value = 99;
-        interactingPlayerController.SetCursorStateRpc(true, true);
+        interactingPlayerController.playerInputs.SetCursorStateRpc(true, true);
         cursorObj.SetActive(true);
         isActive = true;
         autoInteract = false;
@@ -133,8 +133,8 @@ public class LobbyPC : MonoBehaviour
         cursorObj.SetActive(false);
         Camera.main.cullingMask = -1;
         pcCam.Priority.Value = 0;
-        interactingPlayerController.SetCursorStateRpc(false);
-        interactingPlayerController.SetPlayerControlsRpc(true);
+        interactingPlayerController.playerInputs.SetCursorStateRpc(false);
+        interactingPlayerController.playerInputs.SetPlayerControlsRpc(true);
         interactingPlayerController = null;
     }
 

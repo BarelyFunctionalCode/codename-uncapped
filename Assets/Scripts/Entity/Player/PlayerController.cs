@@ -41,10 +41,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     // Camera
     [SerializeField] private GameObject playerCameraPrefabObj;
     private GameObject playerCameraObj;
-    private CinemachineCamera thirdPersonCamera;
-    [PauseMenuOption("Horizontal Look", 0f, 100f)]
-    public float horizontalRotationSpeed = 20f;
-    private readonly float horizontalRotationLimit = 100f;
+    public CinemachineCamera thirdPersonCamera;
     private AudioListener audioListener;
 
     // UI
@@ -53,23 +50,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     public HUD playerHUD;
 
     // Inputs
-    public PlayerControls playerControls;
-    private int controlsDisabledCount = 0;
-    Vector3 movementInput = Vector3.zero;
-    Vector3 newMovementDirection = Vector3.zero;
-    Vector3 movementDirection = Vector3.zero;
-    float rotationInputX = 0f;
-    float rotationInputY = 0f;
-    Vector3 rotationDeltaYaw = Vector3.zero;
-    bool isJumping = false;
-    bool isSkiing = false;
-    bool upJettingInput = false;
-    bool isUpJetting = false;
-    bool downJettingInput = false;
-    bool isDownJetting = false;
-    bool isJetting = false;
-    bool isMoving = false;
-    bool isRunning = false;
+    public PlayerInputs playerInputs;
 
     // Physics
     [Header("Physics")]
@@ -136,6 +117,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     private void Awake()
     {
         playerLoadout = GetComponent<PlayerLoadoutManager>();
+        playerInputs = GetComponent<PlayerInputs>();
     }
 
     public sealed override void OnNetworkSpawn()
@@ -148,33 +130,6 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         localRb = GetComponent<Rigidbody>();
         localRb.sleepThreshold = 0.0f;
         if (IsServer) gravityModifier.Value = 1f;
-
-        if (IsOwner)
-        {            
-            // Set up the player controls
-            playerControls = new PlayerControls();
-
-            // Set up the input callbacks
-            playerControls.Enable();
-            playerControls.Character.Move.performed += ctx => MoveInput(ctx.ReadValue<Vector2>());
-            playerControls.Character.Move.canceled += ctx => MoveInput(ctx.ReadValue<Vector2>());
-            playerControls.Character.Look.performed += ctx => LookInput(ctx.ReadValue<Vector2>());
-            playerControls.Character.Look.canceled += ctx => LookInput(ctx.ReadValue<Vector2>());
-            playerControls.Character.PrimaryFire.started += ctx => playerLoadout.OnPrimaryFireStartedRpc();
-            playerControls.Character.PrimaryFire.canceled += ctx => playerLoadout.OnPrimaryFireCanceledRpc();
-            playerControls.Character.Throwable.started += ctx => ThrowableStarted();
-            playerControls.Character.Throwable.canceled += ctx => ThrowableReleased();
-            playerControls.Character.NextWeapon.started += ctx => playerLoadout.NextWeaponRpc();
-            playerControls.Character.PreviousWeapon.started += ctx => playerLoadout.PreviousWeaponRpc();
-            playerControls.Character.Ski.performed += ctx => SkiInput(ctx.ReadValue<float>());
-            playerControls.Character.Ski.canceled += ctx => SkiInput(ctx.ReadValue<float>());
-            playerControls.Character.JumpJet.performed += ctx => JetInput(ctx.ReadValue<float>());
-            playerControls.Character.JumpJet.canceled += ctx => JetInput(ctx.ReadValue<float>());
-            playerControls.Character.DownJet.performed += ctx => DownJetInput(ctx.ReadValue<float>());
-            playerControls.Character.DownJet.canceled += ctx => DownJetInput(ctx.ReadValue<float>());
-            playerControls.Character.JumpJet.started += ctx => JumpInput();
-            playerControls.Character.ToggleCameraView.started += ctx => ToggleCameraView();
-        }
     }
 
     public sealed override void OnNetworkDespawn()
@@ -185,26 +140,6 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 
         if (IsOwner)
         {
-            // If the player is despawned, disable the inputs
-            playerControls.Disable();
-            playerControls.Character.Move.performed -= ctx => MoveInput(ctx.ReadValue<Vector2>());
-            playerControls.Character.Move.canceled -= ctx => MoveInput(ctx.ReadValue<Vector2>());
-            playerControls.Character.Look.performed -= ctx => LookInput(ctx.ReadValue<Vector2>());
-            playerControls.Character.Look.canceled -= ctx => LookInput(ctx.ReadValue<Vector2>());
-            playerControls.Character.PrimaryFire.started -= ctx => playerLoadout.OnPrimaryFireStartedRpc();
-            playerControls.Character.PrimaryFire.canceled -= ctx => playerLoadout.OnPrimaryFireCanceledRpc();
-            playerControls.Character.Throwable.started -= ctx => ThrowableStarted();
-            playerControls.Character.Throwable.canceled -= ctx => ThrowableReleased();
-            playerControls.Character.NextWeapon.started -= ctx => playerLoadout.NextWeaponRpc();
-            playerControls.Character.PreviousWeapon.started -= ctx => playerLoadout.PreviousWeaponRpc();
-            playerControls.Character.Ski.performed -= ctx => SkiInput(ctx.ReadValue<float>());
-            playerControls.Character.Ski.canceled -= ctx => SkiInput(ctx.ReadValue<float>());
-            playerControls.Character.JumpJet.performed -= ctx => JetInput(ctx.ReadValue<float>());
-            playerControls.Character.JumpJet.canceled -= ctx => JetInput(ctx.ReadValue<float>());
-            playerControls.Character.DownJet.performed -= ctx => DownJetInput(ctx.ReadValue<float>());
-            playerControls.Character.DownJet.canceled -= ctx => DownJetInput(ctx.ReadValue<float>());
-            playerControls.Character.JumpJet.started -= ctx => JumpInput();
-            playerControls.Character.ToggleCameraView.started -= ctx => ToggleCameraView();
             // Disable audio listener
             if (audioListener) audioListener.enabled = false;
         }
@@ -220,13 +155,6 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         if (IsOwner)
         {
             playerTelemetry.Update();
-            
-            // TODO: Move this to a better place
-            Vector3 newMovementDirection = localTransform.TransformDirection(movementInput); // NOT SUPPOSED TO BE NORMALIZED
-            bool changed = false;
-            if (newMovementDirection != this.newMovementDirection) changed = true;
-            this.newMovementDirection = newMovementDirection;
-            if (changed) MoveDirectionRpc(newMovementDirection);
         }
 
         if (state.IsDead) return;
@@ -235,13 +163,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 
         // Apply Drag and Friction
         localRb.linearDamping = distanceToSurface <= airCushionHeight ? airCushionDrag : drag;
-        localPlayerCollider.material = isSkiing ? skiMaterial : normalMaterial;
-    }
-
-    [Rpc(SendTo.Server)]
-    private void MoveDirectionRpc(Vector3 newMovementDirection)
-    {
-        this.newMovementDirection = newMovementDirection;
+        localPlayerCollider.material = playerInputs.IsSkiing ? skiMaterial : normalMaterial;
     }
 
     void LateUpdate()
@@ -251,9 +173,9 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         if (state.IsDead) return;
 
         // Handle camera pitch rotation on local client
-        localPlayerType.HandleCamera(rotationInputY, controlsDisabledCount);
-        rotationInputY = 0f;
-        localPlayerType.HandleExtraMotion(movementDirection, isSkiing, surfaceNormal);
+        playerInputs.HandleCameraInput();
+        
+        localPlayerType.HandleExtraMotion(playerInputs.MovementDirection, playerInputs.IsSkiing, surfaceNormal);
     }
 
     void FixedUpdate()
@@ -262,7 +184,21 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         if (state.IsDead) return;
 
         // First, we collect all of the inputs that go into moving the player, and create an input state
-        HandleInputs();
+        playerInputs.HandleInputs();
+
+        if (playerTelemetry != null)
+        {
+            playerTelemetry.movementDirection = playerInputs.MovementDirection;
+            playerTelemetry.isSkiing = playerInputs.IsSkiing;
+            playerTelemetry.isUpJetting = playerInputs.IsUpJetting;
+            playerTelemetry.isDownJetting = playerInputs.IsDownJetting;
+        }
+
+        // Set audio values
+        localPlayerType.HandleAudio(localRb.linearVelocity, playerInputs.IsSkiing);
+
+        // Set animator values
+        localPlayerType.UpdateAnimationData(playerInputs.MovementInput, localRb.linearVelocity, state.IsGrounded, playerInputs.IsRunning, playerInputs.IsSkiing, playerInputs.IsDownJetting, playerInputs.IsUpJetting);
 
         // Finally, we process the inputs to move the player locally and on the server
         HandleMovement();
@@ -277,7 +213,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             }
         }
 
-        isJumping = false;
+        playerInputs.ResetJumpInput();
         if (playerTelemetry != null)
         {
             playerTelemetry.position = localTransform.position;
@@ -448,178 +384,6 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     }
     #endregion
 
-
-    #region Inputs
-    private void ToggleCameraView()
-    {
-        bool isThirdPerson = thirdPersonCamera.Priority.Value > 0;
-        thirdPersonCamera.Priority.Value = isThirdPerson ? 0 : 1;
-        localPlayerType.ToggleFirstPersonCamera(isThirdPerson);
-    }
-
-    [Rpc(SendTo.Server)]
-    public void SetPlayerControlsRpc(bool enabled)
-    {
-        controlsDisabledCount += enabled ? -1 : 1;
-        controlsDisabledCount = Mathf.Max(0, controlsDisabledCount);
-        SetPlayerControlsOwnerRpc(controlsDisabledCount == 0);
-    }
-    [Rpc(SendTo.Owner)]
-    private void SetPlayerControlsOwnerRpc(bool enabled)
-    {
-        if (enabled) playerControls.Character.Enable();
-        else playerControls.Character.Disable();
-    }
-
-    [Rpc(SendTo.Owner)]
-    public void SetHUDActiveRpc(bool enabled)
-    {
-        playerHUD.SetHUDActive(enabled);
-    }
-    [Rpc(SendTo.Owner)]
-    public void OpenLoadoutMenuRpc()
-    {
-        playerHUD.ToggleMenu(HUDMenu.LoadoutMenu, true);
-    }
-    [Rpc(SendTo.Owner)]
-    public void SetCursorStateRpc(bool enabled, bool usingCustomCursor = false)
-    {
-        playerHUD.SetCursorState(enabled, usingCustomCursor);
-    }
-
-    private void ThrowableStarted()
-    {
-        if (pickupContainer.CurrentlyHeldPickup != null)
-        {
-            pickupContainer.StartPutDownRpc();
-        }
-        else
-        {
-            playerLoadout.OnThrowableStartedRpc();
-        }
-    }
-
-    private void ThrowableReleased()
-    {
-        if (pickupContainer.CurrentlyHeldPickup != null)
-        {
-            Vector3 throwDirection = localPlayerType.freeLookTargetTransform.forward;
-            pickupContainer.TryPutDownRpc(throwDirection);
-        }
-        playerLoadout.OnThrowableCanceledRpc();
-    }
-
-    private void MoveInput(Vector2 rawMovementInput)
-    {
-        movementInput = new(rawMovementInput.x, 0f, rawMovementInput.y);
-        MoveInputRpc(movementInput);
-    }
-    [Rpc(SendTo.Server)]
-    private void MoveInputRpc(Vector3 movementInput)
-    {
-        this.movementInput = movementInput;
-    }
-    private void LookInput(Vector2 lookInput)
-    {
-        rotationInputX += lookInput.x;
-        rotationInputY -= lookInput.y;
-        LookInputRpc(lookInput);
-    }
-    [Rpc(SendTo.Server)]
-    private void LookInputRpc(Vector2 lookInput)
-    {
-        rotationInputX += lookInput.x;
-        rotationInputY -= lookInput.y;
-    }
-    private void SkiInput(float skiInput)
-    {
-        isSkiing = skiInput > 0.0f;
-        SkiInputRpc(skiInput);
-    }
-    [Rpc(SendTo.Server)]
-    private void SkiInputRpc(float skiInput)
-    {
-        isSkiing = skiInput > 0.0f;
-    }
-    private void JetInput(float jetInput)
-    {
-        upJettingInput = jetInput > 0.0f;
-        JetInputRpc(jetInput);
-    }
-    [Rpc(SendTo.Server)]
-    private void JetInputRpc(float jetInput)
-    {
-        upJettingInput = jetInput > 0.0f;
-    }
-    private void DownJetInput(float downJetInput)
-    {
-        downJettingInput = downJetInput > 0.0f;
-        DownJetInputRpc(downJetInput);
-    }
-    [Rpc(SendTo.Server)]
-    private void DownJetInputRpc(float downJetInput)
-    {
-        downJettingInput = downJetInput > 0.0f;
-    }
-    private void JumpInput()
-    {
-        isJumping = true;
-        JumpInputRpc();
-    }
-    [Rpc(SendTo.Server)]
-    private void JumpInputRpc()
-    {
-        isJumping = true;
-    }
-
-    private void HandleInputs()
-    {
-        // Get rotation input
-        Vector3 rotationYaw = new(0f, rotationInputX, 0f);
-        rotationInputX = 0f;
-        rotationYaw *= horizontalRotationSpeed * Time.fixedDeltaTime;
-        rotationDeltaYaw = Vector3.ClampMagnitude(rotationYaw, horizontalRotationLimit);
-
-        // Get direction of movement relative to player rotation
-        Vector3 movement = movementInput;
-        movementDirection = newMovementDirection;
-
-        // Get input for skiing, jumping, and down jetting
-        isUpJetting = upJettingInput && isSkiing;
-        isDownJetting = downJettingInput && isSkiing;
-        isJetting = isUpJetting || isDownJetting;
-        isMoving = movement.magnitude > 0.0f;
-        isRunning = state.IsGrounded && isMoving && !isSkiing;
-
-        if (controlsDisabledCount > 0)
-        {
-            movementDirection = Vector3.zero;
-            rotationDeltaYaw = Vector3.zero;
-            isSkiing = false;
-            isUpJetting = false;
-            isDownJetting = false;
-            isJetting = false;
-            isMoving = false;
-            isRunning = false;
-        }
-        
-        if (playerTelemetry != null)
-        {
-            playerTelemetry.movementDirection = movementDirection;
-            playerTelemetry.isSkiing = isSkiing;
-            playerTelemetry.isUpJetting = isUpJetting;
-            playerTelemetry.isDownJetting = isDownJetting;
-        }
-
-        // Set audio values
-        localPlayerType.HandleAudio(localRb.linearVelocity, isSkiing);
-
-        // Set animator values
-        localPlayerType.UpdateAnimationData(movement, localRb.linearVelocity, state.IsGrounded, isRunning, isSkiing, isDownJetting, isUpJetting);
-    }
-    #endregion
-
-
     #region Movement
     public void SetGravityModifier(float modifier)
     {
@@ -631,7 +395,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     {
         if (!IsServer) return;
 
-        SetPlayerControlsRpc(false);
+        playerInputs.SetPlayerControlsRpc(false);
         localRb.isKinematic = true;
         localPlayerCollider.enabled = false;
 
@@ -642,7 +406,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 
         localPlayerCollider.enabled = true;
         localRb.isKinematic = false;
-        SetPlayerControlsRpc(true);
+        playerInputs.SetPlayerControlsRpc(true);
     }
 
     private void HandleGroundDetection()
@@ -702,7 +466,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     [Rpc(SendTo.Server)]
     private void ClientAuthorityRotationSyncRpc(Quaternion ownerRotation)
     {
-        localRb.rotation = Quaternion.RotateTowards(localRb.rotation, ownerRotation, horizontalRotationLimit);
+        localRb.rotation = Quaternion.RotateTowards(localRb.rotation, ownerRotation, playerInputs.horizontalRotationLimit);
     }
 
     private void HandleMovement()
@@ -715,9 +479,9 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         float gravityMagnitude = Physics.gravity.magnitude * gravityModifier.Value;
 
         // Air Control
-        if (!state.IsGrounded && !isJetting && !isSkiing)
+        if (!state.IsGrounded && !playerInputs.IsJetting && !playerInputs.IsSkiing)
         {
-            Vector3 airDirection = movementDirection.normalized;
+            Vector3 airDirection = playerInputs.MovementDirection.normalized;
             Vector3 airControlAcc = airDirection * airControl;
 
             float maxAccel = runForce / localRb.mass * Time.fixedDeltaTime * 0.3f;
@@ -731,7 +495,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         }
 
         // Jumping
-        if (isJumping && state.IsGrounded && currentVelocity.y <= maxJumpSpeed)
+        if (playerInputs.IsJumping && state.IsGrounded && currentVelocity.y <= maxJumpSpeed)
         {
             float jumpScale = 1.0f;
 
@@ -740,7 +504,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
                 jumpScale = 1.0f - currentVelocity.y / minJumpSpeed / (maxJumpSpeed / minJumpSpeed);
             }
 
-            Vector3 jumpDirection = movementDirection.normalized;
+            Vector3 jumpDirection = playerInputs.MovementDirection.normalized;
 
             float playerScaleFactor = localTransform.localScale.y * 0.25f + 0.75f;
             float jumpForceFinal = jumpForce / localRb.mass;
@@ -761,7 +525,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             localPlayerType.HandleJump();
         }
         // Running Movement
-        else if (isRunning)
+        else if (playerInputs.IsRunning)
         {
             groundImpulse = new(0f, -gravityMagnitude * Time.fixedDeltaTime, 0f);
             float slopeDot = -Vector3.Dot(groundImpulse, surfaceNormal);
@@ -775,9 +539,9 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             }
 
             Vector3 targetVelocity = Vector3.zero;
-            if (movementDirection.magnitude > 0.01f)
+            if (playerInputs.MovementDirection.magnitude > 0.01f)
             {
-                Vector3 runDirection = movementDirection;
+                Vector3 runDirection = playerInputs.MovementDirection;
                 Vector3 forwardDirection = surfaceNormal;
                 Vector3 sideDirection = new(-runDirection.z * runDirection.magnitude, 0f, runDirection.x * runDirection.magnitude);
                 float sideDot = Vector3.Dot(sideDirection, forwardDirection);
@@ -797,7 +561,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         }
 
         // Skiing Movement
-        if (isSkiing && energy.CurrentEnergy > 0.0f)
+        if (playerInputs.IsSkiing && energy.CurrentEnergy > 0.0f)
         {
             // Hovering
             // More force the closer to the surface...
@@ -840,18 +604,18 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             }
 
             // Directional Control while Jetting/Skiing
-            if (isSkiing && movementDirection.magnitude > 0.01f && energy.CurrentEnergy > 0.0f)
+            if (playerInputs.IsSkiing && playerInputs.MovementDirection.magnitude > 0.01f && energy.CurrentEnergy > 0.0f)
             {
                 float lateralForce = jetDirectionalForceXY / localRb.mass * accelScale * Time.fixedDeltaTime;
-                desiredAcc += movementDirection * lateralForce;
+                desiredAcc += playerInputs.MovementDirection * lateralForce;
                 energy.ApplyEnergyDelta(-jetSkateEnergyDrain * accelScale * Time.fixedDeltaTime);
             }
 
             // Up Jetting
-            if (isJetting && energy.CurrentEnergy > 0.01f)
+            if (playerInputs.IsJetting && energy.CurrentEnergy > 0.01f)
             {
                 float force = 0f;
-                if (isUpJetting)
+                if (playerInputs.IsUpJetting)
                 {
                     float cushion = 1.0f;
                     if (distanceToSurface <= airCushionHeight)
@@ -860,13 +624,13 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
                     force = upJetForce / localRb.mass * accelScale * Time.fixedDeltaTime;
                     force += force * cushion * 0.5f;
                 }
-                else if (isDownJetting) // Down Jetting
+                else if (playerInputs.IsDownJetting) // Down Jetting
                 {
                     force = -downJetForce / localRb.mass * accelScale * Time.fixedDeltaTime;
                 }
 
                 desiredVerticalAcc = force;
-                energy.ApplyEnergyDelta(- (isUpJetting ? upJettingEnergyDrain : downJettingEnergyDrain) * accelScale * Time.fixedDeltaTime);
+                energy.ApplyEnergyDelta(- (playerInputs.IsUpJetting ? upJettingEnergyDrain : downJettingEnergyDrain) * accelScale * Time.fixedDeltaTime);
             }
         }
 
@@ -891,7 +655,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         Vector3 finalVelocityChange = currentVelocity - localRb.linearVelocity;
 
         // Calculate rotation to apply
-        Quaternion newRot = Quaternion.Euler(localRb.rotation.eulerAngles + rotationDeltaYaw);
+        Quaternion newRot = Quaternion.Euler(localRb.rotation.eulerAngles + new Vector3(0f, playerInputs.RotationInputX, 0f));
 
         // Apply velocity and rotation updates to rigidbody
         localRb.AddForce(finalVelocityChange, ForceMode.VelocityChange);

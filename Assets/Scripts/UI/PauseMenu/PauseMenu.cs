@@ -64,7 +64,7 @@ public class PauseMenu : MonoBehaviour
 
     public void Initialize(PlayerController playerController)
     {
-        PlayerControls playerControls = playerController.playerControls;
+        PlayerControls playerControls = playerController.playerInputs.playerControls;
 
         // Initialize player options in pause menu
         FieldInfo[] fields = playerController.GetType().GetFields();

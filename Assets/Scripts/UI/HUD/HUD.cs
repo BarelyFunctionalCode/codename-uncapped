@@ -113,7 +113,7 @@ public class HUD : MonoBehaviour
 
         this.playerController = playerController;
         playerHealth = playerController.health;
-        playerControls = playerController.playerControls;
+        playerControls = playerController.playerInputs.playerControls;
         
         playerControls.UI.PauseMenu.performed += ctx => ToggleMenu(HUDMenu.PauseMenu);
         playerControls.UI.LoadoutMenu.performed += ctx => ToggleMenu(HUDMenu.LoadoutMenu);
@@ -267,13 +267,13 @@ public class HUD : MonoBehaviour
         if (openMenus.Contains(menu))
         {
             openMenus.Remove(menu);
-            if (openMenus.Count == 0) playerController.SetPlayerControlsRpc(true);
+            if (openMenus.Count == 0) playerController.playerInputs.SetPlayerControlsRpc(true);
             SetCursorState(false);
         }
         else
         {
             SetCursorState(true);
-            if (openMenus.Count == 0) playerController.SetPlayerControlsRpc(false);
+            if (openMenus.Count == 0) playerController.playerInputs.SetPlayerControlsRpc(false);
             openMenus.Add(menu);
         }
     }

@@ -5,7 +5,6 @@ using System;
 [RequireComponent(typeof(State))]
 public class Energy : EntityComponent
 {
-    private State entityState;
     private const float groundEnergyRegenRate = 12.5f;
 
     [SerializeField] private NetworkVariable<float> _energy = new(0.0f);
@@ -21,14 +20,11 @@ public class Energy : EntityComponent
     public float EnergyPercentage => MaxEnergy > 0f ? CurrentEnergy / MaxEnergy : 0f;
 
 
-    public override void Initialize(ulong ParentNetworkObjectId, bool isServer)
+    public override void Initialize(Entity entity)
     {
-        base.Initialize(ParentNetworkObjectId, isServer);
+        base.Initialize(entity, OnEntityStateChange);
         
-        entityState = GetComponent<State>();
-
-        if (!isServer) return;
-        entityState.onStateChange.AddListener(OnEntityStateChange);
+        if (!IsServer) return;
         _energy.Value = _maxEnergy;
     }
 

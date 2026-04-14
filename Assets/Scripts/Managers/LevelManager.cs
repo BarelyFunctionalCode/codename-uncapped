@@ -65,7 +65,7 @@ public class LevelManager : NetworkBehaviour
         if (spawnPoint == null) return;
 
         playerController.Teleport(spawnPoint.position, spawnPoint.rotation);
-        playerController.SetHUDActiveRpc(true);
+        playerController.playerInputs.SetHUDActiveRpc(true);
     }
 
 
@@ -164,8 +164,8 @@ public class LevelManager : NetworkBehaviour
             if (spawnPoint == null) continue;
             
             playerController.Teleport(spawnPoint.position, spawnPoint.rotation);
-            playerController.SetHUDActiveRpc(true);
-            playerController.SetPlayerControlsRpc(false);
+            playerController.playerInputs.SetHUDActiveRpc(true);
+            playerController.playerInputs.SetPlayerControlsRpc(false);
         }
 
         OnLevelReady();
@@ -181,7 +181,7 @@ public class LevelManager : NetworkBehaviour
         {
             PlayerController playerController = player.GetComponentInChildren<PlayerController>();
             if (playerController == null) continue;
-            playerController.SetPlayerControlsRpc(true);
+            playerController.playerInputs.SetPlayerControlsRpc(true);
         }
 
         // Start the game mode
