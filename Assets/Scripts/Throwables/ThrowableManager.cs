@@ -112,7 +112,7 @@ public class ThrowableManager : NetworkBehaviour
         if (IsOwner)
         {
             playerCamera = Camera.main;
-            playerController.playerUIObj.GetComponentInChildren<HUD>().SetThrowableUI(this);
+            playerController.playerHUD.SetThrowableUI(this);
         }
 
         isInitialized = true;

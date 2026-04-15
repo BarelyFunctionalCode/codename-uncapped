@@ -1,82 +1,60 @@
 using Steamworks;
-using Unity.Cinemachine;
 using Unity.Netcode;
 using Unity.Netcode.Components;
 using UnityEngine;
-using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 
 
-[RequireComponent(typeof(Rigidbody))]
-[RequireComponent(typeof(PlayerLoadoutManager))]
+[RequireComponent(typeof(PlayerInputs))]
 [RequireComponent(typeof(PlayerNetworkTransform))]
+[RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(NetworkRigidbody))]
-[RequireComponent(typeof(Identification))]
+[RequireComponent(typeof(CharacterMovement))]
 [RequireComponent(typeof(PlayerState))]
-[RequireComponent(typeof(Energy))]
+[RequireComponent(typeof(Identification))]
 [RequireComponent(typeof(Health))]
+[RequireComponent(typeof(Energy))]
+[RequireComponent(typeof(PlayerLoadoutManager))]
+[RequireComponent(typeof(DevVectorRenderer))]
 public class PlayerController : Entity, IIdentifiable
 {
-    [Space(20)]
-    // Debug
-    [SerializeField] private DevVectorRenderer devVectorRenderer;
-    public PlayerTelemetry playerTelemetry;
-
-    public Transform localTransform;
-
-    [SerializeField] public GameObject playerTypePrefabObj;
-    private GameObject playerTypeObj;
-    public PlayerType localPlayerType;
-
+    [Header("Prefabs")]
+    public GameObject playerTypePrefabObj;
     [SerializeField] private GameObject playerPuppetPrefabObj;
-    public GameObject playerPuppetObj;
-
-    // ID
-    private SteamId _steamId;
-    public SteamId SteamId { get { return _steamId; } }
-
-    // Audio
-    [SerializeField] private AudioSource respawnAudioSource;
-
-    // Camera
-    [SerializeField] private GameObject playerCameraPrefabObj;
-    private GameObject playerCameraObj;
-    public CinemachineCamera thirdPersonCamera;
-    private AudioListener audioListener;
-
-    // UI
+    [SerializeField] private GameObject thirdPersonCameraPrefabObj;
     [SerializeField] private GameObject playerUIPrefabObj;
-    public GameObject playerUIObj;
-    public HUD playerHUD;
 
-    // Inputs
-    public PlayerInputs playerInputs;
+    // Debug
+    private DevVectorRenderer devVectorRenderer;
+    [HideInInspector] public PlayerTelemetry playerTelemetry;
 
-    // Physics
-    [Header("Physics")]
-
+    [Header("Main Components")]
+    [HideInInspector] public PlayerInputs playerInputs;
+    [HideInInspector] public CharacterMovement characterMovement;
+    [HideInInspector] public GameObject playerPuppetObj;
+    public Transform localTransform;
+    public PlayerType localPlayerType;
     public Rigidbody localRb;
 
-    public CharacterMovement characterMovement;
-
-
-    // Weapons and Gear
     [Header("Weapons and Gear")]
+    [HideInInspector] public PlayerLoadoutManager playerLoadout;
     public Transform weaponMountPoint;
     public Transform throwableMountPoint;
-    public PlayerLoadoutManager playerLoadout;
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource respawnAudioSource;
+    // Visuals
+    [HideInInspector] public PlayerCamera thirdPersonCamera;
+    [HideInInspector] public HUD playerHUD;
 
-
-
-
-
+    [Header("State")]
     public bool isInitialized = false;
 
 
     #region Lifecycle
     private void Awake()
     {
+        devVectorRenderer = GetComponent<DevVectorRenderer>();
         playerLoadout = GetComponent<PlayerLoadoutManager>();
         playerInputs = GetComponent<PlayerInputs>();
         characterMovement = GetComponent<CharacterMovement>();
@@ -97,12 +75,11 @@ public class PlayerController : Entity, IIdentifiable
         base.OnNetworkDespawn();
 
         SceneManager.activeSceneChanged -= ChangedActiveScene;
-        if (IsOwner && audioListener) audioListener.enabled = false;
     }
 
     private void Update()
     {
-        if (!playerTypeObj && IsServer && GameManager.Instance.isInitialized) SetPlayerType(playerTypePrefabObj);
+        if (!localPlayerType && IsServer && GameManager.Instance.isInitialized) SetPlayerType(playerTypePrefabObj);
         if (!isInitialized || !(IsServer || IsOwner) || state.IsDead) return;
 
         // Death plane check
@@ -192,8 +169,12 @@ public class PlayerController : Entity, IIdentifiable
     private void SetPlayerType(GameObject playerTypePrefabObj)
     {
         if (!IsServer) return;
-        if (playerTypeObj != null) Destroy(playerTypeObj);
-        playerTypeObj = SpawnManager.Instance.Spawn(
+        if (localPlayerType != null)
+        {
+            Destroy(localPlayerType.gameObject);
+            localPlayerType = null;
+        }
+        SpawnManager.Instance.Spawn(
             playerTypePrefabObj,
             false,
             transform.position,
@@ -256,30 +237,22 @@ public class PlayerController : Entity, IIdentifiable
         }
 
         // Initialize Player UI
-        if (!playerUIObj) {
-            playerUIObj = Instantiate(playerUIPrefabObj);
+        if (!playerHUD) {
+            GameObject playerUIObj = Instantiate(playerUIPrefabObj);
             playerHUD = playerUIObj.GetComponentInChildren<HUD>();
             playerTelemetry = new PlayerTelemetry(devVectorRenderer);
         }
 
         // Initialize Player Camera
-        if (!playerCameraObj)
+        if (!thirdPersonCamera)
         {
-            playerCameraObj = Instantiate(playerCameraPrefabObj);
-            audioListener = playerCameraObj.GetComponentInChildren<AudioListener>();
-            thirdPersonCamera = playerCameraObj.GetComponentInChildren<CinemachineCamera>();
-            thirdPersonCamera.Follow = localPlayerType.freeLookTargetTransform;
+            GameObject playerCameraObj = Instantiate(thirdPersonCameraPrefabObj);
+            thirdPersonCamera = playerCameraObj.GetComponentInChildren<PlayerCamera>();
+            thirdPersonCamera.SetFollowTarget(localPlayerType.freeLookTargetTransform);
 
-            Camera UIOverlayCamera = playerUIObj.GetComponentInChildren<Canvas>().worldCamera;
-            Camera mainCamera = playerCameraObj.GetComponentInChildren<Camera>();
-            var cameraData = mainCamera.GetUniversalAdditionalCameraData();
-            cameraData.cameraStack.Add(UIOverlayCamera);
-
-            // Enable audio listener
-            audioListener.enabled = true;
-
-            // Enable the camera
-            thirdPersonCamera.Priority.Value = 1;
+            Camera UIOverlayCamera = playerHUD.mainCanvas.worldCamera;
+            thirdPersonCamera.AddCameraToStack(UIOverlayCamera);
+            thirdPersonCamera.SetState(true);
         }
 
         InitializeServerRpc(GameManager.Instance?.usingSteam == true ? SteamClient.SteamId.Value : 0);
@@ -296,8 +269,7 @@ public class PlayerController : Entity, IIdentifiable
         // Get Player's Steam ID
         if (GameManager.Instance?.usingSteam == true)
         {
-            _steamId = steamId;
-            identification.SetEntityName(new Friend(_steamId).Name);
+            identification.SetEntityName(new Friend(steamId).Name);
         }
 
         playerLoadout.Initialize(true, this);
@@ -328,18 +300,15 @@ public class PlayerController : Entity, IIdentifiable
     private void DisconnectCleanupOwnerRpc()
     {
         // Disable the UI
-        if (playerCameraObj)
+        if (thirdPersonCamera)
         {
-            Camera mainCamera = playerCameraObj.GetComponentInChildren<Camera>();
-            var cameraData = mainCamera.GetUniversalAdditionalCameraData();
-            cameraData.cameraStack.Remove(playerUIObj.GetComponentInChildren<Canvas>().worldCamera);
-            Destroy(playerCameraObj);
-            playerCameraObj = null;
+            Destroy(thirdPersonCamera.gameObject);
+            thirdPersonCamera = null;
         }
-        if (playerUIObj)
+        if (playerHUD)
         {
-            Destroy(playerUIObj);
-            playerUIObj = null;
+            Destroy(playerHUD.gameObject);
+            playerHUD = null;
         }
         if (playerPuppetObj)
         {
@@ -420,8 +389,8 @@ public class PlayerController : Entity, IIdentifiable
     {
         if (GameManager.Instance?.debugMode == true) Debug.Log(GetType() + ": Changed active scene for " + name + " " + NetworkManager.Singleton.LocalClientId);
         if (playerPuppetObj) SceneManager.MoveGameObjectToScene(playerPuppetObj, SceneManager.GetSceneByName(sceneName));
-        if (playerUIObj) SceneManager.MoveGameObjectToScene(playerUIObj, SceneManager.GetSceneByName(sceneName));
-        if (playerCameraObj) SceneManager.MoveGameObjectToScene(playerCameraObj, SceneManager.GetSceneByName(sceneName));
+        if (playerHUD) SceneManager.MoveGameObjectToScene(playerHUD.gameObject, SceneManager.GetSceneByName(sceneName));
+        if (thirdPersonCamera) SceneManager.MoveGameObjectToScene(thirdPersonCamera.gameObject, SceneManager.GetSceneByName(sceneName));
 
         // if (sceneName == "Lobby") InitializeOwner();
     }

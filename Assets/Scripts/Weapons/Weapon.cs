@@ -127,7 +127,7 @@ public class Weapon : NetworkBehaviour
             }
             
             playerCamera = Camera.main;
-            playerController.playerUIObj.GetComponentInChildren<HUD>().AddWeaponUI(this);
+            playerController.playerHUD.AddWeaponUI(this);
         }
 
         if (isEquiped.Value) EquipRpc(RpcTarget.Me);

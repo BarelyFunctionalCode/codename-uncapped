@@ -113,9 +113,9 @@ public class PlayerInputs : EntityComponent
 
     private void ToggleCameraView()
     {
-        bool isThirdPerson = playerController.thirdPersonCamera.Priority.Value > 0;
-        playerController.thirdPersonCamera.Priority.Value = isThirdPerson ? 0 : 1;
-        playerController.localPlayerType.ToggleFirstPersonCamera(isThirdPerson);
+        bool isThirdPerson = playerController.thirdPersonCamera.IsEnabled;
+        playerController.thirdPersonCamera.SetState(!isThirdPerson);
+        playerController.localPlayerType.firstPersonCamera.SetState(isThirdPerson);
     }
 
     [Rpc(SendTo.Server)]

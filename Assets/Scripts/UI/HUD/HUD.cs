@@ -14,7 +14,7 @@ public enum HUDMenu
 
 public class HUD : MonoBehaviour
 {
-    [SerializeField] private Canvas mainCanvas;
+    public Canvas mainCanvas;
     [SerializeField] private TMP_Text leftObjectiveText;
     [SerializeField] private TMP_Text rightObjectiveText;
     [SerializeField] private TMP_Text countdownMinutesText;

@@ -5,14 +5,23 @@ using UnityEngine.Animations.Rigging;
 
 public class PlayerType : NetworkBehaviour
 {
+    public PlayerCamera firstPersonCamera;
+    public Transform pickupContainerHoldPoint;
+    public CapsuleCollider playerCollider;
+    public Transform freeLookTargetTransform;
+    public Animator playerAnimator;
+    public Transform weaponMountPoint;
+    public Transform throwableMountPoint;
+    public AudioSource hoverAudioSource;
+    public AudioSource windAudioSource;
+
+    [PauseMenuOption("Vertical Look", 0f, 100f)]
+    public float verticalRotationSpeed = 24f;
+    public float verticalRotationLimit = 100f;
+    
+    public float mass = 1f;
+
     [SerializeField] private GameObject modelObj;
-    [SerializeField] public CapsuleCollider playerCollider;
-    [SerializeField] public Transform freeLookTargetTransform;
-    [SerializeField] public Animator playerAnimator;
-    [SerializeField] public Transform weaponMountPoint;
-    [SerializeField] public Transform throwableMountPoint;
-    [SerializeField] public AudioSource hoverAudioSource;
-    [SerializeField] public AudioSource windAudioSource;
     [SerializeField] private ParticleSystem animationFootstepParticleSystem;
     [SerializeField] private GameObject deathEffectPrefab;
     private GameObject deathObj = null;
@@ -24,20 +33,12 @@ public class PlayerType : NetworkBehaviour
     private float hoverParticleMaxEmissionRate = 15f;
     [SerializeField] private ParticleSystem hoverEffectLeftFootParticleSystem;
     [SerializeField] private ParticleSystem hoverEffectRightFootParticleSystem;
-    [SerializeField] private CinemachineCamera firstPersonCamera;
-
-    [SerializeField] public Transform pickupContainerHoldPoint;
-
-    [PauseMenuOption("Vertical Look", 0f, 100f)]
-    public float verticalRotationSpeed = 24f;
-    public float verticalRotationLimit = 100f;
 
     private Vector3 animMovementDirection = Vector3.zero;
     private Quaternion desiredLegsDirection;
     private Quaternion currentLegsDirection;
     [SerializeField] private float legsRotateSpeed = 10f;
 
-    [SerializeField] public float mass = 1f;
 
     public sealed override void OnNetworkObjectParentChanged(NetworkObject networkObject = null)
     {
@@ -53,8 +54,6 @@ public class PlayerType : NetworkBehaviour
     {
         if (!NetworkObject.IsSpawned || IsOwner) firstPersonCamera.gameObject.SetActive(true);
     }
-
-    public void ToggleFirstPersonCamera(bool enable) => firstPersonCamera.Priority = enable ? 1 : 0;
 
     public void HandleCamera(float rotationInputY, int controlsDisabledCount)
     {
