@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4656258565046400826}
   - component: {fileID: 8429026921038095060}
   - component: {fileID: 6833453914904566171}
+  - component: {fileID: 1323781220731902336}
   - component: {fileID: 37481902983172762}
   - component: {fileID: 7062325461733093800}
   - component: {fileID: 5320158334529817789}
@@ -57,7 +58,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 148429366
+  GlobalObjectIdHash: 1947508556
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -102,16 +103,11 @@ MonoBehaviour:
   playerUIObj: {fileID: 0}
   playerHUD: {fileID: 0}
   playerInputs: {fileID: 0}
-  skiMaterial: {fileID: 13400000, guid: 5d01f8d4ca43e524696e30c3ba230525, type: 2}
-  normalMaterial: {fileID: 13400000, guid: 6b32901f691594d09b606d76ac27e734, type: 2}
   localRb: {fileID: 0}
-  localPlayerCollider: {fileID: 0}
+  characterMovement: {fileID: 0}
   weaponMountPoint: {fileID: 0}
   throwableMountPoint: {fileID: 0}
   playerLoadout: {fileID: 0}
-  groundeDetectionLayerMask:
-    serializedVersion: 2
-    m_Bits: 137
   isInitialized: 0
 --- !u!114 &6833453914904566171
 MonoBehaviour:
@@ -127,6 +123,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInputs
   ShowTopMostFoldoutHeaderGroup: 1
   horizontalRotationSpeed: 20
+--- !u!114 &1323781220731902336
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2197781301028936190}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b9d0673dc5e54443bc97296b4307575, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterMovement
+  ShowTopMostFoldoutHeaderGroup: 1
+  skiMaterial: {fileID: 13400000, guid: 5d01f8d4ca43e524696e30c3ba230525, type: 2}
+  normalMaterial: {fileID: 13400000, guid: 6b32901f691594d09b606d76ac27e734, type: 2}
+  groundeDetectionLayerMask:
+    serializedVersion: 2
+    m_Bits: 137
 --- !u!54 &37481902983172762
 Rigidbody:
   m_ObjectHideFlags: 0

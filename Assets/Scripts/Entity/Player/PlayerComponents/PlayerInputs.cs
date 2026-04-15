@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class PlayerInputs : EntityComponent
 {
-    private PickupContainer pickupContainer;
-
     private PlayerController playerController;
     private PlayerLoadoutManager playerLoadout;
     
@@ -152,9 +150,9 @@ public class PlayerInputs : EntityComponent
 
     private void ThrowableStarted()
     {
-        if (pickupContainer.CurrentlyHeldPickup != null)
+        if (playerController.pickupContainer.CurrentlyHeldPickup != null)
         {
-            pickupContainer.StartPutDownRpc();
+            playerController.pickupContainer.StartPutDownRpc();
         }
         else
         {
@@ -164,10 +162,10 @@ public class PlayerInputs : EntityComponent
 
     private void ThrowableReleased()
     {
-        if (pickupContainer.CurrentlyHeldPickup != null)
+        if (playerController.pickupContainer.CurrentlyHeldPickup != null)
         {
             Vector3 throwDirection = playerController.localPlayerType.freeLookTargetTransform.forward;
-            pickupContainer.TryPutDownRpc(throwDirection);
+            playerController.pickupContainer.TryPutDownRpc(throwDirection);
         }
         playerLoadout.OnThrowableCanceledRpc();
     }

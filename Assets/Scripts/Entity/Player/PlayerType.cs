@@ -87,6 +87,7 @@ public class PlayerType : NetworkBehaviour
             windAudioSource.pitch = Mathf.Lerp(windAudioSource.pitch, targetPitch, Time.fixedDeltaTime * 20f);
         }
     }
+    // TODO: Add RPC for hover audio so that other players can hear it
 
     public void HandleExtraMotion(Vector3 movementDirection, bool isHovering, Vector3 surfaceNormal)
     {
@@ -180,13 +181,13 @@ public class PlayerType : NetworkBehaviour
         animationFootstepParticleSystem.Emit(emitParams, 1);
     }
 
-    public void OnDie()
+    public void OnDie(Vector3 inheritedVelocity)
     {
         modelObj.SetActive(false);
         if (deathEffectPrefab != null)
         {
             deathObj = Instantiate(deathEffectPrefab, transform.position, Quaternion.identity);
-            deathObj.GetComponent<PlayerDeath>().Initialize(!NetworkObject.IsSpawned || IsOwner);
+            deathObj.GetComponent<PlayerDeath>().Initialize(!NetworkObject.IsSpawned || IsOwner, inheritedVelocity);
         }
     }
 

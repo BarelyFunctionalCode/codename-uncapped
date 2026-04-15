@@ -23,18 +23,18 @@ public class PlayerState : State
 
         playerInputs.SetPlayerControlsRpc(false);
         playerController.localRb.isKinematic = true;
-        playerController.localPlayerCollider.enabled = false;
-        OnDieRpc();
+        playerController.localPlayerType.playerCollider.enabled = false;
+        OnDieRpc(playerController.localRb.linearVelocity);
     }
     [Rpc(SendTo.Everyone)]
-    private void OnDieRpc()
+    private void OnDieRpc(Vector3 inheritedVelocity)
     {
         if (IsOwner)
         {
             playerController.localRb.isKinematic = true;
-            playerController.localPlayerCollider.enabled = false;
+            playerController.localPlayerType.playerCollider.enabled = false;
         }
-        playerController.localPlayerType.OnDie();
+        playerController.localPlayerType.OnDie(inheritedVelocity);
     }
 
     protected override void OnRespawn()
@@ -46,7 +46,7 @@ public class PlayerState : State
         if (respawnPoint) playerController.Teleport(respawnPoint.position, respawnPoint.rotation);
         else playerController.Teleport(Vector3.zero, Quaternion.identity);
 
-        playerController.localPlayerCollider.enabled = true;
+        playerController.localPlayerType.playerCollider.enabled = true;
         playerController.localRb.isKinematic = false;
         playerController.playerLoadout.Deinitialize();
         playerController.playerLoadout.Initialize();
@@ -60,7 +60,7 @@ public class PlayerState : State
         if (IsOwner)
         {
             playerController.localRb.isKinematic = false;
-            playerController.localPlayerCollider.enabled = true;
+            playerController.localPlayerType.playerCollider.enabled = true;
             respawnAudioSource.Play();
         }
         playerController.localPlayerType.OnRespawn();

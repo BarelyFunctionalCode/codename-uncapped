@@ -15,7 +15,7 @@ using UnityEngine.SceneManagement;
 [RequireComponent(typeof(PlayerState))]
 [RequireComponent(typeof(Energy))]
 [RequireComponent(typeof(Health))]
-public class PlayerController : Entity, IGravityModifiable, IIdentifiable
+public class PlayerController : Entity, IIdentifiable
 {
     [Space(20)]
     // Debug
@@ -54,14 +54,11 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
 
     // Physics
     [Header("Physics")]
-    [SerializeField] private PhysicsMaterial skiMaterial;
-    [SerializeField] private PhysicsMaterial normalMaterial;
+
     public Rigidbody localRb;
-    public CapsuleCollider localPlayerCollider;
-    Vector3 surfaceNormal = Vector3.up;
-    Vector3 surfacePoint = Vector3.zero;
-    float distanceToSurface = Mathf.Infinity;
-    float lastGroundedTime = 0;
+
+    public CharacterMovement characterMovement;
+
 
     // Weapons and Gear
     [Header("Weapons and Gear")]
@@ -69,46 +66,10 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     public Transform throwableMountPoint;
     public PlayerLoadoutManager playerLoadout;
 
-    // Movement Parameters
-    [SerializeField] private LayerMask groundeDetectionLayerMask;
-    private readonly float hoverHeightMax = 0.02f;
 
-    private readonly float upJetForce = 7031.25f; // TODO: This force value need to be moved to the elsewhere since they differ by class
-    private readonly float downJetForce = 5156.25f; // TODO: This force value need to be moved to the elsewhere since they differ by class
-    private readonly float jetAirMoveMinSpeed = 5f;
-    private readonly float jetAirMoveMaxSpeed = 1000f;
-    private readonly float jetAirMoveMaxAccelFactor = 1.5f;
-    private readonly float jetDirectionalForceXY = 3125f; 
-    private readonly float upJettingEnergyDrain = 22.5f;
-    private readonly float downJettingEnergyDrain = 21.875f;
-    private readonly float jetSkateEnergyDrain = 4f;
 
-    private readonly float runForce = 10000f;
-    private readonly float maxRunSpeed = 20f;
-    private readonly float jumpForce = 2000f;
-    private readonly float minJumpSpeed = 10f;
-    private readonly float maxJumpSpeed = 15f;
-    private readonly float jumpSurfaceAngle = 80f;
-    private readonly float airControl = 1f;
 
-    private readonly float horizontalJetResistance = 0.0017f;
-    private readonly float horizontalJetResistanceFactor = 1.8f;
-    private readonly float verticalJetResistance = 0.0006f;
-    private readonly float verticalJetResistanceFactor = 1.8f;
-    private readonly float horizResistFactor = 0.3f;
-    private readonly float horizResistSpeed = 100f;
-    private readonly float horizMaxSpeed = 120f;
-    private readonly float upResistFactor = 0.3f;
-    private readonly float upResistSpeed = 85f;
-    private readonly float upMaxSpeed = 115f;
-    private readonly float downResistFactor = 0.1f;
-    private readonly float downResistSpeed = 1000f;
-    private readonly float downMaxSpeed = 1000f;
-    private readonly float drag = 0.004f;                        
-    private readonly float airCushionDrag = 0.00275f;             
-    private readonly float airCushionHeight = 10f;    
 
-    private NetworkVariable<float> gravityModifier = new();
 
     public bool isInitialized = false;
 
@@ -118,6 +79,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     {
         playerLoadout = GetComponent<PlayerLoadoutManager>();
         playerInputs = GetComponent<PlayerInputs>();
+        characterMovement = GetComponent<CharacterMovement>();
     }
 
     public sealed override void OnNetworkSpawn()
@@ -125,11 +87,9 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         base.OnNetworkSpawn();
 
         SceneManager.activeSceneChanged += ChangedActiveScene;
-
         localTransform = transform;
         localRb = GetComponent<Rigidbody>();
         localRb.sleepThreshold = 0.0f;
-        if (IsServer) gravityModifier.Value = 1f;
     }
 
     public sealed override void OnNetworkDespawn()
@@ -137,54 +97,73 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         base.OnNetworkDespawn();
 
         SceneManager.activeSceneChanged -= ChangedActiveScene;
-
-        if (IsOwner)
-        {
-            // Disable audio listener
-            if (audioListener) audioListener.enabled = false;
-        }
+        if (IsOwner && audioListener) audioListener.enabled = false;
     }
 
     private void Update()
     {
+        if (!playerTypeObj && IsServer && GameManager.Instance.isInitialized) SetPlayerType(playerTypePrefabObj);
+        if (!isInitialized || !(IsServer || IsOwner) || state.IsDead) return;
+
+        // Death plane check
         if (IsServer && localTransform.position.y < -1000f) state.Die();
 
-        if (!playerTypeObj && IsServer && GameManager.Instance.isInitialized) SetPlayerType(playerTypePrefabObj);
-        if (!isInitialized || !(IsServer || IsOwner)) return;
+        // Update player telemetry for debugging purposes
+        if (IsOwner && playerTelemetry != null) playerTelemetry.Update();
 
-        if (IsOwner)
-        {
-            playerTelemetry.Update();
-        }
-
-        if (state.IsDead) return;
-
-        HandleGroundDetection();
-
-        // Apply Drag and Friction
-        localRb.linearDamping = distanceToSurface <= airCushionHeight ? airCushionDrag : drag;
-        localPlayerCollider.material = playerInputs.IsSkiing ? skiMaterial : normalMaterial;
+        // Character ground detection and physics material updates
+        characterMovement.ProcessUpdate(playerInputs.IsSkiing);
     }
 
     void LateUpdate()
     {
-        if (!isInitialized || !(IsOwner || IsServer)) return;
-
-        if (state.IsDead) return;
+        if (!isInitialized || !(IsOwner || IsServer) || state.IsDead) return;
 
         // Handle camera pitch rotation on local client
         playerInputs.HandleCameraInput();
         
-        localPlayerType.HandleExtraMotion(playerInputs.MovementDirection, playerInputs.IsSkiing, surfaceNormal);
+        // Additional visual effects based on player state
+        localPlayerType.HandleExtraMotion(playerInputs.MovementDirection, playerInputs.IsSkiing, characterMovement.SurfaceNormal);
     }
 
     void FixedUpdate()
     {
-        if (!isInitialized || !(IsServer || IsOwner)) return;
-        if (state.IsDead) return;
+        if (!isInitialized || !(IsServer || IsOwner) || state.IsDead) return;
 
         // First, we collect all of the inputs that go into moving the player, and create an input state
         playerInputs.HandleInputs();
+
+        // Set audio values
+        localPlayerType.HandleAudio(localRb.linearVelocity, playerInputs.IsSkiing);
+
+        // Set animator values
+        localPlayerType.UpdateAnimationData(
+            playerInputs.MovementInput,
+            localRb.linearVelocity,
+            state.IsGrounded,
+            playerInputs.IsRunning,
+            playerInputs.IsSkiing,
+            playerInputs.IsDownJetting,
+            playerInputs.IsUpJetting
+        );
+
+        // Finally, we process the inputs to move the player locally and on the server
+        characterMovement.ProcessFixedUpdate(
+            playerInputs.IsRunning,
+            playerInputs.IsJumping,
+            playerInputs.IsSkiing,
+            playerInputs.IsJetting,
+            playerInputs.IsUpJetting,
+            playerInputs.IsDownJetting,
+            playerInputs.MovementDirection,
+            playerInputs.RotationInputX
+        );
+        if (IsOwner && !IsHost) ClientAuthorityRotationSyncRpc(localRb.rotation);
+        if (playerInputs.IsJumping) 
+        {
+            localPlayerType.HandleJump();
+            playerInputs.ResetJumpInput();
+        }
 
         if (playerTelemetry != null)
         {
@@ -192,33 +171,19 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             playerTelemetry.isSkiing = playerInputs.IsSkiing;
             playerTelemetry.isUpJetting = playerInputs.IsUpJetting;
             playerTelemetry.isDownJetting = playerInputs.IsDownJetting;
-        }
-
-        // Set audio values
-        localPlayerType.HandleAudio(localRb.linearVelocity, playerInputs.IsSkiing);
-
-        // Set animator values
-        localPlayerType.UpdateAnimationData(playerInputs.MovementInput, localRb.linearVelocity, state.IsGrounded, playerInputs.IsRunning, playerInputs.IsSkiing, playerInputs.IsDownJetting, playerInputs.IsUpJetting);
-
-        // Finally, we process the inputs to move the player locally and on the server
-        HandleMovement();
-        if (IsOwner && !IsHost) ClientAuthorityRotationSyncRpc(localRb.rotation);
-
-        if (IsServer)
-        {
-            if (gravityModifier.Value != 1f)
-            {
-                gravityModifier.Value = Mathf.Lerp(gravityModifier.Value, 1f, Time.fixedDeltaTime * 5f);
-                if (Mathf.Abs(gravityModifier.Value - 1f) < 0.01f) gravityModifier.Value = 1f;
-            }
-        }
-
-        playerInputs.ResetJumpInput();
-        if (playerTelemetry != null)
-        {
             playerTelemetry.position = localTransform.position;
-            playerTelemetry.finalVelocity = localRb.linearVelocity;
+            playerTelemetry.velocity = localRb.linearVelocity;
+            playerTelemetry.distanceToSurface = characterMovement.DistanceToSurface;
+            playerTelemetry.surfacePoint = characterMovement.SurfacePoint;
+            playerTelemetry.isGrounded = state.IsGrounded;
+            playerTelemetry.surfaceNormal = characterMovement.SurfaceNormal;
         }
+    }
+
+    [Rpc(SendTo.Server)]
+    private void ClientAuthorityRotationSyncRpc(Quaternion ownerRotation)
+    {
+        localRb.rotation = Quaternion.RotateTowards(localRb.rotation, ownerRotation, playerInputs.horizontalRotationLimit);
     }
     #endregion
 
@@ -241,8 +206,6 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     public void OnPlayerTypeObjectSpawned(PlayerType playerType, bool isPuppet = false)
     {
         localPlayerType = playerType;
-        localPlayerCollider = playerType.playerCollider;
-        localPlayerCollider.material = normalMaterial;
 
         if (!isPuppet)
         {
@@ -250,6 +213,8 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             weaponMountPoint = playerType.weaponMountPoint;
             throwableMountPoint = playerType.throwableMountPoint;
         }
+
+        characterMovement.UpdateCharacterData(null, playerType.playerCollider, null);
 
         GetComponent<PickupContainer>().pickupHoldPoint = playerType.pickupContainerHoldPoint;
 
@@ -274,7 +239,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             }
 
             // Disable the collider on the authoritative player object so it doesn't interfere with the puppet's collider
-            localPlayerCollider.enabled = false;
+            localPlayerType.playerCollider.enabled = false;
 
             // Spawn a non-authoritative puppet on local client for predicting the player's position and rotation before the server updates it
             playerPuppetObj = Instantiate(playerPuppetPrefabObj, localTransform.position, localTransform.rotation);
@@ -285,6 +250,8 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             // player controller code can work as normal regardless of whether it's running on the server or client
             localTransform = playerPuppetObj.transform;
             localRb = playerPuppet.rb;
+            localRb.mass = localPlayerType.mass;
+            characterMovement.UpdateCharacterData(localTransform, null, localRb);
             return;
         }
 
@@ -384,352 +351,18 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
     }
     #endregion
 
-    #region Movement
-    public void SetGravityModifier(float modifier)
-    {
-        if (!IsSpawned || !IsServer) return;
-        gravityModifier.Value = modifier;
-    }
 
+    #region Movement
     public void Teleport(Vector3 destination, Quaternion rotation = default)
     {
         if (!IsServer) return;
 
         playerInputs.SetPlayerControlsRpc(false);
-        localRb.isKinematic = true;
-        localPlayerCollider.enabled = false;
-
-        // localRb.position = destination;
-        // if (rotation != default) localRb.rotation = rotation;
-        // localRb.PublishTransform();
-        GetComponent<NetworkTransform>().Teleport(destination, rotation, localTransform.lossyScale);
-
-        localPlayerCollider.enabled = true;
-        localRb.isKinematic = false;
+        characterMovement.Teleport(destination, rotation);
         playerInputs.SetPlayerControlsRpc(true);
     }
-
-    private void HandleGroundDetection()
-    {
-        lastGroundedTime += Time.deltaTime;
-        state.SetIsGrounded(false);
-
-        distanceToSurface = Mathf.Infinity;
-        surfaceNormal = Vector3.up;
-        surfacePoint = Vector3.zero;
-
-        // Raycast down...
-        Vector3 groundCheckPoint = localPlayerCollider.bounds.center;
-        RaycastHit hit;
-        bool didHit = Physics.Raycast(
-            new Ray(
-                groundCheckPoint,
-                Vector3.down
-            ),
-            out hit,
-            distanceToSurface,
-            groundeDetectionLayerMask
-        );
-        if (didHit)
-        {
-            if (playerTelemetry != null) playerTelemetry.isGrounded = state.IsGrounded;
-            
-            // Surface too steep
-            float slope = Vector3.Dot(hit.normal, Vector3.up);
-            if (slope <= 0.1f) return;
-
-            surfacePoint = hit.point;
-            distanceToSurface = Mathf.Max(Vector3.Distance(surfacePoint, groundCheckPoint) - localPlayerCollider.bounds.extents.y - 0.2f, 0.0f);
-
-            if (playerTelemetry != null) playerTelemetry.distanceToSurface = distanceToSurface;
-            if (playerTelemetry != null) playerTelemetry.surfacePoint = surfacePoint;
-
-            // Breakaway vertical speed check
-            if (localRb.linearVelocity.y > 20.0f) return;
-
-            if (distanceToSurface <= 0.6f)
-            {
-                state.SetIsGrounded(true);
-                lastGroundedTime = 0f;
-            }
-            else if (lastGroundedTime < 0.2f) state.SetIsGrounded(true);
-            else state.SetIsGrounded(false);
-
-            if (state.IsGrounded) surfaceNormal = hit.normal;
-        }
-
-        if (playerTelemetry != null) playerTelemetry.isGrounded = state.IsGrounded;
-        if (playerTelemetry != null) playerTelemetry.surfaceNormal = surfaceNormal;
-        
-    }
-
-    [Rpc(SendTo.Server)]
-    private void ClientAuthorityRotationSyncRpc(Quaternion ownerRotation)
-    {
-        localRb.rotation = Quaternion.RotateTowards(localRb.rotation, ownerRotation, playerInputs.horizontalRotationLimit);
-    }
-
-    private void HandleMovement()
-    {
-        Vector3 currentVelocity = localRb.linearVelocity;
-        Vector3 desiredAcc = Vector3.zero;
-        Vector3 groundImpulse = Vector3.zero;
-        float desiredVerticalAcc = 0f;
-
-        float gravityMagnitude = Physics.gravity.magnitude * gravityModifier.Value;
-
-        // Air Control
-        if (!state.IsGrounded && !playerInputs.IsJetting && !playerInputs.IsSkiing)
-        {
-            Vector3 airDirection = playerInputs.MovementDirection.normalized;
-            Vector3 airControlAcc = airDirection * airControl;
-
-            float maxAccel = runForce / localRb.mass * Time.fixedDeltaTime * 0.3f;
-
-            if (airControlAcc.magnitude > maxAccel)
-            {
-                airControlAcc = airControlAcc.normalized * maxAccel;
-            }
-            desiredAcc.x += airControlAcc.x;
-            desiredAcc.z += airControlAcc.z;
-        }
-
-        // Jumping
-        if (playerInputs.IsJumping && state.IsGrounded && currentVelocity.y <= maxJumpSpeed)
-        {
-            float jumpScale = 1.0f;
-
-            if (currentVelocity.y < minJumpSpeed)
-            {
-                jumpScale = 1.0f - currentVelocity.y / minJumpSpeed / (maxJumpSpeed / minJumpSpeed);
-            }
-
-            Vector3 jumpDirection = playerInputs.MovementDirection.normalized;
-
-            float playerScaleFactor = localTransform.localScale.y * 0.25f + 0.75f;
-            float jumpForceFinal = jumpForce / localRb.mass;
-
-            float surfaceNormalDotJumpDirection = Vector3.Dot(jumpDirection, surfaceNormal);
-
-            if (surfaceNormalDotJumpDirection > 0.0f)
-            {
-                desiredAcc.x += surfaceNormal.x * playerScaleFactor * jumpForceFinal;
-                desiredAcc.z += surfaceNormal.z * playerScaleFactor * jumpForceFinal;
-            }
-
-            Vector3 jumpSurfaceNormal = Vector3.Angle(surfaceNormal, Vector3.up) <= jumpSurfaceAngle ?
-                surfaceNormal :
-                Vector3.zero;
-            desiredVerticalAcc = jumpSurfaceNormal.y * playerScaleFactor * jumpForceFinal * jumpScale;
-            lastGroundedTime = 1f;
-            localPlayerType.HandleJump();
-        }
-        // Running Movement
-        else if (playerInputs.IsRunning)
-        {
-            groundImpulse = new(0f, -gravityMagnitude * Time.fixedDeltaTime, 0f);
-            float slopeDot = -Vector3.Dot(groundImpulse, surfaceNormal);
-
-            if (slopeDot > 0.0f)
-            {
-                float modifiedSlopeDot = slopeDot + 0.002f;
-                groundImpulse.y += surfaceNormal.y * modifiedSlopeDot;
-                groundImpulse.z += surfaceNormal.z * modifiedSlopeDot;
-                if (groundImpulse.magnitude < 0.0f) groundImpulse = Vector3.zero;
-            }
-
-            Vector3 targetVelocity = Vector3.zero;
-            if (playerInputs.MovementDirection.magnitude > 0.01f)
-            {
-                Vector3 runDirection = playerInputs.MovementDirection;
-                Vector3 forwardDirection = surfaceNormal;
-                Vector3 sideDirection = new(-runDirection.z * runDirection.magnitude, 0f, runDirection.x * runDirection.magnitude);
-                float sideDot = Vector3.Dot(sideDirection, forwardDirection);
-                forwardDirection -= sideDirection * sideDot;
-                float moveDot = Vector3.Dot(runDirection, forwardDirection);
-                runDirection -= forwardDirection * moveDot;
-                targetVelocity = runDirection * (maxRunSpeed / runDirection.magnitude);
-            }
-
-            Vector3 velocityDiff = targetVelocity - (currentVelocity + groundImpulse);
-
-            float maxRunAccel = runForce / localRb.mass * Time.fixedDeltaTime;
-            if (velocityDiff.magnitude > maxRunAccel)
-                velocityDiff *= maxRunAccel / velocityDiff.magnitude;
-
-            groundImpulse += velocityDiff;
-        }
-
-        // Skiing Movement
-        if (playerInputs.IsSkiing && energy.CurrentEnergy > 0.0f)
-        {
-            // Hovering
-            // More force the closer to the surface...
-            float hoverFactor = Mathf.Clamp01(1.0f - (distanceToSurface - hoverHeightMax) / hoverHeightMax) * 1.1f;
-
-            Vector3 lateralVelocityDir = Vector3.ProjectOnPlane(currentVelocity, Vector3.up).normalized;
-            float surfaceNormalDotLateralVelocityDirection = Vector3.Dot(surfaceNormal, lateralVelocityDir);
-
-            if (surfaceNormalDotLateralVelocityDirection > 0.0f)
-            {
-                // Going Downhill?
-                // player is pushed fast downhill... easy
-                desiredAcc = 2.0f * hoverFactor * gravityMagnitude * Time.fixedDeltaTime * Vector3.ProjectOnPlane(surfaceNormal, Vector3.up);
-            }
-            else
-            {
-                // Going Uphill?
-                Vector3 surfaceDirection = (surfaceNormal - lateralVelocityDir * surfaceNormalDotLateralVelocityDirection).normalized;
-                Vector3 sideDirection = -lateralVelocityDir;
-                float sideDot = Vector3.Dot(surfaceDirection, sideDirection);
-                
-                desiredAcc = 0.5f * hoverFactor * gravityMagnitude * Time.fixedDeltaTime * (surfaceDirection - lateralVelocityDir * sideDot);
-            }
-            desiredAcc.y = 0.0f;
-            Vector3 hoverVertAcc = hoverFactor * gravityMagnitude * Time.fixedDeltaTime * Vector3.up;
-            currentVelocity += hoverVertAcc;
-        }
-
-        // Jetting Movement
-        // TODO: I think there is suppose to be some kind of "Jet Activation Timeout" for when energy depletes to prevent immediate re-jetting
-        float speed = currentVelocity.magnitude;
-        if (speed < jetAirMoveMaxSpeed)
-        {
-            float accelScale = 1.0f;
-            if (speed < jetAirMoveMinSpeed && speed > 0.01f)
-            {
-                accelScale = Mathf.Min(
-                    jetAirMoveMinSpeed / speed,
-                    jetAirMoveMaxAccelFactor);
-            }
-
-            // Directional Control while Jetting/Skiing
-            if (playerInputs.IsSkiing && playerInputs.MovementDirection.magnitude > 0.01f && energy.CurrentEnergy > 0.0f)
-            {
-                float lateralForce = jetDirectionalForceXY / localRb.mass * accelScale * Time.fixedDeltaTime;
-                desiredAcc += playerInputs.MovementDirection * lateralForce;
-                energy.ApplyEnergyDelta(-jetSkateEnergyDrain * accelScale * Time.fixedDeltaTime);
-            }
-
-            // Up Jetting
-            if (playerInputs.IsJetting && energy.CurrentEnergy > 0.01f)
-            {
-                float force = 0f;
-                if (playerInputs.IsUpJetting)
-                {
-                    float cushion = 1.0f;
-                    if (distanceToSurface <= airCushionHeight)
-                        cushion = (airCushionHeight - distanceToSurface) / airCushionHeight;
-
-                    force = upJetForce / localRb.mass * accelScale * Time.fixedDeltaTime;
-                    force += force * cushion * 0.5f;
-                }
-                else if (playerInputs.IsDownJetting) // Down Jetting
-                {
-                    force = -downJetForce / localRb.mass * accelScale * Time.fixedDeltaTime;
-                }
-
-                desiredVerticalAcc = force;
-                energy.ApplyEnergyDelta(- (playerInputs.IsUpJetting ? upJettingEnergyDrain : downJettingEnergyDrain) * accelScale * Time.fixedDeltaTime);
-            }
-        }
-
-        if (playerTelemetry != null) playerTelemetry.rawInputVelocity = currentVelocity + desiredAcc + groundImpulse;
-
-        // Apply Jet Resistance
-        currentVelocity += CalculateJetResistance(currentVelocity, desiredVerticalAcc, desiredAcc);
-        if (playerTelemetry != null) playerTelemetry.jetResistVelocity = currentVelocity;
-
-        // Apply desired acceleration, jetting accelration, walking acceleration, and gravity
-        desiredAcc.y += desiredVerticalAcc;
-        desiredAcc.y -= gravityMagnitude * Time.fixedDeltaTime;
-        desiredAcc += groundImpulse;
-        currentVelocity += desiredAcc;
-
-        // Apply velocity caps
-        currentVelocity += CalculateVelocityCaps(currentVelocity);
-        if (playerTelemetry != null) playerTelemetry.cappedSpeedVelocity = currentVelocity;
-        // Debug.Log($"Current Velocity: {rb.linearVelocity:F2}\t Desired Acc: {desiredAcc:F2}\t Jet Resistance: {jetResistance:F2}\t Capped Excess: {velocityCappedExcess:F2}\t Final Velocity: {currentVelocity:F2}");
-    
-        // Calculate final change in velocity to apply
-        Vector3 finalVelocityChange = currentVelocity - localRb.linearVelocity;
-
-        // Calculate rotation to apply
-        Quaternion newRot = Quaternion.Euler(localRb.rotation.eulerAngles + new Vector3(0f, playerInputs.RotationInputX, 0f));
-
-        // Apply velocity and rotation updates to rigidbody
-        localRb.AddForce(finalVelocityChange, ForceMode.VelocityChange);
-        localRb.MoveRotation(newRot);
-        // Debug.Log($"{(IsServer ? "Server" : "Client")} {OwnerClientId} Authoritative State: {anticipatedNetworkTransform.AuthoritativeState.Position}, {anticipatedNetworkTransform.AuthoritativeState.Rotation.eulerAngles} Should Reanticipate: {anticipatedNetworkTransform.ShouldReanticipate}");
-    }
-
-    private Vector3 CalculateJetResistance(Vector3 currentVelocity, float desiredVerticalAcc, Vector3 desiredAcc)
-    {
-        Vector3 newVelocity = currentVelocity;
-
-        // Vertical
-        float currentVerticalSpeed = Mathf.Abs(currentVelocity.y);
-        float currentDesiredVerticalAccel = Mathf.Abs(desiredVerticalAcc);
-
-        if (currentVerticalSpeed > 0.0f && currentDesiredVerticalAccel > 0.0f)
-        {
-            float resist = Mathf.Clamp(Mathf.Pow(currentVerticalSpeed, verticalJetResistanceFactor) * verticalJetResistance, 0.0f, 0.25f);
-            newVelocity.y *= (currentVerticalSpeed - resist * currentDesiredVerticalAccel) / currentVerticalSpeed;
-        }
-
-        // Horizontal
-        Vector3 currentHorizontalVelocity = Vector3.ProjectOnPlane(currentVelocity, Vector3.up);
-        float currentHorizontalSpeed = currentHorizontalVelocity.magnitude;
-        float currentDesiredAccel = desiredAcc.magnitude;
-
-        if (currentHorizontalSpeed > 0.0f && currentDesiredAccel > 0.0f)
-        {
-            float resist = Mathf.Clamp(Mathf.Pow(currentHorizontalSpeed, horizontalJetResistanceFactor) * horizontalJetResistance, 0.0f, 0.925f);
-            float scale = (currentHorizontalSpeed - resist * currentDesiredAccel) / currentHorizontalSpeed;
-            newVelocity.x *= scale;
-            newVelocity.z *= scale;
-        }
-
-        return newVelocity - currentVelocity;
-    }
-
-    private Vector3 CalculateVelocityCaps(Vector3 currentVelocity)
-    {
-        // Horizontal Velocity Cap
-        Vector3 cappedVelocity = currentVelocity;
-        Vector3 horizVelocity = Vector3.ProjectOnPlane(currentVelocity, Vector3.up);
-        float horizSpeed = horizVelocity.magnitude;
-        if (horizSpeed > horizResistSpeed * 3.0f)
-        {
-            float maxSpeed = horizMaxSpeed * 3.0f;
-            float targetSpeed = Mathf.Min(horizSpeed, maxSpeed);
-
-            float scale = (targetSpeed - Time.fixedDeltaTime * horizResistFactor * (targetSpeed - horizResistSpeed)) / horizSpeed;
-            cappedVelocity.x *= scale;
-            cappedVelocity.z *= scale;
-        }
-
-        // Upward Velocity Cap
-        if (cappedVelocity.y > upResistSpeed)
-        {
-            if (cappedVelocity.y > upMaxSpeed)
-                cappedVelocity.y = upMaxSpeed;
-
-            cappedVelocity.y -= Time.fixedDeltaTime * upResistFactor * (cappedVelocity.y - upResistSpeed);
-        }
-
-        // Downward Velocity Cap
-        if (cappedVelocity.y < -downResistSpeed)
-        {
-            if (cappedVelocity.y < -downMaxSpeed)
-                cappedVelocity.y = -downMaxSpeed;
-
-            cappedVelocity.y += Time.fixedDeltaTime * downResistFactor * (cappedVelocity.y + downResistSpeed);
-        }
-
-        return cappedVelocity - currentVelocity;
-    }
     #endregion
+
 
     #region Collision
     private void OnCollisionEnter(Collision collision)
@@ -759,14 +392,10 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
             health.TakeDamage(damage);
         }
     }
-
-
     #endregion
 
 
-    #region Player State
-    
-
+    #region Player Identification
     public IdentifierData GetIdentifierData()
     {
         return new IdentifierData
@@ -778,6 +407,7 @@ public class PlayerController : Entity, IGravityModifiable, IIdentifiable
         };
     }
     #endregion
+
 
     #region SceneManagement
     private void ChangedActiveScene(Scene _, Scene next)
