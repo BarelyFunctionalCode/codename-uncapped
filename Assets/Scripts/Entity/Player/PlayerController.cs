@@ -32,17 +32,11 @@ public class PlayerController : Entity, IIdentifiable
     [HideInInspector] public PlayerInputs playerInputs;
     [HideInInspector] public CharacterMovement characterMovement;
     [HideInInspector] public GameObject playerPuppetObj;
+    [HideInInspector] public PlayerLoadoutManager playerLoadout;
     public Transform localTransform;
     public PlayerType localPlayerType;
     public Rigidbody localRb;
 
-    [Header("Weapons and Gear")]
-    [HideInInspector] public PlayerLoadoutManager playerLoadout;
-    public Transform weaponMountPoint;
-    public Transform throwableMountPoint;
-
-    [Header("Audio")]
-    [SerializeField] private AudioSource respawnAudioSource;
     // Visuals
     [HideInInspector] public PlayerCamera thirdPersonCamera;
     [HideInInspector] public HUD playerHUD;
@@ -187,16 +181,8 @@ public class PlayerController : Entity, IIdentifiable
     public void OnPlayerTypeObjectSpawned(PlayerType playerType, bool isPuppet = false)
     {
         localPlayerType = playerType;
-
-        if (!isPuppet)
-        {
-            localRb.mass = playerType.mass;
-            weaponMountPoint = playerType.weaponMountPoint;
-            throwableMountPoint = playerType.throwableMountPoint;
-        }
-
+        localRb.mass = playerType.mass;
         characterMovement.UpdateCharacterData(null, playerType.playerCollider, null);
-
         GetComponent<PickupContainer>().pickupHoldPoint = playerType.pickupContainerHoldPoint;
 
         if (IsOwner) InitializeOwner();
@@ -225,14 +211,11 @@ public class PlayerController : Entity, IIdentifiable
             // Spawn a non-authoritative puppet on local client for predicting the player's position and rotation before the server updates it
             playerPuppetObj = Instantiate(playerPuppetPrefabObj, localTransform.position, localTransform.rotation);
             PlayerPuppet playerPuppet = playerPuppetObj.GetComponent<PlayerPuppet>();
-            playerPuppet.Initialize(this);
-
-            // Set the local player's transform, collider, and rigidbody references to the puppet's so that the rest of the
-            // player controller code can work as normal regardless of whether it's running on the server or client
+            // Set the local player's transform and, and rigidbody references to the puppet's so that the rest of the
             localTransform = playerPuppetObj.transform;
             localRb = playerPuppet.rb;
-            localRb.mass = localPlayerType.mass;
             characterMovement.UpdateCharacterData(localTransform, null, localRb);
+            playerPuppet.Initialize(this);
             return;
         }
 
@@ -267,10 +250,7 @@ public class PlayerController : Entity, IIdentifiable
         identification.SetTeamId((uint)OwnerClientId);
 
         // Get Player's Steam ID
-        if (GameManager.Instance?.usingSteam == true)
-        {
-            identification.SetEntityName(new Friend(steamId).Name);
-        }
+        if (GameManager.Instance?.usingSteam == true) identification.SetEntityName(new Friend(steamId).Name);
 
         playerLoadout.Initialize(true, this);
         PostInitializeRpc();
@@ -379,10 +359,7 @@ public class PlayerController : Entity, IIdentifiable
 
 
     #region SceneManagement
-    private void ChangedActiveScene(Scene _, Scene next)
-    {
-        ChangedActiveSceneRpc(next.name);
-    }
+    private void ChangedActiveScene(Scene _, Scene next) => ChangedActiveSceneRpc(next.name);
 
     [Rpc(SendTo.Owner)]
     private void ChangedActiveSceneRpc(string sceneName)
@@ -391,8 +368,6 @@ public class PlayerController : Entity, IIdentifiable
         if (playerPuppetObj) SceneManager.MoveGameObjectToScene(playerPuppetObj, SceneManager.GetSceneByName(sceneName));
         if (playerHUD) SceneManager.MoveGameObjectToScene(playerHUD.gameObject, SceneManager.GetSceneByName(sceneName));
         if (thirdPersonCamera) SceneManager.MoveGameObjectToScene(thirdPersonCamera.gameObject, SceneManager.GetSceneByName(sceneName));
-
-        // if (sceneName == "Lobby") InitializeOwner();
     }
     #endregion
 }

@@ -112,8 +112,8 @@ public class PlayerLoadoutManager : NetworkBehaviour
         GameObject newWeapon = SpawnManager.Instance.Spawn(
             weaponPrefabObj,
             false,
-            playerController.weaponMountPoint.position,
-            playerController.weaponMountPoint.rotation,
+            playerController.localPlayerType.weaponMountPoint.position,
+            playerController.localPlayerType.weaponMountPoint.rotation,
             playerController.transform,
             playerController.OwnerClientId
         );
@@ -130,8 +130,8 @@ public class PlayerLoadoutManager : NetworkBehaviour
         GameObject newThrowable = SpawnManager.Instance.Spawn(
             throwablePrefabObj,
             false,
-            playerController.throwableMountPoint.position,
-            playerController.throwableMountPoint.rotation,
+            playerController.localPlayerType.throwableMountPoint.position,
+            playerController.localPlayerType.throwableMountPoint.rotation,
             playerController.transform,
             playerController.OwnerClientId
         );
