@@ -152,10 +152,7 @@ public class PlayerType : NetworkBehaviour
         rightEmission.rateOverTime = Mathf.Lerp(rightEmission.rateOverTime.constant, emmissionRate, Time.deltaTime * 5f);
     }
 
-    public void HandleJump() => playerAnimator.SetTrigger("triggerJump");
-
-    public void UpdateAnimationData(Vector3 movement, Vector3 velocity, bool isGrounded,
-                                    bool isRunning, bool isSkiing, bool isDownJetting, bool isUpJetting)
+    public void UpdateAnimationData(Vector3 movement, Vector3 velocity, bool isGrounded, bool isSkiing, bool isDownJetting, bool isUpJetting, bool isJumping)
     {
         Vector3 animMovementDirectionNewY = Vector3.up * (isDownJetting ? -1f : (isUpJetting ? 1f : 0f));
         animMovementDirection = Vector3.Lerp(animMovementDirection, movement.normalized + animMovementDirectionNewY, Time.fixedDeltaTime * 10f);
@@ -164,9 +161,11 @@ public class PlayerType : NetworkBehaviour
         playerAnimator.SetFloat("zDir", animMovementDirection.z);
         playerAnimator.SetFloat("yVel", velocity.normalized.y);
         playerAnimator.SetBool("isGrounded", isGrounded);
-        playerAnimator.SetBool("isRunning", isRunning);
+        playerAnimator.SetBool("isRunning", isGrounded && movement.magnitude > 0.1f && !isSkiing);
         playerAnimator.SetBool("isSkiing", isSkiing && !isUpJetting && !isDownJetting);
         playerAnimator.SetBool("isJetting", isUpJetting || isDownJetting);
+
+        if (isJumping) playerAnimator.SetTrigger("triggerJump");
     }
 
     public void AnimationFootstepEvent(int footIndex)

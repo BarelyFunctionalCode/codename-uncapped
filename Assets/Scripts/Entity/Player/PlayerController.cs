@@ -16,8 +16,16 @@ using UnityEngine.SceneManagement;
 [RequireComponent(typeof(Energy))]
 [RequireComponent(typeof(PlayerLoadoutManager))]
 [RequireComponent(typeof(DevVectorRenderer))]
+[RequireComponent(typeof(PickupContainer))]
 public class PlayerController : Entity, IIdentifiable
 {
+    // Generic Character things
+    [HideInInspector] public CharacterMovement characterMovement;
+
+
+
+
+    // Player specific things
     [Header("Prefabs")]
     public GameObject playerTypePrefabObj;
     [SerializeField] private GameObject playerPuppetPrefabObj;
@@ -30,7 +38,6 @@ public class PlayerController : Entity, IIdentifiable
 
     [Header("Main Components")]
     [HideInInspector] public PlayerInputs playerInputs;
-    [HideInInspector] public CharacterMovement characterMovement;
     [HideInInspector] public GameObject playerPuppetObj;
     [HideInInspector] public PlayerLoadoutManager playerLoadout;
     public Transform localTransform;
@@ -48,10 +55,11 @@ public class PlayerController : Entity, IIdentifiable
     #region Lifecycle
     private void Awake()
     {
+        characterMovement = GetComponent<CharacterMovement>();
+
         devVectorRenderer = GetComponent<DevVectorRenderer>();
         playerLoadout = GetComponent<PlayerLoadoutManager>();
         playerInputs = GetComponent<PlayerInputs>();
-        characterMovement = GetComponent<CharacterMovement>();
     }
 
     public sealed override void OnNetworkSpawn()
@@ -76,14 +84,15 @@ public class PlayerController : Entity, IIdentifiable
         if (!localPlayerType && IsServer && GameManager.Instance.isInitialized) SetPlayerType(playerTypePrefabObj);
         if (!isInitialized || !(IsServer || IsOwner) || state.IsDead) return;
 
-        // Death plane check
-        if (IsServer && localTransform.position.y < -1000f) state.Die();
-
         // Update player telemetry for debugging purposes
         if (IsOwner && playerTelemetry != null) playerTelemetry.Update();
 
+
+        // Death plane check
+        if (IsServer && localTransform.position.y < -1000f) state.Die();
+
         // Character ground detection and physics material updates
-        characterMovement.ProcessUpdate(playerInputs.IsSkiing);
+        characterMovement.ProcessUpdate();
     }
 
     void LateUpdate()
@@ -103,38 +112,35 @@ public class PlayerController : Entity, IIdentifiable
 
         // First, we collect all of the inputs that go into moving the player, and create an input state
         playerInputs.HandleInputs();
-
-        // Set audio values
-        localPlayerType.HandleAudio(localRb.linearVelocity, playerInputs.IsSkiing);
+        characterMovement.SetMovementInputs(
+            playerInputs.MovementDirection,
+            playerInputs.RotationInputX,
+            playerInputs.IsJumping,
+            playerInputs.IsSkiing,
+            playerInputs.IsUpJetting,
+            playerInputs.IsDownJetting
+        );
 
         // Set animator values
         localPlayerType.UpdateAnimationData(
             playerInputs.MovementInput,
             localRb.linearVelocity,
             state.IsGrounded,
-            playerInputs.IsRunning,
             playerInputs.IsSkiing,
             playerInputs.IsDownJetting,
-            playerInputs.IsUpJetting
+            playerInputs.IsUpJetting,
+            playerInputs.IsJumping
         );
+        // Set audio values
+        localPlayerType.HandleAudio(localRb.linearVelocity, playerInputs.IsSkiing);
 
         // Finally, we process the inputs to move the player locally and on the server
-        characterMovement.ProcessFixedUpdate(
-            playerInputs.IsRunning,
-            playerInputs.IsJumping,
-            playerInputs.IsSkiing,
-            playerInputs.IsJetting,
-            playerInputs.IsUpJetting,
-            playerInputs.IsDownJetting,
-            playerInputs.MovementDirection,
-            playerInputs.RotationInputX
-        );
+        characterMovement.ProcessFixedUpdate();
+
+        // This makes the client's local rotation authoritative
         if (IsOwner && !IsHost) ClientAuthorityRotationSyncRpc(localRb.rotation);
-        if (playerInputs.IsJumping) 
-        {
-            localPlayerType.HandleJump();
-            playerInputs.ResetJumpInput();
-        }
+
+        playerInputs.ResetJumpInput();
 
         if (playerTelemetry != null)
         {
@@ -160,6 +166,11 @@ public class PlayerController : Entity, IIdentifiable
 
 
     #region Initialization
+    // The first thing that happens when the player spawns is that we spawn their PlayerType object,
+    // which contains all of the visual and animation data for the player. PlayerType is a separate Network Object
+    // that is spawned as a child of the PlayerController, and the PlayerController holds a reference to it.
+    // This separation allows us to easily swap out the player's model and animations by simply despawning the
+    // current PlayerType and spawning a new one.
     private void SetPlayerType(GameObject playerTypePrefabObj)
     {
         if (!IsServer) return;
@@ -178,7 +189,8 @@ public class PlayerController : Entity, IIdentifiable
         );
     }
 
-    public void OnPlayerTypeObjectSpawned(PlayerType playerType, bool isPuppet = false)
+    // This is called by the newly spawned PlayerType object after it finishes initializing itself.
+    public void OnPlayerTypeObjectSpawned(PlayerType playerType)
     {
         localPlayerType = playerType;
         localRb.mass = playerType.mass;
@@ -188,9 +200,13 @@ public class PlayerController : Entity, IIdentifiable
         if (IsOwner) InitializeOwner();
     }
 
+    // InitializeOwner is called once on the local client after the player's PlayerType object is spawned and initialized.
+    // This is to set up any local-only parts of the player object, like the camera and UI.
     public void InitializeOwner()
     {
         if (!IsOwner) return;
+
+        // Initialize Player Puppet for local client prediction of player movement before server updates are received
         if (!IsHost && !playerPuppetObj)
         {
             // Hide all visuals on authoritative player object
@@ -242,6 +258,8 @@ public class PlayerController : Entity, IIdentifiable
         isInitialized = true;
     }
 
+    // InitializeServerRpc is called on the server after InitializeOwner is finished.
+    // This is to set up any server-authoritative parts of the player object.
     [Rpc(SendTo.Server)]
     private void InitializeServerRpc(ulong steamId)
     {
@@ -253,13 +271,15 @@ public class PlayerController : Entity, IIdentifiable
         if (GameManager.Instance?.usingSteam == true) identification.SetEntityName(new Friend(steamId).Name);
 
         playerLoadout.Initialize(true, this);
-        PostInitializeRpc();
+        PostInitializeOwnerRpc();
         isInitialized = true;
         GameManager.Instance.OnClientConnectedEvent.Invoke(OwnerClientId);
     }
 
+    // PostInitializeOwnerRpc is called on the local client after InitializeServerRpc is finished.
+    // This is to finalize any local-only configuration that depends on server-authoritative player data.
     [Rpc(SendTo.Owner)]
-    private void PostInitializeRpc()
+    private void PostInitializeOwnerRpc()
     {
         playerHUD.Initialize(this);
     }
@@ -267,6 +287,7 @@ public class PlayerController : Entity, IIdentifiable
 
 
     #region Cleanup
+    // Called when a player disconnects.
     [Rpc(SendTo.Server)]
     public void DisconnectCleanupRpc()
     {
@@ -276,6 +297,7 @@ public class PlayerController : Entity, IIdentifiable
         isInitialized = false;
     }
 
+    // Called when a player disconnects, but only on the local client to clean up local-only objects like the camera and UI.
     [Rpc(SendTo.Owner)]
     private void DisconnectCleanupOwnerRpc()
     {
@@ -302,6 +324,8 @@ public class PlayerController : Entity, IIdentifiable
 
 
     #region Movement
+    // Wrapper function for CharacterMovement's Teleport function, which toggles player controls while being teleported
+    // to prevent any unwanted movement.
     public void Teleport(Vector3 destination, Quaternion rotation = default)
     {
         if (!IsServer) return;
@@ -314,6 +338,7 @@ public class PlayerController : Entity, IIdentifiable
 
 
     #region Collision
+    // Called when a collision occurs, used to calculate fall/impact damage.
     private void OnCollisionEnter(Collision collision)
     {
         if (!IsServer) return;
@@ -324,7 +349,6 @@ public class PlayerController : Entity, IIdentifiable
         float scaleFactor = 0.4f; // Overall scale factor for damage, can be tweaked for balance
 
         Vector3 relativeVelocity = collision.relativeVelocity;
-
         Vector3 impactDirection = relativeVelocity.normalized;
 
         ContactPoint contact = collision.GetContact(0);
@@ -334,7 +358,6 @@ public class PlayerController : Entity, IIdentifiable
         float damagingSpeed = damagingVelocity.magnitude;
 
         float ouchyThreshold = Vector3.Dot(impactDirection, surfaceNormal);
-
         if (ouchyThreshold > Mathf.Sin(minimumOuchyAngle * Mathf.Deg2Rad) && damagingSpeed > minimumDamageSpeed)
         {
             float damage = (damagingSpeed - minimumDamageSpeed) * ouchyThreshold * scaleFactor;
@@ -345,6 +368,7 @@ public class PlayerController : Entity, IIdentifiable
 
 
     #region Player Identification
+    // Used to populate Identifier UI element.
     public IdentifierData GetIdentifierData()
     {
         return new IdentifierData
@@ -359,8 +383,8 @@ public class PlayerController : Entity, IIdentifiable
 
 
     #region SceneManagement
+    // This makes sure that the player-related objects that are not parented to the player object itself are preserved when changing scenes.
     private void ChangedActiveScene(Scene _, Scene next) => ChangedActiveSceneRpc(next.name);
-
     [Rpc(SendTo.Owner)]
     private void ChangedActiveSceneRpc(string sceneName)
     {

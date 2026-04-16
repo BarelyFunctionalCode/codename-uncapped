@@ -62,7 +62,7 @@ public class PlayerPuppet : MonoBehaviour
         playerController.GetComponent<PlayerNetworkTransform>().onNewLocalTransformState.AddListener(OnNewLocalTransformState);
         isInitialized = true;
 
-        playerController.OnPlayerTypeObjectSpawned(playerTypeData, true);
+        playerController.OnPlayerTypeObjectSpawned(playerTypeData);
     }
 
     private PlayerType SetPlayerType(GameObject playerTypePrefabObj)
