@@ -22,9 +22,6 @@ public class PlayerController : Entity, IIdentifiable
     // Generic Character things
     [HideInInspector] public CharacterMovement characterMovement;
 
-
-
-
     // Player specific things
     [Header("Prefabs")]
     public GameObject playerTypePrefabObj;

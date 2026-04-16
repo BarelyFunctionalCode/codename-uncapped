@@ -72,7 +72,7 @@ public class CharacterMovement : EntityComponent, IGravityModifiable
         base.Initialize(entity);
 
         if (IsServer) gravityModifier.Value = 1f;
-        if (!IsServer || !IsOwner) return;
+        if (!IsServer && !IsOwner) return;
 
         if (characterTransform == null) characterTransform = entity.transform;
         if (characterCollider == null) characterCollider = entity.GetComponentInChildren<Collider>();

@@ -30,10 +30,14 @@ public class PlayerCamera : MonoBehaviour
 
     void OnDestroy()
     {
-        var cameraData = mainCamera.GetUniversalAdditionalCameraData();
-        cameraData.cameraStack.Clear();
+        if (mainCamera != null)
+        {
+            var cameraData = mainCamera.GetUniversalAdditionalCameraData();
+            cameraData.cameraStack.Clear();
 
-        audioListener.enabled = false;
+            audioListener.enabled = false;
+        }
+        
         if (NetworkManager.Singleton && NetworkManager.Singleton.LocalClient.PlayerObject)
             NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerController>().health.onHealthChanged.RemoveListener(DamageScreenshake);
     }
