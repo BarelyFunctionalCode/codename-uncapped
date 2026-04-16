@@ -21197,7 +21197,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2522661745
+  GlobalObjectIdHash: 1985361469
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -21223,7 +21223,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerTypeData
   ShowTopMostFoldoutHeaderGroup: 1
-  modelObj: {fileID: 977815393389088661}
+  firstPersonCamera: {fileID: 4442632250395326281}
+  pickupContainerHoldPoint: {fileID: 7906880503942234016}
   playerCollider: {fileID: 5594979291149433351}
   freeLookTargetTransform: {fileID: 6066929034379831547}
   playerAnimator: {fileID: 3365053767552717352}
@@ -21231,6 +21232,10 @@ MonoBehaviour:
   throwableMountPoint: {fileID: 7153565063699261307}
   hoverAudioSource: {fileID: 2586262519341678390}
   windAudioSource: {fileID: 5271534514189657052}
+  verticalRotationSpeed: 24
+  verticalRotationLimit: 100
+  mass: 75
+  modelObj: {fileID: 977815393389088661}
   animationFootstepParticleSystem: {fileID: 2002646143102628731}
   deathEffectPrefab: {fileID: 1159695035474069200, guid: 9cdc4e8e36428c2439c57bf90a844e48, type: 3}
   legsDirectionTransform: {fileID: 7634650254521700378}
@@ -21239,12 +21244,7 @@ MonoBehaviour:
   hoverIKRig: {fileID: 6038828132581794368}
   hoverEffectLeftFootParticleSystem: {fileID: 7814916142874155482}
   hoverEffectRightFootParticleSystem: {fileID: 4772610538889077206}
-  firstPersonCamera: {fileID: 8720235529502056656}
-  pickupContainerHoldPoint: {fileID: 7906880503942234016}
-  verticalRotationSpeed: 24
-  verticalRotationLimit: 100
   legsRotateSpeed: 10
-  mass: 75
 --- !u!82 &2586262519341678390
 AudioSource:
   m_ObjectHideFlags: 0

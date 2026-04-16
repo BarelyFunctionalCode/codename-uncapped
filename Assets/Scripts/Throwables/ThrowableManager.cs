@@ -108,11 +108,11 @@ public class ThrowableManager : NetworkBehaviour
 
         playerRef.TryGet(out PlayerController playerController);
         originalParentNetworkObject = GetComponentInParent<NetworkObject>();
-        transform.parent = playerController.throwableMountPoint;
+        transform.parent = playerController.localPlayerType.throwableMountPoint;
         if (IsOwner)
         {
             playerCamera = Camera.main;
-            playerController.playerUIObj.GetComponentInChildren<HUD>().SetThrowableUI(this);
+            playerController.playerHUD.SetThrowableUI(this);
         }
 
         isInitialized = true;

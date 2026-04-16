@@ -112,7 +112,7 @@ public class Weapon : NetworkBehaviour
 
         playerRef.TryGet(out PlayerController playerController);
         originalParentNetworkObject = GetComponentInParent<NetworkObject>();
-        transform.parent = playerController.weaponMountPoint;
+        transform.parent = playerController.localPlayerType.weaponMountPoint;
         transform.localPosition = Vector3.zero;
         transform.localRotation = Quaternion.identity;
         if (IsOwner)
@@ -127,7 +127,7 @@ public class Weapon : NetworkBehaviour
             }
             
             playerCamera = Camera.main;
-            playerController.playerUIObj.GetComponentInChildren<HUD>().AddWeaponUI(this);
+            playerController.playerHUD.AddWeaponUI(this);
         }
 
         if (isEquiped.Value) EquipRpc(RpcTarget.Me);

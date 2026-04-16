@@ -19,9 +19,6 @@ public class PlayerInputs : EntityComponent
     public bool IsSkiing { get; private set; } = false;
     public bool IsUpJetting { get; private set; } = false;
     public bool IsDownJetting { get; private set; } = false;
-    public bool IsJetting { get; private set; } = false;
-    public bool IsMoving { get; private set; } = false;
-    public bool IsRunning { get; private set; } = false;
 
     Vector3 newMovementDirection = Vector3.zero;
     float rawRotationInputX = 0f;
@@ -113,9 +110,9 @@ public class PlayerInputs : EntityComponent
 
     private void ToggleCameraView()
     {
-        bool isThirdPerson = playerController.thirdPersonCamera.Priority.Value > 0;
-        playerController.thirdPersonCamera.Priority.Value = isThirdPerson ? 0 : 1;
-        playerController.localPlayerType.ToggleFirstPersonCamera(isThirdPerson);
+        bool isThirdPerson = playerController.thirdPersonCamera.IsEnabled;
+        playerController.thirdPersonCamera.SetState(!isThirdPerson);
+        playerController.localPlayerType.firstPersonCamera.SetState(isThirdPerson);
     }
 
     [Rpc(SendTo.Server)]
@@ -259,9 +256,6 @@ public class PlayerInputs : EntityComponent
         // Get input for skiing, jumping, and down jetting
         IsUpJetting = upJettingInput && IsSkiing;
         IsDownJetting = downJettingInput && IsSkiing;
-        IsJetting = IsUpJetting || IsDownJetting;
-        IsMoving = MovementInput.magnitude > 0.0f;
-        IsRunning = entity.state.IsGrounded && IsMoving && !IsSkiing;
 
         if (ControlsDisabledCount > 0)
         {
@@ -269,9 +263,6 @@ public class PlayerInputs : EntityComponent
             IsSkiing = false;
             IsUpJetting = false;
             IsDownJetting = false;
-            IsJetting = false;
-            IsMoving = false;
-            IsRunning = false;
         }
     }
 }

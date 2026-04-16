@@ -1,85 +1,62 @@
 using Steamworks;
-using Unity.Cinemachine;
 using Unity.Netcode;
 using Unity.Netcode.Components;
 using UnityEngine;
-using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 
 
-[RequireComponent(typeof(Rigidbody))]
-[RequireComponent(typeof(PlayerLoadoutManager))]
+[RequireComponent(typeof(PlayerInputs))]
 [RequireComponent(typeof(PlayerNetworkTransform))]
+[RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(NetworkRigidbody))]
-[RequireComponent(typeof(Identification))]
+[RequireComponent(typeof(CharacterMovement))]
 [RequireComponent(typeof(PlayerState))]
-[RequireComponent(typeof(Energy))]
+[RequireComponent(typeof(Identification))]
 [RequireComponent(typeof(Health))]
+[RequireComponent(typeof(Energy))]
+[RequireComponent(typeof(PlayerLoadoutManager))]
+[RequireComponent(typeof(DevVectorRenderer))]
+[RequireComponent(typeof(PickupContainer))]
 public class PlayerController : Entity, IIdentifiable
 {
-    [Space(20)]
-    // Debug
-    [SerializeField] private DevVectorRenderer devVectorRenderer;
-    public PlayerTelemetry playerTelemetry;
+    // Generic Character things
+    [HideInInspector] public CharacterMovement characterMovement;
 
-    public Transform localTransform;
-
-    [SerializeField] public GameObject playerTypePrefabObj;
-    private GameObject playerTypeObj;
-    public PlayerType localPlayerType;
-
+    // Player specific things
+    [Header("Prefabs")]
+    public GameObject playerTypePrefabObj;
     [SerializeField] private GameObject playerPuppetPrefabObj;
-    public GameObject playerPuppetObj;
-
-    // ID
-    private SteamId _steamId;
-    public SteamId SteamId { get { return _steamId; } }
-
-    // Audio
-    [SerializeField] private AudioSource respawnAudioSource;
-
-    // Camera
-    [SerializeField] private GameObject playerCameraPrefabObj;
-    private GameObject playerCameraObj;
-    public CinemachineCamera thirdPersonCamera;
-    private AudioListener audioListener;
-
-    // UI
+    [SerializeField] private GameObject thirdPersonCameraPrefabObj;
     [SerializeField] private GameObject playerUIPrefabObj;
-    public GameObject playerUIObj;
-    public HUD playerHUD;
 
-    // Inputs
-    public PlayerInputs playerInputs;
+    // Debug
+    private DevVectorRenderer devVectorRenderer;
+    [HideInInspector] public PlayerTelemetry playerTelemetry;
 
-    // Physics
-    [Header("Physics")]
-
+    [Header("Main Components")]
+    [HideInInspector] public PlayerInputs playerInputs;
+    [HideInInspector] public GameObject playerPuppetObj;
+    [HideInInspector] public PlayerLoadoutManager playerLoadout;
+    public Transform localTransform;
+    public PlayerType localPlayerType;
     public Rigidbody localRb;
 
-    public CharacterMovement characterMovement;
+    // Visuals
+    [HideInInspector] public PlayerCamera thirdPersonCamera;
+    [HideInInspector] public HUD playerHUD;
 
-
-    // Weapons and Gear
-    [Header("Weapons and Gear")]
-    public Transform weaponMountPoint;
-    public Transform throwableMountPoint;
-    public PlayerLoadoutManager playerLoadout;
-
-
-
-
-
-
+    [Header("State")]
     public bool isInitialized = false;
 
 
     #region Lifecycle
     private void Awake()
     {
+        characterMovement = GetComponent<CharacterMovement>();
+
+        devVectorRenderer = GetComponent<DevVectorRenderer>();
         playerLoadout = GetComponent<PlayerLoadoutManager>();
         playerInputs = GetComponent<PlayerInputs>();
-        characterMovement = GetComponent<CharacterMovement>();
     }
 
     public sealed override void OnNetworkSpawn()
@@ -97,22 +74,22 @@ public class PlayerController : Entity, IIdentifiable
         base.OnNetworkDespawn();
 
         SceneManager.activeSceneChanged -= ChangedActiveScene;
-        if (IsOwner && audioListener) audioListener.enabled = false;
     }
 
     private void Update()
     {
-        if (!playerTypeObj && IsServer && GameManager.Instance.isInitialized) SetPlayerType(playerTypePrefabObj);
+        if (!localPlayerType && IsServer && GameManager.Instance.isInitialized) SetPlayerType(playerTypePrefabObj);
         if (!isInitialized || !(IsServer || IsOwner) || state.IsDead) return;
-
-        // Death plane check
-        if (IsServer && localTransform.position.y < -1000f) state.Die();
 
         // Update player telemetry for debugging purposes
         if (IsOwner && playerTelemetry != null) playerTelemetry.Update();
 
+
+        // Death plane check
+        if (IsServer && localTransform.position.y < -1000f) state.Die();
+
         // Character ground detection and physics material updates
-        characterMovement.ProcessUpdate(playerInputs.IsSkiing);
+        characterMovement.ProcessUpdate();
     }
 
     void LateUpdate()
@@ -132,38 +109,35 @@ public class PlayerController : Entity, IIdentifiable
 
         // First, we collect all of the inputs that go into moving the player, and create an input state
         playerInputs.HandleInputs();
-
-        // Set audio values
-        localPlayerType.HandleAudio(localRb.linearVelocity, playerInputs.IsSkiing);
+        characterMovement.SetMovementInputs(
+            playerInputs.MovementDirection,
+            playerInputs.RotationInputX,
+            playerInputs.IsJumping,
+            playerInputs.IsSkiing,
+            playerInputs.IsUpJetting,
+            playerInputs.IsDownJetting
+        );
 
         // Set animator values
         localPlayerType.UpdateAnimationData(
             playerInputs.MovementInput,
             localRb.linearVelocity,
             state.IsGrounded,
-            playerInputs.IsRunning,
             playerInputs.IsSkiing,
             playerInputs.IsDownJetting,
-            playerInputs.IsUpJetting
+            playerInputs.IsUpJetting,
+            playerInputs.IsJumping
         );
+        // Set audio values
+        localPlayerType.HandleAudio(localRb.linearVelocity, playerInputs.IsSkiing);
 
         // Finally, we process the inputs to move the player locally and on the server
-        characterMovement.ProcessFixedUpdate(
-            playerInputs.IsRunning,
-            playerInputs.IsJumping,
-            playerInputs.IsSkiing,
-            playerInputs.IsJetting,
-            playerInputs.IsUpJetting,
-            playerInputs.IsDownJetting,
-            playerInputs.MovementDirection,
-            playerInputs.RotationInputX
-        );
+        characterMovement.ProcessFixedUpdate();
+
+        // This makes the client's local rotation authoritative
         if (IsOwner && !IsHost) ClientAuthorityRotationSyncRpc(localRb.rotation);
-        if (playerInputs.IsJumping) 
-        {
-            localPlayerType.HandleJump();
-            playerInputs.ResetJumpInput();
-        }
+
+        playerInputs.ResetJumpInput();
 
         if (playerTelemetry != null)
         {
@@ -189,11 +163,20 @@ public class PlayerController : Entity, IIdentifiable
 
 
     #region Initialization
+    // The first thing that happens when the player spawns is that we spawn their PlayerType object,
+    // which contains all of the visual and animation data for the player. PlayerType is a separate Network Object
+    // that is spawned as a child of the PlayerController, and the PlayerController holds a reference to it.
+    // This separation allows us to easily swap out the player's model and animations by simply despawning the
+    // current PlayerType and spawning a new one.
     private void SetPlayerType(GameObject playerTypePrefabObj)
     {
         if (!IsServer) return;
-        if (playerTypeObj != null) Destroy(playerTypeObj);
-        playerTypeObj = SpawnManager.Instance.Spawn(
+        if (localPlayerType != null)
+        {
+            Destroy(localPlayerType.gameObject);
+            localPlayerType = null;
+        }
+        SpawnManager.Instance.Spawn(
             playerTypePrefabObj,
             false,
             transform.position,
@@ -203,27 +186,24 @@ public class PlayerController : Entity, IIdentifiable
         );
     }
 
-    public void OnPlayerTypeObjectSpawned(PlayerType playerType, bool isPuppet = false)
+    // This is called by the newly spawned PlayerType object after it finishes initializing itself.
+    public void OnPlayerTypeObjectSpawned(PlayerType playerType)
     {
         localPlayerType = playerType;
-
-        if (!isPuppet)
-        {
-            localRb.mass = playerType.mass;
-            weaponMountPoint = playerType.weaponMountPoint;
-            throwableMountPoint = playerType.throwableMountPoint;
-        }
-
+        localRb.mass = playerType.mass;
         characterMovement.UpdateCharacterData(null, playerType.playerCollider, null);
-
         GetComponent<PickupContainer>().pickupHoldPoint = playerType.pickupContainerHoldPoint;
 
         if (IsOwner) InitializeOwner();
     }
 
+    // InitializeOwner is called once on the local client after the player's PlayerType object is spawned and initialized.
+    // This is to set up any local-only parts of the player object, like the camera and UI.
     public void InitializeOwner()
     {
         if (!IsOwner) return;
+
+        // Initialize Player Puppet for local client prediction of player movement before server updates are received
         if (!IsHost && !playerPuppetObj)
         {
             // Hide all visuals on authoritative player object
@@ -244,48 +224,39 @@ public class PlayerController : Entity, IIdentifiable
             // Spawn a non-authoritative puppet on local client for predicting the player's position and rotation before the server updates it
             playerPuppetObj = Instantiate(playerPuppetPrefabObj, localTransform.position, localTransform.rotation);
             PlayerPuppet playerPuppet = playerPuppetObj.GetComponent<PlayerPuppet>();
-            playerPuppet.Initialize(this);
-
-            // Set the local player's transform, collider, and rigidbody references to the puppet's so that the rest of the
-            // player controller code can work as normal regardless of whether it's running on the server or client
+            // Set the local player's transform and, and rigidbody references to the puppet's so that the rest of the
             localTransform = playerPuppetObj.transform;
             localRb = playerPuppet.rb;
-            localRb.mass = localPlayerType.mass;
             characterMovement.UpdateCharacterData(localTransform, null, localRb);
+            playerPuppet.Initialize(this);
             return;
         }
 
         // Initialize Player UI
-        if (!playerUIObj) {
-            playerUIObj = Instantiate(playerUIPrefabObj);
+        if (!playerHUD) {
+            GameObject playerUIObj = Instantiate(playerUIPrefabObj);
             playerHUD = playerUIObj.GetComponentInChildren<HUD>();
             playerTelemetry = new PlayerTelemetry(devVectorRenderer);
         }
 
         // Initialize Player Camera
-        if (!playerCameraObj)
+        if (!thirdPersonCamera)
         {
-            playerCameraObj = Instantiate(playerCameraPrefabObj);
-            audioListener = playerCameraObj.GetComponentInChildren<AudioListener>();
-            thirdPersonCamera = playerCameraObj.GetComponentInChildren<CinemachineCamera>();
-            thirdPersonCamera.Follow = localPlayerType.freeLookTargetTransform;
+            GameObject playerCameraObj = Instantiate(thirdPersonCameraPrefabObj);
+            thirdPersonCamera = playerCameraObj.GetComponentInChildren<PlayerCamera>();
+            thirdPersonCamera.SetFollowTarget(localPlayerType.freeLookTargetTransform);
 
-            Camera UIOverlayCamera = playerUIObj.GetComponentInChildren<Canvas>().worldCamera;
-            Camera mainCamera = playerCameraObj.GetComponentInChildren<Camera>();
-            var cameraData = mainCamera.GetUniversalAdditionalCameraData();
-            cameraData.cameraStack.Add(UIOverlayCamera);
-
-            // Enable audio listener
-            audioListener.enabled = true;
-
-            // Enable the camera
-            thirdPersonCamera.Priority.Value = 1;
+            Camera UIOverlayCamera = playerHUD.mainCanvas.worldCamera;
+            thirdPersonCamera.AddCameraToStack(UIOverlayCamera);
+            thirdPersonCamera.SetState(true);
         }
 
         InitializeServerRpc(GameManager.Instance?.usingSteam == true ? SteamClient.SteamId.Value : 0);
         isInitialized = true;
     }
 
+    // InitializeServerRpc is called on the server after InitializeOwner is finished.
+    // This is to set up any server-authoritative parts of the player object.
     [Rpc(SendTo.Server)]
     private void InitializeServerRpc(ulong steamId)
     {
@@ -294,20 +265,18 @@ public class PlayerController : Entity, IIdentifiable
         identification.SetTeamId((uint)OwnerClientId);
 
         // Get Player's Steam ID
-        if (GameManager.Instance?.usingSteam == true)
-        {
-            _steamId = steamId;
-            identification.SetEntityName(new Friend(_steamId).Name);
-        }
+        if (GameManager.Instance?.usingSteam == true) identification.SetEntityName(new Friend(steamId).Name);
 
         playerLoadout.Initialize(true, this);
-        PostInitializeRpc();
+        PostInitializeOwnerRpc();
         isInitialized = true;
         GameManager.Instance.OnClientConnectedEvent.Invoke(OwnerClientId);
     }
 
+    // PostInitializeOwnerRpc is called on the local client after InitializeServerRpc is finished.
+    // This is to finalize any local-only configuration that depends on server-authoritative player data.
     [Rpc(SendTo.Owner)]
-    private void PostInitializeRpc()
+    private void PostInitializeOwnerRpc()
     {
         playerHUD.Initialize(this);
     }
@@ -315,6 +284,7 @@ public class PlayerController : Entity, IIdentifiable
 
 
     #region Cleanup
+    // Called when a player disconnects.
     [Rpc(SendTo.Server)]
     public void DisconnectCleanupRpc()
     {
@@ -324,22 +294,20 @@ public class PlayerController : Entity, IIdentifiable
         isInitialized = false;
     }
 
+    // Called when a player disconnects, but only on the local client to clean up local-only objects like the camera and UI.
     [Rpc(SendTo.Owner)]
     private void DisconnectCleanupOwnerRpc()
     {
         // Disable the UI
-        if (playerCameraObj)
+        if (thirdPersonCamera)
         {
-            Camera mainCamera = playerCameraObj.GetComponentInChildren<Camera>();
-            var cameraData = mainCamera.GetUniversalAdditionalCameraData();
-            cameraData.cameraStack.Remove(playerUIObj.GetComponentInChildren<Canvas>().worldCamera);
-            Destroy(playerCameraObj);
-            playerCameraObj = null;
+            Destroy(thirdPersonCamera.gameObject);
+            thirdPersonCamera = null;
         }
-        if (playerUIObj)
+        if (playerHUD)
         {
-            Destroy(playerUIObj);
-            playerUIObj = null;
+            Destroy(playerHUD.gameObject);
+            playerHUD = null;
         }
         if (playerPuppetObj)
         {
@@ -353,6 +321,8 @@ public class PlayerController : Entity, IIdentifiable
 
 
     #region Movement
+    // Wrapper function for CharacterMovement's Teleport function, which toggles player controls while being teleported
+    // to prevent any unwanted movement.
     public void Teleport(Vector3 destination, Quaternion rotation = default)
     {
         if (!IsServer) return;
@@ -365,6 +335,7 @@ public class PlayerController : Entity, IIdentifiable
 
 
     #region Collision
+    // Called when a collision occurs, used to calculate fall/impact damage.
     private void OnCollisionEnter(Collision collision)
     {
         if (!IsServer) return;
@@ -375,7 +346,6 @@ public class PlayerController : Entity, IIdentifiable
         float scaleFactor = 0.4f; // Overall scale factor for damage, can be tweaked for balance
 
         Vector3 relativeVelocity = collision.relativeVelocity;
-
         Vector3 impactDirection = relativeVelocity.normalized;
 
         ContactPoint contact = collision.GetContact(0);
@@ -385,7 +355,6 @@ public class PlayerController : Entity, IIdentifiable
         float damagingSpeed = damagingVelocity.magnitude;
 
         float ouchyThreshold = Vector3.Dot(impactDirection, surfaceNormal);
-
         if (ouchyThreshold > Mathf.Sin(minimumOuchyAngle * Mathf.Deg2Rad) && damagingSpeed > minimumDamageSpeed)
         {
             float damage = (damagingSpeed - minimumDamageSpeed) * ouchyThreshold * scaleFactor;
@@ -396,6 +365,7 @@ public class PlayerController : Entity, IIdentifiable
 
 
     #region Player Identification
+    // Used to populate Identifier UI element.
     public IdentifierData GetIdentifierData()
     {
         return new IdentifierData
@@ -410,20 +380,15 @@ public class PlayerController : Entity, IIdentifiable
 
 
     #region SceneManagement
-    private void ChangedActiveScene(Scene _, Scene next)
-    {
-        ChangedActiveSceneRpc(next.name);
-    }
-
+    // This makes sure that the player-related objects that are not parented to the player object itself are preserved when changing scenes.
+    private void ChangedActiveScene(Scene _, Scene next) => ChangedActiveSceneRpc(next.name);
     [Rpc(SendTo.Owner)]
     private void ChangedActiveSceneRpc(string sceneName)
     {
         if (GameManager.Instance?.debugMode == true) Debug.Log(GetType() + ": Changed active scene for " + name + " " + NetworkManager.Singleton.LocalClientId);
         if (playerPuppetObj) SceneManager.MoveGameObjectToScene(playerPuppetObj, SceneManager.GetSceneByName(sceneName));
-        if (playerUIObj) SceneManager.MoveGameObjectToScene(playerUIObj, SceneManager.GetSceneByName(sceneName));
-        if (playerCameraObj) SceneManager.MoveGameObjectToScene(playerCameraObj, SceneManager.GetSceneByName(sceneName));
-
-        // if (sceneName == "Lobby") InitializeOwner();
+        if (playerHUD) SceneManager.MoveGameObjectToScene(playerHUD.gameObject, SceneManager.GetSceneByName(sceneName));
+        if (thirdPersonCamera) SceneManager.MoveGameObjectToScene(thirdPersonCamera.gameObject, SceneManager.GetSceneByName(sceneName));
     }
     #endregion
 }

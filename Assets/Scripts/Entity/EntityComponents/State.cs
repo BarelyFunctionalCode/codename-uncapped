@@ -27,8 +27,8 @@ public class State : EntityComponent
     public void SetIsGrounded(bool b)
     {
         _isGrounded = b;
-        // if (b) ChangeState(EntityStates.GROUNDED);
-        // else ChangeState(EntityStates.UNGROUNDED);
+        if (b) ChangeState(EntityStates.GROUNDED);
+        else ChangeState(EntityStates.UNGROUNDED);
     }
 
     public void Die()

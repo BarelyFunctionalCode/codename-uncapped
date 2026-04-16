@@ -60,42 +60,62 @@ public class CharacterMovement : EntityComponent, IGravityModifiable
     private readonly float airCushionDrag = 0.00275f;             
     private readonly float airCushionHeight = 10f;
 
+    private Vector3 movementDirection = default;
+    private float rotationInputX = 0f;
+    private bool isJumping = false;
+    private bool isSkiing = false;
+    private bool isUpJetting = false;
+    private bool isDownJetting = false;
 
     public override void Initialize(Entity entity)
     {
         base.Initialize(entity);
 
         if (IsServer) gravityModifier.Value = 1f;
-        if (!IsServer || !IsOwner) return;
+        if (!IsServer && !IsOwner) return;
 
         if (characterTransform == null) characterTransform = entity.transform;
         if (characterCollider == null) characterCollider = entity.GetComponentInChildren<Collider>();
         if (characterRb == null) characterRb = entity.GetComponentInChildren<Rigidbody>();
     }
 
-    public void ProcessUpdate(bool isSkiing)
+    public void UpdateCharacterData(Transform characterTransform, Collider characterCollider, Rigidbody characterRb)
     {
-        if (characterRb == null || characterCollider == null) return;
-        HandleGroundDetection();
-
-        // Apply Drag and Friction
-        characterRb.linearDamping = DistanceToSurface <= airCushionHeight ? airCushionDrag : drag;
-        characterCollider.material = isSkiing ? skiMaterial : normalMaterial;
+        if (characterTransform != null) this.characterTransform = characterTransform;
+        if (characterCollider != null) this.characterCollider = characterCollider;
+        if (characterRb != null) this.characterRb = characterRb;
     }
 
-    public void ProcessFixedUpdate(
-        bool isRunning,
-        bool isJumping,
-        bool isSkiing,
-        bool isJetting,
-        bool isUpJetting,
-        bool isDownJetting,
-        Vector3 movementDirection = default,
-        float rotationInputX = 0f
-    )
+    public void SetMovementInputs(Vector3 movementDirection, float rotationInputX, bool isJumping, bool isSkiing, bool isUpJetting, bool isDownJetting)
     {
-        HandleMovement(isRunning, isJumping, isSkiing, isJetting, isUpJetting, isDownJetting, movementDirection, rotationInputX);
+        this.movementDirection = movementDirection;
+        this.rotationInputX = rotationInputX;
+        this.isJumping = isJumping;
+        this.isSkiing = isSkiing;
+        this.isUpJetting = isUpJetting;
+        this.isDownJetting = isDownJetting;
+    }
 
+    public void ProcessUpdate()
+    {
+        if (characterRb == null || characterCollider == null) return;
+
+        HandleGroundDetection();
+
+        // Apply Drag
+        characterRb.linearDamping = DistanceToSurface <= airCushionHeight ? airCushionDrag : drag;
+    }
+
+    public void ProcessFixedUpdate()
+    {
+        // Set physics material based on skiing state to apply friction
+        characterCollider.material = isSkiing ? skiMaterial : normalMaterial;
+
+        // Main movement logic
+        HandleMovement();
+
+
+        // Smoothly reset gravity modifier back to 1 over time on the server
         if (IsServer)
         {
             if (gravityModifier.Value != 1f)
@@ -104,13 +124,6 @@ public class CharacterMovement : EntityComponent, IGravityModifiable
                 if (Mathf.Abs(gravityModifier.Value - 1f) < 0.01f) gravityModifier.Value = 1f;
             }
         }
-    }
-
-    public void UpdateCharacterData(Transform characterTransform, Collider characterCollider, Rigidbody characterRb)
-    {
-        if (characterTransform != null) this.characterTransform = characterTransform;
-        if (characterCollider != null) this.characterCollider = characterCollider;
-        if (characterRb != null) this.characterRb = characterRb;
     }
 
     public void SetGravityModifier(float modifier)
@@ -182,16 +195,7 @@ public class CharacterMovement : EntityComponent, IGravityModifiable
         }
     }
 
-    private void HandleMovement(
-        bool isRunning,
-        bool isJumping,
-        bool isSkiing,
-        bool isJetting,
-        bool isUpJetting,
-        bool isDownJetting,
-        Vector3 movementDirection,
-        float rotationInputX
-    )
+    private void HandleMovement()
     {
         if (characterRb == null || characterCollider == null || characterTransform == null) return;
         Vector3 currentVelocity = characterRb.linearVelocity;
@@ -201,159 +205,166 @@ public class CharacterMovement : EntityComponent, IGravityModifiable
 
         float gravityMagnitude = Physics.gravity.magnitude * gravityModifier.Value;
 
-        // Air Control
-        if (!entity.state.IsGrounded && !isJetting && !isSkiing)
+        if (!isSkiing)
         {
-            Vector3 airDirection = movementDirection.normalized;
-            Vector3 airControlAcc = airDirection * airControl;
-
-            float maxAccel = runForce / characterRb.mass * Time.fixedDeltaTime * 0.3f;
-
-            if (airControlAcc.magnitude > maxAccel)
+            if (!entity.state.IsGrounded)
             {
-                airControlAcc = airControlAcc.normalized * maxAccel;
-            }
-            desiredAcc.x += airControlAcc.x;
-            desiredAcc.z += airControlAcc.z;
-        }
+                // Air Control
+                Vector3 airDirection = movementDirection.normalized;
+                Vector3 airControlAcc = airDirection * airControl;
 
-        // Jumping
-        if (isJumping && entity.state.IsGrounded && currentVelocity.y <= maxJumpSpeed)
-        {
-            float jumpScale = 1.0f;
+                float maxAccel = runForce / characterRb.mass * Time.fixedDeltaTime * 0.3f;
 
-            if (currentVelocity.y < minJumpSpeed)
-            {
-                jumpScale = 1.0f - currentVelocity.y / minJumpSpeed / (maxJumpSpeed / minJumpSpeed);
-            }
-
-            Vector3 jumpDirection = movementDirection.normalized;
-
-            float playerScaleFactor = characterTransform.localScale.y * 0.25f + 0.75f;
-            float jumpForceFinal = jumpForce / characterRb.mass;
-
-            float surfaceNormalDotJumpDirection = Vector3.Dot(jumpDirection, SurfaceNormal);
-
-            if (surfaceNormalDotJumpDirection > 0.0f)
-            {
-                desiredAcc.x += SurfaceNormal.x * playerScaleFactor * jumpForceFinal;
-                desiredAcc.z += SurfaceNormal.z * playerScaleFactor * jumpForceFinal;
-            }
-
-            Vector3 jumpSurfaceNormal = Vector3.Angle(SurfaceNormal, Vector3.up) <= jumpSurfaceAngle ?
-                SurfaceNormal :
-                Vector3.zero;
-            desiredVerticalAcc = jumpSurfaceNormal.y * playerScaleFactor * jumpForceFinal * jumpScale;
-            lastGroundedTime = 1f;
-            
-        }
-        // Running Movement
-        else if (isRunning)
-        {
-            groundImpulse = new(0f, -gravityMagnitude * Time.fixedDeltaTime, 0f);
-            float slopeDot = -Vector3.Dot(groundImpulse, SurfaceNormal);
-
-            if (slopeDot > 0.0f)
-            {
-                float modifiedSlopeDot = slopeDot + 0.002f;
-                groundImpulse.y += SurfaceNormal.y * modifiedSlopeDot;
-                groundImpulse.z += SurfaceNormal.z * modifiedSlopeDot;
-                if (groundImpulse.magnitude < 0.0f) groundImpulse = Vector3.zero;
-            }
-
-            Vector3 targetVelocity = Vector3.zero;
-            if (movementDirection.magnitude > 0.01f)
-            {
-                Vector3 runDirection = movementDirection;
-                Vector3 forwardDirection = SurfaceNormal;
-                Vector3 sideDirection = new(-runDirection.z * runDirection.magnitude, 0f, runDirection.x * runDirection.magnitude);
-                float sideDot = Vector3.Dot(sideDirection, forwardDirection);
-                forwardDirection -= sideDirection * sideDot;
-                float moveDot = Vector3.Dot(runDirection, forwardDirection);
-                runDirection -= forwardDirection * moveDot;
-                targetVelocity = runDirection * (maxRunSpeed / runDirection.magnitude);
-            }
-
-            Vector3 velocityDiff = targetVelocity - (currentVelocity + groundImpulse);
-
-            float maxRunAccel = runForce / characterRb.mass * Time.fixedDeltaTime;
-            if (velocityDiff.magnitude > maxRunAccel)
-                velocityDiff *= maxRunAccel / velocityDiff.magnitude;
-
-            groundImpulse += velocityDiff;
-        }
-
-        // Skiing Movement
-        if (isSkiing && entity.energy.CurrentEnergy > 0.0f)
-        {
-            // Hovering
-            // More force the closer to the surface...
-            float hoverFactor = Mathf.Clamp01(1.0f - (DistanceToSurface - hoverHeightMax) / hoverHeightMax) * 1.1f;
-
-            Vector3 lateralVelocityDir = Vector3.ProjectOnPlane(currentVelocity, Vector3.up).normalized;
-            float surfaceNormalDotLateralVelocityDirection = Vector3.Dot(SurfaceNormal, lateralVelocityDir);
-
-            if (surfaceNormalDotLateralVelocityDirection > 0.0f)
-            {
-                // Going Downhill?
-                // player is pushed fast downhill... easy
-                desiredAcc = 2.0f * hoverFactor * gravityMagnitude * Time.fixedDeltaTime * Vector3.ProjectOnPlane(SurfaceNormal, Vector3.up);
+                if (airControlAcc.magnitude > maxAccel)
+                {
+                    airControlAcc = airControlAcc.normalized * maxAccel;
+                }
+                desiredAcc.x += airControlAcc.x;
+                desiredAcc.z += airControlAcc.z;
             }
             else
             {
-                // Going Uphill?
-                Vector3 surfaceDirection = (SurfaceNormal - lateralVelocityDir * surfaceNormalDotLateralVelocityDirection).normalized;
-                Vector3 sideDirection = -lateralVelocityDir;
-                float sideDot = Vector3.Dot(surfaceDirection, sideDirection);
-                
-                desiredAcc = 0.5f * hoverFactor * gravityMagnitude * Time.fixedDeltaTime * (surfaceDirection - lateralVelocityDir * sideDot);
+                // Jumping
+                if (isJumping && Mathf.Abs(currentVelocity.y) <= maxJumpSpeed)
+                {
+                    float jumpScale = 1.0f;
+
+                    if (currentVelocity.y < minJumpSpeed)
+                    {
+                        jumpScale = 1.0f - currentVelocity.y / minJumpSpeed / (maxJumpSpeed / minJumpSpeed);
+                    }
+
+                    Vector3 jumpDirection = movementDirection.normalized;
+
+                    float playerScaleFactor = characterTransform.localScale.y * 0.25f + 0.75f;
+                    float jumpForceFinal = jumpForce / characterRb.mass;
+
+                    float surfaceNormalDotJumpDirection = Vector3.Dot(jumpDirection, SurfaceNormal);
+
+                    if (surfaceNormalDotJumpDirection > 0.0f)
+                    {
+                        desiredAcc.x += SurfaceNormal.x * playerScaleFactor * jumpForceFinal;
+                        desiredAcc.z += SurfaceNormal.z * playerScaleFactor * jumpForceFinal;
+                    }
+
+                    Vector3 jumpSurfaceNormal = Vector3.Angle(SurfaceNormal, Vector3.up) <= jumpSurfaceAngle ?
+                        SurfaceNormal :
+                        Vector3.zero;
+                    desiredVerticalAcc = jumpSurfaceNormal.y * playerScaleFactor * jumpForceFinal * jumpScale;
+                    lastGroundedTime = 1f;
+                    
+                }
+                // Running Movement
+                else if (movementDirection.magnitude > 0.01f)
+                {
+                    groundImpulse = new(0f, -gravityMagnitude * Time.fixedDeltaTime, 0f);
+                    float slopeDot = -Vector3.Dot(groundImpulse, SurfaceNormal);
+
+                    if (slopeDot > 0.0f)
+                    {
+                        float modifiedSlopeDot = slopeDot + 0.002f;
+                        groundImpulse.y += SurfaceNormal.y * modifiedSlopeDot;
+                        groundImpulse.z += SurfaceNormal.z * modifiedSlopeDot;
+                        if (groundImpulse.magnitude < 0.0f) groundImpulse = Vector3.zero;
+                    }
+
+                    Vector3 targetVelocity = Vector3.zero;
+                    if (movementDirection.magnitude > 0.01f)
+                    {
+                        Vector3 runDirection = movementDirection;
+                        Vector3 forwardDirection = SurfaceNormal;
+                        Vector3 sideDirection = new(-runDirection.z * runDirection.magnitude, 0f, runDirection.x * runDirection.magnitude);
+                        float sideDot = Vector3.Dot(sideDirection, forwardDirection);
+                        forwardDirection -= sideDirection * sideDot;
+                        float moveDot = Vector3.Dot(runDirection, forwardDirection);
+                        runDirection -= forwardDirection * moveDot;
+                        targetVelocity = runDirection * (maxRunSpeed / runDirection.magnitude);
+                    }
+
+                    Vector3 velocityDiff = targetVelocity - (currentVelocity + groundImpulse);
+
+                    float maxRunAccel = runForce / characterRb.mass * Time.fixedDeltaTime;
+                    if (velocityDiff.magnitude > maxRunAccel)
+                        velocityDiff *= maxRunAccel / velocityDiff.magnitude;
+
+                    groundImpulse += velocityDiff;
+                }
             }
-            desiredAcc.y = 0.0f;
-            Vector3 hoverVertAcc = hoverFactor * gravityMagnitude * Time.fixedDeltaTime * Vector3.up;
-            currentVelocity += hoverVertAcc;
         }
-
-        // Jetting Movement
-        // TODO: I think there is suppose to be some kind of "Jet Activation Timeout" for when entity.energy depletes to prevent immediate re-jetting
-        float speed = currentVelocity.magnitude;
-        if (speed < jetAirMoveMaxSpeed)
+        else
         {
-            float accelScale = 1.0f;
-            if (speed < jetAirMoveMinSpeed && speed > 0.01f)
+            // Skiing Movement
+            if (entity.energy.CurrentEnergy > 0.0f)
             {
-                accelScale = Mathf.Min(
-                    jetAirMoveMinSpeed / speed,
-                    jetAirMoveMaxAccelFactor);
+                // Hovering
+                // More force the closer to the surface...
+                float hoverFactor = Mathf.Clamp01(1.0f - (DistanceToSurface - hoverHeightMax) / hoverHeightMax) * 1.1f;
+
+                Vector3 lateralVelocityDir = Vector3.ProjectOnPlane(currentVelocity, Vector3.up).normalized;
+                float surfaceNormalDotLateralVelocityDirection = Vector3.Dot(SurfaceNormal, lateralVelocityDir);
+
+                if (surfaceNormalDotLateralVelocityDirection > 0.0f)
+                {
+                    // Going Downhill?
+                    // player is pushed fast downhill... easy
+                    desiredAcc = 2.0f * hoverFactor * gravityMagnitude * Time.fixedDeltaTime * Vector3.ProjectOnPlane(SurfaceNormal, Vector3.up);
+                }
+                else
+                {
+                    // Going Uphill?
+                    Vector3 surfaceDirection = (SurfaceNormal - lateralVelocityDir * surfaceNormalDotLateralVelocityDirection).normalized;
+                    Vector3 sideDirection = -lateralVelocityDir;
+                    float sideDot = Vector3.Dot(surfaceDirection, sideDirection);
+                    
+                    desiredAcc = 0.5f * hoverFactor * gravityMagnitude * Time.fixedDeltaTime * (surfaceDirection - lateralVelocityDir * sideDot);
+                }
+                desiredAcc.y = 0.0f;
+                Vector3 hoverVertAcc = hoverFactor * gravityMagnitude * Time.fixedDeltaTime * Vector3.up;
+                currentVelocity += hoverVertAcc;
             }
 
-            // Directional Control while Jetting/Skiing
-            if (isSkiing && movementDirection.magnitude > 0.01f && entity.energy.CurrentEnergy > 0.0f)
+            // Jetting Movement
+            // TODO: I think there is suppose to be some kind of "Jet Activation Timeout" for when entity.energy depletes to prevent immediate re-jetting
+            float speed = currentVelocity.magnitude;
+            if (speed < jetAirMoveMaxSpeed)
             {
-                float lateralForce = jetDirectionalForceXY / characterRb.mass * accelScale * Time.fixedDeltaTime;
-                desiredAcc += movementDirection * lateralForce;
-                entity.energy.ApplyEnergyDelta(-jetSkateEnergyDrain * accelScale * Time.fixedDeltaTime);
-            }
-
-            // Up Jetting
-            if (isJetting && entity.energy.CurrentEnergy > 0.01f)
-            {
-                float force = 0f;
-                if (isUpJetting)
+                float accelScale = 1.0f;
+                if (speed < jetAirMoveMinSpeed && speed > 0.01f)
                 {
-                    float cushion = 1.0f;
-                    if (DistanceToSurface <= airCushionHeight)
-                        cushion = (airCushionHeight - DistanceToSurface) / airCushionHeight;
-
-                    force = upJetForce / characterRb.mass * accelScale * Time.fixedDeltaTime;
-                    force += force * cushion * 0.5f;
-                }
-                else if (isDownJetting) // Down Jetting
-                {
-                    force = -downJetForce / characterRb.mass * accelScale * Time.fixedDeltaTime;
+                    accelScale = Mathf.Min(
+                        jetAirMoveMinSpeed / speed,
+                        jetAirMoveMaxAccelFactor);
                 }
 
-                desiredVerticalAcc = force;
-                entity.energy.ApplyEnergyDelta(- (isUpJetting ? upJettingEnergyDrain : downJettingEnergyDrain) * accelScale * Time.fixedDeltaTime);
+                // Directional Control while Jetting/Skiing
+                if (movementDirection.magnitude > 0.01f && entity.energy.CurrentEnergy > 0.0f)
+                {
+                    float lateralForce = jetDirectionalForceXY / characterRb.mass * accelScale * Time.fixedDeltaTime;
+                    desiredAcc += movementDirection * lateralForce;
+                    entity.energy.ApplyEnergyDelta(-jetSkateEnergyDrain * accelScale * Time.fixedDeltaTime);
+                }
+
+                // Up Jetting
+                if ((isUpJetting || isDownJetting) && entity.energy.CurrentEnergy > 0.01f)
+                {
+                    float force = 0f;
+                    if (isUpJetting)
+                    {
+                        float cushion = 1.0f;
+                        if (DistanceToSurface <= airCushionHeight)
+                            cushion = (airCushionHeight - DistanceToSurface) / airCushionHeight;
+
+                        force = upJetForce / characterRb.mass * accelScale * Time.fixedDeltaTime;
+                        force += force * cushion * 0.5f;
+                    }
+                    else if (isDownJetting) // Down Jetting
+                    {
+                        force = -downJetForce / characterRb.mass * accelScale * Time.fixedDeltaTime;
+                    }
+
+                    desiredVerticalAcc = force;
+                    entity.energy.ApplyEnergyDelta(- (isUpJetting ? upJettingEnergyDrain : downJettingEnergyDrain) * accelScale * Time.fixedDeltaTime);
+                }
             }
         }
 
