@@ -14,6 +14,7 @@ public class PlayerType : NetworkBehaviour
     public Transform throwableMountPoint;
     public AudioSource hoverAudioSource;
     public AudioSource windAudioSource;
+    public Transform FFIdentifierTargetTransform;
 
     [PauseMenuOption("Vertical Look", 0f, 100f)]
     public float verticalRotationSpeed = 24f;

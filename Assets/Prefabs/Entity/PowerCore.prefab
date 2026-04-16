@@ -124,7 +124,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7093818608802561622}
   - component: {fileID: 2563449835746143927}
-  - component: {fileID: 5431172290587650207}
+  - component: {fileID: 6845993006913210464}
   - component: {fileID: 928499317654154504}
   - component: {fileID: 8226844224829370102}
   - component: {fileID: 189115690731306305}
@@ -165,7 +165,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 555987831
+  GlobalObjectIdHash: 1170122581
   InScenePlacedSourceGlobalObjectIdHash: 417970074
   DeferredDespawnTick: 0
   Ownership: 1
@@ -178,7 +178,7 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &5431172290587650207
+--- !u!114 &6845993006913210464
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -187,9 +187,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 3780274331527582709}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec20463f16065a44eacdcd4cea1f0f1c, type: 3}
+  m_Script: {fileID: 11500000, guid: dce7a55677b6d4a4990712d77a51b8fc, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Entity
+  m_EditorClassIdentifier: Assembly-CSharp::PowerCore
   ShowTopMostFoldoutHeaderGroup: 1
   state: {fileID: 0}
   identification: {fileID: 0}

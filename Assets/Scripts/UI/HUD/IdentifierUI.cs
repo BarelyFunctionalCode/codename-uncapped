@@ -14,7 +14,6 @@ public class IdentifierUI : MonoBehaviour
     private float mainIndicatorOriginalAlpha;
 
     public IIdentifiable identifiable;
-    public GameObject identifiableObject;
     private Renderer[] objectRenderers;
     private Collider objectCollider;
     private Vector3 objectColliderExtents;
@@ -29,7 +28,7 @@ public class IdentifierUI : MonoBehaviour
     private float offscreenHideTime = 5f;
     private float offscreenHideTimer = 0f;
 
-    private float mainHideTime = 5f;
+    private float mainHideTime = 15f;
     private float mainHideTimer = 0f;
 
     private float mainInfoShowTime = 0.3f;
@@ -69,13 +68,13 @@ public class IdentifierUI : MonoBehaviour
     private void Update()
     {
         if (!isInitialized) return;
-        if (identifiableObject == null) {
+        IdentifierData identifierData = identifiable.GetIdentifierData();
+        Transform objectTransform = identifierData.targetTransform;
+        if (objectTransform == null) {
             Destroy(gameObject);
             return;
         }
 
-        Transform objectTransform = identifiableObject.transform;
-        IdentifierData identifierData = identifiable.GetIdentifierData();
         if (!identifierData.isActive)
         {
             if (isEnabled) FullReset(identifierData.color);
@@ -88,7 +87,9 @@ public class IdentifierUI : MonoBehaviour
         Vector3 objectDirectionToCamera = (Camera.main.transform.position - objectTransform.position).normalized;
         float distanceToObject = Vector3.Distance(Camera.main.transform.position, objectTransform.position);
 
-        if (!isEnabled && identifierData.isActive)
+
+        if (identifierData.isAlwaysVisible) isEnabled = true;
+        else if (!isEnabled && identifierData.isActive)
         {
             // Check if the object is in front of the camera
             if (Vector3.Dot(objectDirectionToCamera, Camera.main.transform.forward) > 0)
@@ -164,7 +165,8 @@ public class IdentifierUI : MonoBehaviour
     public void Initialize(IIdentifiable identifiable, Transform offscreenIndicatorContainer)
     {
         this.identifiable = identifiable;
-        identifiableObject = ((Component)identifiable).gameObject;
+        IdentifierData identifierData = identifiable.GetIdentifierData();
+        GameObject identifiableObject = identifierData.targetTransform.gameObject;
         objectRenderers = identifiableObject.GetComponentsInChildren<Renderer>();
         objectCollider = identifiableObject.GetComponent<Collider>();
         if (objectCollider == null) objectCollider = identifiableObject.GetComponentInChildren<Collider>();
@@ -173,7 +175,6 @@ public class IdentifierUI : MonoBehaviour
         this.offscreenIndicatorContainer = offscreenIndicatorContainer.GetComponent<RectTransform>();
         offscreenIndicatorRect.anchoredPosition = this.offscreenIndicatorContainer.rect.center;
         
-        IdentifierData identifierData = identifiable.GetIdentifierData();
         FullReset(identifierData.color);
 
         isInitialized = true;
@@ -206,8 +207,8 @@ public class IdentifierUI : MonoBehaviour
     {
         if (mainInfoShowTimer >= mainInfoShowTime)
         {
-            FadeElementAlpha(identifierTopText, teamColor, 1f);
-            FadeElementAlpha(identifierBottomText, teamColor, 1f);
+            FadeElementAlpha(identifierTopText, teamColor, 0.9f);
+            FadeElementAlpha(identifierBottomText, teamColor, 0.9f);
         }
         else mainInfoShowTimer += Time.deltaTime;
         
@@ -305,7 +306,7 @@ public class IdentifierUI : MonoBehaviour
         Ray ray = new(Camera.main.transform.position, (objectTransform.position - Camera.main.transform.position).normalized);
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
         {
-            isVisible = hit.collider.gameObject == identifiableObject || hit.collider.gameObject.transform.IsChildOf(identifiableObject.transform);
+            isVisible = hit.collider.transform == objectTransform || hit.collider.gameObject.transform.IsChildOf(objectTransform);
         }
         return isVisible;
     }

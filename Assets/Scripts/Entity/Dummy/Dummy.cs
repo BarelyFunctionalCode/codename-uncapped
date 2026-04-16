@@ -47,7 +47,9 @@ public class Dummy : Entity, IIdentifiable
             color = IdentifierManager.TempTeamColors[TeamId],
             topText = EntityName,
             bottomText = $"{Mathf.CeilToInt(healthPercentage * 100f)}%",
-            isActive = healthValue > 0
+            isActive = healthValue > 0,
+            targetTransform = transform,
+            isAlwaysVisible = false
         };
     }
 }

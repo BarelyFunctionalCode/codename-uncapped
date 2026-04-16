@@ -9,6 +9,8 @@ public struct IdentifierData
     public string topText;
     public string bottomText;
     public bool isActive;
+    public Transform targetTransform;
+    public bool isAlwaysVisible;
 }
 
 public interface IIdentifiable
@@ -50,7 +52,7 @@ public class IdentifierManager : MonoBehaviour
         {
             for (int i = activeIdentifiers.Count - 1; i >= 0; i--)
             {
-                if (activeIdentifiers[i] == null || activeIdentifiers[i].identifiableObject == null)
+                if (activeIdentifiers[i] == null)
                 {
                     if (activeIdentifiers[i] != null) Destroy(activeIdentifiers[i].gameObject);
                     activeIdentifiers.RemoveAt(i);

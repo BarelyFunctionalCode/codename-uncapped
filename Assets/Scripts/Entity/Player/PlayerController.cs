@@ -373,7 +373,9 @@ public class PlayerController : Entity, IIdentifiable
             color = IdentifierManager.TempTeamColors[identification.FetchTeamId()],
             topText = identification.FetchEntityName(),
             bottomText = $"{Mathf.CeilToInt(health.HealthPercentage * 100f)}%",
-            isActive = health.CurrentHealth > 0
+            isActive = health.CurrentHealth > 0,
+            targetTransform = localPlayerType.FFIdentifierTargetTransform,
+            isAlwaysVisible = false
         };
     }
     #endregion
