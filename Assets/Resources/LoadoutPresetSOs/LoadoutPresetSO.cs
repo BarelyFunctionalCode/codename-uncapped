@@ -13,5 +13,5 @@ public class LoadoutPresetSO : ScriptableObject
     public LoadoutItemSO heavyWeapon;
     public LoadoutItemSO throwable;
     public LoadoutItemSO equipment;
-    public LoadoutItemSO core;
+    public LoadoutItemSO drive;
 }

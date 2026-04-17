@@ -63,6 +63,7 @@ public class PlayerInputs : EntityComponent
         playerControls.Character.PrimaryFire.canceled += ctx => playerLoadout.OnPrimaryFireCanceledRpc();
         playerControls.Character.Throwable.started += ctx => ThrowableStarted();
         playerControls.Character.Throwable.canceled += ctx => ThrowableReleased();
+        playerControls.Character.ActivateDrive.started += ctx => playerLoadout.ActivateDriveRpc();
         playerControls.Character.NextWeapon.started += ctx => playerLoadout.NextWeaponRpc();
         playerControls.Character.PreviousWeapon.started += ctx => playerLoadout.PreviousWeaponRpc();
         playerControls.Character.Ski.performed += ctx => SkiInput(ctx.ReadValue<float>());
@@ -90,6 +91,7 @@ public class PlayerInputs : EntityComponent
         playerControls.Character.PrimaryFire.canceled -= ctx => playerLoadout.OnPrimaryFireCanceledRpc();
         playerControls.Character.Throwable.started -= ctx => ThrowableStarted();
         playerControls.Character.Throwable.canceled -= ctx => ThrowableReleased();
+        playerControls.Character.ActivateDrive.started -= ctx => playerLoadout.ActivateDriveRpc();
         playerControls.Character.NextWeapon.started -= ctx => playerLoadout.NextWeaponRpc();
         playerControls.Character.PreviousWeapon.started -= ctx => playerLoadout.PreviousWeaponRpc();
         playerControls.Character.Ski.performed -= ctx => SkiInput(ctx.ReadValue<float>());

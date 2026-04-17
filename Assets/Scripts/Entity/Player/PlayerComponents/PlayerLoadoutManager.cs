@@ -17,6 +17,8 @@ public class PlayerLoadoutManager : NetworkBehaviour
 
     private ThrowableManager throwableManager;
 
+    private Drive equippedDrive;
+
     protected virtual void Update()
     {
         if (IsServer)
@@ -67,6 +69,8 @@ public class PlayerLoadoutManager : NetworkBehaviour
         equippedPrimaryWeapon = currentWeaponsObjList[0].GetComponent<Weapon>();
 
         AddThrowable(currentLoadout.Value.throwableSO.itemPrefab, playerController);
+
+        AddDrive(currentLoadout.Value.driveSO.itemPrefab, playerController);
         isRestocked = true;
     }
 
@@ -139,6 +143,22 @@ public class PlayerLoadoutManager : NetworkBehaviour
         throwableManager.Initialize(playerController);
     }
 
+    private void AddDrive(GameObject drivePrefabObj, PlayerController playerController)
+    {
+        if (!IsServer) return;
+
+        GameObject newDrive = SpawnManager.Instance.Spawn(
+            drivePrefabObj,
+            false,
+            playerController.transform.position,
+            playerController.transform.rotation,
+            playerController.transform,
+            playerController.OwnerClientId
+        );
+        equippedDrive = newDrive.GetComponentInChildren<Drive>();
+        equippedDrive.Initialize(playerController);
+    }
+
     [Rpc(SendTo.Server)]
     public void NextWeaponRpc()
     {
@@ -172,4 +192,7 @@ public class PlayerLoadoutManager : NetworkBehaviour
     }
     [Rpc(SendTo.Server)]
     public void OnThrowableCanceledRpc() => throwableManager.ReleaseThrow();
+
+    [Rpc(SendTo.Server)]
+    public void ActivateDriveRpc() => equippedDrive.Activate();
 }

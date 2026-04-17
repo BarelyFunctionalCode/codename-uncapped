@@ -140,10 +140,8 @@ public class CharacterMovement : EntityComponent, IGravityModifiable
         characterRb.isKinematic = true;
         characterCollider.enabled = false;
 
-        // localRb.position = destination;
-        // if (rotation != default) localRb.rotation = rotation;
-        // localRb.PublishTransform();
-        GetComponent<NetworkTransform>().Teleport(destination, rotation, characterTransform.lossyScale);
+        if (rotation.Equals(default)) rotation = characterTransform.rotation;
+        GetComponent<NetworkTransform>().Teleport(destination, rotation.normalized, characterTransform.lossyScale);
 
         characterCollider.enabled = true;
         characterRb.isKinematic = false;

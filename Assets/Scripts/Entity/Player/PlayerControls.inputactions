@@ -43,6 +43,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "Activate Drive",
+                    "type": "Button",
+                    "id": "070c9c1a-ee8b-4038-b7f8-7e2d4d46e881",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Previous Weapon",
                     "type": "Button",
                     "id": "8683dfa9-c9ba-465b-bc56-9669e43ea5cb",
@@ -249,6 +258,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Toggle Camera View",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "23c75776-f86b-4e81-b255-8b2d44bff259",
+                    "path": "<Keyboard>/x",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Activate Drive",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

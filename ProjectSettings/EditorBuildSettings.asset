@@ -23,5 +23,6 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Levels/Eden.unity
     guid: 4387c7abae366953aa2b6c9b90ed81ee
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 54cf66c9e18ee3740a4232ca132fe468, type: 3}
   m_UseUCBPForAssetBundles: 0

@@ -499,7 +499,7 @@ MonoBehaviour:
   heavyWeaponsList: {fileID: 6947682575412061746}
   throwablesList: {fileID: 1153003755266711950}
   equipmentsList: {fileID: 764887180753058107}
-  coresList: {fileID: 5106137260560463030}
+  drivesList: {fileID: 5106137260560463030}
   itemDetailsPanelTitle: {fileID: 317356408017423187}
   itemDetailsPanelDescription: {fileID: 3768085212487870198}
 --- !u!1 &4061199664817683460
@@ -2599,11 +2599,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1055200280868117394, guid: 96ff5f0d216854f9bb642ab5443fe2a3, type: 3}
       propertyPath: m_Name
-      value: Core
+      value: Drive
       objectReference: {fileID: 0}
     - target: {fileID: 1216572402332907860, guid: 96ff5f0d216854f9bb642ab5443fe2a3, type: 3}
       propertyPath: m_text
-      value: Core
+      value: Drive
       objectReference: {fileID: 0}
     - target: {fileID: 1514901683926254802, guid: 96ff5f0d216854f9bb642ab5443fe2a3, type: 3}
       propertyPath: m_Pivot.x

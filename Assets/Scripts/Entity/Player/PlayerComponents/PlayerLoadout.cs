@@ -12,7 +12,7 @@ public enum LoadoutItemType
     HeavyWeapon,
     Throwable,
     Equipment,
-    Core
+    Drive
 }
 
 public enum LoadoutArmorClass
@@ -36,7 +36,7 @@ public class PlayerLoadout : INetworkSerializable, IEquatable<PlayerLoadout>
             writer.WriteValueSafe(heavyWeaponSO != null ? HeavyWeaponLoadoutItems.IndexOf(HeavyWeaponLoadoutItems.First(w => w == heavyWeaponSO)) : -1);
             writer.WriteValueSafe(throwableSO != null ? ThrowableLoadoutItems.IndexOf(ThrowableLoadoutItems.First(w => w == throwableSO)) : -1);
             writer.WriteValueSafe(equipmentSO != null ? EquipmentLoadoutItems.IndexOf(EquipmentLoadoutItems.First(w => w == equipmentSO)) : -1);
-            writer.WriteValueSafe(coreSO != null ? CoreLoadoutItems.IndexOf(CoreLoadoutItems.First(w => w == coreSO)) : -1);
+            writer.WriteValueSafe(driveSO != null ? DriveLoadoutItems.IndexOf(DriveLoadoutItems.First(w => w == driveSO)) : -1);
         }
         else
         {
@@ -51,8 +51,8 @@ public class PlayerLoadout : INetworkSerializable, IEquatable<PlayerLoadout>
             throwableSO = throwableIndex != -1 ? ThrowableLoadoutItems[throwableIndex] : null;
             reader.ReadValueSafe(out int equipmentIndex);
             equipmentSO = equipmentIndex != -1 ? EquipmentLoadoutItems[equipmentIndex] : null;
-            reader.ReadValueSafe(out int coreIndex);
-            coreSO = coreIndex != -1 ? CoreLoadoutItems[coreIndex] : null;
+            reader.ReadValueSafe(out int driveIndex);
+            driveSO = driveIndex != -1 ? DriveLoadoutItems[driveIndex] : null;
         }
     }
 
@@ -66,7 +66,7 @@ public class PlayerLoadout : INetworkSerializable, IEquatable<PlayerLoadout>
             heavyWeaponSO == other.heavyWeaponSO &&
             throwableSO == other.throwableSO &&
             equipmentSO == other.equipmentSO &&
-            coreSO == other.coreSO;
+            driveSO == other.driveSO;
     }
 
     private static List<LoadoutItemSO> _armorClassLoadoutItems;
@@ -119,29 +119,30 @@ public class PlayerLoadout : INetworkSerializable, IEquatable<PlayerLoadout>
         }
     }
 
-    private static List<LoadoutItemSO> _coreLoadoutItems;
-    public static List<LoadoutItemSO> CoreLoadoutItems
+    private static List<LoadoutItemSO> _driveLoadoutItems;
+    public static List<LoadoutItemSO> DriveLoadoutItems
     {
         get
         {
-            _coreLoadoutItems ??= Resources.LoadAll<LoadoutItemSO>("LoadoutItemSOs/Cores").ToList();
-            return _coreLoadoutItems;
+            _driveLoadoutItems ??= Resources.LoadAll<LoadoutItemSO>("LoadoutItemSOs/Drives").ToList();
+            return _driveLoadoutItems;
         }
     }
 
     public static LoadoutItemSO GetLoadoutItemSOFromPrefab(GameObject prefab)
     {
+        string prefabName = prefab.name.Replace("(Clone)", "").Trim();
         LoadoutItemSO itemSO = null;
         if (prefab.GetComponentInChildren<Weapon>() != null)
-            itemSO = WeaponLoadoutItems.FirstOrDefault(w => w != null && w.itemPrefab.name == prefab.name);
+            itemSO = WeaponLoadoutItems.FirstOrDefault(w => w != null && w.itemPrefab.name == prefabName);
         // else if (prefab.GetComponentInChildren<HeavyWeapon>() != null)
-        //     itemSO = HeavyWeaponLoadoutItems.FirstOrDefault(w => w != null && w.itemPrefab.name == prefab.name);
+        //     itemSO = HeavyWeaponLoadoutItems.FirstOrDefault(w => w != null && w.itemPrefab.name == prefabName);
         else if (prefab.GetComponentInChildren<ThrowableManager>() != null)
-            itemSO = ThrowableLoadoutItems.FirstOrDefault(w => w != null && w.itemPrefab.name == prefab.name);
+            itemSO = ThrowableLoadoutItems.FirstOrDefault(w => w != null && w.itemPrefab.name == prefabName);
         // else if (prefab.GetComponentInChildren<Equipment>() != null)
-        //     itemSO = EquipmentLoadoutItems.FirstOrDefault(w => w != null && w.itemPrefab.name == prefab.name);
-        // else if (prefab.GetComponentInChildren<Core>() != null)
-        //     itemSO = CoreLoadoutItems.FirstOrDefault(w => w != null && w.itemPrefab.name == prefab.name);
+        //     itemSO = EquipmentLoadoutItems.FirstOrDefault(w => w != null && w.itemPrefab.name == prefabName);
+        else if (prefab.GetComponentInChildren<Drive>() != null)
+            itemSO = DriveLoadoutItems.FirstOrDefault(w => w != null && w.itemPrefab.name == prefabName);
 
         return itemSO;
     }
@@ -152,7 +153,7 @@ public class PlayerLoadout : INetworkSerializable, IEquatable<PlayerLoadout>
     public LoadoutItemSO heavyWeaponSO;
     public LoadoutItemSO throwableSO;
     public LoadoutItemSO equipmentSO;
-    public LoadoutItemSO coreSO;
+    public LoadoutItemSO driveSO;
 
     public PlayerLoadout()
     {
@@ -162,7 +163,7 @@ public class PlayerLoadout : INetworkSerializable, IEquatable<PlayerLoadout>
         heavyWeaponSO = null;
         throwableSO = null;
         equipmentSO = null;
-        coreSO = null;
+        driveSO = null;
     }
 
     public PlayerLoadout(PlayerLoadout other)
@@ -173,7 +174,7 @@ public class PlayerLoadout : INetworkSerializable, IEquatable<PlayerLoadout>
         heavyWeaponSO = other.heavyWeaponSO;
         throwableSO = other.throwableSO;
         equipmentSO = other.equipmentSO;
-        coreSO = other.coreSO;
+        driveSO = other.driveSO;
     }
 
     public PlayerLoadout(LoadoutPresetSO loadoutSO)
@@ -184,6 +185,6 @@ public class PlayerLoadout : INetworkSerializable, IEquatable<PlayerLoadout>
         heavyWeaponSO = loadoutSO.heavyWeapon;
         throwableSO = loadoutSO.throwable;
         equipmentSO = loadoutSO.equipment;
-        coreSO = loadoutSO.core;
+        driveSO = loadoutSO.drive;
     }   
 }

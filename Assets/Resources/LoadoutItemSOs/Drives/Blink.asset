@@ -13,8 +13,11 @@ MonoBehaviour:
   m_Name: Blink
   m_EditorClassIdentifier: Assembly-CSharp::LoadoutItemSO
   itemName: Blink
-  itemDescription: ????
+  itemDescription: Teleport a short distance away in a desired direction at the cost
+    of your current energy level.
   itemType: 5
-  itemPrefab: {fileID: 0}
+  itemPrefab: {fileID: 7391894488825431464, guid: 278d930afc22546aa933d790f3f0ebbc, type: 3}
+  showcaseItemPrefab: {fileID: 0}
+  showcaseAdditionalCameraDistance: 0
   applicableArmorClasses: 00000000
-  isAvailable: 0
+  isAvailable: 1

@@ -3,6 +3,7 @@ using System.Reflection;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public enum HUDMenu
 {
@@ -32,12 +33,15 @@ public class HUD : MonoBehaviour
     [SerializeField] private Transform weaponsContainer;
     [SerializeField] private GameObject weaponUIPrefabObj;
     [SerializeField] private ThrowableUI throwableUI;
+    [SerializeField] private Slider driveCooldownSlider;
+    [SerializeField] private GameObject driveOnlineTextObj;
     [SerializeField] private Transform gearContainer;
     [SerializeField] private RectTransform dynamicReticle;
     [SerializeField] private GameObject hitMarkerObj;
     [SerializeField] private AudioSource hitMarkerSound;
 
     private PlayerController playerController;
+    private Drive currentDrive;
     private Health playerHealth;
     private PlayerControls playerControls;
     private List<HUDMenu> openMenus = new();
@@ -76,6 +80,8 @@ public class HUD : MonoBehaviour
         Vector2 dynamicReticleTargetPos = new Vector2(deflectionX / dynamicReticleMaxVelocityDeflection * dynamicReticleMaxMoveRange,
                                                       deflectionY / dynamicReticleMaxVelocityDeflection * dynamicReticleMaxMoveRange);
         dynamicReticle.anchoredPosition = Vector2.Lerp(dynamicReticle.anchoredPosition, dynamicReticleTargetPos, Time.deltaTime * 10f);
+
+        UpdateDriveUI();
 
         // Update hitmarker timer
         if (hitMarkerObj.activeSelf)
@@ -206,6 +212,36 @@ public class HUD : MonoBehaviour
     public void SetThrowableUI(ThrowableManager throwableManager)
     {
         throwableUI.Initialize(throwableManager);
+    }
+
+    public void SetDrive(Drive drive)
+    {
+        currentDrive = drive;
+
+        LoadoutItemSO driveLoadoutItem = PlayerLoadout.GetLoadoutItemSOFromPrefab(drive.gameObject);
+        if (driveLoadoutItem == null)
+        {
+            Debug.LogError("Could not find LoadoutItemSO for drive prefab: " + drive.gameObject.name);
+            return;
+        }
+        string driveName = driveLoadoutItem.itemName ?? "";
+        string uiText = $"{driveName} DRIVE ONLINE";
+        driveOnlineTextObj.GetComponent<TMP_Text>().text = uiText;
+        UpdateDriveUI();
+    }
+
+    private void UpdateDriveUI()
+    {
+        if (currentDrive == null)
+        {
+            driveCooldownSlider.gameObject.SetActive(false);
+            driveOnlineTextObj.SetActive(false);
+            return;
+        }
+
+        driveCooldownSlider.gameObject.SetActive(true);
+        driveCooldownSlider.value = 1 - currentDrive.GetCooldownRatio();
+        driveOnlineTextObj.SetActive(currentDrive.isOnline.Value);
     }
 
     public void SetCursorState(bool enabled, bool usingCustomCursor = false)
