@@ -24,8 +24,6 @@ public class LobbyPC : MonoBehaviour
     [SerializeField] private GameObject matchConfigurationContainerObj;
     [SerializeField] private GameObject lobbiesListContainerObj;
 
-    private PlayerController interactingPlayerController;
-
     private float activeTabButtonAlpha = 0.4f;
     private float inactiveTabButtonAlpha;
 
@@ -95,30 +93,25 @@ public class LobbyPC : MonoBehaviour
     {
         if (levelName == gameObject.scene.name)
         {
-            foreach (var player in NetworkManager.Singleton.SpawnManager.PlayerObjects)
+            foreach (Character character in CharacterManager.Instance.characters)
             {
-                PlayerController playerController = player.GetComponentInChildren<PlayerController>();
-                if (playerController == null) continue;
+                if (character == null) continue;
                 
-                playerController.playerInputs.SetHUDActiveRpc(false);
-                playerController.Teleport(Vector3.zero, Quaternion.identity);
+                character.characterInputs.SetHUDActiveRpc(false);
+                character.Teleport(Vector3.zero, Quaternion.identity);
             }
         }
     }
 
     private void Interact()
     {
-        GetComponent<AudioListener>().enabled = false;
         if (isActive) return;
-        NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject().TryGetComponent(out PlayerController playerController);
-        if (playerController.isInitialized == false) return;
-        playerController.playerInputs.SetPlayerControlsRpc(false);
-        interactingPlayerController = playerController;
+        Player.Instance.DisableControls();
 
         // Sets priority to PC Cam and then unlocks the cursor
         Camera.main.cullingMask = noPlayerMask;
         pcCam.Priority.Value = 99;
-        interactingPlayerController.playerInputs.SetCursorStateRpc(true, true);
+        Player.Instance.playerHUD.SetCursorState(true, true);
         cursorObj.SetActive(true);
         isActive = true;
         autoInteract = false;
@@ -126,16 +119,13 @@ public class LobbyPC : MonoBehaviour
 
     public void Reset()
     {
-        if (!NetworkManager.Singleton || !NetworkManager.Singleton.IsListening || !isActive) return;
-
         // Resets priority to PC Cam and then locks the cursor
         isActive = false;
         cursorObj.SetActive(false);
         Camera.main.cullingMask = -1;
         pcCam.Priority.Value = 0;
-        interactingPlayerController.playerInputs.SetCursorStateRpc(false);
-        interactingPlayerController.playerInputs.SetPlayerControlsRpc(true);
-        interactingPlayerController = null;
+        Player.Instance.playerHUD.SetCursorState(false);
+        Player.Instance.EnableControls();
     }
 
     public void OnTabButtonSelect(Button button)
@@ -169,9 +159,11 @@ public class LobbyPC : MonoBehaviour
     {
         if (isActive) return;
 
-        PlayerController playerController = other.GetComponentInParent<PlayerController>();
-        PlayerPuppet playerPuppet = other.GetComponentInParent<PlayerPuppet>();
-        if ((playerController != null && playerController.IsLocalPlayer) || playerPuppet != null)
+        Character localPlayerCharacter = Player.Instance.Character;
+        if (localPlayerCharacter == null) return;
+        Character character = other.GetComponentInParent<Character>();
+        CharacterPuppet characterPuppet = other.GetComponentInParent<CharacterPuppet>();
+        if ((character != null && character == localPlayerCharacter) || characterPuppet != null)
         {
             interactPromptObj.SetActive(true);
             showInteractPrompt = true;

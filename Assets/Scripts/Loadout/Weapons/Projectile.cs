@@ -45,10 +45,10 @@ public class Projectile : NetworkBehaviour, IGravityModifiable
         previousPosition = rb.position;
         if (damageRadiusTrigger != null) damageRadiusTrigger.radius = damageRadius * 2;
 
-        ownerRef.TryGet(out PlayerController owner);
+        ownerRef.TryGet(out Character owner);
         if (owner != null)
         {
-            Collider ownerCollider = owner.GetComponentInChildren<PlayerType>().playerCollider;
+            Collider ownerCollider = owner.GetComponentInChildren<CharacterType>().characterCollider;
             Physics.IgnoreCollision(projectileCollider, ownerCollider);
         }
     }
@@ -90,10 +90,10 @@ public class Projectile : NetworkBehaviour, IGravityModifiable
         if (!isArmed && armingTimer <= 0)
         {
             isArmed = true;
-            ownerRef.TryGet(out PlayerController owner);
+            ownerRef.TryGet(out Character owner);
             if (owner != null)
             {
-                Collider ownerCollider = owner.GetComponentInChildren<PlayerType>().playerCollider;
+                Collider ownerCollider = owner.GetComponentInChildren<CharacterType>().characterCollider;
                 Physics.IgnoreCollision(projectileCollider, ownerCollider, false);
             }
         }

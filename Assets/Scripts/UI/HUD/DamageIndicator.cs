@@ -16,14 +16,7 @@ public class DamageIndicator : MonoBehaviour
 
     void Awake()
     {
-        NetworkManager
-        .Singleton
-        .LocalClient
-        .PlayerObject
-        .GetComponent<PlayerController>()
-        .health
-        .onHealthChanged
-        .AddListener(OnHealthChanged);
+        Player.Instance.Character.health.onHealthChanged.AddListener(OnHealthChanged);
     }
 
     // Update is called once per frame

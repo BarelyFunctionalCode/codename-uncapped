@@ -54,18 +54,18 @@ public class LevelManager : NetworkBehaviour
     {
         if (!IsHost) return;
 
-        PlayerController playerController = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(clientId).GetComponentInChildren<PlayerController>();
-        if (playerController == null) return;
+        Character character = CharacterManager.Instance.GetCharacterByClientId(clientId);
+        if (character == null) return;
 
-        Identification entityIdentification = playerController.identification;
+        Identification entityIdentification = character.identification;
 
-        GameModeHandler.Instance.OnClientJoined(entityIdentification.FetchEntityId());
+        GameModeHandler.Instance.OnCharacterJoined(entityIdentification.FetchEntityId());
         
         Transform spawnPoint = GetSpawnPoint(entityIdentification.FetchTeamId());
         if (spawnPoint == null) return;
 
-        playerController.Teleport(spawnPoint.position, spawnPoint.rotation);
-        playerController.playerInputs.SetHUDActiveRpc(true);
+        character.Teleport(spawnPoint.position, spawnPoint.rotation);
+        character.characterInputs.SetHUDActiveRpc(true);
     }
 
 
@@ -120,11 +120,10 @@ public class LevelManager : NetworkBehaviour
     {
         if (newPhase == Phase.ACTIVE)
         {
-            foreach (var player in NetworkManager.Singleton.SpawnManager.PlayerObjects)
+            foreach (Character character in CharacterManager.Instance.characters)
             {
-                PlayerState playerState = player.GetComponentInChildren<PlayerState>();
-                if (playerState == null) continue;
-                playerState.Die();
+                if (character == null || character.state == null) continue;
+                character.state.Die();
             }
         }
 
@@ -151,21 +150,20 @@ public class LevelManager : NetworkBehaviour
             spawnPoints[teamId].Add(spawnPointObj.transform);
         }
 
-        foreach (var player in NetworkManager.Singleton.SpawnManager.PlayerObjects)
+        foreach (Character character in CharacterManager.Instance.characters)
         {
-            PlayerController playerController = player.GetComponentInChildren<PlayerController>();
-            if (playerController == null) continue;
+            if (character == null) continue;
 
-            Identification entityIdentification = playerController.identification;
+            Identification entityIdentification = character.identification;
 
-            GameModeHandler.Instance.OnClientJoined(entityIdentification.FetchEntityId());
+            GameModeHandler.Instance.OnCharacterJoined(entityIdentification.FetchEntityId());
             
             Transform spawnPoint = GetSpawnPoint(entityIdentification.FetchTeamId());
             if (spawnPoint == null) continue;
             
-            playerController.Teleport(spawnPoint.position, spawnPoint.rotation);
-            playerController.playerInputs.SetHUDActiveRpc(true);
-            playerController.playerInputs.SetPlayerControlsRpc(false);
+            character.Teleport(spawnPoint.position, spawnPoint.rotation);
+            character.characterInputs.SetHUDActiveRpc(true);
+            character.characterInputs.SetCharacterControlsRpc(false);
         }
 
         OnLevelReady();
@@ -176,12 +174,11 @@ public class LevelManager : NetworkBehaviour
     {
         // Do things to start the level
 
-        // Give players control
-        foreach (var player in NetworkManager.Singleton.SpawnManager.PlayerObjects)
+        // Give characters control
+        foreach (Character character in CharacterManager.Instance.characters)
         {
-            PlayerController playerController = player.GetComponentInChildren<PlayerController>();
-            if (playerController == null) continue;
-            playerController.playerInputs.SetPlayerControlsRpc(true);
+            if (character == null) continue;
+            character.characterInputs.SetCharacterControlsRpc(true);
         }
 
         // Start the game mode
@@ -223,7 +220,7 @@ public class LevelManager : NetworkBehaviour
                     bool occupied = false;
                     for (int j = 0; j < hitCount; j++)  
                     {
-                        if (hits[j].collider.gameObject.TryGetComponent<PlayerController>(out _))
+                        if (hits[j].collider.gameObject.TryGetComponent<Character>(out _))
                         {
                             occupied = true;
                             break;
@@ -249,13 +246,12 @@ public class LevelManager : NetworkBehaviour
         Vector3 terrainSize = terrain.terrainData.size;
         Vector3 terrainCenter = terrain.transform.position + terrainSize / 2f;
 
-        // Get list of current players and their positions
-        List<Vector3> playerPositions = new List<Vector3>();
-        foreach (var player in NetworkManager.Singleton.SpawnManager.PlayerObjects)
+        // Get list of current characters and their positions
+        List<Vector3> characterPositions = new List<Vector3>();
+        foreach (Character character in CharacterManager.Instance.characters)
         {
-            PlayerController playerController = player.GetComponentInChildren<PlayerController>();
-            if (playerController == null) continue;
-            playerPositions.Add(playerController.transform.position);
+            if (character == null) continue;
+            characterPositions.Add(character.transform.position);
         }
 
         for (int i = 0; i < maxTries; i++)
@@ -272,9 +268,9 @@ public class LevelManager : NetworkBehaviour
                 if (hit.collider.gameObject.TryGetComponent<Terrain>(out _))
                 {
                     bool occupied = false;
-                    foreach (var playerPos in playerPositions)
+                    foreach (var characterPos in characterPositions)
                     {
-                        if (Vector3.Distance(hit.point, playerPos) < 5f)
+                        if (Vector3.Distance(hit.point, characterPos) < 5f)
                         {
                             occupied = true;
                             break;

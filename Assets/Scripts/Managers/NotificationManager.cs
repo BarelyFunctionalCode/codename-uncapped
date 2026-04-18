@@ -69,8 +69,9 @@ public class NotificationManager : NetworkBehaviour
     {
         // TODO: Add some checks here, like message length, profanity filter, etc.
         ulong senderClientId = rpcParams.Receive.SenderClientId;
-        NetworkManager.Singleton.ConnectedClients[senderClientId].PlayerObject.TryGetComponent(out PlayerController playerController);
-        Identification identification = playerController.identification;
+        Character character = CharacterManager.Instance.GetCharacterByClientId(senderClientId);
+        if (character == null) return;
+        Identification identification = character.identification;
         ulong teamId = identification.FetchEntityId();
         string entityName = identification.FetchEntityName();
 

@@ -158,25 +158,16 @@ public class GameModeHandler : NetworkBehaviour
                 
                 foreach (GameModeSO obj in gamemodeSOs) availableGameModes.Add(obj.gameModeName, obj);
             }
-            GameManager.Instance.OnClientConnectedEvent.AddListener(OnClientJoined);
         }
     }
 
-    public void OnClientJoined(ulong ClientID)
+    public void OnCharacterJoined(ulong characterId)
     {
         if (!IsHost || current_game_mode == null) return;
         if (GameModesTeamTypes[current_game_mode.game_mode_id] == TeamBasedType.SOLO)
         {
-            // Player joined the server, auto-assign team if FFA style game mode
-            ulong entityId = NetworkManager
-                .Singleton
-                .ConnectedClients[ClientID]
-                .PlayerObject
-                .GetComponent<PlayerController>()
-                .identification
-                .FetchEntityId();
-
-            current_game_mode?.GetComponent<TeamStructure>().SetPlayerTeamFFA(entityId);
+            Character character = CharacterManager.Instance.GetCharacterByCharacterId(characterId);
+            current_game_mode?.GetComponent<TeamStructure>().SetPlayerTeamFFA(character.identification.FetchEntityId());
         }
     }
 

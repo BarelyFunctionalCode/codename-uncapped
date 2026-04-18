@@ -3,12 +3,12 @@ using UnityEngine;
 using Unity.Netcode;
 
 
-public class PlayerLoadoutManager : NetworkBehaviour
+public class CharacterLoadoutManager : NetworkBehaviour
 {
     [SerializeField] private LoadoutPresetSO defaultLoadoutPresetSO;
-    private PlayerLoadout tempLoadout = null;
-    public NetworkVariable<PlayerLoadout> currentLoadout;
-    private PlayerController playerController;
+    private CharacterLoadout tempLoadout = null;
+    public NetworkVariable<CharacterLoadout> currentLoadout;
+    private Character character;
     private List<GameObject> currentWeaponsObjList;
     private int currentWeaponIndex = 0;
     private Weapon equippedPrimaryWeapon;
@@ -32,45 +32,45 @@ public class PlayerLoadoutManager : NetworkBehaviour
     }
 
     [Rpc(SendTo.Server)]
-    public void UpdateLoadoutRpc(PlayerLoadout newLoadout, bool applyImmediately = false)
+    public void UpdateLoadoutRpc(CharacterLoadout newLoadout, bool applyImmediately = false)
     {
         tempLoadout = newLoadout;
-        if (applyImmediately && playerController != null)
+        if (applyImmediately && character != null)
         {
             Deinitialize();
             Initialize(true);
         }
     }
 
-    public void Initialize(bool allowLoadoutChange = true, PlayerController newPlayerController = null)
+    public void Initialize(bool allowLoadoutChange = true, Character newCharacter = null)
     {
         if (!IsServer) return;
 
-        if (newPlayerController != null) playerController = newPlayerController;
-        else if (playerController == null) Debug.LogError("PlayerLoadoutManager: Initialize called without PlayerController set!");
+        if (newCharacter != null) character = newCharacter;
+        else if (character == null) Debug.LogError("CharacterLoadoutManager: Initialize called without Character set!");
 
         if (allowLoadoutChange && tempLoadout != null)
         {
-            currentLoadout.Value = new PlayerLoadout(tempLoadout);
+            currentLoadout.Value = new CharacterLoadout(tempLoadout);
             tempLoadout = null;
         }
         if (currentLoadout.Value == null)
         {
-            currentLoadout.Value = new PlayerLoadout(defaultLoadoutPresetSO);
+            currentLoadout.Value = new CharacterLoadout(defaultLoadoutPresetSO);
         }
 
         currentWeaponsObjList = new List<GameObject>();
 
-        if (currentLoadout.Value.weapon1SO) AddWeapon(currentLoadout.Value.weapon1SO.itemPrefab, playerController);
-        if (currentLoadout.Value.weapon2SO) AddWeapon(currentLoadout.Value.weapon2SO.itemPrefab, playerController);
-        if (currentLoadout.Value.heavyWeaponSO) AddWeapon(currentLoadout.Value.heavyWeaponSO.itemPrefab, playerController);
+        if (currentLoadout.Value.weapon1SO) AddWeapon(currentLoadout.Value.weapon1SO.itemPrefab, character);
+        if (currentLoadout.Value.weapon2SO) AddWeapon(currentLoadout.Value.weapon2SO.itemPrefab, character);
+        if (currentLoadout.Value.heavyWeaponSO) AddWeapon(currentLoadout.Value.heavyWeaponSO.itemPrefab, character);
 
         currentWeaponsObjList[0].GetComponent<Weapon>().EquipRpc();
         equippedPrimaryWeapon = currentWeaponsObjList[0].GetComponent<Weapon>();
 
-        AddThrowable(currentLoadout.Value.throwableSO.itemPrefab, playerController);
+        AddThrowable(currentLoadout.Value.throwableSO.itemPrefab, character);
 
-        AddDrive(currentLoadout.Value.driveSO.itemPrefab, playerController);
+        AddDrive(currentLoadout.Value.driveSO.itemPrefab, character);
         isRestocked = true;
     }
 
@@ -109,54 +109,54 @@ public class PlayerLoadoutManager : NetworkBehaviour
     }
 
 
-    private void AddWeapon(GameObject weaponPrefabObj, PlayerController playerController)
+    private void AddWeapon(GameObject weaponPrefabObj, Character character)
     {
         if (!IsServer) return;
 
         GameObject newWeapon = SpawnManager.Instance.Spawn(
             weaponPrefabObj,
             false,
-            playerController.localPlayerType.weaponMountPoint.position,
-            playerController.localPlayerType.weaponMountPoint.rotation,
-            playerController.transform,
-            playerController.OwnerClientId
+            character.localCharacterType.weaponMountPoint.position,
+            character.localCharacterType.weaponMountPoint.rotation,
+            character.transform,
+            character.OwnerClientId
         );
         newWeapon = newWeapon.transform.GetComponentInChildren<Weapon>().gameObject;
-        newWeapon.GetComponent<Weapon>().Initialize(playerController);
+        newWeapon.GetComponent<Weapon>().Initialize(character);
 
         currentWeaponsObjList.Add(newWeapon);
     }
 
-    private void AddThrowable(GameObject throwablePrefabObj, PlayerController playerController)
+    private void AddThrowable(GameObject throwablePrefabObj, Character character)
     {
         if (!IsServer) return;
 
         GameObject newThrowable = SpawnManager.Instance.Spawn(
             throwablePrefabObj,
             false,
-            playerController.localPlayerType.throwableMountPoint.position,
-            playerController.localPlayerType.throwableMountPoint.rotation,
-            playerController.transform,
-            playerController.OwnerClientId
+            character.localCharacterType.throwableMountPoint.position,
+            character.localCharacterType.throwableMountPoint.rotation,
+            character.transform,
+            character.OwnerClientId
         );
         throwableManager = newThrowable.GetComponentInChildren<ThrowableManager>();
-        throwableManager.Initialize(playerController);
+        throwableManager.Initialize(character);
     }
 
-    private void AddDrive(GameObject drivePrefabObj, PlayerController playerController)
+    private void AddDrive(GameObject drivePrefabObj, Character character)
     {
         if (!IsServer) return;
 
         GameObject newDrive = SpawnManager.Instance.Spawn(
             drivePrefabObj,
             false,
-            playerController.transform.position,
-            playerController.transform.rotation,
-            playerController.transform,
-            playerController.OwnerClientId
+            character.transform.position,
+            character.transform.rotation,
+            character.transform,
+            character.OwnerClientId
         );
         equippedDrive = newDrive.GetComponentInChildren<Drive>();
-        equippedDrive.Initialize(playerController);
+        equippedDrive.Initialize(character);
     }
 
     [Rpc(SendTo.Server)]

@@ -1,12 +1,12 @@
 using Unity.Netcode;
 using UnityEngine;
 
-public class PlayerDeath : MonoBehaviour
+public class CharacterDeath : MonoBehaviour
 {
     [SerializeField] private GameObject deathCam;
     [SerializeField] private GameObject deathUI;
 
-    public void Initialize(bool isLocalPlayer, Vector3 inheritedVelocity)
+    public void Initialize(bool isLocalPlayerCharacter, Vector3 inheritedVelocity)
     {
         foreach (Rigidbody rb in GetComponentsInChildren<Rigidbody>())
         {
@@ -15,7 +15,7 @@ public class PlayerDeath : MonoBehaviour
         }
         Destroy(gameObject, 5f);
 
-        if (!isLocalPlayer) return;
+        if (!isLocalPlayerCharacter) return;
 
         deathCam.SetActive(true);
         deathUI.SetActive(true);

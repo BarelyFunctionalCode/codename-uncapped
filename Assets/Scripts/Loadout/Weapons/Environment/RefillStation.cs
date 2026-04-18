@@ -20,10 +20,10 @@ public class RefillStation : NetworkBehaviour
         if (!IsHost) return;
         if (other.CompareTag("Player") && cooldownTimer <= 0f)
         {
-            PlayerController playerController = other.GetComponentInParent<PlayerController>();
+            Character playerController = other.GetComponentInParent<Character>();
             if (playerController != null)
             {
-                playerController.playerLoadout.Restock();
+                playerController.characterLoadout.Restock();
                 cooldownTimer = cooldown; // Reset the cooldown timer
             }
         }

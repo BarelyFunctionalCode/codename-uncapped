@@ -53,7 +53,7 @@ public class DevNetworkManager : MonoBehaviour
             }
             else
             {
-                if (NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject().GetComponentInChildren<PlayerController>().isInitialized)
+                if (Player.Instance.Character.isInitialized)
                 {
                     GameManager.Instance.PrepJoiningOtherLobby();
                     Destroy(gameObject);

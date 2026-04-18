@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PlayerTelemetry
+public class CharacterTelemetry
 {
     [PauseMenuDevOption("Surface Data")]
     public bool enableSurfaceDebug = false;
@@ -25,7 +25,7 @@ public class PlayerTelemetry
     public bool isGrounded;
     public bool previousIsGrounded;
 
-    public PlayerTelemetry(DevVectorRenderer devVectorRenderer)
+    public CharacterTelemetry(DevVectorRenderer devVectorRenderer)
     {
         this.devVectorRenderer = devVectorRenderer;
         this.position = Vector3.zero;

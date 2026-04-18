@@ -3,13 +3,13 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 
-public class PlayerType : NetworkBehaviour
+public class CharacterType : NetworkBehaviour
 {
-    public PlayerCamera firstPersonCamera;
     public Transform pickupContainerHoldPoint;
-    public CapsuleCollider playerCollider;
-    public Transform freeLookTargetTransform;
-    public Animator playerAnimator;
+    public CapsuleCollider characterCollider;
+    public Transform cameraLookAtTarget;
+    public Transform firstPersonCameraFollowTarget;
+    public Animator characterAnimator;
     public Transform weaponMountPoint;
     public Transform throwableMountPoint;
     public AudioSource hoverAudioSource;
@@ -45,15 +45,10 @@ public class PlayerType : NetworkBehaviour
     {
         base.OnNetworkObjectParentChanged(networkObject);
 
-        if (networkObject != null && networkObject.TryGetComponent(out PlayerController playerController))
+        if (networkObject != null && networkObject.TryGetComponent(out Character character))
         {
-            playerController.OnPlayerTypeObjectSpawned(this);
+            character.OnCharacterTypeObjectSpawned(this);
         }
-    }
-
-    private void Start()
-    {
-        if (!NetworkObject.IsSpawned || IsOwner) firstPersonCamera.gameObject.SetActive(true);
     }
 
     public void HandleCamera(float rotationInputY, int controlsDisabledCount)
@@ -62,11 +57,11 @@ public class PlayerType : NetworkBehaviour
         Vector3 rotationPitch = new(rotationInputY, 0f, 0f);
         rotationPitch *= verticalRotationSpeed * Time.deltaTime;
         Vector3 rotationDeltaPitch = Vector3.ClampMagnitude(rotationPitch, verticalRotationLimit);
-        float currentXRotation = freeLookTargetTransform.eulerAngles.x < 180f ? freeLookTargetTransform.eulerAngles.x : freeLookTargetTransform.eulerAngles.x - 360f;
+        float currentXRotation = cameraLookAtTarget.eulerAngles.x < 180f ? cameraLookAtTarget.eulerAngles.x : cameraLookAtTarget.eulerAngles.x - 360f;
         rotationDeltaPitch.x = Mathf.Clamp(currentXRotation + rotationDeltaPitch.x, -83.0f, 83.0f) - currentXRotation;
         if (controlsDisabledCount > 0) rotationDeltaPitch = Vector3.zero;
         
-        freeLookTargetTransform.Rotate(rotationDeltaPitch);
+        cameraLookAtTarget.Rotate(rotationDeltaPitch);
     }
 
     public void HandleAudio(Vector3 velocity, bool isSkiing)
@@ -157,16 +152,16 @@ public class PlayerType : NetworkBehaviour
     {
         Vector3 animMovementDirectionNewY = Vector3.up * (isDownJetting ? -1f : (isUpJetting ? 1f : 0f));
         animMovementDirection = Vector3.Lerp(animMovementDirection, movement.normalized + animMovementDirectionNewY, Time.fixedDeltaTime * 10f);
-        playerAnimator.SetFloat("xDir", animMovementDirection.x);
-        playerAnimator.SetFloat("yDir", animMovementDirection.y);
-        playerAnimator.SetFloat("zDir", animMovementDirection.z);
-        playerAnimator.SetFloat("yVel", velocity.normalized.y);
-        playerAnimator.SetBool("isGrounded", isGrounded);
-        playerAnimator.SetBool("isRunning", isGrounded && movement.magnitude > 0.1f && !isSkiing);
-        playerAnimator.SetBool("isSkiing", isSkiing && !isUpJetting && !isDownJetting);
-        playerAnimator.SetBool("isJetting", isUpJetting || isDownJetting);
+        characterAnimator.SetFloat("xDir", animMovementDirection.x);
+        characterAnimator.SetFloat("yDir", animMovementDirection.y);
+        characterAnimator.SetFloat("zDir", animMovementDirection.z);
+        characterAnimator.SetFloat("yVel", velocity.normalized.y);
+        characterAnimator.SetBool("isGrounded", isGrounded);
+        characterAnimator.SetBool("isRunning", isGrounded && movement.magnitude > 0.1f && !isSkiing);
+        characterAnimator.SetBool("isSkiing", isSkiing && !isUpJetting && !isDownJetting);
+        characterAnimator.SetBool("isJetting", isUpJetting || isDownJetting);
 
-        if (isJumping) playerAnimator.SetTrigger("triggerJump");
+        if (isJumping) characterAnimator.SetTrigger("triggerJump");
     }
 
     public void AnimationFootstepEvent(int footIndex)
@@ -186,7 +181,7 @@ public class PlayerType : NetworkBehaviour
         if (deathEffectPrefab != null)
         {
             deathObj = Instantiate(deathEffectPrefab, transform.position, Quaternion.identity);
-            deathObj.GetComponent<PlayerDeath>().Initialize(!NetworkObject.IsSpawned || IsOwner, inheritedVelocity);
+            deathObj.GetComponent<CharacterDeath>().Initialize(!NetworkObject.IsSpawned || IsOwner, inheritedVelocity);
         }
     }
 

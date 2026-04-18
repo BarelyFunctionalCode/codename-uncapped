@@ -3,7 +3,7 @@ using Unity.Netcode.Components;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class PlayerNetworkTransform : NetworkTransform
+public class CharacterNetworkTransform : NetworkTransform
 {
     public UnityEvent<NetworkTransformState> onNewLocalTransformState = new();
 

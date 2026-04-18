@@ -102,7 +102,7 @@ public class Health : EntityComponent, IDamageable
         ulong entityId = entityIdentification != null ? entityIdentification.FetchEntityId() : ulong.MaxValue;
 
         Identification attackerIdentification = null;
-        attackerRef.TryGet(out PlayerController attacker);
+        attackerRef.TryGet(out Character attacker);
         if (attacker != null) attacker.gameObject.TryGetComponent(out attackerIdentification);
         ulong attackerEntityId = attackerIdentification != null ? attackerIdentification.FetchEntityId() : ulong.MaxValue;
 
@@ -170,7 +170,7 @@ public class Health : EntityComponent, IDamageable
         foreach (DamageTracker dt in damageTrackers)
         {
             NetworkBehaviourReference assistAttackerRef = dt.attackerRef;
-            assistAttackerRef.TryGet(out PlayerController assistAttacker);
+            assistAttackerRef.TryGet(out Character assistAttacker);
             if (assistAttacker != null)
             {
                 assistAttacker.TryGetComponent(out Identification assistAttackerIdentification);
@@ -192,7 +192,7 @@ public class Health : EntityComponent, IDamageable
         // Attacker identification
         NetworkBehaviourReference attackerRef = mostRelevantDamage?.attackerRef ?? default;
         Identification attackerIdentification = null;
-        attackerRef.TryGet(out PlayerController attacker);
+        attackerRef.TryGet(out Character attacker);
         if (attacker != null) attacker.gameObject.TryGetComponent(out attackerIdentification);
         string attackerEntityName = attackerIdentification != null ? attackerIdentification.FetchEntityName() : null;
         ulong attackerEntityId = attackerIdentification != null ? attackerIdentification.FetchEntityId() : ulong.MaxValue;
@@ -232,7 +232,7 @@ public class Health : EntityComponent, IDamageable
                     if (weapon != null || throwable != null)
                     {
                         GameObject weaponObj = weapon != null ? weapon.gameObject : throwable.gameObject;
-                        LoadoutItemSO itemSO = PlayerLoadout.GetLoadoutItemSOFromPrefab(weaponObj);
+                        LoadoutItemSO itemSO = CharacterLoadout.GetLoadoutItemSOFromPrefab(weaponObj);
                         lethalSource += $"'s {itemSO.itemName}";
                     }
                 }

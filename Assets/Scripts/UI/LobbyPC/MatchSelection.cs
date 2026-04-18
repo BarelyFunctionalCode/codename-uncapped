@@ -229,7 +229,7 @@ public class MatchSelection : NetworkBehaviour
         LobbyPlayer lobbyPlayerToRemove = lobbyPlayers.Find(lp => lp.GetComponent<LobbyPlayer>().clientId == clientId);
         if (lobbyPlayerToRemove != null) return;
 
-        PlayerController playerController = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject.GetComponent<PlayerController>();
+        Character playerController = CharacterManager.Instance.GetCharacterByClientId(clientId);
         if (!playerController.isInitialized) return;
 
         Identification entityIdentification = playerController.identification;

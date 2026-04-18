@@ -16,8 +16,8 @@ public class LoadoutMenu : MonoBehaviour
     [SerializeField] private TMP_Text itemDetailsPanelTitle;
     [SerializeField] private TMP_Text itemDetailsPanelDescription;
 
-    private PlayerLoadoutManager playerLoadoutManager;
-    private PlayerLoadout tempLoadout;
+    private CharacterLoadoutManager playerLoadoutManager;
+    private CharacterLoadout tempLoadout;
     private LoadoutArmorClass selectedArmorClass = LoadoutArmorClass.Any;
 
     private HUD hud;
@@ -31,7 +31,7 @@ public class LoadoutMenu : MonoBehaviour
         armorClassesList.ToggleList();
     }
 
-    public void Initialize(PlayerLoadoutManager playerLoadoutManager, HUD hud)
+    public void Initialize(CharacterLoadoutManager playerLoadoutManager, HUD hud)
     {
         if (isInitialized) return;
 
@@ -45,7 +45,7 @@ public class LoadoutMenu : MonoBehaviour
         gameObject.SetActive(!gameObject.activeSelf);
         if (gameObject.activeSelf)
         {
-            tempLoadout = new PlayerLoadout(playerLoadoutManager.currentLoadout.Value);
+            tempLoadout = new CharacterLoadout(playerLoadoutManager.currentLoadout.Value);
             selectedArmorClass = tempLoadout.armorClass;
             BuildLoadoutLists();
             if (showcaseInstance == null) showcaseInstance = Instantiate(showcasePrefabObj).GetComponent<Showcase>();
@@ -69,7 +69,7 @@ public class LoadoutMenu : MonoBehaviour
     {
         if (armorClassesList.itemCount == 0)
         {
-            foreach (LoadoutItemSO item in PlayerLoadout.ArmorClassLoadoutItems)
+            foreach (LoadoutItemSO item in CharacterLoadout.ArmorClassLoadoutItems)
             {
                 armorClassesList.AddListItem(item.itemName, item.isAvailable, item).AddListener((itemSO) => OnLoadoutItemSelected(itemSO, "ArmorClasses"));
             }
@@ -82,7 +82,7 @@ public class LoadoutMenu : MonoBehaviour
         equipmentsList.ClearList();
         drivesList.ClearList();
 
-        foreach (LoadoutItemSO item in PlayerLoadout.WeaponLoadoutItems)
+        foreach (LoadoutItemSO item in CharacterLoadout.WeaponLoadoutItems)
         {
             if (item.applicableArmorClasses.Contains(selectedArmorClass) || item.applicableArmorClasses.Contains(LoadoutArmorClass.Any))
             {
@@ -94,13 +94,13 @@ public class LoadoutMenu : MonoBehaviour
         heavyWeaponsList.gameObject.SetActive(selectedArmorClass == LoadoutArmorClass.Heavy);
         if (selectedArmorClass == LoadoutArmorClass.Heavy)
         {
-            foreach (LoadoutItemSO item in PlayerLoadout.HeavyWeaponLoadoutItems)
+            foreach (LoadoutItemSO item in CharacterLoadout.HeavyWeaponLoadoutItems)
             {
                 heavyWeaponsList.AddListItem(item.itemName, item.isAvailable, item).AddListener((itemSO) => OnLoadoutItemSelected(itemSO, "HeavyWeapons"));
             }
         }
 
-        foreach (LoadoutItemSO item in PlayerLoadout.ThrowableLoadoutItems)
+        foreach (LoadoutItemSO item in CharacterLoadout.ThrowableLoadoutItems)
         {
             if (item.applicableArmorClasses.Contains(selectedArmorClass) || item.applicableArmorClasses.Contains(LoadoutArmorClass.Any))
             {
@@ -108,7 +108,7 @@ public class LoadoutMenu : MonoBehaviour
             }
         }
 
-        foreach (LoadoutItemSO item in PlayerLoadout.EquipmentLoadoutItems)
+        foreach (LoadoutItemSO item in CharacterLoadout.EquipmentLoadoutItems)
         {
             if (item.applicableArmorClasses.Contains(selectedArmorClass) || item.applicableArmorClasses.Contains(LoadoutArmorClass.Any))
             {
@@ -116,7 +116,7 @@ public class LoadoutMenu : MonoBehaviour
             }
         }
 
-        foreach (LoadoutItemSO item in PlayerLoadout.DriveLoadoutItems)
+        foreach (LoadoutItemSO item in CharacterLoadout.DriveLoadoutItems)
         {
             if (item.applicableArmorClasses.Contains(selectedArmorClass) || item.applicableArmorClasses.Contains(LoadoutArmorClass.Any))
             {

@@ -2,20 +2,20 @@ using Unity.Netcode.Components;
 using UnityEngine;
 using static Unity.Netcode.Components.NetworkTransform;
 
-public class PlayerPuppet : MonoBehaviour
+public class CharacterPuppet : MonoBehaviour
 {
-    private GameObject playerTypeObj;
-    private PlayerType playerTypeData;
+    private GameObject characterTypeObj;
+    private CharacterType characterTypeData;
 
-    public Transform freeLookTargetTransform;
+    public Transform cameraLookAtTarget;
     public Transform weaponMountPoint;
     public Transform throwableMountPoint;
-    public Animator playerAnimator;
+    public Animator characterAnimator;
     public AudioSource hoverAudioSource;
     public AudioSource windAudioSource;
     public Rigidbody rb;
-    public CapsuleCollider playerCollider;
-    private PlayerController playerController;
+    public CapsuleCollider characterCollider;
+    private Character character;
 
     Vector3 lastReceivedPosition;
 
@@ -33,7 +33,7 @@ public class PlayerPuppet : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (playerController != null)
+        if (character != null)
         {
             // Smoothly interpolate towards the last received position from the authoritative player, if it's not too far away
             float syncDistance = Vector3.Distance(rb.position, lastReceivedPosition);
@@ -51,35 +51,35 @@ public class PlayerPuppet : MonoBehaviour
         {
             float syncDistance = Vector3.Distance(rb.position, lastReceivedPosition);
             Gizmos.color = syncDistance > snapThreshold ? Color.red : syncDistance > snapThreshold/2f ? Color.yellow : Color.green;
-            Gizmos.DrawWireCube(lastReceivedPosition, playerCollider.bounds.size);
+            Gizmos.DrawWireCube(lastReceivedPosition, characterCollider.bounds.size);
         }    
     }
 
-    public void Initialize(PlayerController playerController)
+    public void Initialize(Character character)
     {
-        this.playerController = playerController;
-        PlayerType playerTypeData = SetPlayerType(playerController.playerTypePrefabObj);
-        playerController.GetComponent<PlayerNetworkTransform>().onNewLocalTransformState.AddListener(OnNewLocalTransformState);
+        this.character = character;
+        CharacterType characterTypeData = SetCharacterType(character.characterTypePrefabObj);
+        character.GetComponent<CharacterNetworkTransform>().onNewLocalTransformState.AddListener(OnNewLocalTransformState);
         isInitialized = true;
 
-        playerController.OnPlayerTypeObjectSpawned(playerTypeData);
+        character.OnCharacterTypeObjectSpawned(characterTypeData);
     }
 
-    private PlayerType SetPlayerType(GameObject playerTypePrefabObj)
+    private CharacterType SetCharacterType(GameObject characterTypePrefabObj)
     {
-        if (playerTypeObj != null) Destroy(playerTypeObj);
-        playerTypeObj = Instantiate(playerTypePrefabObj, transform.position, transform.rotation, transform);
-        playerTypeData = playerTypeObj.GetComponent<PlayerType>();
-        playerCollider = playerTypeData.playerCollider;
-        playerAnimator = playerTypeData.playerAnimator;
-        freeLookTargetTransform = playerTypeData.freeLookTargetTransform;
-        weaponMountPoint = playerTypeData.weaponMountPoint;
-        throwableMountPoint = playerTypeData.throwableMountPoint;
-        hoverAudioSource = playerTypeData.hoverAudioSource;
-        windAudioSource = playerTypeData.windAudioSource;
-        rb.mass = playerTypeData.mass;
+        if (characterTypeObj != null) Destroy(characterTypeObj);
+        characterTypeObj = Instantiate(characterTypePrefabObj, transform.position, transform.rotation, transform);
+        characterTypeData = characterTypeObj.GetComponent<CharacterType>();
+        characterCollider = characterTypeData.characterCollider;
+        characterAnimator = characterTypeData.characterAnimator;
+        cameraLookAtTarget = characterTypeData.cameraLookAtTarget;
+        weaponMountPoint = characterTypeData.weaponMountPoint;
+        throwableMountPoint = characterTypeData.throwableMountPoint;
+        hoverAudioSource = characterTypeData.hoverAudioSource;
+        windAudioSource = characterTypeData.windAudioSource;
+        rb.mass = characterTypeData.mass;
 
-        return playerTypeData;
+        return characterTypeData;
     }
 
     private void OnNewLocalTransformState(NetworkTransformState newState)
@@ -93,12 +93,12 @@ public class PlayerPuppet : MonoBehaviour
         if (syncDistance > snapThreshold || newState.IsTeleportingNextFrame)
         {
             rb.isKinematic = true;
-            playerCollider.enabled = false;
+            characterCollider.enabled = false;
 
             rb.position = newPosition;
             rb.PublishTransform();
 
-            playerCollider.enabled = true;
+            characterCollider.enabled = true;
             rb.isKinematic = false;
         }
         lastReceivedPosition = newPosition;

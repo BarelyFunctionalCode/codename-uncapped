@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7515906979210318209}
   - component: {fileID: 4506159966905529856}
   m_Layer: 3
-  m_Name: PlayerPuppet
+  m_Name: CharacterPuppet
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

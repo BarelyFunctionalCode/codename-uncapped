@@ -27,6 +27,8 @@ public class GameManager : MonoBehaviour
     private GameObject notificationManagerObj;
     [SerializeField] private GameObject spawnManagerPrefabObj;
     private GameObject spawnManagerObj;
+    [SerializeField] private GameObject characterManagerPrefabObj;
+    private GameObject characterManagerObj;
     [SerializeField] private GameObject gameModeHandlerPrefabObj;
     private GameObject gameModeHandlerObj;
     private FacepunchTransport facepunchTransport;
@@ -167,6 +169,7 @@ public class GameManager : MonoBehaviour
     {
         if (scene.name != "Lobby") return;
         isInitialized = true;
+        CharacterManager.Instance.RegisterLocalClient(NetworkManager.ServerClientId);
         SceneManager.activeSceneChanged -= SetInitialized;
     }
 
@@ -209,18 +212,21 @@ public class GameManager : MonoBehaviour
             unityTransport.SetConnectionData("127.0.0.1", unityTransportDesiredPort, "0.0.0.0");
         }
 
-
         // Start the server
 		NetworkManager.Singleton.StartHost();
         NetworkManager.Singleton.SceneManager.ActiveSceneSynchronizationEnabled = true;
 
-        // Create Notification Manager
-        notificationManagerObj = Instantiate(notificationManagerPrefabObj);
-        notificationManagerObj.GetComponent<NetworkObject>().Spawn();
-
         // Create Spawn Manager
         spawnManagerObj = Instantiate(spawnManagerPrefabObj);
         spawnManagerObj.GetComponent<NetworkObject>().Spawn();
+
+        // Create Character Manager
+        characterManagerObj = Instantiate(characterManagerPrefabObj);
+        characterManagerObj.GetComponent<NetworkObject>().Spawn();
+
+        // Create Notification Manager
+        notificationManagerObj = Instantiate(notificationManagerPrefabObj);
+        notificationManagerObj.GetComponent<NetworkObject>().Spawn();
 
         // Create Game Mode Handler
         gameModeHandlerObj = Instantiate(gameModeHandlerPrefabObj);
@@ -245,7 +251,7 @@ public class GameManager : MonoBehaviour
 	public void Disconnect()
 	{
 		if (NetworkManager.Singleton == null) return;
-        NetworkManager.Singleton.SpawnManager?.GetLocalPlayerObject()?.GetComponentInChildren<PlayerController>()?.DisconnectCleanupRpc();
+        
 
 		if (usingSteam) CurrentLobby?.Leave();
 
@@ -259,6 +265,7 @@ public class GameManager : MonoBehaviour
         // if (PlayerManager.Instance != null) PlayerManager.Instance.Clear();
         if (notificationManagerObj != null) Destroy(notificationManagerObj);
         if (spawnManagerObj != null) Destroy(spawnManagerObj);
+        if (characterManagerObj != null) Destroy(characterManagerObj);
         if (gameModeHandlerObj != null) Destroy(gameModeHandlerObj);
 		NetworkManager.Singleton.Shutdown();
 	}
@@ -416,11 +423,13 @@ public class GameManager : MonoBehaviour
     private void OnClientConnectedCallback(ulong clientId)
     {
         if (debugMode) Debug.Log($"{GetType()}: Client connected, clientId={clientId}", this);
+        if (clientId != NetworkManager.ServerClientId) CharacterManager.Instance.RegisterLocalClient(clientId);
     }
 
     private void OnClientDisconnectCallback(ulong clientId)
     {
         if (debugMode) Debug.Log($"{GetType()}: Client disconnected, clientId={clientId}", this);
+        CharacterManager.Instance.HandlePlayerDisconnect(clientId);
     }
 
 
