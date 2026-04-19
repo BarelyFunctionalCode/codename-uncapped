@@ -310,7 +310,7 @@ public class Character : Entity, IIdentifiable
     {
         return new IdentifierData
         {
-            color = IdentifierManager.TempTeamColors[identification.FetchTeamId()],
+            color = Color.red,
             topText = identification.FetchEntityName(),
             bottomText = $"{Mathf.CeilToInt(health.HealthPercentage * 100f)}%",
             isActive = health.CurrentHealth > 0,

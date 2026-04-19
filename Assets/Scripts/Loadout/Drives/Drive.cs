@@ -18,7 +18,7 @@ public class Drive : NetworkBehaviour
         base.OnNetworkSpawn();
         
         characterRef.OnValueChanged += OnCharacterRefUpdated;
-        characterRef.Value = null;
+        if (IsServer) characterRef.Value = null;
     }
 
     public override void OnNetworkDespawn()
@@ -44,8 +44,8 @@ public class Drive : NetworkBehaviour
 
     private void OnCharacterRefUpdated(NetworkBehaviourReference previousValue, NetworkBehaviourReference newValue)
     {
-        newValue.TryGet(out Character playerController);
-        this.character = playerController;
+        newValue.TryGet(out Character character);
+        this.character = character;
     }
 
     public void Initialize(Character character)
