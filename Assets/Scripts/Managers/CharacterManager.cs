@@ -17,6 +17,13 @@ public class CharacterManager : NetworkBehaviour
         else Destroy(gameObject);
     }
 
+    public override void OnDestroy()
+    {
+        ClearCharacters();
+        base.OnDestroy();
+        if (Instance == this) Instance = null;
+    }
+
     public void RegisterLocalClient(ulong clientId)
     {
         if (!IsServer) return;
@@ -73,8 +80,20 @@ public class CharacterManager : NetworkBehaviour
         return characters.Find(c => c.OwnerClientId == clientId);
     }
 
-    public Character GetCharacterByCharacterId(ulong characterId)
+    public Character GetCharacterByEntityId(ulong entityId)
     {
-        return characters.Find(c => c.identification.FetchEntityId() == characterId);
+        return characters.Find(c => c.identification.FetchEntityId() == entityId);
+    }
+
+    public void ClearCharacters()
+    {
+        foreach (var character in characters)
+        {
+            if (character != null && character.NetworkObject.IsSpawned)
+            {
+                Destroy(character.gameObject);
+            }
+        }
+        characters.Clear();
     }
 }

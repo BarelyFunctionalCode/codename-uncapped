@@ -61,6 +61,12 @@ public class Weapon : NetworkBehaviour
         if (characterRef.Value.TryGet(out Character character)) InitializeRpc(character, RpcTarget.Me);
     }
 
+    public sealed override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+        isInitialized = false;
+    }
+
     protected virtual void Update()
     {
         if (!isInitialized || !isEquiped.Value) return;
@@ -114,7 +120,7 @@ public class Weapon : NetworkBehaviour
         transform.parent = character.localCharacterType.weaponMountPoint;
         transform.localPosition = Vector3.zero;
         transform.localRotation = Quaternion.identity;
-        if (IsOwner && !character.isAI)
+        if (IsOwner && !character.isAI.Value)
         {
             if (!IsHost && character.characterPuppetObj)
             {

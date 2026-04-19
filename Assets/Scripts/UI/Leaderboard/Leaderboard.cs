@@ -36,6 +36,17 @@ public class Leaderboard : MonoBehaviour
         GameModeHandler.Instance.OnPlayerChangedTeam.AddListener(AddEntry);
     }
 
+    public void Deinitialize()
+    {
+        if (GameModeHandler.Instance)
+        {
+            GameModeHandler.Instance.OnGameModeChanged.RemoveListener(SetGameModeData);
+            GameModeHandler.Instance.OnStatUpdated.RemoveListener(OnStatEventReceived);
+            GameModeHandler.Instance.OnPlayerChangedTeam.RemoveListener(AddEntry);
+        }
+        ClearEntries();
+    }
+
     private void SetGameModeData(GameModes g)
     {
         TeamBasedType teamBasedType = GameModeHandler.Instance.FetchTeamBasedType(g);
@@ -68,7 +79,7 @@ public class Leaderboard : MonoBehaviour
         if (entryToRemove != null) RemoveEntry(playerId);
         
         int teamIndex = e.teamIndex;
-        Character character = CharacterManager.Instance.GetCharacterByCharacterId(playerId);
+        Character character = CharacterManager.Instance.GetCharacterByEntityId(playerId);
         if (character == null) return;
         string name = character.identification.FetchEntityName();
         GameObject entryObj = Instantiate(leaderboardEntryPrefabObj, (!isTeamBased || teamIndex == 0) ? listColumn0Obj.transform : listColumn1Obj.transform);

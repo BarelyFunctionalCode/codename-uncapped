@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -51,6 +49,21 @@ public class ThrowableUI : MonoBehaviour
 
         throwableManager.ammoCount.OnValueChanged += UpdateAmmo;
         isInitialized = true;
+    }
+
+    public void Deinitialize()
+    {
+        if (!isInitialized) return;
+        isInitialized = false;
+
+        if (throwableManager != null)
+        {
+            throwableManager.ammoCount.OnValueChanged -= UpdateAmmo;
+        }
+
+        throwableManager = null;
+        ammoCountText.text = "";
+        throwableIconImage.sprite = null;
     }
 
     private void UpdateAmmo(float _, float ammoCount)

@@ -20,7 +20,7 @@ public class TeamStructure : NetworkBehaviour
     [SerializeField]
     public List<string> predefined_team_names;
 
-    // Players are assigned here by PlayerHandler, referenced by their PlayerController.EntityId
+    // Players are assigned here by PlayerHandler, referenced by their Character.EntityId
     // Format: Dictionary[PlayerID, TeamIndex]
     public Dictionary<ulong, int> team_assignment = new();
 

@@ -39,6 +39,7 @@ public class HUD : MonoBehaviour
     [SerializeField] private RectTransform dynamicReticle;
     [SerializeField] private GameObject hitMarkerObj;
     [SerializeField] private AudioSource hitMarkerSound;
+    [SerializeField] private IdentifierManager identifierManager;
 
     private Character character;
     private Drive currentDrive;
@@ -135,6 +136,7 @@ public class HUD : MonoBehaviour
         centerClusterUI.Initialize(character);
         loadoutMenu.Initialize(character.GetComponent<CharacterLoadoutManager>(), this);
         leaderboard.Initialize();
+        identifierManager.Initialize();
 
         health.onAppliedDamage.AddListener(SetHitMarker);
         GameModeHandler.Instance.OnStatUpdated.AddListener(SetObjectiveData);
@@ -143,6 +145,36 @@ public class HUD : MonoBehaviour
 
         isInitialized = true;
         SetHUDActive(false);
+    }
+
+    public void Deinitialize()
+    {
+        if (!isInitialized) return;
+        isInitialized = false;
+
+        playerControls.UI.PauseMenu.performed -= ctx => ToggleMenu(HUDMenu.PauseMenu);
+        playerControls.UI.LoadoutMenu.performed -= ctx => ToggleMenu(HUDMenu.LoadoutMenu);
+        playerControls.UI.Chat.performed -= ctx => ToggleMenu(HUDMenu.Chat, true);
+        playerControls.UI.Close.performed -= ctx => HandleCloseInput();
+
+        playerControls.UI.Leaderboard.started -= ctx => leaderboard.ToggleMenu(true);
+        playerControls.UI.Leaderboard.canceled -= ctx => leaderboard.ToggleMenu(false);
+
+        PauseMenu.Instance.Deinitialize();
+        chatWindow.Deinitialize();
+        centerClusterUI.Deinitialize();
+        loadoutMenu.Deinitialize();
+        leaderboard.Deinitialize();
+        identifierManager.Deinitialize();
+
+        if (health != null) health.onAppliedDamage.RemoveListener(SetHitMarker);
+        GameModeHandler.Instance.OnStatUpdated.RemoveListener(SetObjectiveData);
+        GameModeHandler.Instance.currentPhaseCountdown.OnValueChanged -= SetCountDownTimer;
+        GameModeHandler.Instance.currentPhase.OnValueChanged -= SetCurrentPhaseData;
+
+        character = null;
+        health = null;
+        playerControls = null;
     }
 
     public void ToggleHUD()

@@ -36,13 +36,12 @@ public class IdentifierManager : MonoBehaviour
     private float sweepDelay = 1f;
     private float sweepDelayTimer = -1f;
 
+    private bool isInitialized = false;
+
     private void Awake()
     {
         parentCanvas = GetComponent<Canvas>();
-
         SceneManager.activeSceneChanged += (_, _) => sweepDelayTimer = 0f;
-        GameManager.Instance.OnClientConnectedEvent.AddListener((_) => sweepDelayTimer = 0f);
-        SpawnManager.Instance.objectSpawnedEvent.AddListener(RegisterIdentifier);
     }
 
     private void Update()
@@ -52,7 +51,7 @@ public class IdentifierManager : MonoBehaviour
         {
             for (int i = activeIdentifiers.Count - 1; i >= 0; i--)
             {
-                if (activeIdentifiers[i] == null)
+                if (activeIdentifiers[i] == null || activeIdentifiers[i].identifiable == null)
                 {
                     if (activeIdentifiers[i] != null) Destroy(activeIdentifiers[i].gameObject);
                     activeIdentifiers.RemoveAt(i);
@@ -66,8 +65,8 @@ public class IdentifierManager : MonoBehaviour
             sweepDelayTimer += Time.deltaTime;
             if (sweepDelayTimer >= sweepDelay)
             {
-                RegisterSweep();
                 sweepDelayTimer = -1f;
+                RegisterSweep();
             }
         }
     }
@@ -75,26 +74,46 @@ public class IdentifierManager : MonoBehaviour
     private void OnDestroy()
     {
         SceneManager.activeSceneChanged -= (_, _) => sweepDelayTimer = 0f;
-        if (GameManager.Instance != null) GameManager.Instance.OnClientConnectedEvent.RemoveListener((_) => sweepDelayTimer = 0f);
+    }
+
+    public void Initialize()
+    {
+        if (isInitialized) return;
+        GameManager.Instance.OnClientConnectedEvent.AddListener((_) => sweepDelayTimer = 0f);
+        SpawnManager.Instance.objectSpawnedEvent.AddListener(RegisterIdentifier);
+        isInitialized = true;
+    }
+
+    public void Deinitialize()
+    {
+        if (!isInitialized) return;
+        GameManager.Instance.OnClientConnectedEvent.RemoveListener((_) => sweepDelayTimer = 0f);
         if (SpawnManager.Instance != null) SpawnManager.Instance.objectSpawnedEvent.RemoveListener(RegisterIdentifier);
+        foreach (var identifier in activeIdentifiers)
+        {
+            if (identifier != null) Destroy(identifier.gameObject);
+        }
+        activeIdentifiers.Clear();
+        isInitialized = false;
     }
 
 
     private void RegisterSweep()
     {
-        GameObject[] existingIdentifiables = FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        foreach (GameObject obj in existingIdentifiables)
+        NetworkObject[] existingIdentifiables = FindObjectsByType<NetworkObject>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (NetworkObject obj in existingIdentifiables)
         {
-            // Check if obj is in active scene)
-            if (obj.scene != SceneManager.GetActiveScene()) continue;
-            RegisterIdentifier(obj);
+            // Check if obj is in active scene and is spawned
+            if (!obj.IsSpawned) continue;
+            if (obj.gameObject.scene != SceneManager.GetActiveScene()) continue;
+            RegisterIdentifier(obj.gameObject);
         }
     }
 
     public void RegisterIdentifier(GameObject obj)
     {
         if (!Player.Instance.Character) return;
-        if (obj == Player.Instance.Character.gameObject) return;
+        if (obj == Player.Instance.Character.localCharacterType.gameObject) return;
         if (!obj.TryGetComponent<IIdentifiable>(out var identifiable)) return;
         if (activeIdentifiers.Exists(identifier => identifier.identifiable == identifiable)) return;
 

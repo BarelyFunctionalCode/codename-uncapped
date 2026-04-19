@@ -1,7 +1,8 @@
 using Steamworks;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, PlayerControls.ICharacterActions
 {
     public static Player Instance { get; private set; } = null;
 
@@ -27,7 +28,6 @@ public class Player : MonoBehaviour
             Debug.LogWarning("Not running with Steam client, assigning random player ID.");
             playerId = (ulong)Random.Range(1, int.MaxValue); // Assign a default value or handle as needed
         }
-        playerControls = new PlayerControls();
 
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
@@ -35,6 +35,8 @@ public class Player : MonoBehaviour
 
     public void Initialize(Character character)
     {
+        Debug.Log("Initializing player.");
+        playerControls = new PlayerControls();
         Character = character;
         playerHUD.Initialize(this, character);
         thirdPersonCamera.SetFollowTarget(character.localCharacterType.cameraLookAtTarget);
@@ -44,62 +46,30 @@ public class Player : MonoBehaviour
         RegisterCharacterInputs();
     }
 
-    public void EnableControls() => playerControls.Enable();
-    public void DisableControls() => playerControls.Disable();
+    public void Deinitialize()
+    {
+        Debug.Log("Deinitializing player.");
+        playerHUD.Deinitialize();
+        UnregisterCharacterInputs();
+        playerControls.Dispose();
+        Character = null;
+    }
+
+    public void EnableControls() => playerControls?.Enable();
+    public void DisableControls() => playerControls?.Disable();
 
     private void RegisterCharacterInputs()
     {
-        CharacterInputs playerInputs = Character.characterInputs;
-        CharacterLoadoutManager playerLoadout = Character.characterLoadout;
+        if (playerControls == null || Character == null) return;
 
+        playerControls.Character.SetCallbacks(this);
         playerControls.Enable();
-        playerControls.Character.Move.performed += ctx => playerInputs.MoveInput(ctx.ReadValue<Vector2>());
-        playerControls.Character.Move.canceled += ctx => playerInputs.MoveInput(ctx.ReadValue<Vector2>());
-        playerControls.Character.Look.performed += ctx => playerInputs.LookInput(ctx.ReadValue<Vector2>());
-        playerControls.Character.Look.canceled += ctx => playerInputs.LookInput(ctx.ReadValue<Vector2>());
-        playerControls.Character.PrimaryFire.started += ctx => playerLoadout.OnPrimaryFireStartedRpc();
-        playerControls.Character.PrimaryFire.canceled += ctx => playerLoadout.OnPrimaryFireCanceledRpc();
-        playerControls.Character.Throwable.started += ctx => playerInputs.ThrowableStarted();
-        playerControls.Character.Throwable.canceled += ctx => playerInputs.ThrowableReleased();
-        playerControls.Character.ActivateDrive.started += ctx => playerLoadout.ActivateDriveRpc();
-        playerControls.Character.NextWeapon.started += ctx => playerLoadout.NextWeaponRpc();
-        playerControls.Character.PreviousWeapon.started += ctx => playerLoadout.PreviousWeaponRpc();
-        playerControls.Character.Ski.performed += ctx => playerInputs.SkiInput(ctx.ReadValue<float>());
-        playerControls.Character.Ski.canceled += ctx => playerInputs.SkiInput(ctx.ReadValue<float>());
-        playerControls.Character.JumpJet.performed += ctx => playerInputs.JetInput(ctx.ReadValue<float>());
-        playerControls.Character.JumpJet.canceled += ctx => playerInputs.JetInput(ctx.ReadValue<float>());
-        playerControls.Character.DownJet.performed += ctx => playerInputs.DownJetInput(ctx.ReadValue<float>());
-        playerControls.Character.DownJet.canceled += ctx => playerInputs.DownJetInput(ctx.ReadValue<float>());
-        playerControls.Character.JumpJet.started += ctx => playerInputs.JumpInput();
-        playerControls.Character.ToggleCameraView.started += ctx => ToggleCameraView();
     }
 
     private void UnregisterCharacterInputs()
     {
-        CharacterInputs playerInputs = Character.characterInputs;
-        CharacterLoadoutManager playerLoadout = Character.characterLoadout;
-
-        playerControls.Character.Move.performed -= ctx => playerInputs.MoveInput(ctx.ReadValue<Vector2>());
-        playerControls.Character.Move.canceled -= ctx => playerInputs.MoveInput(ctx.ReadValue<Vector2>());
-        playerControls.Character.Look.performed -= ctx => playerInputs.LookInput(ctx.ReadValue<Vector2>());
-        playerControls.Character.Look.canceled -= ctx => playerInputs.LookInput(ctx.ReadValue<Vector2>());
-        playerControls.Character.PrimaryFire.started -= ctx => playerLoadout.OnPrimaryFireStartedRpc();
-        playerControls.Character.PrimaryFire.canceled -= ctx => playerLoadout.OnPrimaryFireCanceledRpc();
-        playerControls.Character.Throwable.started -= ctx => playerInputs.ThrowableStarted();
-        playerControls.Character.Throwable.canceled -= ctx => playerInputs.ThrowableReleased();
-        playerControls.Character.ActivateDrive.started -= ctx => playerLoadout.ActivateDriveRpc();
-        playerControls.Character.NextWeapon.started -= ctx => playerLoadout.NextWeaponRpc();
-        playerControls.Character.PreviousWeapon.started -= ctx => playerLoadout.PreviousWeaponRpc();
-        playerControls.Character.Ski.performed -= ctx => playerInputs.SkiInput(ctx.ReadValue<float>());
-        playerControls.Character.Ski.canceled -= ctx => playerInputs.SkiInput(ctx.ReadValue<float>());
-        playerControls.Character.JumpJet.performed -= ctx => playerInputs.JetInput(ctx.ReadValue<float>());
-        playerControls.Character.JumpJet.canceled -= ctx => playerInputs.JetInput(ctx.ReadValue<float>());
-        playerControls.Character.DownJet.performed -= ctx => playerInputs.DownJetInput(ctx.ReadValue<float>());
-        playerControls.Character.DownJet.canceled -= ctx => playerInputs.DownJetInput(ctx.ReadValue<float>());
-        playerControls.Character.JumpJet.started -= ctx => playerInputs.JumpInput();
-        playerControls.Character.ToggleCameraView.started -= ctx => ToggleCameraView();
-
         playerControls.Disable();
+        playerControls.Character.RemoveCallbacks(this);
     }
 
     private void ToggleCameraView()
@@ -108,4 +78,69 @@ public class Player : MonoBehaviour
         thirdPersonCamera.SetState(!isThirdPerson);
         firstPersonCamera.SetState(isThirdPerson);
     }
+
+
+
+    #region Input Callbacks
+    public void OnLook(InputAction.CallbackContext context)
+    {
+        if (context.performed || context.canceled)
+        {
+            Vector2 lookInput = context.ReadValue<Vector2>();
+            Character.characterInputs.LookInput(lookInput);
+        }
+    }
+
+    public void OnMove(InputAction.CallbackContext context)
+    {
+        if (context.performed || context.canceled) Character.characterInputs.MoveInput(context.ReadValue<Vector2>());
+    }
+
+    public void OnPrimaryFire(InputAction.CallbackContext context)
+    {
+        if (context.started) Character.characterLoadout.OnPrimaryFireStartedRpc();
+        else if (context.canceled) Character.characterLoadout.OnPrimaryFireCanceledRpc();
+    }
+
+    public void OnThrowable(InputAction.CallbackContext context)
+    {
+        if (context.started) Character.characterInputs.ThrowableStarted();
+        else if (context.canceled) Character.characterInputs.ThrowableReleased();
+    }
+
+    public void OnActivateDrive(InputAction.CallbackContext context)
+    {
+        if (context.started) Character.characterLoadout.ActivateDriveRpc();
+    }
+
+    public void OnPreviousWeapon(InputAction.CallbackContext context)
+    {
+        if (context.started) Character.characterLoadout.PreviousWeaponRpc();
+    }
+
+    public void OnNextWeapon(InputAction.CallbackContext context)
+    {
+        if (context.started) Character.characterLoadout.NextWeaponRpc();
+    }
+
+    public void OnSki(InputAction.CallbackContext context)
+    {
+        if (context.performed || context.canceled) Character.characterInputs.SkiInput(context.ReadValue<float>());
+    }
+
+    public void OnJumpJet(InputAction.CallbackContext context)
+    {
+        if (context.performed || context.canceled) Character.characterInputs.JetInput(context.ReadValue<float>());
+    }
+
+    public void OnDownJet(InputAction.CallbackContext context)
+    {
+        if (context.performed || context.canceled) Character.characterInputs.DownJetInput(context.ReadValue<float>());
+    }
+
+    public void OnToggleCameraView(InputAction.CallbackContext context)
+    {
+        if (context.started) ToggleCameraView();
+    }
+    #endregion
 }

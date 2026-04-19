@@ -47,6 +47,12 @@ public class ThrowableManager : NetworkBehaviour
         if (characterRef.Value.TryGet(out Character character)) InitializeRpc(character, RpcTarget.Me);
     }
 
+    public sealed override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+        isInitialized = false;
+    }
+
     private void Update()
     {
         if (!isInitialized) return;
@@ -109,7 +115,7 @@ public class ThrowableManager : NetworkBehaviour
         characterRef.TryGet(out Character character);
         originalParentNetworkObject = GetComponentInParent<NetworkObject>();
         transform.parent = character.localCharacterType.throwableMountPoint;
-        if (IsOwner && !character.isAI)
+        if (IsOwner && !character.isAI.Value)
         {
             playerCamera = Camera.main;
             Player.Instance.playerHUD.SetThrowableUI(this);

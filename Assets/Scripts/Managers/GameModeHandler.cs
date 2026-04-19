@@ -166,7 +166,7 @@ public class GameModeHandler : NetworkBehaviour
         if (!IsHost || current_game_mode == null) return;
         if (GameModesTeamTypes[current_game_mode.game_mode_id] == TeamBasedType.SOLO)
         {
-            Character character = CharacterManager.Instance.GetCharacterByCharacterId(characterId);
+            Character character = CharacterManager.Instance.GetCharacterByEntityId(characterId);
             current_game_mode?.GetComponent<TeamStructure>().SetPlayerTeamFFA(character.identification.FetchEntityId());
         }
     }

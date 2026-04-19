@@ -16,8 +16,8 @@
 
 - (done) Move control of the cursor to a centralized location in the HUD class.
 - (done) Add back the mouse/keyboard control bindings.
+- (done) Move IIdentifiable to PlayerType instead of PlayerController.
 - Refactor LobbyPC to use Network Variables for everything.
-- Move IIdentifiable to PlayerType instead of PlayerController.
 
 # Multiplayer Checklist
 

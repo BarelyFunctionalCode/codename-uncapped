@@ -57,12 +57,14 @@ public class CharacterPuppet : MonoBehaviour
 
     public void Initialize(Character character)
     {
+        Debug.Log("Initializing CharacterPuppet for character: " + character.name);
         this.character = character;
         CharacterType characterTypeData = SetCharacterType(character.characterTypePrefabObj);
         character.GetComponent<CharacterNetworkTransform>().onNewLocalTransformState.AddListener(OnNewLocalTransformState);
         isInitialized = true;
 
         character.OnCharacterTypeObjectSpawned(characterTypeData);
+        Debug.Log("CharacterPuppet initialization complete for character: " + character.name);
     }
 
     private CharacterType SetCharacterType(GameObject characterTypePrefabObj)

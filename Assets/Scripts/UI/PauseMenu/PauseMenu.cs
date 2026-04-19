@@ -116,6 +116,27 @@ public class PauseMenu : MonoBehaviour
         }
     }
 
+    public void Deinitialize()
+    {
+        foreach (PauseMenuOption option in optionsList)
+        {
+            Destroy(option.gameObject);
+        }
+        optionsList.Clear();
+
+        foreach (PauseMenuControl control in controlsList)
+        {
+            Destroy(control.gameObject);
+        }
+        controlsList.Clear();
+
+        foreach (PauseMenuDebug debug in debugList)
+        {
+            Destroy(debug.gameObject);
+        }
+        debugList.Clear();
+    }
+
     public bool ToggleMenu()
     {
         gameObject.SetActive(!gameObject.activeSelf);

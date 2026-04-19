@@ -40,6 +40,15 @@ public class LoadoutMenu : MonoBehaviour
         isInitialized = true;
     }
 
+    public void Deinitialize()
+    {
+        if (!isInitialized) return;
+        isInitialized = false;
+
+        playerLoadoutManager = null;
+        hud = null;
+    }
+
     public bool ToggleMenu()
     {
         gameObject.SetActive(!gameObject.activeSelf);

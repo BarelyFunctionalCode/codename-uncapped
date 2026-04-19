@@ -3,8 +3,9 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 
-public class CharacterType : NetworkBehaviour
+public class CharacterType : NetworkBehaviour, IIdentifiable
 {
+    private Character character;
     public Transform pickupContainerHoldPoint;
     public CapsuleCollider characterCollider;
     public Transform cameraLookAtTarget;
@@ -47,6 +48,7 @@ public class CharacterType : NetworkBehaviour
 
         if (networkObject != null && networkObject.TryGetComponent(out Character character))
         {
+            this.character = character;
             character.OnCharacterTypeObjectSpawned(this);
         }
     }
@@ -194,4 +196,21 @@ public class CharacterType : NetworkBehaviour
             deathObj = null;
         }
     }
+
+
+    #region Character Identification
+    // Used to populate Identifier UI element.
+    public IdentifierData GetIdentifierData()
+    {
+        return new IdentifierData
+        {
+            color = Color.red,
+            topText = character.identification.FetchEntityName(),
+            bottomText = $"{Mathf.CeilToInt(character.health.HealthPercentage * 100f)}%",
+            isActive = character.health.CurrentHealth > 0,
+            targetTransform = FFIdentifierTargetTransform,
+            isAlwaysVisible = false
+        };
+    }
+    #endregion
 }

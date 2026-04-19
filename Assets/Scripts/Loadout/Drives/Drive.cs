@@ -53,7 +53,7 @@ public class Drive : NetworkBehaviour
         if (!IsServer) return;
 
         characterRef.Value = new NetworkBehaviourReference(character);
-        if (!character.isAI) SetDriveUIClientRpc();
+        if (!character.isAI.Value) SetDriveUIClientRpc();
         isInitialized = true;
     }
 

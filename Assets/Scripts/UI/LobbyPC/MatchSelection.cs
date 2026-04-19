@@ -229,10 +229,10 @@ public class MatchSelection : NetworkBehaviour
         LobbyPlayer lobbyPlayerToRemove = lobbyPlayers.Find(lp => lp.GetComponent<LobbyPlayer>().clientId == clientId);
         if (lobbyPlayerToRemove != null) return;
 
-        Character playerController = CharacterManager.Instance.GetCharacterByClientId(clientId);
-        if (!playerController.isInitialized) return;
+        Character character = CharacterManager.Instance.GetCharacterByClientId(clientId);
+        if (!character.isInitialized) return;
 
-        Identification entityIdentification = playerController.identification;
+        Identification entityIdentification = character.identification;
 
         string playerName = entityIdentification.FetchEntityName();
         int teamId = (selectedGameMode.teamBasedType == TeamBasedType.TEAM) ? (int)entityIdentification.FetchTeamId() : -1;
@@ -258,7 +258,7 @@ public class MatchSelection : NetworkBehaviour
 
     private void RemovePlayer(ulong clientId)
     {
-        if (!IsHost) return;
+        if (!NetworkManager.IsListening || !IsHost) return;
         RemovePlayerRpc(clientId);
     }
 

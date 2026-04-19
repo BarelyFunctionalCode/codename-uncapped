@@ -49,6 +49,21 @@ public class WeaponUI : MonoBehaviour
         isInitialized = true;
     }
 
+    public void Deinitialize()
+    {
+        if (!isInitialized) return;
+        isInitialized = false;
+
+        if (weapon != null)
+        {
+            weapon.ammoCount.OnValueChanged -= UpdateAmmo;
+            weapon.isEquiped.OnValueChanged -= UpdateActiveState;
+        }
+        weapon = null;
+        ammoCountText.text = "";
+        weaponIconImage.sprite = null;
+    }
+
     private void UpdateAmmo(float _, float ammoCount)
     {
         ammoCountText.text = ammoCount.ToString();

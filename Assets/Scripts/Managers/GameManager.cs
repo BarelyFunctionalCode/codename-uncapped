@@ -251,8 +251,8 @@ public class GameManager : MonoBehaviour
 	public void Disconnect()
 	{
 		if (NetworkManager.Singleton == null) return;
+        Player.Instance.Deinitialize();
         
-
 		if (usingSteam) CurrentLobby?.Leave();
 
         if (NetworkManager.Singleton.IsHost)

@@ -1,3 +1,4 @@
+using System.Linq;
 using Steamworks;
 using Unity.Netcode;
 using Unity.Netcode.Components;
@@ -17,12 +18,12 @@ using UnityEngine.SceneManagement;
 [RequireComponent(typeof(CharacterLoadoutManager))]
 [RequireComponent(typeof(DevVectorRenderer))]
 [RequireComponent(typeof(PickupContainer))]
-public class Character : Entity, IIdentifiable
+public class Character : Entity
 {
-    public bool isAI = true;
+    public NetworkVariable<bool> isAI = new();
 
     [Header("Prefabs")]
-    [HideInInspector] public GameObject characterTypePrefabObj;
+    public GameObject characterTypePrefabObj;
     [SerializeField] private GameObject characterPuppetPrefabObj;
 
     // Debug
@@ -59,6 +60,8 @@ public class Character : Entity, IIdentifiable
         localTransform = transform;
         localRb = GetComponent<Rigidbody>();
         localRb.sleepThreshold = 0.0f;
+
+        if (IsServer) isAI.Value = true;
     }
 
     public sealed override void OnNetworkDespawn()
@@ -125,7 +128,7 @@ public class Character : Entity, IIdentifiable
         characterMovement.ProcessFixedUpdate();
 
         // This makes the client's local rotation authoritative
-        if (IsOwner && !IsHost && !isAI) ClientAuthorityRotationSyncRpc(localRb.rotation);
+        if (IsOwner && !IsHost && !isAI.Value) ClientAuthorityRotationSyncRpc(localRb.rotation);
 
         characterInputs.ResetJumpInput();
 
@@ -156,9 +159,9 @@ public class Character : Entity, IIdentifiable
     public void Initialize(GameObject defaultCharacterTypePrefabObj, ulong characterId = 0)
     {
         if (characterId == 0) characterId = NetworkObjectId + 1;
-        else isAI = false;
+        else isAI.Value = false;
         
-        if (!isAI && GameManager.Instance.usingSteam == true) identification.SetEntityName(new Friend(characterId).Name);
+        if (!isAI.Value && GameManager.Instance.usingSteam == true) identification.SetEntityName(new Friend(characterId).Name);
         else identification.SetEntityName($"Character {characterId}");
         identification.SetEntityId(characterId);
         identification.SetTeamId((uint)characterId);
@@ -174,7 +177,6 @@ public class Character : Entity, IIdentifiable
     private void SetCharacterType(GameObject characterTypePrefabObj)
     {
         if (!IsServer) return;
-        this.characterTypePrefabObj = characterTypePrefabObj;
         if (localCharacterType != null)
         {
             Destroy(localCharacterType.gameObject);
@@ -193,6 +195,9 @@ public class Character : Entity, IIdentifiable
     // This is called by the newly spawned CharacterType object after it finishes initializing itself.
     public void OnCharacterTypeObjectSpawned(CharacterType characterType)
     {
+        uint prefabIdHash = characterType.NetworkObject.PrefabIdHash;
+        GameObject prefabObj = NetworkManager.Singleton.NetworkConfig.Prefabs.Prefabs.First(p => p.SourcePrefabGlobalObjectIdHash == prefabIdHash).Prefab;
+        characterTypePrefabObj = prefabObj;
         localCharacterType = characterType;
         localRb.mass = characterType.mass;
         characterMovement.UpdateCharacterData(null, characterType.characterCollider, null);
@@ -300,23 +305,6 @@ public class Character : Entity, IIdentifiable
             float damage = (damagingSpeed - minimumDamageSpeed) * ouchyThreshold * scaleFactor;
             health.TakeDamage(damage);
         }
-    }
-    #endregion
-
-
-    #region Player Identification
-    // Used to populate Identifier UI element.
-    public IdentifierData GetIdentifierData()
-    {
-        return new IdentifierData
-        {
-            color = Color.red,
-            topText = identification.FetchEntityName(),
-            bottomText = $"{Mathf.CeilToInt(health.HealthPercentage * 100f)}%",
-            isActive = health.CurrentHealth > 0,
-            targetTransform = localCharacterType.FFIdentifierTargetTransform,
-            isAlwaysVisible = false
-        };
     }
     #endregion
 

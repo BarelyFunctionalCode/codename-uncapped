@@ -1,4 +1,5 @@
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -69,6 +70,12 @@ public class IdentifierUI : MonoBehaviour
     {
         if (!isInitialized) return;
         IdentifierData identifierData = identifiable.GetIdentifierData();
+        if (identifierData.targetTransform == null)
+        {
+            identifiable = null;
+            Destroy(gameObject);
+            return;
+        }
         Transform objectTransform = identifierData.targetTransform;
         if (objectTransform == null) {
             Destroy(gameObject);
@@ -164,12 +171,14 @@ public class IdentifierUI : MonoBehaviour
     #region Initialization
     public void Initialize(IIdentifiable identifiable, Transform offscreenIndicatorContainer)
     {
+        if (identifiable == null) return;
+
         this.identifiable = identifiable;
         IdentifierData identifierData = identifiable.GetIdentifierData();
-        GameObject identifiableObject = identifierData.targetTransform.gameObject;
+        GameObject identifiableObject = identifierData.targetTransform.GetComponentInParent<NetworkObject>().gameObject;
         objectRenderers = identifiableObject.GetComponentsInChildren<Renderer>();
-        objectCollider = identifiableObject.GetComponent<Collider>();
-        if (objectCollider == null) objectCollider = identifiableObject.GetComponentInChildren<Collider>();
+        objectCollider = identifiableObject.GetComponentInChildren<Collider>();
+        Debug.Log("Initializing IdentifierUI for object: " + identifiableObject.name + " with collider: " + objectCollider);
         objectColliderExtents = objectCollider.bounds.extents + new Vector3(1f, 1f, 1f); // Add some padding to ensure the identifier fully encompasses the object
         offscreenIndicator.transform.SetParent(offscreenIndicatorContainer, false);
         this.offscreenIndicatorContainer = offscreenIndicatorContainer.GetComponent<RectTransform>();
