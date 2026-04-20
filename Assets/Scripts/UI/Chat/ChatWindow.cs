@@ -19,7 +19,7 @@ public class ChatWindow : MonoBehaviour
 
     private Color messageContainerColor;
 
-    private void Awake()
+    private void Start()
     {
         gameObject.SetActive(false);
         chatInputFieldObj.SetActive(false);
@@ -72,7 +72,10 @@ public class ChatWindow : MonoBehaviour
         if (!isInitialized) return;
         isInitialized = false;
 
-        NotificationManager.Instance.newNotificationReceivedEvent.RemoveListener(OnNewMessageReceived);
+        if (NotificationManager.Instance != null)
+        {
+            NotificationManager.Instance.newNotificationReceivedEvent.RemoveListener(OnNewMessageReceived);
+        }
         hud = null;
     }
 

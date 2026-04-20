@@ -22,6 +22,8 @@ public class Dummy : Entity, IIdentifiable
 
         if (!IsServer) return;
         identification.SetEntityName($"{namePartOneList[Random.Range(0, namePartOneList.Length)]} {namePartTwoList[Random.Range(0, namePartTwoList.Length)]}");
+        
+        if (SpawnManager.Instance) SpawnManager.Instance.RegisterSpawnedObject(NetworkObject);
     }
 
     protected virtual void Update()

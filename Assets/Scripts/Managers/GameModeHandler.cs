@@ -38,14 +38,7 @@ public class GameModeHandler : NetworkBehaviour
         { GameModes.STEALTHEINTEL,  TeamBasedType.TEAM },
     };
 
-    private static GameModeHandler _instance;
-    public static GameModeHandler Instance
-    {
-        get
-        {
-            return _instance;
-        }
-    }
+    public static GameModeHandler Instance { get; private set; } = null;
 
     public GameModeBase current_game_mode;
 
@@ -133,16 +126,19 @@ public class GameModeHandler : NetworkBehaviour
     #region Message Receivers
     private void Awake()
     {
-        // Init singleton logic
-        if (_instance != null && _instance != this)
-        {
-            Destroy(gameObject);
-        }
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+    }
 
-        else
-        {
-            _instance = this;
-        }
+    public override void OnDestroy()
+    {
+        if (Instance != this) return;
+        Instance = null;
+        OnStatUpdated.RemoveAllListeners();
+        OnPlayerChangedTeam.RemoveAllListeners();
+        OnGameModeChanged.RemoveAllListeners();
+
+        base.OnDestroy();
     }
 
     public override void OnNetworkSpawn()

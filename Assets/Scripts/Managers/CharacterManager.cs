@@ -19,9 +19,11 @@ public class CharacterManager : NetworkBehaviour
 
     public override void OnDestroy()
     {
-        ClearCharacters();
+        if (Instance != this) return;
+        Instance = null;
+        characters.Clear();
+
         base.OnDestroy();
-        if (Instance == this) Instance = null;
     }
 
     public void RegisterLocalClient(ulong clientId)

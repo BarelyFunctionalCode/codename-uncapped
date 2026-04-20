@@ -130,6 +130,7 @@ public class HUD : MonoBehaviour
 
         playerControls.UI.Leaderboard.started += ctx => leaderboard.ToggleMenu(true);
         playerControls.UI.Leaderboard.canceled += ctx => leaderboard.ToggleMenu(false);
+        playerControls.UI.Enable();
 
         PauseMenu.Instance.Initialize(player, character);
         chatWindow.Initialize(this);
@@ -152,6 +153,7 @@ public class HUD : MonoBehaviour
         if (!isInitialized) return;
         isInitialized = false;
 
+        playerControls.UI.Disable();
         playerControls.UI.PauseMenu.performed -= ctx => ToggleMenu(HUDMenu.PauseMenu);
         playerControls.UI.LoadoutMenu.performed -= ctx => ToggleMenu(HUDMenu.LoadoutMenu);
         playerControls.UI.Chat.performed -= ctx => ToggleMenu(HUDMenu.Chat, true);
@@ -168,9 +170,12 @@ public class HUD : MonoBehaviour
         identifierManager.Deinitialize();
 
         if (health != null) health.onAppliedDamage.RemoveListener(SetHitMarker);
-        GameModeHandler.Instance.OnStatUpdated.RemoveListener(SetObjectiveData);
-        GameModeHandler.Instance.currentPhaseCountdown.OnValueChanged -= SetCountDownTimer;
-        GameModeHandler.Instance.currentPhase.OnValueChanged -= SetCurrentPhaseData;
+        if (GameModeHandler.Instance)
+        {
+            GameModeHandler.Instance.OnStatUpdated.RemoveListener(SetObjectiveData);
+            GameModeHandler.Instance.currentPhaseCountdown.OnValueChanged -= SetCountDownTimer;
+            GameModeHandler.Instance.currentPhase.OnValueChanged -= SetCurrentPhaseData;
+        }
 
         character = null;
         health = null;

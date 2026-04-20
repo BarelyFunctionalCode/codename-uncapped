@@ -81,7 +81,6 @@ public class IdentifierUI : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
         if (!identifierData.isActive)
         {
             if (isEnabled) FullReset(identifierData.color);
@@ -101,16 +100,13 @@ public class IdentifierUI : MonoBehaviour
             // Check if the object is in front of the camera
             if (Vector3.Dot(objectDirectionToCamera, Camera.main.transform.forward) > 0)
                 return;
-
             // Render UI only if the object crosses near the reticle.
             float detectionRadius = CalculateDetectionRadius(distanceToObject);
             if (Mathf.Abs(screenCenter.x - objectScreenCenterPos.x) > detectionRadius || Mathf.Abs(screenCenter.y - objectScreenCenterPos.y) > detectionRadius)
                 return;
-
             // Check if the object is visible to the camera
             if (!ObjectVisibilityCheck(objectTransform))
                 return;
-
             isEnabled = true;
         }
 
@@ -178,8 +174,9 @@ public class IdentifierUI : MonoBehaviour
         GameObject identifiableObject = identifierData.targetTransform.GetComponentInParent<NetworkObject>().gameObject;
         objectRenderers = identifiableObject.GetComponentsInChildren<Renderer>();
         objectCollider = identifiableObject.GetComponentInChildren<Collider>();
-        Debug.Log("Initializing IdentifierUI for object: " + identifiableObject.name + " with collider: " + objectCollider);
         objectColliderExtents = objectCollider.bounds.extents + new Vector3(1f, 1f, 1f); // Add some padding to ensure the identifier fully encompasses the object
+        identifierTopText.text = identifierData.topText;
+        identifierBottomText.text = identifierData.bottomText;
         offscreenIndicator.transform.SetParent(offscreenIndicatorContainer, false);
         this.offscreenIndicatorContainer = offscreenIndicatorContainer.GetComponent<RectTransform>();
         offscreenIndicatorRect.anchoredPosition = this.offscreenIndicatorContainer.rect.center;
@@ -310,12 +307,11 @@ public class IdentifierUI : MonoBehaviour
         }
         if (!isVisible) return false;
 
-
         // Perform a raycast to check if there are any obstacles between the camera and the object
         Ray ray = new(Camera.main.transform.position, (objectTransform.position - Camera.main.transform.position).normalized);
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
         {
-            isVisible = hit.collider.transform == objectTransform || hit.collider.gameObject.transform.IsChildOf(objectTransform);
+            isVisible = hit.collider.transform == objectTransform || objectTransform.IsChildOf(hit.collider.gameObject.transform);
         }
         return isVisible;
     }

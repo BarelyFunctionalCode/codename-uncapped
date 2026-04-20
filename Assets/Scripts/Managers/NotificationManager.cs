@@ -58,6 +58,15 @@ public class NotificationManager : NetworkBehaviour
         else Destroy(gameObject);
     }
 
+    public override void OnDestroy()
+    {
+        if (Instance != this) return;
+        newNotificationReceivedEvent.RemoveAllListeners();
+        Instance = null;
+
+        base.OnDestroy();
+    }
+
     [Rpc(SendTo.Server)]
     public void SendNotificationRpc(NotificationData data) => BroadcastNotificationRpc(data);
 

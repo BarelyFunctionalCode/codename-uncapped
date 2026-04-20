@@ -18,6 +18,12 @@ public class Player : MonoBehaviour, PlayerControls.ICharacterActions
     {
         transform.SetParent(null);
         DontDestroyOnLoad(gameObject);
+        if (Instance == null) Instance = this;
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
         
         try
         {
@@ -28,14 +34,17 @@ public class Player : MonoBehaviour, PlayerControls.ICharacterActions
             Debug.LogWarning("Not running with Steam client, assigning random player ID.");
             playerId = (ulong)Random.Range(1, int.MaxValue); // Assign a default value or handle as needed
         }
+    }
 
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+    void OnDestroy()
+    {
+        if (Instance != this) return;
+        Deinitialize();
+        Instance = null;
     }
 
     public void Initialize(Character character)
     {
-        Debug.Log("Initializing player.");
         playerControls = new PlayerControls();
         Character = character;
         playerHUD.Initialize(this, character);
@@ -48,28 +57,27 @@ public class Player : MonoBehaviour, PlayerControls.ICharacterActions
 
     public void Deinitialize()
     {
-        Debug.Log("Deinitializing player.");
         playerHUD.Deinitialize();
         UnregisterCharacterInputs();
-        playerControls.Dispose();
+        playerControls.Disable();
         Character = null;
     }
 
-    public void EnableControls() => playerControls?.Enable();
-    public void DisableControls() => playerControls?.Disable();
+    public void EnableControls() => playerControls?.Character.Enable();
+    public void DisableControls() => playerControls?.Character.Disable();
 
     private void RegisterCharacterInputs()
     {
         if (playerControls == null || Character == null) return;
 
         playerControls.Character.SetCallbacks(this);
-        playerControls.Enable();
+        playerControls.Character.Enable();
     }
 
     private void UnregisterCharacterInputs()
     {
-        playerControls.Disable();
         playerControls.Character.RemoveCallbacks(this);
+        playerControls.Character.Disable();
     }
 
     private void ToggleCameraView()
