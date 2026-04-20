@@ -1,11 +1,15 @@
+using System.Linq;
 using Unity.Cinemachine;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
+using UnityEngine.SceneManagement;
 
 public class CharacterType : NetworkBehaviour, IIdentifiable
 {
     private Character character;
+    [SerializeField] private GameObject characterPuppetPrefabObj;
+    [HideInInspector] public GameObject characterPuppetObj;
     public Transform pickupContainerHoldPoint;
     public CapsuleCollider characterCollider;
     public Transform cameraLookAtTarget;
@@ -41,7 +45,6 @@ public class CharacterType : NetworkBehaviour, IIdentifiable
     private Quaternion currentLegsDirection;
     [SerializeField] private float legsRotateSpeed = 10f;
 
-
     public sealed override void OnNetworkObjectParentChanged(NetworkObject networkObject = null)
     {
         base.OnNetworkObjectParentChanged(networkObject);
@@ -49,8 +52,38 @@ public class CharacterType : NetworkBehaviour, IIdentifiable
         if (networkObject != null && networkObject.TryGetComponent(out Character character))
         {
             this.character = character;
-            character.OnCharacterTypeObjectSpawned(this);
+            if ((character.IsOwner && IsHost) || !character.IsOwner) character.OnCharacterTypeObjectSpawned(this);
+            else CreatePuppet();
         }
+    }
+
+    private void CreatePuppet()
+    {
+        Debug.Log("Creating puppet for character: " + character.name);
+        // Initialize Character Puppet for local client prediction of character movement before server updates are received
+        // Hide all visuals on authoritative character object
+        foreach (Renderer r in gameObject.GetComponentsInChildren<Renderer>())
+        {
+            r.enabled = false;
+        }
+
+        // Disable audio sources
+        foreach (AudioSource a in gameObject.GetComponentsInChildren<AudioSource>())
+        {
+            a.enabled = false;
+        }
+
+        // Disable the collider on the authoritative character object so it doesn't interfere with the puppet's collider
+        characterCollider.enabled = false;
+
+        // Spawn a non-authoritative puppet on local client for predicting the character's position and rotation before the server updates it
+        characterPuppetObj = Instantiate(characterPuppetPrefabObj, transform.position, transform.rotation);
+        CharacterPuppet characterPuppet = characterPuppetObj.GetComponent<CharacterPuppet>();
+        GameObject prefabObj = NetworkManager.Singleton.NetworkConfig.Prefabs.Prefabs.First(
+            p => p.SourcePrefabGlobalObjectIdHash == NetworkObject.PrefabIdHash
+        ).Prefab;
+        SceneManager.activeSceneChanged += ChangedActiveScene;
+        characterPuppet.Initialize(character, prefabObj);
     }
 
     public void HandleCamera(float rotationInputY, int controlsDisabledCount)
@@ -211,6 +244,16 @@ public class CharacterType : NetworkBehaviour, IIdentifiable
             targetTransform = FFIdentifierTargetTransform,
             isAlwaysVisible = false
         };
+    }
+    #endregion
+
+
+    #region SceneManagement
+    // This makes sure that the player-related objects that are not parented to the player object itself are preserved when changing scenes.
+    private void ChangedActiveScene(Scene _, Scene next)
+    {
+        if (GameManager.Instance?.debugMode == true) Debug.Log(GetType() + ": Changed active scene for " + name + " " + NetworkManager.Singleton.LocalClientId);
+        if (characterPuppetObj) SceneManager.MoveGameObjectToScene(characterPuppetObj, SceneManager.GetSceneByName(next.name));
     }
     #endregion
 }

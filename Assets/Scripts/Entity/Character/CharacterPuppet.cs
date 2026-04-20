@@ -55,11 +55,16 @@ public class CharacterPuppet : MonoBehaviour
         }    
     }
 
-    public void Initialize(Character character)
+    public void Initialize(Character character, GameObject characterTypePrefabObj)
     {
         Debug.Log("Initializing CharacterPuppet for character: " + character.name);
         this.character = character;
-        CharacterType characterTypeData = SetCharacterType(character.characterTypePrefabObj);
+        // Set the local character's transform and, and rigidbody references to the puppet's so that the rest of the
+        character.localTransform = transform;
+        character.localRb = rb;
+        character.characterMovement.UpdateCharacterData(character.localTransform, null, character.localRb);
+
+        CharacterType characterTypeData = SetCharacterType(characterTypePrefabObj);
         character.GetComponent<CharacterNetworkTransform>().onNewLocalTransformState.AddListener(OnNewLocalTransformState);
         isInitialized = true;
 

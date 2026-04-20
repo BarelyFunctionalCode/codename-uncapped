@@ -22,17 +22,12 @@ public class Character : Entity
 {
     public NetworkVariable<bool> isAI = new();
 
-    [Header("Prefabs")]
-    public GameObject characterTypePrefabObj;
-    [SerializeField] private GameObject characterPuppetPrefabObj;
-
     // Debug
     private DevVectorRenderer devVectorRenderer;
     [HideInInspector] public CharacterTelemetry characterTelemetry;
 
     [Header("Main Components")]
     [HideInInspector] public CharacterInputs characterInputs;
-    [HideInInspector] public GameObject characterPuppetObj;
     [HideInInspector] public CharacterMovement characterMovement;
     [HideInInspector] public CharacterLoadoutManager characterLoadout;
     public Transform localTransform;
@@ -56,19 +51,11 @@ public class Character : Entity
     {
         base.OnNetworkSpawn();
 
-        SceneManager.activeSceneChanged += ChangedActiveScene;
         localTransform = transform;
         localRb = GetComponent<Rigidbody>();
         localRb.sleepThreshold = 0.0f;
 
         if (IsServer) isAI.Value = true;
-    }
-
-    public sealed override void OnNetworkDespawn()
-    {
-        base.OnNetworkDespawn();
-
-        SceneManager.activeSceneChanged -= ChangedActiveScene;
     }
 
     private void Update()
@@ -195,55 +182,12 @@ public class Character : Entity
     // This is called by the newly spawned CharacterType object after it finishes initializing itself.
     public void OnCharacterTypeObjectSpawned(CharacterType characterType)
     {
-        uint prefabIdHash = characterType.NetworkObject.PrefabIdHash;
-        GameObject prefabObj = NetworkManager.Singleton.NetworkConfig.Prefabs.Prefabs.First(p => p.SourcePrefabGlobalObjectIdHash == prefabIdHash).Prefab;
-        characterTypePrefabObj = prefabObj;
         localCharacterType = characterType;
         localRb.mass = characterType.mass;
         characterMovement.UpdateCharacterData(null, characterType.characterCollider, null);
         GetComponent<PickupContainer>().pickupHoldPoint = characterType.pickupContainerHoldPoint;
 
-        if (IsOwner) InitializeOwner();
-    }
-
-    // InitializeOwner is called once on the local client after the character's CharacterType object is spawned and initialized.
-    // This is to set up any local-only parts of the character object, like the camera and UI.
-    public void InitializeOwner()
-    {
-        if (!IsOwner) return;
-
-        // Initialize Character Puppet for local client prediction of character movement before server updates are received
-        if (!IsHost && !characterPuppetObj)
-        {
-            // Hide all visuals on authoritative character object
-            foreach (Renderer r in localCharacterType.gameObject.GetComponentsInChildren<Renderer>())
-            {
-                r.enabled = false;
-            }
-
-            // Disable audio sources
-            foreach (AudioSource a in localCharacterType.gameObject.GetComponentsInChildren<AudioSource>())
-            {
-                a.enabled = false;
-            }
-
-            // Disable the collider on the authoritative character object so it doesn't interfere with the puppet's collider
-            localCharacterType.characterCollider.enabled = false;
-
-            // Spawn a non-authoritative puppet on local client for predicting the character's position and rotation before the server updates it
-            characterPuppetObj = Instantiate(characterPuppetPrefabObj, localTransform.position, localTransform.rotation);
-            CharacterPuppet characterPuppet = characterPuppetObj.GetComponent<CharacterPuppet>();
-            // Set the local character's transform and, and rigidbody references to the puppet's so that the rest of the
-            localTransform = characterPuppetObj.transform;
-            localRb = characterPuppet.rb;
-            characterMovement.UpdateCharacterData(localTransform, null, localRb);
-            characterPuppet.Initialize(this);
-            return;
-        }
-
-        characterTelemetry = new CharacterTelemetry(devVectorRenderer);
-        InitializeServerRpc();
-        isInitialized = true;
+        if (IsOwner) InitializeServerRpc();
     }
 
     // InitializeServerRpc is called on the server after InitializeOwner is finished.
@@ -261,6 +205,8 @@ public class Character : Entity
     [Rpc(SendTo.Owner)]
     private void PostInitializeOwnerRpc()
     {
+        isInitialized = true;
+        characterTelemetry = new CharacterTelemetry(devVectorRenderer);
         if (Player.Instance != null) Player.Instance.Initialize(this);
     }
     #endregion
@@ -305,18 +251,6 @@ public class Character : Entity
             float damage = (damagingSpeed - minimumDamageSpeed) * ouchyThreshold * scaleFactor;
             health.TakeDamage(damage);
         }
-    }
-    #endregion
-
-
-    #region SceneManagement
-    // This makes sure that the player-related objects that are not parented to the player object itself are preserved when changing scenes.
-    private void ChangedActiveScene(Scene _, Scene next) => ChangedActiveSceneRpc(next.name);
-    [Rpc(SendTo.Owner)]
-    private void ChangedActiveSceneRpc(string sceneName)
-    {
-        if (GameManager.Instance?.debugMode == true) Debug.Log(GetType() + ": Changed active scene for " + name + " " + NetworkManager.Singleton.LocalClientId);
-        if (characterPuppetObj) SceneManager.MoveGameObjectToScene(characterPuppetObj, SceneManager.GetSceneByName(sceneName));
     }
     #endregion
 }

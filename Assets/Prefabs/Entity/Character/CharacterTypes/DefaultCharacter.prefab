@@ -21134,6 +21134,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerTypeData
   ShowTopMostFoldoutHeaderGroup: 1
+  characterPuppetPrefabObj: {fileID: 3437312309707308051, guid: 67ec23ebb239f977f9b5beef525cf609, type: 3}
+  characterPuppetObj: {fileID: 0}
   pickupContainerHoldPoint: {fileID: 7906880503942234016}
   characterCollider: {fileID: 5594979291149433351}
   cameraLookAtTarget: {fileID: 6066929034379831547}
