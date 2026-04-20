@@ -138,7 +138,11 @@ public class Player : MonoBehaviour, PlayerControls.ICharacterActions
 
     public void OnJumpJet(InputAction.CallbackContext context)
     {
-        if (context.performed || context.canceled) Character.characterInputs.JetInput(context.ReadValue<float>());
+        if (context.performed || context.canceled) 
+        {
+            Character.characterInputs.JetInput(context.ReadValue<float>());
+            Character.characterInputs.JumpInput();
+        }
     }
 
     public void OnDownJet(InputAction.CallbackContext context)
