@@ -160,10 +160,6 @@ public class ThrowableManager : NetworkBehaviour
             transform.rotation,
             transform
         );
-        // GameObject throwableObj = Instantiate(throwablePrefabObj, transform.position + transform.forward, transform.rotation);
-        // NetworkObject networkObj = throwableObj.GetComponent<NetworkObject>();
-        // networkObj.Spawn(true);
-        // networkObj.TrySetParent(transform.GetComponentInParent<NetworkObject>());
         throwableObj.GetComponent<Throwable>().Throw(characterRef.Value, this, throwForceFactor.Value);
         ammoCount.Value--;
         canThrow = false;

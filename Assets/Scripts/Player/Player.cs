@@ -24,7 +24,9 @@ public class Player : MonoBehaviour, PlayerControls.ICharacterActions
             Destroy(gameObject);
             return;
         }
-        
+
+        Camera.main.GetComponent<AudioListener>().enabled = true;
+
         try
         {
             playerId = SteamClient.SteamId.Value;

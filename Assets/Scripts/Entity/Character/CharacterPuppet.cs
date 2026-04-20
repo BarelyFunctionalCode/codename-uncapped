@@ -1,4 +1,5 @@
-using Unity.Netcode.Components;
+using System.Linq;
+using Unity.Netcode;
 using UnityEngine;
 using static Unity.Netcode.Components.NetworkTransform;
 
@@ -7,15 +8,8 @@ public class CharacterPuppet : MonoBehaviour
     private GameObject characterTypeObj;
     private CharacterType characterTypeData;
 
-    public Transform cameraLookAtTarget;
-    public Transform weaponMountPoint;
-    public Transform throwableMountPoint;
-    public Animator characterAnimator;
-    public AudioSource hoverAudioSource;
-    public AudioSource windAudioSource;
     public Rigidbody rb;
     public CapsuleCollider characterCollider;
-    private Character character;
 
     Vector3 lastReceivedPosition;
 
@@ -33,14 +27,13 @@ public class CharacterPuppet : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (character != null)
+        if (!isInitialized) return;
+
+        // Smoothly interpolate towards the last received position from the authoritative player, if it's not too far away
+        float syncDistance = Vector3.Distance(rb.position, lastReceivedPosition);
+        if (syncDistance > smoothThreshold)
         {
-            // Smoothly interpolate towards the last received position from the authoritative player, if it's not too far away
-            float syncDistance = Vector3.Distance(rb.position, lastReceivedPosition);
-            if (syncDistance > smoothThreshold)
-            {
-                rb.position = Vector3.Lerp(rb.position, lastReceivedPosition, Time.fixedDeltaTime * smoothAmount * syncDistance / snapThreshold);
-            }
+            rb.position = Vector3.Lerp(rb.position, lastReceivedPosition, Time.fixedDeltaTime * smoothAmount * syncDistance / snapThreshold);
         }
     }
 
@@ -55,21 +48,35 @@ public class CharacterPuppet : MonoBehaviour
         }    
     }
 
-    public void Initialize(Character character, GameObject characterTypePrefabObj)
+    public void Initialize(Character character)
     {
-        Debug.Log("Initializing CharacterPuppet for character: " + character.name);
-        this.character = character;
-        // Set the local character's transform and, and rigidbody references to the puppet's so that the rest of the
-        character.localTransform = transform;
-        character.localRb = rb;
-        character.characterMovement.UpdateCharacterData(character.localTransform, null, character.localRb);
+        // Hide all visuals on authoritative character object
+        foreach (Renderer r in character.localCharacterType.gameObject.GetComponentsInChildren<Renderer>())
+        {
+            r.enabled = false;
+        }
 
-        CharacterType characterTypeData = SetCharacterType(characterTypePrefabObj);
+        // Disable audio sources
+        foreach (AudioSource a in character.localCharacterType.gameObject.GetComponentsInChildren<AudioSource>())
+        {
+            a.enabled = false;
+        }
+
+        // Disable the collider on the authoritative character object so it doesn't interfere with the puppet's collider
+        character.localCharacterType.characterCollider.enabled = false;
+
+        uint prefabIdHash = character.localCharacterType.NetworkObject.PrefabIdHash;
+        GameObject prefabObj = NetworkManager.Singleton.NetworkConfig.Prefabs.Prefabs.First(p => p.SourcePrefabGlobalObjectIdHash == prefabIdHash).Prefab;
+
+        // Set the local character's transform and, and rigidbody references to the puppet's so that the rest of the
+        character.localRb = rb;
+        character.characterMovement.UpdateCharacterData(null, character.localRb);
+
+        CharacterType characterTypeData = SetCharacterType(prefabObj);
         character.GetComponent<CharacterNetworkTransform>().onNewLocalTransformState.AddListener(OnNewLocalTransformState);
         isInitialized = true;
 
         character.OnCharacterTypeObjectSpawned(characterTypeData);
-        Debug.Log("CharacterPuppet initialization complete for character: " + character.name);
     }
 
     private CharacterType SetCharacterType(GameObject characterTypePrefabObj)
@@ -78,12 +85,6 @@ public class CharacterPuppet : MonoBehaviour
         characterTypeObj = Instantiate(characterTypePrefabObj, transform.position, transform.rotation, transform);
         characterTypeData = characterTypeObj.GetComponent<CharacterType>();
         characterCollider = characterTypeData.characterCollider;
-        characterAnimator = characterTypeData.characterAnimator;
-        cameraLookAtTarget = characterTypeData.cameraLookAtTarget;
-        weaponMountPoint = characterTypeData.weaponMountPoint;
-        throwableMountPoint = characterTypeData.throwableMountPoint;
-        hoverAudioSource = characterTypeData.hoverAudioSource;
-        windAudioSource = characterTypeData.windAudioSource;
         rb.mass = characterTypeData.mass;
 
         return characterTypeData;

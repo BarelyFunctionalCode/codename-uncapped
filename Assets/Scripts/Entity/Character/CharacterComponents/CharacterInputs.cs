@@ -34,7 +34,7 @@ public class CharacterInputs : EntityComponent
     {
         if (IsOwner)
         {
-            Vector3 newMovementDirection = character.localTransform.TransformDirection(MovementInput); // NOT SUPPOSED TO BE NORMALIZED
+            Vector3 newMovementDirection = character.localRb.transform.TransformDirection(MovementInput); // NOT SUPPOSED TO BE NORMALIZED
             bool changed = false;
             if (newMovementDirection != this.newMovementDirection) changed = true;
             this.newMovementDirection = newMovementDirection;

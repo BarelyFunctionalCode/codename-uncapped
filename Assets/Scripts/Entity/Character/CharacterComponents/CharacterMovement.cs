@@ -10,9 +10,6 @@ public class CharacterMovement : EntityComponent, IGravityModifiable
     public Vector3 SurfacePoint { get; private set; } = Vector3.zero;
     public float DistanceToSurface { get; private set; } = Mathf.Infinity;
 
-
-
-    private Transform characterTransform = null;
     private Collider characterCollider = null;
     private Rigidbody characterRb = null;
 
@@ -74,14 +71,12 @@ public class CharacterMovement : EntityComponent, IGravityModifiable
         if (IsServer) gravityModifier.Value = 1f;
         if (!IsServer && !IsOwner) return;
 
-        if (characterTransform == null) characterTransform = entity.transform;
         if (characterCollider == null) characterCollider = entity.GetComponentInChildren<Collider>();
         if (characterRb == null) characterRb = entity.GetComponentInChildren<Rigidbody>();
     }
 
-    public void UpdateCharacterData(Transform characterTransform, Collider characterCollider, Rigidbody characterRb)
+    public void UpdateCharacterData(Collider characterCollider, Rigidbody characterRb)
     {
-        if (characterTransform != null) this.characterTransform = characterTransform;
         if (characterCollider != null) this.characterCollider = characterCollider;
         if (characterRb != null) this.characterRb = characterRb;
     }
@@ -135,13 +130,13 @@ public class CharacterMovement : EntityComponent, IGravityModifiable
     public void Teleport(Vector3 destination, Quaternion rotation = default)
     {
         if (!IsServer) return;
-        if (characterRb == null || characterCollider == null || characterTransform == null) return;
+        if (characterRb == null || characterCollider == null) return;
 
         characterRb.isKinematic = true;
         characterCollider.enabled = false;
 
-        if (rotation.Equals(default)) rotation = characterTransform.rotation;
-        GetComponent<NetworkTransform>().Teleport(destination, rotation.normalized, characterTransform.lossyScale);
+        if (rotation.Equals(default)) rotation = characterRb.rotation;
+        GetComponent<NetworkTransform>().Teleport(destination, rotation.normalized, characterRb.transform.lossyScale);
 
         characterCollider.enabled = true;
         characterRb.isKinematic = false;
@@ -195,7 +190,7 @@ public class CharacterMovement : EntityComponent, IGravityModifiable
 
     private void HandleMovement()
     {
-        if (characterRb == null || characterCollider == null || characterTransform == null) return;
+        if (characterRb == null || characterCollider == null) return;
         Vector3 currentVelocity = characterRb.linearVelocity;
         Vector3 desiredAcc = Vector3.zero;
         Vector3 groundImpulse = Vector3.zero;
@@ -234,7 +229,7 @@ public class CharacterMovement : EntityComponent, IGravityModifiable
 
                     Vector3 jumpDirection = movementDirection.normalized;
 
-                    float playerScaleFactor = characterTransform.localScale.y * 0.25f + 0.75f;
+                    float playerScaleFactor = characterRb.transform.localScale.y * 0.25f + 0.75f;
                     float jumpForceFinal = jumpForce / characterRb.mass;
 
                     float surfaceNormalDotJumpDirection = Vector3.Dot(jumpDirection, SurfaceNormal);

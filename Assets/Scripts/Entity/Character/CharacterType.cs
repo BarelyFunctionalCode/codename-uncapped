@@ -8,8 +8,6 @@ using UnityEngine.SceneManagement;
 public class CharacterType : NetworkBehaviour, IIdentifiable
 {
     private Character character;
-    [SerializeField] private GameObject characterPuppetPrefabObj;
-    [HideInInspector] public GameObject characterPuppetObj;
     public Transform pickupContainerHoldPoint;
     public CapsuleCollider characterCollider;
     public Transform cameraLookAtTarget;
@@ -52,38 +50,8 @@ public class CharacterType : NetworkBehaviour, IIdentifiable
         if (networkObject != null && networkObject.TryGetComponent(out Character character))
         {
             this.character = character;
-            if ((character.IsOwner && IsHost) || !character.IsOwner) character.OnCharacterTypeObjectSpawned(this);
-            else CreatePuppet();
+            character.OnCharacterTypeObjectSpawned(this);
         }
-    }
-
-    private void CreatePuppet()
-    {
-        Debug.Log("Creating puppet for character: " + character.name);
-        // Initialize Character Puppet for local client prediction of character movement before server updates are received
-        // Hide all visuals on authoritative character object
-        foreach (Renderer r in gameObject.GetComponentsInChildren<Renderer>())
-        {
-            r.enabled = false;
-        }
-
-        // Disable audio sources
-        foreach (AudioSource a in gameObject.GetComponentsInChildren<AudioSource>())
-        {
-            a.enabled = false;
-        }
-
-        // Disable the collider on the authoritative character object so it doesn't interfere with the puppet's collider
-        characterCollider.enabled = false;
-
-        // Spawn a non-authoritative puppet on local client for predicting the character's position and rotation before the server updates it
-        characterPuppetObj = Instantiate(characterPuppetPrefabObj, transform.position, transform.rotation);
-        CharacterPuppet characterPuppet = characterPuppetObj.GetComponent<CharacterPuppet>();
-        GameObject prefabObj = NetworkManager.Singleton.NetworkConfig.Prefabs.Prefabs.First(
-            p => p.SourcePrefabGlobalObjectIdHash == NetworkObject.PrefabIdHash
-        ).Prefab;
-        SceneManager.activeSceneChanged += ChangedActiveScene;
-        characterPuppet.Initialize(character, prefabObj);
     }
 
     public void HandleCamera(float rotationInputY, int controlsDisabledCount)
@@ -102,11 +70,13 @@ public class CharacterType : NetworkBehaviour, IIdentifiable
     public void HandleAudio(Vector3 velocity, bool isSkiing)
     {
         // Set audio values
+        float maxHoverVolume = 0.3f;
+        float hoverVolume = Mathf.Lerp(hoverAudioSource.volume, isSkiing ? maxHoverVolume : 0f, Time.fixedDeltaTime * 5f);
+        float hoverPitch = 0.9f + 0.05f * (velocity.magnitude / 20f);
         if (hoverAudioSource)
         {
-            float maxVolume = 0.3f;
-            hoverAudioSource.volume = Mathf.Lerp(hoverAudioSource.volume, isSkiing ? maxVolume : 0f, Time.fixedDeltaTime * 5f);
-            hoverAudioSource.pitch = 0.9f + 0.05f * (velocity.magnitude / 20f);
+            hoverAudioSource.volume = hoverVolume;
+            hoverAudioSource.pitch = hoverPitch;
         }
         if (windAudioSource)
         {
@@ -116,8 +86,18 @@ public class CharacterType : NetworkBehaviour, IIdentifiable
             windAudioSource.volume = Mathf.Lerp(windAudioSource.volume, targetVolume, Time.fixedDeltaTime * 20f);
             windAudioSource.pitch = Mathf.Lerp(windAudioSource.pitch, targetPitch, Time.fixedDeltaTime * 20f);
         }
+        if (NetworkObject.IsSpawned) HandleAudioRpc(hoverVolume, hoverPitch);
     }
-    // TODO: Add RPC for hover audio so that other players can hear it
+    [Rpc(SendTo.Everyone)]
+    private void HandleAudioRpc(float hoverVolume, float hoverPitch)
+    {
+        if (IsServer || IsOwner) return;
+        if (hoverAudioSource)
+        {
+            hoverAudioSource.volume = hoverVolume;
+            hoverAudioSource.pitch = hoverPitch;
+        }
+    }
 
     public void HandleExtraMotion(Vector3 movementDirection, bool isHovering, Vector3 surfaceNormal)
     {
@@ -216,7 +196,7 @@ public class CharacterType : NetworkBehaviour, IIdentifiable
         if (deathEffectPrefab != null)
         {
             deathObj = Instantiate(deathEffectPrefab, transform.position, Quaternion.identity);
-            deathObj.GetComponent<CharacterDeath>().Initialize(!NetworkObject.IsSpawned || IsOwner, inheritedVelocity);
+            deathObj.GetComponent<CharacterDeath>().Initialize(!character.isAI.Value && (!NetworkObject.IsSpawned || IsOwner), inheritedVelocity);
         }
     }
 
@@ -235,7 +215,16 @@ public class CharacterType : NetworkBehaviour, IIdentifiable
     // Used to populate Identifier UI element.
     public IdentifierData GetIdentifierData()
     {
-        return new IdentifierData
+        if (character == null) return new IdentifierData
+        {
+            color = Color.red,
+            topText = "null",
+            bottomText = "null",
+            isActive = false,
+            targetTransform = FFIdentifierTargetTransform,
+            isAlwaysVisible = false
+        };
+        else return new IdentifierData
         {
             color = Color.red,
             topText = character.identification.FetchEntityName(),
@@ -244,16 +233,6 @@ public class CharacterType : NetworkBehaviour, IIdentifiable
             targetTransform = FFIdentifierTargetTransform,
             isAlwaysVisible = false
         };
-    }
-    #endregion
-
-
-    #region SceneManagement
-    // This makes sure that the player-related objects that are not parented to the player object itself are preserved when changing scenes.
-    private void ChangedActiveScene(Scene _, Scene next)
-    {
-        if (GameManager.Instance?.debugMode == true) Debug.Log(GetType() + ": Changed active scene for " + name + " " + NetworkManager.Singleton.LocalClientId);
-        if (characterPuppetObj) SceneManager.MoveGameObjectToScene(characterPuppetObj, SceneManager.GetSceneByName(next.name));
     }
     #endregion
 }

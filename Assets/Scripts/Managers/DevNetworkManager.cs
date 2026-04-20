@@ -53,7 +53,7 @@ public class DevNetworkManager : MonoBehaviour
             }
             else
             {
-                if (Player.Instance.Character.isInitialized)
+                if (Player.Instance && Player.Instance.Character && Player.Instance.Character.isInitialized)
                 {
                     GameManager.Instance.PrepJoiningOtherLobby();
                     Destroy(gameObject);

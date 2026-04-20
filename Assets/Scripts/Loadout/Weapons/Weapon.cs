@@ -122,11 +122,11 @@ public class Weapon : NetworkBehaviour
         transform.localRotation = Quaternion.identity;
         if (IsOwner && !character.isAI.Value)
         {
-            if (!IsHost && character.localCharacterType.characterPuppetObj)
+            if (!IsHost && character.localCharacterType)
             {
                 Vector3 localPosition = modelObj.transform.localPosition;
                 Quaternion localRotation = modelObj.transform.localRotation;
-                modelObj.transform.parent = character.localCharacterType.characterPuppetObj.GetComponent<CharacterPuppet>().weaponMountPoint;
+                modelObj.transform.parent = character.localCharacterType.weaponMountPoint;
                 modelObj.transform.localPosition = localPosition;
                 modelObj.transform.localRotation = localRotation;
             }
@@ -187,10 +187,6 @@ public class Weapon : NetworkBehaviour
                 projectileSpawnPoint.rotation,
                 projectileSpawnPoint
             );
-            // GameObject newProjectileObj = Instantiate(projectilePrefabObj, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
-            // NetworkObject networkObj = newProjectileObj.GetComponent<NetworkObject>();
-            // networkObj.Spawn(true);
-            // networkObj.TrySetParent(projectileSpawnPoint.GetComponentInParent<NetworkObject>());
             currentProjectile = newProjectileObj.GetComponent<Projectile>();
             currentProjectile.Fire(characterRef.Value, this, damage);
             FireRpc();

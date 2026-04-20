@@ -1,4 +1,3 @@
-using System.Linq;
 using Steamworks;
 using Unity.Netcode;
 using Unity.Netcode.Components;
@@ -26,11 +25,17 @@ public class Character : Entity
     private DevVectorRenderer devVectorRenderer;
     [HideInInspector] public CharacterTelemetry characterTelemetry;
 
+    [Header("Prefabs")]
+    [SerializeField] private GameObject characterPuppetPrefabObj;
+
     [Header("Main Components")]
     [HideInInspector] public CharacterInputs characterInputs;
+    [HideInInspector] public GameObject characterPuppetObj;
     [HideInInspector] public CharacterMovement characterMovement;
     [HideInInspector] public CharacterLoadoutManager characterLoadout;
-    public Transform localTransform;
+
+    // These 2 components are set to either the components on this object, or the components on the puppet object,
+    // depending on whether this character is owned by the host or a client.
     public CharacterType localCharacterType;
     public Rigidbody localRb;
 
@@ -51,11 +56,16 @@ public class Character : Entity
     {
         base.OnNetworkSpawn();
 
-        localTransform = transform;
+        SceneManager.activeSceneChanged += ChangedActiveScene;
         localRb = GetComponent<Rigidbody>();
         localRb.sleepThreshold = 0.0f;
+    }
 
-        if (IsServer) isAI.Value = true;
+    public sealed override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+
+        SceneManager.activeSceneChanged -= ChangedActiveScene;
     }
 
     private void Update()
@@ -66,7 +76,7 @@ public class Character : Entity
         if (characterTelemetry != null) characterTelemetry.Update();
 
         // Death plane check
-        if (IsServer && localTransform.position.y < -1000f) state.Die();
+        if (IsServer && localRb.position.y < -1000f) state.Die();
 
         // Character ground detection and physics material updates
         characterMovement.ProcessUpdate();
@@ -118,20 +128,6 @@ public class Character : Entity
         if (IsOwner && !IsHost && !isAI.Value) ClientAuthorityRotationSyncRpc(localRb.rotation);
 
         characterInputs.ResetJumpInput();
-
-        if (characterTelemetry != null)
-        {
-            characterTelemetry.movementDirection = characterInputs.MovementDirection;
-            characterTelemetry.isSkiing = characterInputs.IsSkiing;
-            characterTelemetry.isUpJetting = characterInputs.IsUpJetting;
-            characterTelemetry.isDownJetting = characterInputs.IsDownJetting;
-            characterTelemetry.position = localTransform.position;
-            characterTelemetry.velocity = localRb.linearVelocity;
-            characterTelemetry.distanceToSurface = characterMovement.DistanceToSurface;
-            characterTelemetry.surfacePoint = characterMovement.SurfacePoint;
-            characterTelemetry.isGrounded = state.IsGrounded;
-            characterTelemetry.surfaceNormal = characterMovement.SurfaceNormal;
-        }
     }
 
     [Rpc(SendTo.Server)]
@@ -145,7 +141,12 @@ public class Character : Entity
     #region Initialization
     public void Initialize(GameObject defaultCharacterTypePrefabObj, ulong characterId = 0)
     {
-        if (characterId == 0) characterId = NetworkObjectId + 1;
+        // Specified ID means this character is for a Player
+        if (characterId == 0)
+        {
+            isAI.Value = true;
+            characterId = NetworkObjectId + 1;
+        }
         else isAI.Value = false;
         
         if (!isAI.Value && GameManager.Instance.usingSteam == true) identification.SetEntityName(new Friend(characterId).Name);
@@ -184,10 +185,29 @@ public class Character : Entity
     {
         localCharacterType = characterType;
         localRb.mass = characterType.mass;
-        characterMovement.UpdateCharacterData(null, characterType.characterCollider, null);
+        characterMovement.UpdateCharacterData(characterType.characterCollider, null);
         GetComponent<PickupContainer>().pickupHoldPoint = characterType.pickupContainerHoldPoint;
 
-        if (IsOwner) InitializeServerRpc();
+        if (IsOwner) InitializeOwner(isAI.Value);
+    }
+
+    // InitializeOwner is called once on the local client after the character's CharacterType object is spawned and initialized.
+    // This is to set up any local-only parts of the character object, like the camera and UI.
+    public void InitializeOwner(bool isAI)
+    {
+        if (!IsOwner) return;
+
+        // Initialize Character Puppet for local client prediction of character movement before server updates are received
+        if (!IsHost && !isAI && !characterPuppetObj)
+        {
+            // Spawn a non-authoritative puppet on local client for predicting the character's position and rotation before the server updates it
+            characterPuppetObj = Instantiate(characterPuppetPrefabObj, localCharacterType.transform.position, localCharacterType.transform.rotation);
+            characterPuppetObj.GetComponent<CharacterPuppet>().Initialize(this);
+            return;
+        }
+
+        InitializeServerRpc();
+        isInitialized = true;
     }
 
     // InitializeServerRpc is called on the server after InitializeOwner is finished.
@@ -206,7 +226,7 @@ public class Character : Entity
     private void PostInitializeOwnerRpc()
     {
         isInitialized = true;
-        characterTelemetry = new CharacterTelemetry(devVectorRenderer);
+        characterTelemetry = new CharacterTelemetry(devVectorRenderer, this);
         if (Player.Instance != null) Player.Instance.Initialize(this);
     }
     #endregion
@@ -251,6 +271,18 @@ public class Character : Entity
             float damage = (damagingSpeed - minimumDamageSpeed) * ouchyThreshold * scaleFactor;
             health.TakeDamage(damage);
         }
+    }
+    #endregion
+
+
+    #region SceneManagement
+    // This makes sure that the player-related objects that are not parented to the player object itself are preserved when changing scenes.
+    private void ChangedActiveScene(Scene _, Scene next) => ChangedActiveSceneRpc(next.name);
+    [Rpc(SendTo.Owner)]
+    private void ChangedActiveSceneRpc(string sceneName)
+    {
+        if (GameManager.Instance?.debugMode == true) Debug.Log(GetType() + ": Changed active scene for " + name + " " + NetworkManager.Singleton.LocalClientId);
+        if (characterPuppetObj) SceneManager.MoveGameObjectToScene(characterPuppetObj, SceneManager.GetSceneByName(sceneName));
     }
     #endregion
 }
