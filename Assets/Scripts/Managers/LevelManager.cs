@@ -13,7 +13,7 @@ public class LevelManager : NetworkBehaviour
 
     private bool isInitialized = false;
 
-    Dictionary<uint, List<Transform>> spawnPoints = new();
+    Dictionary<int, List<Transform>> spawnPoints = new();
 
     private void Awake()
     {
@@ -99,7 +99,7 @@ public class LevelManager : NetworkBehaviour
         if (!NetworkManager.Singleton.IsHost || isInitialized) return;
         stageGenerated = true;
 
-        OnStageGenerationRpc(GameModeHandler.Instance.GameModesTeamTypes[GameModeHandler.Instance.current_game_mode.game_mode_id] == TeamBasedType.SOLO);
+        OnStageGenerationRpc(GameModeHandler.Instance.gameModesTeamTypes[GameModeHandler.Instance.currentGameMode.GameModeId] == TeamBasedType.SOLO);
 
         OnLevelInitialized();
     }
@@ -144,7 +144,7 @@ public class LevelManager : NetworkBehaviour
         GameObject[] spawnPointsObjs = GameObject.FindGameObjectsWithTag("Respawn");
         foreach (var spawnPointObj in spawnPointsObjs)
         {
-            uint teamId = uint.Parse(spawnPointObj.name);
+            int teamId = int.Parse(spawnPointObj.name);
 
             if (!spawnPoints.ContainsKey(teamId)) spawnPoints[teamId] = new List<Transform>();
             spawnPoints[teamId].Add(spawnPointObj.transform);
@@ -185,9 +185,9 @@ public class LevelManager : NetworkBehaviour
         GameModeHandler.Instance.StartGame();
     }
 
-    public Transform GetSpawnPoint(uint teamId)
+    public Transform GetSpawnPoint(int teamId)
     {
-        if (GameModeHandler.Instance.GameModesTeamTypes[GameModeHandler.Instance.current_game_mode.game_mode_id] == TeamBasedType.TEAM)
+        if (GameModeHandler.Instance.gameModesTeamTypes[GameModeHandler.Instance.currentGameMode.GameModeId] == TeamBasedType.TEAM)
         {
             return GetTeamSpawnPoint(teamId);
         }
@@ -197,7 +197,7 @@ public class LevelManager : NetworkBehaviour
         }
     }
 
-    private Transform GetTeamSpawnPoint(uint teamId)
+    private Transform GetTeamSpawnPoint(int teamId)
     {
         if (spawnPoints.ContainsKey(teamId) && spawnPoints[teamId].Count > 0)
         {

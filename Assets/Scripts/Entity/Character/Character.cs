@@ -152,7 +152,6 @@ public class Character : Entity
         if (!isAI.Value && GameManager.Instance.usingSteam == true) identification.SetEntityName(new Friend(characterId).Name);
         else identification.SetEntityName($"Character {characterId}");
         identification.SetEntityId(characterId);
-        identification.SetTeamId((uint)characterId);
 
         SetCharacterType(defaultCharacterTypePrefabObj);
     }

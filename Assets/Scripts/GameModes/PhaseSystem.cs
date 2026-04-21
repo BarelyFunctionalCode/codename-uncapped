@@ -29,9 +29,8 @@ public enum Phase
 
 public class PhaseSystem : NetworkBehaviour
 {
-    #region Properties
-    [SerializeField]
-    private Phase _currentphase = Phase.NULL;
+    [SerializeField] private GameModeBase gameModeBase;
+    [SerializeField] private Phase _currentphase = Phase.NULL;
     public Phase CurrentPhase
     {
         get => _currentphase;
@@ -68,8 +67,6 @@ public class PhaseSystem : NetworkBehaviour
         }
     }
 
-    // private bool stepping = true;
-    #endregion
 
     public override void OnNetworkSpawn()
     {
@@ -79,15 +76,16 @@ public class PhaseSystem : NetworkBehaviour
         _activePhaseTimeLimit.SetDirty(true);
     }
 
+    private void FixedUpdate()
+    {
+        if (CurrentPhase != Phase.NULL) SetCountdown(Countdown - Time.fixedDeltaTime);
+    }
+
     private void OnActivePhaseTimeLimitChanged(float oldValue, float newValue)
     {
         countdowns[Phase.ACTIVE] = newValue;
     }
 
-    #region Public methods
-    public void SetActivePhaseTimeLimit(float time) => _activePhaseTimeLimit.Value = time;
-
-    public Phase GetCurrentPhase() => CurrentPhase;
 
     // Step phase forward
     public void Step()
@@ -109,33 +107,17 @@ public class PhaseSystem : NetworkBehaviour
                 break;
         };
 
-        EmitPhaseChanged(new EventArgsPhaseChanged(CurrentPhase));
+        gameModeBase.OnPhaseChanged(new EventArgsPhaseChanged(CurrentPhase));
     }
+
+    public void SetActivePhaseTimeLimit(float time) => _activePhaseTimeLimit.Value = time;
 
     // Bypass intended stepping and set Phase directly.
     // Used for restarting a match, or early ending a match.
     public void HardSet(Phase phase)
     {
         CurrentPhase = phase;
-        EmitPhaseChanged(new EventArgsPhaseChanged(CurrentPhase));
-    }
-
-    #endregion
-
-    #region Private methods
-    private void EmitPhaseChanged(EventArgsPhaseChanged e)
-    {
-        gameObject.BroadcastMessage("OnPhaseChanged", e);
-    }
-
-    private float GetCountdown()
-    {
-        return Countdown;
-    }
-
-    private void AddCountdown(float f)
-    {
-        SetCountdown(f + GetCountdown());
+        gameModeBase.OnPhaseChanged(new EventArgsPhaseChanged(CurrentPhase));
     }
 
     private void SetCountdown(float f)
@@ -143,24 +125,6 @@ public class PhaseSystem : NetworkBehaviour
         Countdown = f;
         GameModeHandler.Instance.currentPhaseCountdown.Value = f;
     }
-    #endregion
-    
-    #region Message Receivers
-    private void FixedUpdate()
-    {
-        if (CurrentPhase != Phase.NULL) SetCountdown(GetCountdown() - Time.fixedDeltaTime);
-    }
-
-    // public void Awake()
-    // {
-    //     SetCountdown(1.0f);
-    // }
-
-    public void OnGameWon()
-    {
-        HardSet(Phase.ENDGAME);
-    }
-    #endregion
 }
 
 public class EventArgsPhaseChanged : EventArgs

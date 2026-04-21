@@ -38,7 +38,7 @@ public class Dummy : Entity, IIdentifiable
     {
         if (!baseEntityInitialized) return default;
 
-        ulong TeamId = identification.FetchTeamId();
+        int TeamId = identification.FetchTeamId();
         string EntityName = identification.FetchEntityName();
 
         float healthPercentage = health.HealthPercentage;

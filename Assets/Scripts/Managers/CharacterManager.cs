@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class CharacterManager : NetworkBehaviour
 {
@@ -8,22 +9,49 @@ public class CharacterManager : NetworkBehaviour
     [SerializeField] private GameObject defaultPlayerCharacterTypePrefabObj;
     [SerializeField] private GameObject characterPrefabObj;
 
+    private NetworkList<NetworkBehaviourReference> _characters = new();
     public List<Character> characters = new();
+    public UnityEvent<NetworkBehaviourReference> OnCharacterChangedTeam = new();
 
 
     private void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+
+        _characters.OnListChanged += OnCharacterListChanged;
     }
 
     public override void OnDestroy()
     {
         if (Instance != this) return;
         Instance = null;
+        OnCharacterChangedTeam.RemoveAllListeners();
+        _characters.OnListChanged -= OnCharacterListChanged;
         characters.Clear();
 
         base.OnDestroy();
+    }
+
+    private void OnCharacterListChanged(NetworkListEvent<NetworkBehaviourReference> changeEvent)
+    {
+        if (changeEvent.Type == NetworkListEvent<NetworkBehaviourReference>.EventType.Add)
+        {
+            changeEvent.Value.TryGet(out Character character);
+            if (character != null && !characters.Contains(character))
+            {
+                characters.Add(character);
+                OnCharacterChangedTeam.Invoke(changeEvent.Value);
+            }
+        }
+        else if (changeEvent.Type == NetworkListEvent<NetworkBehaviourReference>.EventType.Remove)
+        {
+            changeEvent.Value.TryGet(out Character character);
+            if (character != null)
+            {
+                characters.Remove(character);
+            }
+        }
     }
 
     public void RegisterLocalClient(ulong clientId)
@@ -63,6 +91,10 @@ public class CharacterManager : NetworkBehaviour
             newCharacter.Initialize(defaultPlayerCharacterTypePrefabObj, playerId);
             characters.Add(newCharacter);
         }
+    }
+    [Rpc(SendTo.Server)]
+    public void CompletedPlayerInitializationRpc(ulong clientId)
+    {
         GameManager.Instance.OnClientConnectedEvent.Invoke(clientId);
     }
 
@@ -85,6 +117,19 @@ public class CharacterManager : NetworkBehaviour
     public Character GetCharacterByEntityId(ulong entityId)
     {
         return characters.Find(c => c.identification.FetchEntityId() == entityId);
+    }
+
+    public List<NetworkBehaviourReference> GetCharactersByTeamId(int teamId)
+    {
+        List<NetworkBehaviourReference> charactersOnTeam = new();
+        foreach (Character character in characters)
+        {
+            if (character.identification.FetchTeamId() == teamId)
+            {
+                charactersOnTeam.Add(new NetworkBehaviourReference(character));
+            }
+        }
+        return charactersOnTeam;
     }
 
     public void ClearCharacters()

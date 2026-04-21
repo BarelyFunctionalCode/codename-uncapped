@@ -29,101 +29,28 @@ public enum TeamBasedType
 // through PhaseSystem, once it has begun.
 public class GameModeHandler : NetworkBehaviour
 {
+    public static GameModeHandler Instance { get; private set; } = null;
+
     // Is a game mode FFA? Are players going to have a team?
-    public Dictionary<GameModes, TeamBasedType> GameModesTeamTypes = new Dictionary<GameModes, TeamBasedType>() {
+    public Dictionary<GameModes, TeamBasedType> gameModesTeamTypes = new()
+    {
         { GameModes.NONE,           TeamBasedType.NONE },
         { GameModes.DEATHMATCH,     TeamBasedType.SOLO },
         { GameModes.POWERSTRUGGLE,  TeamBasedType.TEAM },
         { GameModes.TEAMDEATHMATCH, TeamBasedType.TEAM },
         { GameModes.STEALTHEINTEL,  TeamBasedType.TEAM },
     };
-
-    public static GameModeHandler Instance { get; private set; } = null;
-
-    public GameModeBase current_game_mode;
+    public static Dictionary<GameModes, GameModeSO> availableGameModes = new();
+    public GameModeBase currentGameMode;
+    [SerializeField] private GameObject gameModeBasePrefabObj;
 
     public UnityEvent<StatEvent> OnStatUpdated = new();
-    public UnityEvent<EventArgsPlayerChangedTeam> OnPlayerChangedTeam = new();
     public UnityEvent<GameModes> OnGameModeChanged = new();
     public NetworkVariable<float> currentPhaseCountdown = new();
     public NetworkVariable<Phase> currentPhase = new();
 
-    #region Gamemode prefab cache
-    [SerializeField]
-    private GameObject gameModeBasePrefabObj;
-    public static Dictionary<GameModes, GameModeSO> availableGameModes = new();
-    #endregion
 
-
-    #region Public Methods
-    public void StatEventReceiver(StatEvent s)
-    {
-        if (!IsHost || current_game_mode == null) return;
-        current_game_mode.StatEventReceiver(s);
-    }
-    
-    // Game mode can be selected at any time. player voting, admin selection, in-game host selection should all call from here.
-    // Psuedo
-    public void SelectNewMode(GameModeData gameModeData)
-    {
-        if (!IsHost) return;
-
-        // Delete the current one
-        if (current_game_mode != null)
-        {
-            // Remember, a GameModeBase is just a component of a GameObject
-            // so delete the game object, this deletes GameModeBase
-            Destroy(current_game_mode.gameObject);
-        }
-        current_game_mode = null;
-
-        if (gameModeData == null)
-        {
-            SelectNewModeRpc(GameModes.NONE);
-            currentPhaseCountdown.Value = 0f;
-            currentPhase.Value = Phase.NULL;
-            return;
-        }
-
-        // Clone the prefab, add it as a child to the GameModeHandler
-        GameObject cloned_game_mode_object = Instantiate(gameModeBasePrefabObj, gameObject.transform);
-        cloned_game_mode_object.GetComponent<NetworkObject>().Spawn();
-
-        // Fetch the clone's GameModeBase component
-        GameModeBase game_mode = cloned_game_mode_object.GetComponent<GameModeBase>();
-        game_mode.game_mode_id = gameModeData.gameModeSO.gameModeName;
-        current_game_mode = game_mode;
-
-        game_mode.GetComponent<WinCondition>().Initialize(gameModeData.winConditionStatType, gameModeData.winConditionValue);
-        game_mode.GetComponent<PhaseSystem>().SetActivePhaseTimeLimit(gameModeData.timeLimitMinutes * 60);
-
-        SelectNewModeRpc(gameModeData.gameModeSO.gameModeName);
-
-        if (LevelManager.Instance) LevelManager.Instance.OnStageGenerated();
-    }
-
-    [Rpc(SendTo.Everyone)]
-    private void SelectNewModeRpc(GameModes g)
-    {
-        OnGameModeChanged.Invoke(g);
-    }
-
-    public void StartGame()
-    {
-        if (!IsHost || current_game_mode == null) return;
-        current_game_mode.StartGame(new List<string>());
-    }
-
-    public TeamBasedType FetchTeamBasedType(GameModes g)
-    {
-        TeamBasedType type;
-        bool success = GameModesTeamTypes.TryGetValue(g, out type);
-        return success ? type : TeamBasedType.NONE;
-    }
-
-    #endregion
-
-    #region Message Receivers
+    #region Lifecycle
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -135,7 +62,6 @@ public class GameModeHandler : NetworkBehaviour
         if (Instance != this) return;
         Instance = null;
         OnStatUpdated.RemoveAllListeners();
-        OnPlayerChangedTeam.RemoveAllListeners();
         OnGameModeChanged.RemoveAllListeners();
 
         base.OnDestroy();
@@ -156,16 +82,98 @@ public class GameModeHandler : NetworkBehaviour
             }
         }
     }
+    #endregion
+
+
+    public void StatEventReceiver(StatEvent s)
+    {
+        if (!IsHost || currentGameMode == null) return;
+        currentGameMode.StatEventReceiver(s);
+    }
+    
+    // Game mode can be selected at any time. player voting, admin selection, in-game host selection should all call from here.
+    public void SelectNewMode(GameModeData gameModeData)
+    {
+        if (!IsHost) return;
+
+        // Delete the current one
+        if (currentGameMode != null)
+        {
+            // Remember, a GameModeBase is just a component of a GameObject
+            // so delete the game object, this deletes GameModeBase
+            Destroy(currentGameMode.gameObject);
+        }
+        currentGameMode = null;
+
+        if (gameModeData == null)
+        {
+            currentPhaseCountdown.Value = 0f;
+            currentPhase.Value = Phase.NULL;
+            return;
+        }
+
+        // Clone the prefab, add it as a child to the GameModeHandler
+        GameObject newGameModeObj = Instantiate(gameModeBasePrefabObj, gameObject.transform);
+        newGameModeObj.GetComponent<NetworkObject>().Spawn();
+
+        // Fetch the clone's GameModeBase component
+        GameModeBase gameMode = newGameModeObj.GetComponent<GameModeBase>();
+        currentGameMode = gameMode;
+
+        if (gameModesTeamTypes[gameModeData.gameModeSO.gameModeName] == TeamBasedType.TEAM)
+        {
+            foreach (string teamName in gameModeData.gameModeSO.defaultTeamNames)
+                currentGameMode.TeamStructure.AddTeam(teamName);
+        }
+        gameMode.GameModeId = gameModeData.gameModeSO.gameModeName;
+        gameMode.WinConditions.Initialize(gameModeData.winConditionStatType, gameModeData.winConditionValue);
+        gameMode.PhaseSystem.SetActivePhaseTimeLimit(gameModeData.timeLimitMinutes * 60);
+
+        if (LevelManager.Instance) LevelManager.Instance.OnStageGenerated();
+    }
+
+    public void StartGame()
+    {
+        if (!IsHost || currentGameMode == null) return;
+        currentGameMode.StartGame();
+    }
+
+    public TeamBasedType FetchTeamBasedType(GameModes g)
+    {
+        bool success = gameModesTeamTypes.TryGetValue(g, out TeamBasedType type);
+        return success ? type : TeamBasedType.NONE;
+    }
 
     public void OnCharacterJoined(ulong characterId)
     {
-        if (!IsHost || current_game_mode == null) return;
-        if (GameModesTeamTypes[current_game_mode.game_mode_id] == TeamBasedType.SOLO)
+        if (!IsHost || currentGameMode == null) return;
+        // Add character to stats
+        currentGameMode.GameStats.CheckAddEntry(characterId, StatsGroup.PLAYER);
+
+        Character character = CharacterManager.Instance.GetCharacterByEntityId(characterId);
+        // Assign character to team
+        if (gameModesTeamTypes[currentGameMode.GameModeId] == TeamBasedType.SOLO)
         {
-            Character character = CharacterManager.Instance.GetCharacterByEntityId(characterId);
-            current_game_mode?.GetComponent<TeamStructure>().SetPlayerTeamFFA(character.identification.FetchEntityId());
+            currentGameMode.TeamStructure.AssignCharacterToTeam(character);
+        }
+        else
+        {
+            int teamId = currentGameMode.TeamStructure.GetTeamWithFewestPlayers();
+            currentGameMode.TeamStructure.AssignCharacterToTeam(character, teamId);
         }
     }
 
-    #endregion
+    [Rpc(SendTo.Server)]
+    public void TriggerCharactersStatsDumpRpc(ulong clientId)
+    {
+        if (currentGameMode == null) return;
+        currentGameMode.TriggerCharactersStatsDump(clientId); 
+    }
+
+    [Rpc(SendTo.Server)]
+    public void TriggerGameModeUpdateRpc(ulong clientId)
+    {
+        if (currentGameMode == null) return;
+        currentGameMode.TriggerGameModeUpdateRpc(RpcTarget.Single(clientId, RpcTargetUse.Temp));
+    }
 }

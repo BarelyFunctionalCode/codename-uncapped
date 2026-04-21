@@ -22,3 +22,6 @@ MonoBehaviour:
   winConditionStatType: 6
   winConditionDefaultValue: 4
   teamBasedType: 2
+  defaultTeamNames:
+  - Red
+  - Blue

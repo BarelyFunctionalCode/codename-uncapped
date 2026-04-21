@@ -1,4 +1,5 @@
 using Steamworks;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -55,6 +56,7 @@ public class Player : MonoBehaviour, PlayerControls.ICharacterActions
         firstPersonCamera.SetFollowTarget(character.localCharacterType.firstPersonCameraFollowTarget);
         thirdPersonCamera.SetState(true);
         RegisterCharacterInputs();
+        CharacterManager.Instance.CompletedPlayerInitializationRpc(NetworkManager.Singleton.LocalClientId);
     }
 
     public void Deinitialize()
