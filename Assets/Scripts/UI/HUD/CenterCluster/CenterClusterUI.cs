@@ -21,6 +21,16 @@ public class CenterClusterUI : MonoBehaviour
         entityEnergy = entity.energy;
     }
 
+    public void Deinitialize()
+    {
+        if (!isInitialized) return;
+        isInitialized = false;
+
+        entity = null;
+        entityHealth = null;
+        entityEnergy = null;
+    }
+
     private void Update()
     {
         if (!isInitialized || entity == null) return;

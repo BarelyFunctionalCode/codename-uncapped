@@ -6,22 +6,14 @@ using System.Collections.Generic;
 
 public class GameModeBase : NetworkBehaviour
 {
-    #region Component references
-    [SerializeField]
-    private TeamStructure team_structure;
-    [SerializeField]
-    private PhaseSystem   phase_system;
-    [SerializeField]
-    private GameStats     game_stats;
-    [SerializeField]
-    private WinCondition win_conditions;
-    #endregion
-
-    #region State
-    // private bool isInSession	   = false;
-    // private bool isComplete		   = true;
-    // private bool isDamageAllowed   = false;
-    #endregion
+    [SerializeField] private TeamStructure teamStructure;
+    [SerializeField] private PhaseSystem phaseSystem;
+    [SerializeField] private GameStats gameStats;
+    [SerializeField] private WinCondition winConditions;
+    public TeamStructure TeamStructure => teamStructure;
+    public PhaseSystem PhaseSystem => phaseSystem;
+    public GameStats GameStats => gameStats;
+    public WinCondition WinConditions => winConditions;
 
     static readonly List<StatEventType> broadcastedStatEvents = new()
     {
@@ -32,129 +24,82 @@ public class GameModeBase : NetworkBehaviour
     };
 
     private NetworkVariable<GameModes> _gameModeId = new();
-    public GameModes game_mode_id {
+    public GameModes GameModeId {
         get => _gameModeId.Value;
         set {
             if (IsHost) _gameModeId.Value = value;
         }
     }
+    private void OnGameModeIdChanged(GameModes oldValue, GameModes newValue)
+    {
+        GameModeHandler.Instance.OnGameModeChanged.Invoke(newValue);
+    }
+    [Rpc(SendTo.Everyone, AllowTargetOverride = true)]
+    public void TriggerGameModeUpdateRpc(RpcParams rpcParams = default)
+    {
+        GameModeHandler.Instance.OnGameModeChanged.Invoke(GameModeId);
+    }
 
-    #region Public Methods
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        _gameModeId.OnValueChanged += OnGameModeIdChanged;
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        _gameModeId.OnValueChanged -= OnGameModeIdChanged;
+
+        base.OnNetworkDespawn();
+    }
+
     public void StatEventReceiver(StatEvent s)
     {
         if (!IsHost) return;
-
         // Stats should only accumulate during active game session.
-        if (phase_system.GetCurrentPhase() == Phase.ACTIVE)
-        {
-            game_stats.AddToStat(s);
-        }
+        if (phaseSystem.CurrentPhase == Phase.ACTIVE) gameStats.AddToStat(s);
     }
 
     // Entry point for the game mode to begin its session.
-    public void StartGame(List<string> custom_team_names)
+    public void StartGame()
     {
         if (!IsHost) return;
-
-        // Debugging
-        print("Starting game");
-
-        team_structure.WipeTeams();
-        team_structure.InitializeTeamNames(custom_team_names);
-
-        // Debugging
-        team_structure.AddNewTeam("Red");
-        team_structure.AddNewTeam("Blue");
-
-        phase_system.HardSet(Phase.PRELOAD);
+        phaseSystem.HardSet(Phase.PRELOAD);
     }
 
     // And to end a game mode session. Begin all cleanup, unloading operations.
     public void StopGame()
     {
         if (!IsHost) return;
-
-        phase_system.HardSet(Phase.ENDGAME);
-    }
-    #endregion
-
-    #region Message Receivers
-    public void OnPhaseChanged(EventArgsPhaseChanged e)
-    {
-        if (!IsHost) return;
-        
-        GameModeHandler.Instance.currentPhase.Value = e.phase;
-
-        // if in active session, toggle state booleans appropriately
-        switch( e.phase )
-        {
-            case Phase.ACTIVE:
-                // isInSession		= true;
-                // isComplete		= false;
-                // isDamageAllowed	= true;
-                break;
-            default:
-                // isInSession		= false;
-                // isComplete		= true;
-                // isDamageAllowed	= false;
-                break;
-        }
+        phaseSystem.HardSet(Phase.ENDGAME);
     }
 
-    // Pseudo
-    // Need to update the EventArgs to make sure its sending player id
-    public void OnPlayerJoined(object sender, EventArgs e)
-    {
-        if (!IsHost) return;
-
-        ulong player_id = 0; // e.player_id;
-
-        game_stats.CheckAddEntry(player_id, StatsGroup.PLAYER);
-    }
-
-    public void OnPointsChanged(Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> points, StatEvent updated_stat_event)
-    {
-        if (!IsHost) return;
-
-        CheckScore(points[StatsGroup.TEAM]);
-        // And send an RPC out to clients for stats data updates
-        // PushStatsToClientsRPC(game_stats.FetchFlatStatsAndCleanState());
-
-        // Call RPC that broadcasts the updated player stat to all clients
-        OnStatChangeRPC(updated_stat_event);
-    }
-
-    // Pseudo. Refactor to properly announce team that won across network peers with an RPC
     public void OnGameWon(ulong id)
     {
         if (!IsHost) return;
-
-        print("Game won! : " + id);
+        StopGame();
     }
-    #endregion
 
-    #region Private Methods
-    // Check score against win condition, complete the game if score is met.
-    private void CheckScore(Dictionary<ulong, StatTracker> team_points)
+    public void OnPhaseChanged(Phase phase)
+    {
+        if (!IsHost) return;
+        GameModeHandler.Instance.currentPhase.Value = phase;
+    }
+
+    public void OnPointsChanged(Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> points, StatEvent updatedStatEvent)
     {
         if (!IsHost) return;
 
-        win_conditions.CheckAll(team_points);
+        winConditions.CheckAll(points[StatsGroup.TEAM]);
+
+        // Call RPC that broadcasts the updated player stat to all clients
+        OnStatChangeRPC(updatedStatEvent);
     }
-    #endregion
-
-    #region Networking
-    // [Rpc(SendTo.Everyone)]
-    // private void PushStatsToClientsRPC(List<FlatStatData> s, RpcParams rpcparams = default)
-    // {
-    //     print("PushStatsToClientsRPC");
-    //     game_stats.RebuildStats(s);
-    // }
-
-    [Rpc(SendTo.Everyone)]
-    private void OnStatChangeRPC(StatEvent statEvent)
+    [Rpc(SendTo.Everyone, AllowTargetOverride = true)]
+    private void OnStatChangeRPC(StatEvent statEvent, RpcParams rpcParams = default)
     {
-        if (statEvent.StatType == win_conditions.GetWinConditionStat())
+        if (statEvent.StatType == winConditions.GetWinConditionStat())
         {
             StatEvent winConditionEvent = new(
                 StatEventType.WIN_CONDITION,
@@ -169,5 +114,21 @@ public class GameModeBase : NetworkBehaviour
             GameModeHandler.Instance.OnStatUpdated.Invoke(statEvent);
         }
     }
-    #endregion
+    public void TriggerCharactersStatsDump(ulong clientId)
+    {
+        if (!IsHost) return;
+
+        foreach (KeyValuePair<ulong, StatTracker> entry in gameStats.FetchStats()[StatsGroup.PLAYER])
+        {
+            foreach (KeyValuePair<StatEventType, float> stat in entry.Value.stats)
+            {
+                StatEvent statEvent = new(
+                    stat.Key,
+                    stat.Value,
+                    entry.Key
+                );
+                OnStatChangeRPC(statEvent, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+            }
+        }
+    }
 }

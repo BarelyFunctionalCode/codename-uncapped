@@ -11892,7 +11892,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7282026672141897861, guid: 4c68cd604176642a282ea4f5c810a151, type: 3}
       propertyPath: m_Name
-      value: DefaultPlayer_Death
+      value: DefaultCharacter_Death
       objectReference: {fileID: 0}
     - target: {fileID: 7282026672141897861, guid: 4c68cd604176642a282ea4f5c810a151, type: 3}
       propertyPath: m_Layer

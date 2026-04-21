@@ -11,7 +11,7 @@ public class LeaderboardEntry : MonoBehaviour
     [SerializeField] private TMP_Text assistsText;
     [SerializeField] private TMP_Text capturesText;
 
-    public ulong playerId;
+    public ulong characterId;
     private Dictionary<StatEventType, Action<float>> statUpdaters = new();
 
     public void Initialize(ulong playerId, string name, bool enableCapturesStat)
@@ -24,7 +24,7 @@ public class LeaderboardEntry : MonoBehaviour
             { StatEventType.FLAG_CAPTURE, (value) => { capturesText.text = value.ToString(); } },
         };
 
-        this.playerId = playerId;
+        this.characterId = playerId;
         nameText.text = name;
         statUpdaters[StatEventType.KILL](0);
         statUpdaters[StatEventType.DEATHS](0);

@@ -58,6 +58,15 @@ public class NotificationManager : NetworkBehaviour
         else Destroy(gameObject);
     }
 
+    public override void OnDestroy()
+    {
+        if (Instance != this) return;
+        newNotificationReceivedEvent.RemoveAllListeners();
+        Instance = null;
+
+        base.OnDestroy();
+    }
+
     [Rpc(SendTo.Server)]
     public void SendNotificationRpc(NotificationData data) => BroadcastNotificationRpc(data);
 
@@ -69,8 +78,9 @@ public class NotificationManager : NetworkBehaviour
     {
         // TODO: Add some checks here, like message length, profanity filter, etc.
         ulong senderClientId = rpcParams.Receive.SenderClientId;
-        NetworkManager.Singleton.ConnectedClients[senderClientId].PlayerObject.TryGetComponent(out PlayerController playerController);
-        Identification identification = playerController.identification;
+        Character character = CharacterManager.Instance.GetCharacterByClientId(senderClientId);
+        if (character == null) return;
+        Identification identification = character.identification;
         ulong teamId = identification.FetchEntityId();
         string entityName = identification.FetchEntityName();
 

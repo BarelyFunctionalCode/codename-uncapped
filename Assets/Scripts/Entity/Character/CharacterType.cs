@@ -1,15 +1,18 @@
+using System.Linq;
 using Unity.Cinemachine;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
+using UnityEngine.SceneManagement;
 
-public class PlayerType : NetworkBehaviour
+public class CharacterType : NetworkBehaviour, IIdentifiable
 {
-    public PlayerCamera firstPersonCamera;
+    public Character character;
     public Transform pickupContainerHoldPoint;
-    public CapsuleCollider playerCollider;
-    public Transform freeLookTargetTransform;
-    public Animator playerAnimator;
+    public CapsuleCollider characterCollider;
+    public Transform cameraLookAtTarget;
+    public Transform firstPersonCameraFollowTarget;
+    public Animator characterAnimator;
     public Transform weaponMountPoint;
     public Transform throwableMountPoint;
     public AudioSource hoverAudioSource;
@@ -40,20 +43,15 @@ public class PlayerType : NetworkBehaviour
     private Quaternion currentLegsDirection;
     [SerializeField] private float legsRotateSpeed = 10f;
 
-
     public sealed override void OnNetworkObjectParentChanged(NetworkObject networkObject = null)
     {
         base.OnNetworkObjectParentChanged(networkObject);
 
-        if (networkObject != null && networkObject.TryGetComponent(out PlayerController playerController))
+        if (networkObject != null && networkObject.TryGetComponent(out Character character))
         {
-            playerController.OnPlayerTypeObjectSpawned(this);
+            this.character = character;
+            character.OnCharacterTypeObjectSpawned(this);
         }
-    }
-
-    private void Start()
-    {
-        if (!NetworkObject.IsSpawned || IsOwner) firstPersonCamera.gameObject.SetActive(true);
     }
 
     public void HandleCamera(float rotationInputY, int controlsDisabledCount)
@@ -62,21 +60,23 @@ public class PlayerType : NetworkBehaviour
         Vector3 rotationPitch = new(rotationInputY, 0f, 0f);
         rotationPitch *= verticalRotationSpeed * Time.deltaTime;
         Vector3 rotationDeltaPitch = Vector3.ClampMagnitude(rotationPitch, verticalRotationLimit);
-        float currentXRotation = freeLookTargetTransform.eulerAngles.x < 180f ? freeLookTargetTransform.eulerAngles.x : freeLookTargetTransform.eulerAngles.x - 360f;
+        float currentXRotation = cameraLookAtTarget.eulerAngles.x < 180f ? cameraLookAtTarget.eulerAngles.x : cameraLookAtTarget.eulerAngles.x - 360f;
         rotationDeltaPitch.x = Mathf.Clamp(currentXRotation + rotationDeltaPitch.x, -83.0f, 83.0f) - currentXRotation;
         if (controlsDisabledCount > 0) rotationDeltaPitch = Vector3.zero;
         
-        freeLookTargetTransform.Rotate(rotationDeltaPitch);
+        cameraLookAtTarget.Rotate(rotationDeltaPitch);
     }
 
     public void HandleAudio(Vector3 velocity, bool isSkiing)
     {
         // Set audio values
+        float maxHoverVolume = 0.3f;
+        float hoverVolume = Mathf.Lerp(hoverAudioSource.volume, isSkiing ? maxHoverVolume : 0f, Time.fixedDeltaTime * 5f);
+        float hoverPitch = 0.9f + 0.05f * (velocity.magnitude / 20f);
         if (hoverAudioSource)
         {
-            float maxVolume = 0.3f;
-            hoverAudioSource.volume = Mathf.Lerp(hoverAudioSource.volume, isSkiing ? maxVolume : 0f, Time.fixedDeltaTime * 5f);
-            hoverAudioSource.pitch = 0.9f + 0.05f * (velocity.magnitude / 20f);
+            hoverAudioSource.volume = hoverVolume;
+            hoverAudioSource.pitch = hoverPitch;
         }
         if (windAudioSource)
         {
@@ -86,8 +86,18 @@ public class PlayerType : NetworkBehaviour
             windAudioSource.volume = Mathf.Lerp(windAudioSource.volume, targetVolume, Time.fixedDeltaTime * 20f);
             windAudioSource.pitch = Mathf.Lerp(windAudioSource.pitch, targetPitch, Time.fixedDeltaTime * 20f);
         }
+        if (NetworkObject.IsSpawned) HandleAudioRpc(hoverVolume, hoverPitch);
     }
-    // TODO: Add RPC for hover audio so that other players can hear it
+    [Rpc(SendTo.Everyone)]
+    private void HandleAudioRpc(float hoverVolume, float hoverPitch)
+    {
+        if (IsServer || IsOwner) return;
+        if (hoverAudioSource)
+        {
+            hoverAudioSource.volume = hoverVolume;
+            hoverAudioSource.pitch = hoverPitch;
+        }
+    }
 
     public void HandleExtraMotion(Vector3 movementDirection, bool isHovering, Vector3 surfaceNormal)
     {
@@ -157,16 +167,16 @@ public class PlayerType : NetworkBehaviour
     {
         Vector3 animMovementDirectionNewY = Vector3.up * (isDownJetting ? -1f : (isUpJetting ? 1f : 0f));
         animMovementDirection = Vector3.Lerp(animMovementDirection, movement.normalized + animMovementDirectionNewY, Time.fixedDeltaTime * 10f);
-        playerAnimator.SetFloat("xDir", animMovementDirection.x);
-        playerAnimator.SetFloat("yDir", animMovementDirection.y);
-        playerAnimator.SetFloat("zDir", animMovementDirection.z);
-        playerAnimator.SetFloat("yVel", velocity.normalized.y);
-        playerAnimator.SetBool("isGrounded", isGrounded);
-        playerAnimator.SetBool("isRunning", isGrounded && movement.magnitude > 0.1f && !isSkiing);
-        playerAnimator.SetBool("isSkiing", isSkiing && !isUpJetting && !isDownJetting);
-        playerAnimator.SetBool("isJetting", isUpJetting || isDownJetting);
+        characterAnimator.SetFloat("xDir", animMovementDirection.x);
+        characterAnimator.SetFloat("yDir", animMovementDirection.y);
+        characterAnimator.SetFloat("zDir", animMovementDirection.z);
+        characterAnimator.SetFloat("yVel", velocity.normalized.y);
+        characterAnimator.SetBool("isGrounded", isGrounded);
+        characterAnimator.SetBool("isRunning", isGrounded && movement.magnitude > 0.1f && !isSkiing);
+        characterAnimator.SetBool("isSkiing", isSkiing && !isUpJetting && !isDownJetting);
+        characterAnimator.SetBool("isJetting", isUpJetting || isDownJetting);
 
-        if (isJumping) playerAnimator.SetTrigger("triggerJump");
+        if (isJumping) characterAnimator.SetTrigger("triggerJump");
     }
 
     public void AnimationFootstepEvent(int footIndex)
@@ -186,7 +196,7 @@ public class PlayerType : NetworkBehaviour
         if (deathEffectPrefab != null)
         {
             deathObj = Instantiate(deathEffectPrefab, transform.position, Quaternion.identity);
-            deathObj.GetComponent<PlayerDeath>().Initialize(!NetworkObject.IsSpawned || IsOwner, inheritedVelocity);
+            deathObj.GetComponent<CharacterDeath>().Initialize(!character.isAI.Value && (!NetworkObject.IsSpawned || IsOwner), inheritedVelocity);
         }
     }
 
@@ -199,4 +209,30 @@ public class PlayerType : NetworkBehaviour
             deathObj = null;
         }
     }
+
+
+    #region Character Identification
+    // Used to populate Identifier UI element.
+    public IdentifierData GetIdentifierData()
+    {
+        if (character == null) return new IdentifierData
+        {
+            color = Color.red,
+            topText = "null",
+            bottomText = "null",
+            isActive = false,
+            targetTransform = FFIdentifierTargetTransform,
+            isAlwaysVisible = false
+        };
+        else return new IdentifierData
+        {
+            color = Color.red,
+            topText = character.identification.FetchEntityName(),
+            bottomText = $"{Mathf.CeilToInt(character.health.HealthPercentage * 100f)}%",
+            isActive = character.health.CurrentHealth > 0,
+            targetTransform = FFIdentifierTargetTransform,
+            isAlwaysVisible = false
+        };
+    }
+    #endregion
 }

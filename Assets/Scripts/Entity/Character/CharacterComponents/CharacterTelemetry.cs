@@ -1,7 +1,9 @@
 using UnityEngine;
 
-public class PlayerTelemetry
+public class CharacterTelemetry
 {
+    private Character character;
+
     [PauseMenuDevOption("Surface Data")]
     public bool enableSurfaceDebug = false;
 
@@ -25,23 +27,36 @@ public class PlayerTelemetry
     public bool isGrounded;
     public bool previousIsGrounded;
 
-    public PlayerTelemetry(DevVectorRenderer devVectorRenderer)
+    public CharacterTelemetry(DevVectorRenderer devVectorRenderer, Character character)
     {
         this.devVectorRenderer = devVectorRenderer;
-        this.position = Vector3.zero;
-        this.velocity = Vector3.zero;
-        this.movementDirection = Vector3.zero;
-        this.surfaceNormal = Vector3.zero;
-        this.surfacePoint = Vector3.zero;
-        this.distanceToSurface = 0.0f;
-        this.isSkiing = false;
-        this.isUpJetting = false;
-        this.isDownJetting = false;
-        this.isGrounded = false;
+        this.character = character;
+        position = Vector3.zero;
+        velocity = Vector3.zero;
+        movementDirection = Vector3.zero;
+        surfaceNormal = Vector3.zero;
+        surfacePoint = Vector3.zero;
+        distanceToSurface = 0.0f;
+        isSkiing = false;
+        isUpJetting = false;
+        isDownJetting = false;
+        isGrounded = false;
     }
 
     public void Update()
     {
+
+        movementDirection = character.characterInputs.MovementDirection;
+        isSkiing = character.characterInputs.IsSkiing;
+        isUpJetting = character.characterInputs.IsUpJetting;
+        isDownJetting = character.characterInputs.IsDownJetting;
+        position = character.localRb.transform.position;
+        velocity = character.localRb.linearVelocity;
+        distanceToSurface = character.characterMovement.DistanceToSurface;
+        surfacePoint = character.characterMovement.SurfacePoint;
+        isGrounded = character.state.IsGrounded;
+        surfaceNormal = character.characterMovement.SurfaceNormal;
+
         if (enableSurfaceDebug)
         {
             devVectorRenderer.AddDevVector(surfacePoint, surfaceNormal * 0.5f, new Color(0f, 1f, 0f, 0.2f), 5.0f, 0.1f);

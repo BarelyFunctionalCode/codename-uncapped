@@ -15,7 +15,7 @@ public class ThrowableManager : NetworkBehaviour
 
     protected Camera playerCamera;
     protected NetworkObject originalParentNetworkObject;
-    private NetworkVariable<NetworkBehaviourReference> playerRef = new();
+    private NetworkVariable<NetworkBehaviourReference> characterRef = new();
 
     private bool canThrow = true;
     private bool startedThrow = false;
@@ -38,13 +38,19 @@ public class ThrowableManager : NetworkBehaviour
 
         if (IsServer)
         {
-            playerRef.Value = null;
+            characterRef.Value = null;
             ammoCount.Value = maxAmmo;
             fireRateTimer.Value = 0;
         }
 
         // This is very important. This makes sure that when a late client joins, they get initialized properly.
-        if (playerRef.Value.TryGet(out PlayerController playerController)) InitializeRpc(playerController, RpcTarget.Me);
+        if (characterRef.Value.TryGet(out Character character)) InitializeRpc(character, RpcTarget.Me);
+    }
+
+    public sealed override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+        isInitialized = false;
     }
 
     private void Update()
@@ -93,26 +99,26 @@ public class ThrowableManager : NetworkBehaviour
         transform.LookAt(lookPosition);
     }
 
-    public void Initialize(PlayerController playerController)
+    public void Initialize(Character character)
     {
         if (!IsServer) return;
-        playerRef.Value = new NetworkBehaviourReference(playerController);
+        characterRef.Value = new NetworkBehaviourReference(character);
 
-        InitializeRpc(playerRef.Value);
+        InitializeRpc(characterRef.Value);
         isInitialized = true;
     }
     [Rpc(SendTo.Everyone, AllowTargetOverride = true)]
-    public void InitializeRpc(NetworkBehaviourReference playerRef, RpcParams rpcParams = default)
+    public void InitializeRpc(NetworkBehaviourReference characterRef, RpcParams rpcParams = default)
     {
         if (isInitialized) return;
 
-        playerRef.TryGet(out PlayerController playerController);
+        characterRef.TryGet(out Character character);
         originalParentNetworkObject = GetComponentInParent<NetworkObject>();
-        transform.parent = playerController.localPlayerType.throwableMountPoint;
-        if (IsOwner)
+        transform.parent = character.localCharacterType.throwableMountPoint;
+        if (IsOwner && !character.isAI.Value)
         {
             playerCamera = Camera.main;
-            playerController.playerHUD.SetThrowableUI(this);
+            Player.Instance.playerHUD.SetThrowableUI(this);
         }
 
         isInitialized = true;
@@ -154,11 +160,7 @@ public class ThrowableManager : NetworkBehaviour
             transform.rotation,
             transform
         );
-        // GameObject throwableObj = Instantiate(throwablePrefabObj, transform.position + transform.forward, transform.rotation);
-        // NetworkObject networkObj = throwableObj.GetComponent<NetworkObject>();
-        // networkObj.Spawn(true);
-        // networkObj.TrySetParent(transform.GetComponentInParent<NetworkObject>());
-        throwableObj.GetComponent<Throwable>().Throw(playerRef.Value, this, throwForceFactor.Value);
+        throwableObj.GetComponent<Throwable>().Throw(characterRef.Value, this, throwForceFactor.Value);
         ammoCount.Value--;
         canThrow = false;
         startedThrow = false;

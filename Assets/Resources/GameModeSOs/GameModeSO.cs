@@ -29,8 +29,9 @@ public class GameModeSO : ScriptableObject
     public StatEventType winConditionStatType;
     public float winConditionDefaultValue;
     public TeamBasedType teamBasedType;
+    public List<string> defaultTeamNames;
 
-    public GameModeData GetGameModeData(int maxPlayers = -1, int timeLimitMinutes = -1,float winConditionValue = -1)
+    public GameModeData GetGameModeData(int maxPlayers = -1, int timeLimitMinutes = -1, float winConditionValue = -1)
     {
         if (maxPlayers == -1) maxPlayers = (int)maxAllowedPlayers;
         if (timeLimitMinutes == -1) timeLimitMinutes = (int)maxAllowedTimeLimitMinutes;

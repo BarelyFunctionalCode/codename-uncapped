@@ -19,10 +19,8 @@ public class ChatWindow : MonoBehaviour
 
     private Color messageContainerColor;
 
-    private void Awake()
+    private void Start()
     {
-        NotificationManager.Instance.newNotificationReceivedEvent.AddListener(OnNewMessageReceived);
-
         gameObject.SetActive(false);
         chatInputFieldObj.SetActive(false);
 
@@ -33,6 +31,7 @@ public class ChatWindow : MonoBehaviour
 
         if (isAlwaysActive)
         {
+            NotificationManager.Instance.newNotificationReceivedEvent.AddListener(OnNewMessageReceived);
             gameObject.SetActive(true);
             chatInputFieldObj.SetActive(true);
             isInitialized = true;
@@ -53,7 +52,7 @@ public class ChatWindow : MonoBehaviour
     {
         chatInputField.onSubmit.RemoveListener(OnChatInputSubmit);
         chatInputField.onDeselect.RemoveListener(OnChatInputCancel);
-        if (NotificationManager.Instance != null)
+        if (isAlwaysActive && NotificationManager.Instance != null)
         {
             NotificationManager.Instance.newNotificationReceivedEvent.RemoveListener(OnNewMessageReceived);
         }
@@ -63,8 +62,21 @@ public class ChatWindow : MonoBehaviour
     {
         if (isInitialized) return;
 
+        NotificationManager.Instance.newNotificationReceivedEvent.AddListener(OnNewMessageReceived);
         this.hud = hud;
         isInitialized = true;
+    }
+
+    public void Deinitialize()
+    {
+        if (!isInitialized) return;
+        isInitialized = false;
+
+        if (NotificationManager.Instance != null)
+        {
+            NotificationManager.Instance.newNotificationReceivedEvent.RemoveListener(OnNewMessageReceived);
+        }
+        hud = null;
     }
 
     public bool ToggleMenu()

@@ -49,7 +49,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 401442221
+  GlobalObjectIdHash: 1171206040
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -75,10 +75,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameModeBase
   ShowTopMostFoldoutHeaderGroup: 1
-  team_structure: {fileID: 4152407925966231162}
-  phase_system: {fileID: -4189097990456723710}
-  game_stats: {fileID: 5088351037047258174}
-  win_conditions: {fileID: 1446111806336827319}
+  teamStructure: {fileID: 4152407925966231162}
+  phaseSystem: {fileID: -4189097990456723710}
+  gameStats: {fileID: 5088351037047258174}
+  winConditions: {fileID: 1446111806336827319}
 --- !u!114 &4152407925966231162
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -92,9 +92,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TeamStructure
   ShowTopMostFoldoutHeaderGroup: 1
-  predefined_team_names: []
-  AllowChangeTeams: 1
-  ForceCaptainChangeTeams: 0
 --- !u!114 &-4189097990456723710
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -108,6 +105,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PhaseSystem
   ShowTopMostFoldoutHeaderGroup: 1
+  gameModeBase: {fileID: -7873266386530300743}
   _currentphase: 0
   _countdown: 0
 --- !u!114 &5088351037047258174
@@ -122,7 +120,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 305fc0a2ed26f0d56a83f58b90f2b761, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameStats
-  game_mode_base: {fileID: -7873266386530300743}
+  gameMode: {fileID: -7873266386530300743}
 --- !u!114 &1446111806336827319
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -136,3 +134,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WinConditions
   ShowTopMostFoldoutHeaderGroup: 1
+  gameModeBase: {fileID: -7873266386530300743}

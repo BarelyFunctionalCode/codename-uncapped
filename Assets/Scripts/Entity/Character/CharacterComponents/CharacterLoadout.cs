@@ -23,7 +23,7 @@ public enum LoadoutArmorClass
     Heavy
 }
 
-public class PlayerLoadout : INetworkSerializable, IEquatable<PlayerLoadout>
+public class CharacterLoadout : INetworkSerializable, IEquatable<CharacterLoadout>
 {
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
@@ -56,7 +56,7 @@ public class PlayerLoadout : INetworkSerializable, IEquatable<PlayerLoadout>
         }
     }
 
-    public bool Equals(PlayerLoadout other)
+    public bool Equals(CharacterLoadout other)
     {
         if (other == null) return false;
 
@@ -155,7 +155,7 @@ public class PlayerLoadout : INetworkSerializable, IEquatable<PlayerLoadout>
     public LoadoutItemSO equipmentSO;
     public LoadoutItemSO driveSO;
 
-    public PlayerLoadout()
+    public CharacterLoadout()
     {
         armorClass = LoadoutArmorClass.Any;
         weapon1SO = null;
@@ -166,7 +166,7 @@ public class PlayerLoadout : INetworkSerializable, IEquatable<PlayerLoadout>
         driveSO = null;
     }
 
-    public PlayerLoadout(PlayerLoadout other)
+    public CharacterLoadout(CharacterLoadout other)
     {
         armorClass = other.armorClass;
         weapon1SO = other.weapon1SO;
@@ -177,7 +177,7 @@ public class PlayerLoadout : INetworkSerializable, IEquatable<PlayerLoadout>
         driveSO = other.driveSO;
     }
 
-    public PlayerLoadout(LoadoutPresetSO loadoutSO)
+    public CharacterLoadout(LoadoutPresetSO loadoutSO)
     {
         armorClass = loadoutSO.armorClass;
         weapon1SO = loadoutSO.weapon1;

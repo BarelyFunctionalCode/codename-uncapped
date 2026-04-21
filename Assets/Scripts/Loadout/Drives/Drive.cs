@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class Drive : NetworkBehaviour
 {
-    private NetworkVariable<NetworkBehaviourReference> playerRef = new();
-    protected PlayerController playerController;
+    private NetworkVariable<NetworkBehaviourReference> characterRef = new();
+    protected Character character;
 
     protected NetworkVariable<float> cooldown = new();
     private NetworkVariable<float> cooldownTimer = new();
@@ -17,19 +17,19 @@ public class Drive : NetworkBehaviour
     {
         base.OnNetworkSpawn();
         
-        playerRef.OnValueChanged += OnPlayerRefUpdated;
-        playerRef.Value = null;
+        characterRef.OnValueChanged += OnCharacterRefUpdated;
+        if (IsServer) characterRef.Value = null;
     }
 
     public override void OnNetworkDespawn()
     {
-        playerRef.OnValueChanged -= OnPlayerRefUpdated;
+        characterRef.OnValueChanged -= OnCharacterRefUpdated;
     }
 
     private void Update()
     {
         if (!IsServer || !isInitialized) return;
-        if (playerController == null) return;
+        if (character == null) return;
 
         if (cooldownTimer.Value > 0) cooldownTimer.Value -= Time.deltaTime;
 
@@ -42,25 +42,25 @@ public class Drive : NetworkBehaviour
         return Mathf.Clamp01(cooldownTimer.Value / cooldown.Value);
     }
 
-    private void OnPlayerRefUpdated(NetworkBehaviourReference previousValue, NetworkBehaviourReference newValue)
+    private void OnCharacterRefUpdated(NetworkBehaviourReference previousValue, NetworkBehaviourReference newValue)
     {
-        newValue.TryGet(out PlayerController playerController);
-        this.playerController = playerController;
+        newValue.TryGet(out Character character);
+        this.character = character;
     }
 
-    public void Initialize(PlayerController playerController)
+    public void Initialize(Character character)
     {
         if (!IsServer) return;
 
-        playerRef.Value = new NetworkBehaviourReference(playerController);
-        SetDriveUIClientRpc();
+        characterRef.Value = new NetworkBehaviourReference(character);
+        if (!character.isAI.Value) SetDriveUIClientRpc();
         isInitialized = true;
     }
 
     [Rpc(SendTo.Owner)]
     private void SetDriveUIClientRpc()
     {
-        playerController.playerHUD.SetDrive(this);
+        Player.Instance.playerHUD.SetDrive(this);
     }
 
     protected virtual bool CanTurnOnline() => false;

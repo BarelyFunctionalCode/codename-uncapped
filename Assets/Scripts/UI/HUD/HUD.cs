@@ -39,16 +39,18 @@ public class HUD : MonoBehaviour
     [SerializeField] private RectTransform dynamicReticle;
     [SerializeField] private GameObject hitMarkerObj;
     [SerializeField] private AudioSource hitMarkerSound;
+    [SerializeField] private IdentifierManager identifierManager;
 
-    private PlayerController playerController;
+    private Character character;
     private Drive currentDrive;
-    private Health playerHealth;
+    private Health health;
     private PlayerControls playerControls;
     private List<HUDMenu> openMenus = new();
     [SerializeField] private ChatWindow chatWindow;
     [SerializeField] public LoadoutMenu loadoutMenu;
     [SerializeField] private PauseMenu pauseMenu;
     [SerializeField] private Leaderboard leaderboard;
+    [SerializeField] private ToastContainer killFeed;
     int cursorLockCounter = 0;
 
     private float dynamicReticleMaxMoveRange = 50f;
@@ -72,9 +74,9 @@ public class HUD : MonoBehaviour
         if (!isInitialized || !isActive) return;
 
         // Update dynamic reticle position based on player velocity
-        if (playerController == null || playerController.localRb == null) return;
-        Vector3 localForwardVelocity = Vector3.Project(playerController.localRb.linearVelocity, playerController.transform.forward);
-        Vector3 velocity = playerController.transform.InverseTransformVector(localForwardVelocity);
+        if (character == null || character.localRb == null) return;
+        Vector3 localForwardVelocity = Vector3.Project(character.localRb.linearVelocity, character.transform.forward);
+        Vector3 velocity = character.transform.InverseTransformVector(localForwardVelocity);
         float deflectionX = Mathf.Clamp(-velocity.x, -dynamicReticleMaxVelocityDeflection, dynamicReticleMaxVelocityDeflection);
         float deflectionY = Mathf.Clamp(-velocity.y, -dynamicReticleMaxVelocityDeflection, dynamicReticleMaxVelocityDeflection);
         Vector2 dynamicReticleTargetPos = new Vector2(deflectionX / dynamicReticleMaxVelocityDeflection * dynamicReticleMaxMoveRange,
@@ -107,19 +109,20 @@ public class HUD : MonoBehaviour
         playerControls.UI.Leaderboard.started -= ctx => leaderboard.ToggleMenu(true);
         playerControls.UI.Leaderboard.canceled -= ctx => leaderboard.ToggleMenu(false);
 
-        if (playerHealth != null) playerHealth.onAppliedDamage.RemoveListener(SetHitMarker);
+        if (health != null) health.onAppliedDamage.RemoveListener(SetHitMarker);
         GameModeHandler.Instance.currentPhaseCountdown.OnValueChanged -= SetCountDownTimer;
         GameModeHandler.Instance.currentPhase.OnValueChanged -= SetCurrentPhaseData;
         SceneManager.activeSceneChanged -= (_, _) => ResetCursorState();
     }
 
-    public void Initialize(PlayerController playerController)
+    public void Initialize(Player player, Character character)
     {
         if (isInitialized) return;
+        gameObject.SetActive(true);
 
-        this.playerController = playerController;
-        playerHealth = playerController.health;
-        playerControls = playerController.playerInputs.playerControls;
+        this.character = character;
+        health = character.health;
+        playerControls = player.playerControls;
         
         playerControls.UI.PauseMenu.performed += ctx => ToggleMenu(HUDMenu.PauseMenu);
         playerControls.UI.LoadoutMenu.performed += ctx => ToggleMenu(HUDMenu.LoadoutMenu);
@@ -128,20 +131,58 @@ public class HUD : MonoBehaviour
 
         playerControls.UI.Leaderboard.started += ctx => leaderboard.ToggleMenu(true);
         playerControls.UI.Leaderboard.canceled += ctx => leaderboard.ToggleMenu(false);
+        playerControls.UI.Enable();
 
-        PauseMenu.Instance.Initialize(playerController);
+        PauseMenu.Instance.Initialize(player, character);
         chatWindow.Initialize(this);
-        centerClusterUI.Initialize(playerController);
-        loadoutMenu.Initialize(playerController.GetComponent<PlayerLoadoutManager>(), this);
+        centerClusterUI.Initialize(character);
+        loadoutMenu.Initialize(character.GetComponent<CharacterLoadoutManager>(), this);
         leaderboard.Initialize();
+        killFeed.Initialize();
+        identifierManager.Initialize();
 
-        playerHealth.onAppliedDamage.AddListener(SetHitMarker);
+        health.onAppliedDamage.AddListener(SetHitMarker);
         GameModeHandler.Instance.OnStatUpdated.AddListener(SetObjectiveData);
         GameModeHandler.Instance.currentPhaseCountdown.OnValueChanged += SetCountDownTimer;
         GameModeHandler.Instance.currentPhase.OnValueChanged += SetCurrentPhaseData;
 
         isInitialized = true;
         SetHUDActive(false);
+    }
+
+    public void Deinitialize()
+    {
+        if (!isInitialized) return;
+        isInitialized = false;
+
+        playerControls.UI.Disable();
+        playerControls.UI.PauseMenu.performed -= ctx => ToggleMenu(HUDMenu.PauseMenu);
+        playerControls.UI.LoadoutMenu.performed -= ctx => ToggleMenu(HUDMenu.LoadoutMenu);
+        playerControls.UI.Chat.performed -= ctx => ToggleMenu(HUDMenu.Chat, true);
+        playerControls.UI.Close.performed -= ctx => HandleCloseInput();
+
+        playerControls.UI.Leaderboard.started -= ctx => leaderboard.ToggleMenu(true);
+        playerControls.UI.Leaderboard.canceled -= ctx => leaderboard.ToggleMenu(false);
+
+        PauseMenu.Instance.Deinitialize();
+        chatWindow.Deinitialize();
+        centerClusterUI.Deinitialize();
+        loadoutMenu.Deinitialize();
+        leaderboard.Deinitialize();
+        killFeed.Deinitialize();
+        identifierManager.Deinitialize();
+
+        if (health != null) health.onAppliedDamage.RemoveListener(SetHitMarker);
+        if (GameModeHandler.Instance)
+        {
+            GameModeHandler.Instance.OnStatUpdated.RemoveListener(SetObjectiveData);
+            GameModeHandler.Instance.currentPhaseCountdown.OnValueChanged -= SetCountDownTimer;
+            GameModeHandler.Instance.currentPhase.OnValueChanged -= SetCurrentPhaseData;
+        }
+
+        character = null;
+        health = null;
+        playerControls = null;
     }
 
     public void ToggleHUD()
@@ -168,7 +209,7 @@ public class HUD : MonoBehaviour
     {
         if (statEvent.StatType == StatEventType.WIN_CONDITION)
         {
-            if (statEvent.Source == playerController.identification.FetchEntityId())
+            if (statEvent.Source == character.identification.FetchEntityId())
             {
                 leftObjectiveText.text = statEvent.Value.ToString();
             }
@@ -218,7 +259,7 @@ public class HUD : MonoBehaviour
     {
         currentDrive = drive;
 
-        LoadoutItemSO driveLoadoutItem = PlayerLoadout.GetLoadoutItemSOFromPrefab(drive.gameObject);
+        LoadoutItemSO driveLoadoutItem = CharacterLoadout.GetLoadoutItemSOFromPrefab(drive.gameObject);
         if (driveLoadoutItem == null)
         {
             Debug.LogError("Could not find LoadoutItemSO for drive prefab: " + drive.gameObject.name);
@@ -303,13 +344,13 @@ public class HUD : MonoBehaviour
         if (openMenus.Contains(menu))
         {
             openMenus.Remove(menu);
-            if (openMenus.Count == 0) playerController.playerInputs.SetPlayerControlsRpc(true);
+            if (openMenus.Count == 0) character.characterInputs.SetCharacterControlsRpc(true);
             SetCursorState(false);
         }
         else
         {
             SetCursorState(true);
-            if (openMenus.Count == 0) playerController.playerInputs.SetPlayerControlsRpc(false);
+            if (openMenus.Count == 0) character.characterInputs.SetCharacterControlsRpc(false);
             openMenus.Add(menu);
         }
     }

@@ -1,8 +1,11 @@
 using System.Collections.Generic;
 using Unity.Netcode;
+using UnityEngine;
 
 public class WinCondition : NetworkBehaviour
 {
+    [SerializeField] private GameModeBase gameModeBase;
+    
     private NetworkVariable<StatEventType> winConditionStatType = new();
     private NetworkVariable<float> winConditionValue = new();
 
@@ -26,7 +29,7 @@ public class WinCondition : NetworkBehaviour
         }
     }
 
-    public void EmitGameWon(ulong winning_id) => gameObject.BroadcastMessage("OnGameWon", winning_id);
+    public void EmitGameWon(ulong winningId) => gameModeBase.OnGameWon(winningId);
 
     // Fetch Stats that are required to win the game
     public StatEventType GetWinConditionStat()

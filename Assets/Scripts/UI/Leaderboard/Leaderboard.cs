@@ -32,8 +32,30 @@ public class Leaderboard : MonoBehaviour
     public void Initialize()
     {
         GameModeHandler.Instance.OnGameModeChanged.AddListener(SetGameModeData);
+        GameModeHandler.Instance.TriggerGameModeUpdateRpc(NetworkManager.Singleton.LocalClientId);
+
         GameModeHandler.Instance.OnStatUpdated.AddListener(OnStatEventReceived);
-        GameModeHandler.Instance.OnPlayerChangedTeam.AddListener(AddEntry);
+        GameModeHandler.Instance.TriggerCharactersStatsDumpRpc(NetworkManager.Singleton.LocalClientId);
+
+        CharacterManager.Instance.OnCharacterChangedTeam.AddListener(AddEntry);
+        foreach (Character character in CharacterManager.Instance.characters)
+        {
+            AddEntry(new NetworkBehaviourReference(character));
+        }
+    }
+
+    public void Deinitialize()
+    {
+        if (GameModeHandler.Instance)
+        {
+            GameModeHandler.Instance.OnGameModeChanged.RemoveListener(SetGameModeData);
+            GameModeHandler.Instance.OnStatUpdated.RemoveListener(OnStatEventReceived);
+        }
+        if (CharacterManager.Instance)
+        {
+            CharacterManager.Instance.OnCharacterChangedTeam.RemoveListener(AddEntry);
+        }
+        ClearEntries();
     }
 
     private void SetGameModeData(GameModes g)
@@ -43,8 +65,8 @@ public class Leaderboard : MonoBehaviour
         leaderboardTitleText.text = g.ToString();
         isTeamBased = teamBasedType == TeamBasedType.TEAM;
 
-        listColumn0TitleText.text = isTeamBased ? "Team 1" : "Player";
-        listColumn1TitleText.text = isTeamBased ? "Team 2" : "";
+        listColumn0TitleText.text = isTeamBased ? GameModeHandler.Instance.currentGameMode.TeamStructure.GetTeamByIndex(0) : "Player";
+        listColumn1TitleText.text = isTeamBased ? GameModeHandler.Instance.currentGameMode.TeamStructure.GetTeamByIndex(1) : "";
         listColumn1Obj.SetActive(isTeamBased);
         teamSeparatorObj.SetActive(isTeamBased);
 
@@ -61,23 +83,28 @@ public class Leaderboard : MonoBehaviour
         gameObject.SetActive(enabled);
     }
 
-    private void AddEntry(EventArgsPlayerChangedTeam e)
+    private void AddEntry(NetworkBehaviourReference characterRef)
     {
-        ulong playerId = e.player_id;
-        LeaderboardEntry entryToRemove = entries.Find(entry => entry.playerId == playerId);
-        if (entryToRemove != null) RemoveEntry(playerId);
+        characterRef.TryGet(out Character character);
+        if (character == null) return;
         
-        int teamIndex = e.teamIndex;
-        string name = NetworkManager.Singleton.ConnectedClients[playerId].PlayerObject.GetComponent<PlayerController>().identification.FetchEntityName();
+        ulong characterId = character.identification.FetchEntityId();
+        int teamIndex = character.identification.FetchTeamId();
+        if (teamIndex == -1) return;
+
+        LeaderboardEntry entryToRemove = entries.Find(entry => entry.characterId == characterId);
+        if (entryToRemove != null) RemoveEntry(characterId);
+        
+        string name = character.identification.FetchEntityName();
         GameObject entryObj = Instantiate(leaderboardEntryPrefabObj, (!isTeamBased || teamIndex == 0) ? listColumn0Obj.transform : listColumn1Obj.transform);
         LeaderboardEntry entry = entryObj.GetComponent<LeaderboardEntry>();
-        entry.Initialize(playerId, name, enableCapturesStat);
+        entry.Initialize(characterId, name, enableCapturesStat);
         entries.Add(entry);
     }
 
-    private void RemoveEntry(ulong playerId)
+    private void RemoveEntry(ulong characterId)
     {
-        LeaderboardEntry entryToRemove = entries.Find(entry => entry.playerId == playerId);
+        LeaderboardEntry entryToRemove = entries.Find(entry => entry.characterId == characterId);
         if (entryToRemove != null)
         {
             Destroy(entryToRemove.gameObject);
@@ -87,7 +114,7 @@ public class Leaderboard : MonoBehaviour
 
     private void OnStatEventReceived(StatEvent statEvent)
     {
-        LeaderboardEntry entryToUpdate = entries.Find(entry => entry.playerId == statEvent.Source);
+        LeaderboardEntry entryToUpdate = entries.Find(entry => entry.characterId == statEvent.Source);
         if (entryToUpdate != null) entryToUpdate.UpdateStats(statEvent);
     }
 
@@ -99,6 +126,4 @@ public class Leaderboard : MonoBehaviour
         }
         entries.Clear();
     }
-
-
 }

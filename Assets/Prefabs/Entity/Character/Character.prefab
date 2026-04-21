@@ -25,7 +25,7 @@ GameObject:
   - component: {fileID: 3462088229747532288}
   - component: {fileID: 8210473856322386480}
   m_Layer: 3
-  m_Name: Player
+  m_Name: Character
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -58,7 +58,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 148429366
+  GlobalObjectIdHash: 1947508556
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -90,24 +90,17 @@ MonoBehaviour:
   energy: {fileID: 0}
   pickupContainer: {fileID: 0}
   pickup: {fileID: 0}
-  playerInputs: {fileID: 0}
+  isAI: 1
   characterMovement: {fileID: 0}
+  characterTypePrefabObj: {fileID: 0}
+  characterPuppetPrefabObj: {fileID: 3437312309707308051, guid: 67ec23ebb239f977f9b5beef525cf609, type: 3}
+  characterInputs: {fileID: 0}
+  characterPuppetObj: {fileID: 0}
+  characterLoadout: {fileID: 0}
   localTransform: {fileID: 0}
-  playerTypePrefabObj: {fileID: 7282026672141897861, guid: 4c68cd604176642a282ea4f5c810a151, type: 3}
-  localPlayerType: {fileID: 0}
-  playerPuppetPrefabObj: {fileID: 3437312309707308051, guid: 67ec23ebb239f977f9b5beef525cf609, type: 3}
-  playerPuppetObj: {fileID: 0}
-  thirdPersonCameraPrefabObj: {fileID: 7378525201259159580, guid: 5d6ee420863db4f7bbd33642b61f0978, type: 3}
-  thirdPersonCamera: {fileID: 0}
-  devVectorRenderer: {fileID: 5320158334529817789}
-  respawnAudioSource: {fileID: 6495883347945834671}
-  playerUIPrefabObj: {fileID: 294921519159598449, guid: fbaff38f26bf3e1d2a0c405ca55dd54c, type: 3}
-  playerUIObj: {fileID: 0}
-  playerHUD: {fileID: 0}
+  localCharacterType: {fileID: 0}
   localRb: {fileID: 0}
-  weaponMountPoint: {fileID: 0}
-  throwableMountPoint: {fileID: 0}
-  playerLoadout: {fileID: 0}
+  playerHUD: {fileID: 0}
   isInitialized: 0
 --- !u!114 &6833453914904566171
 MonoBehaviour:

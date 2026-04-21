@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
-using UnityEngine.Events;
 
 [RequireComponent(typeof(AudioSource))]
 public class Weapon : NetworkBehaviour
@@ -31,7 +30,7 @@ public class Weapon : NetworkBehaviour
     protected Camera playerCamera;
 
     protected NetworkObject originalParentNetworkObject;
-    private NetworkVariable<NetworkBehaviourReference> playerRef = new();
+    private NetworkVariable<NetworkBehaviourReference> characterRef = new();
 
     public NetworkVariable<bool> isEquiped = new();
     public NetworkVariable<float> ammoCount = new();
@@ -52,14 +51,20 @@ public class Weapon : NetworkBehaviour
 
         if (IsServer)
         {
-            playerRef.Value = null;
+            characterRef.Value = null;
             isEquiped.Value = false;
             ammoCount.Value = maxAmmo;
             fireRateTimer.Value = 0;
         }
 
         // This is very important. This makes sure that when a late client joins, they get initialized properly.
-        if (playerRef.Value.TryGet(out PlayerController playerController)) InitializeRpc(playerController, RpcTarget.Me);
+        if (characterRef.Value.TryGet(out Character character)) InitializeRpc(character, RpcTarget.Me);
+    }
+
+    public sealed override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+        isInitialized = false;
     }
 
     protected virtual void Update()
@@ -97,37 +102,37 @@ public class Weapon : NetworkBehaviour
         projectileSpawnPoint.LookAt(lookPosition);
     }
 
-    public void Initialize(PlayerController playerController)
+    public void Initialize(Character character)
     {
         if (!IsServer) return;
-        playerRef.Value = new NetworkBehaviourReference(playerController);
+        characterRef.Value = new NetworkBehaviourReference(character);
 
-        InitializeRpc(playerController);
+        InitializeRpc(character);
         isInitialized = true;
     }
     [Rpc(SendTo.Everyone, AllowTargetOverride = true)]
-    public void InitializeRpc(NetworkBehaviourReference playerRef, RpcParams rpcParams = default)
+    public void InitializeRpc(NetworkBehaviourReference characterRef, RpcParams rpcParams = default)
     {
         if (isInitialized) return;
 
-        playerRef.TryGet(out PlayerController playerController);
+        characterRef.TryGet(out Character character);
         originalParentNetworkObject = GetComponentInParent<NetworkObject>();
-        transform.parent = playerController.localPlayerType.weaponMountPoint;
+        transform.parent = character.localCharacterType.weaponMountPoint;
         transform.localPosition = Vector3.zero;
         transform.localRotation = Quaternion.identity;
-        if (IsOwner)
+        if (IsOwner && !character.isAI.Value)
         {
-            if (!IsHost && playerController.playerPuppetObj)
+            if (!IsHost && character.localCharacterType)
             {
                 Vector3 localPosition = modelObj.transform.localPosition;
                 Quaternion localRotation = modelObj.transform.localRotation;
-                modelObj.transform.parent = playerController.playerPuppetObj.GetComponent<PlayerPuppet>().weaponMountPoint;
+                modelObj.transform.parent = character.localCharacterType.weaponMountPoint;
                 modelObj.transform.localPosition = localPosition;
                 modelObj.transform.localRotation = localRotation;
             }
             
             playerCamera = Camera.main;
-            playerController.playerHUD.AddWeaponUI(this);
+            Player.Instance.playerHUD.AddWeaponUI(this);
         }
 
         if (isEquiped.Value) EquipRpc(RpcTarget.Me);
@@ -182,12 +187,8 @@ public class Weapon : NetworkBehaviour
                 projectileSpawnPoint.rotation,
                 projectileSpawnPoint
             );
-            // GameObject newProjectileObj = Instantiate(projectilePrefabObj, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
-            // NetworkObject networkObj = newProjectileObj.GetComponent<NetworkObject>();
-            // networkObj.Spawn(true);
-            // networkObj.TrySetParent(projectileSpawnPoint.GetComponentInParent<NetworkObject>());
             currentProjectile = newProjectileObj.GetComponent<Projectile>();
-            currentProjectile.Fire(playerRef.Value, this, damage);
+            currentProjectile.Fire(characterRef.Value, this, damage);
             FireRpc();
             PostFiredRpc();
         }

@@ -16,7 +16,7 @@ public class Blink : Drive
 
     protected sealed override bool CanTurnOnline()
     {
-        return playerController.energy.CurrentEnergy >= energyCost;
+        return character.energy.CurrentEnergy >= energyCost;
     }
 
     protected override bool OnActivated()
@@ -25,12 +25,12 @@ public class Blink : Drive
 
         // Determine target position
         float verticalDir = 0;
-        if (playerController.playerInputs.IsUpJetting) verticalDir += 1;
-        if (playerController.playerInputs.IsDownJetting) verticalDir -= 1;
-        Vector3 targetDirection = (playerController.playerInputs.MovementDirection + Vector3.up * verticalDir).normalized;
+        if (character.characterInputs.IsUpJetting) verticalDir += 1;
+        if (character.characterInputs.IsDownJetting) verticalDir -= 1;
+        Vector3 targetDirection = (character.characterInputs.MovementDirection + Vector3.up * verticalDir).normalized;
         if (targetDirection == Vector3.zero) targetDirection = Vector3.up;
 
-        Vector3 startPosition = playerController.localPlayerType.playerCollider.bounds.center;
+        Vector3 startPosition = character.localCharacterType.characterCollider.bounds.center;
         Vector3 targetPosition = startPosition + targetDirection * range;
 
         // Raycast to check for obstacles
@@ -41,9 +41,11 @@ public class Blink : Drive
 
         // Teleport and apply energy cost
         PlayBlinkEffectClientRpc(startPosition);
-        playerController.Teleport(targetPosition);
+        Vector3 currentVelocity = character.localRb.linearVelocity;
+        character.Teleport(targetPosition);
+        character.localRb.linearVelocity = currentVelocity;
         PlayBlinkEffectClientRpc(targetPosition);
-        playerController.energy.ApplyEnergyDelta(-energyCost);
+        character.energy.ApplyEnergyDelta(-energyCost);
 
         return true;
     }

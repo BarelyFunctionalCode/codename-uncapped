@@ -62,12 +62,12 @@ public class PauseMenu : MonoBehaviour
         // testLevelButton.gameObject.SetActive(NetworkManager.Singleton.IsHost);
     }
 
-    public void Initialize(PlayerController playerController)
+    public void Initialize(Player player, Character character)
     {
-        PlayerControls playerControls = playerController.playerInputs.playerControls;
+        PlayerControls playerControls = player.playerControls;
 
         // Initialize player options in pause menu
-        FieldInfo[] fields = playerController.GetType().GetFields();
+        FieldInfo[] fields = character.GetType().GetFields();
         foreach (var field in fields)
         {
             PauseMenuOptionAttribute[] attribute = (PauseMenuOptionAttribute[])field.GetCustomAttributes(typeof(PauseMenuOptionAttribute), true);
@@ -77,10 +77,10 @@ public class PauseMenu : MonoBehaviour
                 if (!devMode && attribute[0].GetType() == typeof(PauseMenuDevOptionAttribute)) continue;
                 AddOption(
                     attribute[0].GetType() == typeof(PauseMenuDevOptionAttribute) ? "dev - " + attribute[0].label : attribute[0].label,
-                    (float)field.GetValue(playerController),
+                    (float)field.GetValue(character),
                     attribute[0].minValue,
                     attribute[0].maxValue,
-                    (float value) => { field.SetValue(playerController, value); }
+                    (float value) => { field.SetValue(character, value); }
                 );
             }
         }
@@ -99,7 +99,7 @@ public class PauseMenu : MonoBehaviour
 
         // Initialize player debug settings in pause menu
         if (!devMode) return;
-        fields = playerController.playerTelemetry.GetType().GetFields();
+        fields = character.characterTelemetry.GetType().GetFields();
         foreach (var field in fields)
         {
             PauseMenuDevOptionAttribute[] attribute = (PauseMenuDevOptionAttribute[])field.GetCustomAttributes(typeof(PauseMenuDevOptionAttribute), true);
@@ -109,11 +109,32 @@ public class PauseMenu : MonoBehaviour
                 AddDebug(
                     field.Name,
                     attribute[0].label,
-                    (bool)field.GetValue(playerController.playerTelemetry),
-                    value => { field.SetValue(playerController.playerTelemetry, value); }
+                    (bool)field.GetValue(character.characterTelemetry),
+                    value => { field.SetValue(character.characterTelemetry, value); }
                 );
             }
         }
+    }
+
+    public void Deinitialize()
+    {
+        foreach (PauseMenuOption option in optionsList)
+        {
+            Destroy(option.gameObject);
+        }
+        optionsList.Clear();
+
+        foreach (PauseMenuControl control in controlsList)
+        {
+            Destroy(control.gameObject);
+        }
+        controlsList.Clear();
+
+        foreach (PauseMenuDebug debug in debugList)
+        {
+            Destroy(debug.gameObject);
+        }
+        debugList.Clear();
     }
 
     public bool ToggleMenu()

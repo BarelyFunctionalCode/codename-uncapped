@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -32,12 +31,7 @@ public enum StatsGroup
 
 public class GameStats : MonoBehaviour
 {
-    #region Properties
-    /* Trigger for sending stat updates to clients
-    *   True = send to clients
-    *   False = clients are already synced, do not send
-    */
-    private bool is_dirty = false;
+    [SerializeField] private GameModeBase gameMode;
 
     /*  Point tracking for teams & players
      * {
@@ -45,198 +39,66 @@ public class GameStats : MonoBehaviour
      *   StatsGroup.PLAYER: {0: StatTracker,
      *                       1: StatTracker,
      * }}
-     *
      */
+    [SerializeField] private Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> points = new();
 
-    [SerializeField] private GameModeBase game_mode_base;
 
-    [SerializeField]
-    private Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> points = new Dictionary<StatsGroup, Dictionary<ulong, StatTracker>>();
-    #endregion
-
-    #region Private methods
-    private void ClearStats()
+    private void Awake()
     {
-        foreach(var group_of_entities in points.Values)
-        {
-            foreach (KeyValuePair<ulong, StatTracker> list_of_entities in group_of_entities)
-            {
-                list_of_entities.Value.Clear();
-            }
-        }
+        points[StatsGroup.PLAYER] = new Dictionary<ulong, StatTracker>();
+        points[StatsGroup.TEAM] = new Dictionary<ulong, StatTracker>();
+        points[StatsGroup.NONE] = new Dictionary<ulong, StatTracker>();
     }
 
-    private void ContaminateStatState()
-    {
-        is_dirty = true;
-    }
-
-    private void EmitPointsChanged(StatEvent updated_stat_event)
-    {
-        game_mode_base.OnPointsChanged(FetchStats(), updated_stat_event);
-    }
-    #endregion
-
-    #region Public Methods
-    public void CheckAddEntry(ulong id, StatsGroup stat_group_id)
+    public void CheckAddEntry(ulong id, StatsGroup statGroupId)
     {
         Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> points = FetchStats();
-        Dictionary<ulong, StatTracker> stat_group = points[stat_group_id];
+        Dictionary<ulong, StatTracker> statGroup = points[statGroupId];
 
-        if (!stat_group.ContainsKey(id))
+        if (!statGroup.ContainsKey(id))
         {
-            stat_group.Add(id, new StatTracker(id, stat_group_id));
+            statGroup.Add(id, new StatTracker(id, statGroupId));
         }
-    }
-
-    public bool CheckDirtyState()
-    {
-        return is_dirty;
     }
 
     // Add to a stat value, check first if that stat has an entry. If not, add a default stat 0.
     public void AddToStat(StatEvent s)
     {
         Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> points = FetchStats();
-        Dictionary<ulong, StatTracker> stat_group;
-        ulong player_id = s.Source;
-        string team_name = gameObject.GetComponent<TeamStructure>().GetPlayersTeam(player_id);
+        Dictionary<ulong, StatTracker> statGroup;
+        ulong characterId = s.Source;
 
         // Check if player's stats has this stat added yet
-        stat_group = points[StatsGroup.PLAYER];
-        CheckAddEntry(player_id, StatsGroup.PLAYER);
+        statGroup = points[StatsGroup.PLAYER];
+        CheckAddEntry(characterId, StatsGroup.PLAYER);
         // Add to the players' stats
-        stat_group[player_id].AddToStat(s.StatType, s.Value);
+        statGroup[characterId].AddToStat(s.StatType, s.Value);
 
         // Debugging
-        stat_group[player_id].PrettyPrint();
+        statGroup[characterId].PrettyPrint();
 
         // Create StatEvent with updated value
-        StatEvent updated_stat_event = new(
+        StatEvent updatedStatEvent = new(
             s.StatType,
-            stat_group[player_id].FetchStatValue(s.StatType),
+            statGroup[characterId].FetchStatValue(s.StatType),
             s.Source
         );
 
         // Then add to the teams' stats ONLY IF the stat is being tracked by winconditions
-        StatEventType win_condition_stat = gameObject.GetComponent<WinCondition>().GetWinConditionStat();
-        if (win_condition_stat == s.StatType)
+        StatEventType winConditionStat = gameObject.GetComponent<WinCondition>().GetWinConditionStat();
+        if (winConditionStat == s.StatType)
         {
-            stat_group = points[StatsGroup.TEAM];
-            int team_index = gameObject.GetComponent<TeamStructure>().GetTeamIndex(team_name);
+            statGroup = points[StatsGroup.TEAM];
+            int teamIndex = CharacterManager.Instance.GetCharacterByEntityId(characterId).identification.FetchTeamId();
 
             // Fetch the players' team
-            CheckAddEntry((ulong)team_index, StatsGroup.TEAM);
-            StatTracker source_team_stats = stat_group[(ulong)team_index];
-            source_team_stats.AddToStat(s.StatType, s.Value);
+            CheckAddEntry((ulong)teamIndex, StatsGroup.TEAM);
+            StatTracker sourceTeamStats = statGroup[(ulong)teamIndex];
+            sourceTeamStats.AddToStat(s.StatType, s.Value);
         }
 
-        ContaminateStatState();
-        EmitPointsChanged(updated_stat_event);
+        gameMode.OnPointsChanged(FetchStats(), updatedStatEvent);
     }
 
-    public void CleanStatState()
-    {
-        is_dirty = false;
-    }
-
-    public List<FlatStatData> FetchFlatStats()
-    {
-        List<FlatStatData> f = new List<FlatStatData>();
-
-        /*  Point tracking for teams & players
-         * {
-         * ->StatsGroup.TEAM:   { 0: StatTracker},
-         * ->StatsGroup.PLAYER: { 0: StatTracker,
-         *                       1: StatTracker,
-         * }}
-         *
-         */
-        // Iterate through each stat_group first
-        foreach(var group_of_entities in points.Values)
-        {
-
-            /*  Point tracking for teams & players
-             * {
-             *   StatsGroup.TEAM:   { ->0: StatTracker },
-             *   StatsGroup.PLAYER: { ->0: StatTracker,
-             *                        ->1: StatTracker,
-             * }}
-             *
-             */
-            // Then iterate through each list of entities
-            foreach (KeyValuePair<ulong, StatTracker> list_of_entities in group_of_entities)
-            {
-                StatTracker stat_tracker = list_of_entities.Value;
-
-                f.Add(stat_tracker.Flatten());
-            }
-        }
-
-        return f;
-    }
-
-    // Helper function
-    public List<FlatStatData> FetchFlatStatsAndCleanState()
-    {
-        CleanStatState();
-        return FetchFlatStats();
-    }
-
-    public Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> FetchStats()
-    {
-         return points;
-    }
-
-    public void RebuildStats(List<FlatStatData> flat_stats)
-    {
-    print("game_stats RebuildStats");
-        // Avoid re-allocations, re-use in the for loops
-        ulong id;
-        StatsGroup stat_group_id;
-        StatTracker stat_tracker;
-        Dictionary<ulong, StatTracker> _stats;
-
-        // Loop through each flatstats and copy over the data into `stats` field
-        // 1. Fetch id, stats_group_id from FlatStats
-        // 2. Fetch StatTracker from `stats`
-        //     Dictionary<StatsGroup, Dictionary<ulong, StatTracker>>
-        // 3. Overwrite the data in that StatTracker
-        foreach(FlatStatData f in flat_stats)
-        {
-            id = f.id;
-            stat_group_id = f.stat_group_id;
-
-            // Fetch the group of StatTrackers
-            // points = Dictionary<StatGroup, Dictionary<ulong, StatTracker>>
-            // stats = Dictionary<ulong, StatTracker>
-            if (points.TryGetValue(stat_group_id, out _stats))
-            {
-                // Then fetch the individual StatTracker
-                if (_stats.TryGetValue(id, out stat_tracker))
-                {
-                    stat_tracker.Rebuild(f);
-                }
-            }
-        }
-    }
-    #endregion
-
-    #region Message Receivers
-    private void OnPhaseChanged(EventArgsPhaseChanged e)
-    {
-        if (e.phase == Phase.PRELOAD)
-        {
-            ClearStats();
-        }
-    }
-
-
-    private void Start()
-    {
-        points[StatsGroup.PLAYER] = new Dictionary<ulong, StatTracker>();
-        points[StatsGroup.TEAM] = new Dictionary<ulong, StatTracker>();
-        points[StatsGroup.NONE] = new Dictionary<ulong, StatTracker>();
-    }
-    #endregion
+    public Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> FetchStats() => points;
 }
