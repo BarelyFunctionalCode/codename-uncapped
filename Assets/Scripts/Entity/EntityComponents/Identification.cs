@@ -10,7 +10,7 @@ public class Identification : EntityComponent
 
     public ulong EntityId => _entityId.Value;
     public string EntityName => _entityName.Value.ToString();
-    public int TeamId { get { return _teamId.Value; } set { _teamId.Value = value; } }
+    public int TeamId { get { return _teamId.Value; } set { _teamId.Value = value; OnTeamIdChanged(_teamId.Value, value); } }
 
 
     public override void Initialize(Entity entity)
@@ -36,10 +36,10 @@ public class Identification : EntityComponent
     public int FetchTeamId() => TeamId;
     public void SetEntityName(string s) => _entityName.Value = s;
     public void SetEntityId(ulong id) => _entityId.Value = id;
-    public void SetTeamId(int id) => _teamId.Value = id;
+  public void SetTeamId(int id) => TeamId = id;
 
-    private void OnTeamIdChanged(int oldTeamId, int newTeamId)
+  private void OnTeamIdChanged(int oldTeamId, int newTeamId)
     {
-        CharacterManager.Instance.OnCharacterChangedTeam.Invoke(new NetworkBehaviourReference(this));
+        CharacterManager.Instance.OnCharacterChangedTeam.Invoke(new NetworkBehaviourReference(entity));
     }
 }

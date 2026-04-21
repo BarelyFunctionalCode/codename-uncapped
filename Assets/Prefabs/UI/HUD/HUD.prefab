@@ -240,6 +240,7 @@ MonoBehaviour:
   loadoutMenu: {fileID: 9059329728002494969}
   pauseMenu: {fileID: 8686274377692950835}
   leaderboard: {fileID: 4009908159948903324}
+  killFeed: {fileID: 7321523891510409811}
 --- !u!1 &354439633661193801
 GameObject:
   m_ObjectHideFlags: 0
@@ -5263,6 +5264,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c03d12d633a04e4f689301a14c52fd83, type: 3}
+--- !u!114 &7321523891510409811 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3902072564583548871, guid: c03d12d633a04e4f689301a14c52fd83, type: 3}
+  m_PrefabInstance: {fileID: 6034178512482450836}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4aca1bdfadc3316ad80ff7adbdad51eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ToastContainer
 --- !u!224 &7809957409610658587 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4602467165013692047, guid: c03d12d633a04e4f689301a14c52fd83, type: 3}
@@ -5378,7 +5390,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3979779313468581085, guid: 7ed8eeb13c2da5d42b346e8d5ce42f56, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.012351122
+      value: -0.009525612
       objectReference: {fileID: 0}
     - target: {fileID: 4154047869575892702, guid: 7ed8eeb13c2da5d42b346e8d5ce42f56, type: 3}
       propertyPath: m_Name
@@ -5390,7 +5402,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4588752156663479301, guid: 7ed8eeb13c2da5d42b346e8d5ce42f56, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.012351122
+      value: -0.009525612
       objectReference: {fileID: 0}
     - target: {fileID: 4887616185244289511, guid: 7ed8eeb13c2da5d42b346e8d5ce42f56, type: 3}
       propertyPath: m_AnchorMax.x
@@ -5406,7 +5418,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4916468672449142115, guid: 7ed8eeb13c2da5d42b346e8d5ce42f56, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.012351122
+      value: -0.009525612
       objectReference: {fileID: 0}
     - target: {fileID: 4983657521312277294, guid: 7ed8eeb13c2da5d42b346e8d5ce42f56, type: 3}
       propertyPath: m_Size

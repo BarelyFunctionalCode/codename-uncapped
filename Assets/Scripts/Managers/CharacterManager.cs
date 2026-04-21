@@ -18,8 +18,14 @@ public class CharacterManager : NetworkBehaviour
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
 
         _characters.OnListChanged += OnCharacterListChanged;
+        foreach (NetworkBehaviourReference characterRef in _characters) SyncCharacter(characterRef);
     }
 
     public override void OnDestroy()
@@ -37,20 +43,20 @@ public class CharacterManager : NetworkBehaviour
     {
         if (changeEvent.Type == NetworkListEvent<NetworkBehaviourReference>.EventType.Add)
         {
-            changeEvent.Value.TryGet(out Character character);
-            if (character != null && !characters.Contains(character))
-            {
-                characters.Add(character);
-                OnCharacterChangedTeam.Invoke(changeEvent.Value);
-            }
+            SyncCharacter(changeEvent.Value);
         }
-        else if (changeEvent.Type == NetworkListEvent<NetworkBehaviourReference>.EventType.Remove)
+        else if (changeEvent.Type == NetworkListEvent<NetworkBehaviourReference>.EventType.Clear)
         {
-            changeEvent.Value.TryGet(out Character character);
-            if (character != null)
-            {
-                characters.Remove(character);
-            }
+            characters.Clear();
+        }
+    }
+    private void SyncCharacter(NetworkBehaviourReference characterRef)
+    {
+        characterRef.TryGet(out Character character);
+        if (character != null && !characters.Contains(character))
+        {
+            characters.Add(character);
+            OnCharacterChangedTeam.Invoke(characterRef);
         }
     }
 
@@ -90,6 +96,8 @@ public class CharacterManager : NetworkBehaviour
             Character newCharacter = newCharacterObj.GetComponent<Character>();
             newCharacter.Initialize(defaultPlayerCharacterTypePrefabObj, playerId);
             characters.Add(newCharacter);
+            _characters.Add(newCharacter);
+            _characters.SetDirty(true);
         }
     }
     [Rpc(SendTo.Server)]
@@ -142,5 +150,7 @@ public class CharacterManager : NetworkBehaviour
             }
         }
         characters.Clear();
+        _characters.Clear();
+        _characters.SetDirty(true);
     }
 }

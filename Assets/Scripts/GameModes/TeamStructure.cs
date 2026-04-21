@@ -1,6 +1,7 @@
 using Unity.Netcode;
 using System.Collections.Generic;
 using Unity.Collections;
+using UnityEngine;
 
 
 /*  TeamStructure handles teams of players
@@ -23,10 +24,7 @@ public class TeamStructure : NetworkBehaviour
     public void ClearTeams()
     {
         teamNames.Clear();
-        foreach (Character c in CharacterManager.Instance.characters)
-        {
-            c.identification.SetTeamId(-1);
-        }
+        foreach (Character c in CharacterManager.Instance.characters) c.identification.SetTeamId(-1);
     }
 
     public int GetTeamByName(string teamName) => teamNames.IndexOf(teamName);

@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 
 public class CharacterType : NetworkBehaviour, IIdentifiable
 {
-    private Character character;
+    public Character character;
     public Transform pickupContainerHoldPoint;
     public CapsuleCollider characterCollider;
     public Transform cameraLookAtTarget;

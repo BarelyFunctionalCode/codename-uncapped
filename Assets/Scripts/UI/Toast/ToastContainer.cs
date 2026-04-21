@@ -7,12 +7,12 @@ public class ToastContainer : MonoBehaviour
     [SerializeField] private GameObject toastNotificationPrefabObj;
     [SerializeField] private Transform toastNotificationContainerObj;
 
-    private void Awake()
+    public void Initialize()
     {
         NotificationManager.Instance.newNotificationReceivedEvent.AddListener(OnNewToastNotification);
     }
 
-    private void OnDestroy()
+    public void Deinitialize()
     {
         if (NotificationManager.Instance != null)
         {

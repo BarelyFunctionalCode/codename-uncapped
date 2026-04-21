@@ -107,7 +107,7 @@ public class PhaseSystem : NetworkBehaviour
                 break;
         };
 
-        gameModeBase.OnPhaseChanged(new EventArgsPhaseChanged(CurrentPhase));
+        gameModeBase.OnPhaseChanged(CurrentPhase);
     }
 
     public void SetActivePhaseTimeLimit(float time) => _activePhaseTimeLimit.Value = time;
@@ -117,7 +117,7 @@ public class PhaseSystem : NetworkBehaviour
     public void HardSet(Phase phase)
     {
         CurrentPhase = phase;
-        gameModeBase.OnPhaseChanged(new EventArgsPhaseChanged(CurrentPhase));
+        gameModeBase.OnPhaseChanged(CurrentPhase);
     }
 
     private void SetCountdown(float f)
@@ -125,10 +125,4 @@ public class PhaseSystem : NetworkBehaviour
         Countdown = f;
         GameModeHandler.Instance.currentPhaseCountdown.Value = f;
     }
-}
-
-public class EventArgsPhaseChanged : EventArgs
-{
-    public Phase phase;
-    public EventArgsPhaseChanged(Phase p) => phase = p;
 }

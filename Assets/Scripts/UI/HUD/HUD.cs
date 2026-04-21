@@ -50,6 +50,7 @@ public class HUD : MonoBehaviour
     [SerializeField] public LoadoutMenu loadoutMenu;
     [SerializeField] private PauseMenu pauseMenu;
     [SerializeField] private Leaderboard leaderboard;
+    [SerializeField] private ToastContainer killFeed;
     int cursorLockCounter = 0;
 
     private float dynamicReticleMaxMoveRange = 50f;
@@ -137,6 +138,7 @@ public class HUD : MonoBehaviour
         centerClusterUI.Initialize(character);
         loadoutMenu.Initialize(character.GetComponent<CharacterLoadoutManager>(), this);
         leaderboard.Initialize();
+        killFeed.Initialize();
         identifierManager.Initialize();
 
         health.onAppliedDamage.AddListener(SetHitMarker);
@@ -167,6 +169,7 @@ public class HUD : MonoBehaviour
         centerClusterUI.Deinitialize();
         loadoutMenu.Deinitialize();
         leaderboard.Deinitialize();
+        killFeed.Deinitialize();
         identifierManager.Deinitialize();
 
         if (health != null) health.onAppliedDamage.RemoveListener(SetHitMarker);

@@ -41,7 +41,9 @@ public class Blink : Drive
 
         // Teleport and apply energy cost
         PlayBlinkEffectClientRpc(startPosition);
+        Vector3 currentVelocity = character.localRb.linearVelocity;
         character.Teleport(targetPosition);
+        character.localRb.linearVelocity = currentVelocity;
         PlayBlinkEffectClientRpc(targetPosition);
         character.energy.ApplyEnergyDelta(-energyCost);
 

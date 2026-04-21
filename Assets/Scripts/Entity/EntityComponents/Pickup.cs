@@ -111,12 +111,10 @@ public class Pickup : EntityComponent
         pickerUpper = null;
 
         // If specified, add force to the pickup to throw it
-        Debug.Log("Throw vector: " + throwVector);
         if (throwVector != default)
         {
             float throwForce = Mathf.Lerp(throwMinForce, throwMaxForce, throwVector.magnitude);
             throwVector = throwVector.normalized * throwForce;
-            Debug.Log("Applied throw vector: " + throwVector);
             Rb.AddForce(throwVector);
         }
     }

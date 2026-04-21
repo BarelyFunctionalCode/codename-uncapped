@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -32,17 +31,16 @@ public enum StatsGroup
 
 public class GameStats : MonoBehaviour
 {
+    [SerializeField] private GameModeBase gameMode;
+
     /*  Point tracking for teams & players
      * {
      *   StatsGroup.TEAM:   { 0: StatTracker},
      *   StatsGroup.PLAYER: {0: StatTracker,
      *                       1: StatTracker,
      * }}
-     *
      */
     [SerializeField] private Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> points = new();
-
-    [SerializeField] private GameModeBase gameMode;
 
 
     private void Awake()
@@ -50,17 +48,6 @@ public class GameStats : MonoBehaviour
         points[StatsGroup.PLAYER] = new Dictionary<ulong, StatTracker>();
         points[StatsGroup.TEAM] = new Dictionary<ulong, StatTracker>();
         points[StatsGroup.NONE] = new Dictionary<ulong, StatTracker>();
-    }
-
-    public void ClearStats()
-    {
-        foreach(var groupOfEntries in points.Values)
-        {
-            foreach (KeyValuePair<ulong, StatTracker> listOfEntries in groupOfEntries)
-            {
-                listOfEntries.Value.Clear();
-            }
-        }
     }
 
     public void CheckAddEntry(ulong id, StatsGroup statGroupId)
@@ -113,77 +100,5 @@ public class GameStats : MonoBehaviour
         gameMode.OnPointsChanged(FetchStats(), updatedStatEvent);
     }
 
-    public List<FlatStatData> FetchFlatStats()
-    {
-        List<FlatStatData> f = new();
-
-        /*  Point tracking for teams & players
-         * {
-         * ->StatsGroup.TEAM:   { 0: StatTracker},
-         * ->StatsGroup.PLAYER: { 0: StatTracker,
-         *                       1: StatTracker,
-         * }}
-         *
-         */
-        // Iterate through each stat_group first
-        foreach(var group_of_entities in points.Values)
-        {
-
-            /*  Point tracking for teams & players
-             * {
-             *   StatsGroup.TEAM:   { ->0: StatTracker },
-             *   StatsGroup.PLAYER: { ->0: StatTracker,
-             *                        ->1: StatTracker,
-             * }}
-             *
-             */
-            // Then iterate through each list of entities
-            foreach (KeyValuePair<ulong, StatTracker> list_of_entities in group_of_entities)
-            {
-                StatTracker stat_tracker = list_of_entities.Value;
-
-                f.Add(stat_tracker.Flatten());
-            }
-        }
-
-        return f;
-    }
-
-    // Helper function
-    public List<FlatStatData> FetchFlatStatsAndCleanState() => FetchFlatStats();
-
     public Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> FetchStats() => points;
-
-    public void RebuildStats(List<FlatStatData> flat_stats)
-    {
-        print("game_stats RebuildStats");
-        // Avoid re-allocations, re-use in the for loops
-        ulong id;
-        StatsGroup stat_group_id;
-        StatTracker stat_tracker;
-        Dictionary<ulong, StatTracker> _stats;
-
-        // Loop through each flatstats and copy over the data into `stats` field
-        // 1. Fetch id, stats_group_id from FlatStats
-        // 2. Fetch StatTracker from `stats`
-        //     Dictionary<StatsGroup, Dictionary<ulong, StatTracker>>
-        // 3. Overwrite the data in that StatTracker
-        foreach(FlatStatData f in flat_stats)
-        {
-            id = f.id;
-            stat_group_id = f.stat_group_id;
-
-            // Fetch the group of StatTrackers
-            // points = Dictionary<StatGroup, Dictionary<ulong, StatTracker>>
-            // stats = Dictionary<ulong, StatTracker>
-            if (points.TryGetValue(stat_group_id, out _stats))
-            {
-                // Then fetch the individual StatTracker
-                if (_stats.TryGetValue(id, out stat_tracker))
-                {
-                    stat_tracker.Rebuild(f);
-                }
-            }
-        }
-    }
 }

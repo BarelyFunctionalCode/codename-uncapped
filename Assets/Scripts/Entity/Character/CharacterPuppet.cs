@@ -72,18 +72,19 @@ public class CharacterPuppet : MonoBehaviour
         character.localRb = rb;
         character.characterMovement.UpdateCharacterData(null, character.localRb);
 
-        CharacterType characterTypeData = SetCharacterType(prefabObj);
+        CharacterType characterTypeData = SetCharacterType(prefabObj, character);
         character.GetComponent<CharacterNetworkTransform>().onNewLocalTransformState.AddListener(OnNewLocalTransformState);
         isInitialized = true;
 
         character.OnCharacterTypeObjectSpawned(characterTypeData);
     }
 
-    private CharacterType SetCharacterType(GameObject characterTypePrefabObj)
+    private CharacterType SetCharacterType(GameObject characterTypePrefabObj, Character character)
     {
         if (characterTypeObj != null) Destroy(characterTypeObj);
         characterTypeObj = Instantiate(characterTypePrefabObj, transform.position, transform.rotation, transform);
         characterTypeData = characterTypeObj.GetComponent<CharacterType>();
+        characterTypeData.character = character;
         characterCollider = characterTypeData.characterCollider;
         rb.mass = characterTypeData.mass;
 

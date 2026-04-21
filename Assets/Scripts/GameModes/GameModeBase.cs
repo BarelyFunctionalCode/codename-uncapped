@@ -32,7 +32,6 @@ public class GameModeBase : NetworkBehaviour
     }
     private void OnGameModeIdChanged(GameModes oldValue, GameModes newValue)
     {
-        Debug.Log("GameModeId changed to " + newValue);
         GameModeHandler.Instance.OnGameModeChanged.Invoke(newValue);
     }
     [Rpc(SendTo.Everyone, AllowTargetOverride = true)]
@@ -48,11 +47,11 @@ public class GameModeBase : NetworkBehaviour
         _gameModeId.OnValueChanged += OnGameModeIdChanged;
     }
 
-    public override void OnDestroy()
+    public override void OnNetworkDespawn()
     {
         _gameModeId.OnValueChanged -= OnGameModeIdChanged;
 
-        base.OnDestroy();
+        base.OnNetworkDespawn();
     }
 
     public void StatEventReceiver(StatEvent s)
@@ -79,28 +78,13 @@ public class GameModeBase : NetworkBehaviour
     public void OnGameWon(ulong id)
     {
         if (!IsHost) return;
-
-        print("Game won! : " + id);
         StopGame();
     }
 
-    public void OnPhaseChanged(EventArgsPhaseChanged e)
+    public void OnPhaseChanged(Phase phase)
     {
         if (!IsHost) return;
-        
-        GameModeHandler.Instance.currentPhase.Value = e.phase;
-
-        // if in active session, toggle state booleans appropriately
-        switch( e.phase )
-        {
-            case Phase.ACTIVE:
-                break;
-            case Phase.PRELOAD:
-                GameStats.ClearStats();
-                break;
-            default:
-                break;
-        }
+        GameModeHandler.Instance.currentPhase.Value = phase;
     }
 
     public void OnPointsChanged(Dictionary<StatsGroup, Dictionary<ulong, StatTracker>> points, StatEvent updatedStatEvent)
@@ -130,7 +114,6 @@ public class GameModeBase : NetworkBehaviour
             GameModeHandler.Instance.OnStatUpdated.Invoke(statEvent);
         }
     }
-
     public void TriggerCharactersStatsDump(ulong clientId)
     {
         if (!IsHost) return;
