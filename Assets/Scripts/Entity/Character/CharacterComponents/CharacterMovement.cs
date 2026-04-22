@@ -25,7 +25,11 @@ public class CharacterMovement : EntityComponent, IGravityModifiable
     private readonly float jetAirMoveMinSpeed = 5f;
     private readonly float jetAirMoveMaxSpeed = 1000f;
     private readonly float jetAirMoveMaxAccelFactor = 1.5f;
-    private readonly float jetDirectionalForceXY = 3125f; 
+    
+    private readonly float _jetDirectionalForceXY = 3125f; 
+    public float jetDirectionalForceXYMultiplier = 1f;
+    private float jetDirectionalForceXY => _jetDirectionalForceXY * jetDirectionalForceXYMultiplier;
+
     private readonly float upJettingEnergyDrain = 22.5f;
     private readonly float downJettingEnergyDrain = 21.875f;
     private readonly float jetSkateEnergyDrain = 4f;

@@ -15,6 +15,8 @@ MonoBehaviour:
   itemName: Boost
   itemDescription: Woosh
   itemType: 5
-  itemPrefab: {fileID: 0}
+  itemPrefab: {fileID: 7391894488825431464, guid: b436188473a5e475c9cd8aa23640cc7c, type: 3}
+  showcaseItemPrefab: {fileID: 0}
+  showcaseAdditionalCameraDistance: 0
   applicableArmorClasses: 00000000
-  isAvailable: 0
+  isAvailable: 1

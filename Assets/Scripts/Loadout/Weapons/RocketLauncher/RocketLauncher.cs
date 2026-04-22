@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class RocketLauncher : Weapon
 {
+    [Header("Visuals")]
     [SerializeField] Animator animator;
 
     protected override void PostFiredRpc()

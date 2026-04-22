@@ -18,12 +18,14 @@ public class Weapon : NetworkBehaviour
     [SerializeField] public float maxAmmo = 10000;
     [SerializeField] private float damage = 1;
     [SerializeField] private float fireRate = 0.05f;
+    [SerializeField] private float spinupTime = -1f;
     
     [Header("Collision")]
     [SerializeField] private LayerMask ignoreLayers;
 
-
-    [SerializeField] private bool canFire = true;
+    private bool canFire = true;
+    protected NetworkVariable<bool>  isTryingToFire = new(false);
+    private float spinupTimer = 0f;
 
     private Projectile currentProjectile;
     protected AudioSource audioSource;
@@ -35,10 +37,10 @@ public class Weapon : NetworkBehaviour
     public NetworkVariable<bool> isEquiped = new();
     public NetworkVariable<float> ammoCount = new();
     private NetworkVariable<float> fireRateTimer = new();
-    private bool isInitialized = false;
+    protected bool isInitialized = false;
 
 
-    public sealed override void OnNetworkSpawn()
+    public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
@@ -61,7 +63,7 @@ public class Weapon : NetworkBehaviour
         if (characterRef.Value.TryGet(out Character character)) InitializeRpc(character, RpcTarget.Me);
     }
 
-    public sealed override void OnNetworkDespawn()
+    public override void OnNetworkDespawn()
     {
         base.OnNetworkDespawn();
         isInitialized = false;
@@ -88,7 +90,9 @@ public class Weapon : NetworkBehaviour
             if (!canFire)
             {
                 fireRateTimer.Value += Time.deltaTime;
-                if (ammoCount.Value > 0 && fireRateTimer.Value >= fireRate)
+                if (isTryingToFire.Value && spinupTimer <= spinupTime) spinupTimer += Time.deltaTime;
+
+                if (ammoCount.Value > 0 && fireRateTimer.Value >= fireRate && spinupTimer >= spinupTime)
                 {
                     fireRateTimer.Value = 0;
                     canFire = true;
@@ -158,7 +162,13 @@ public class Weapon : NetworkBehaviour
     public void EquipRpc(RpcParams rpcParams = default)
     {
         modelObj.SetActive(true);
-        if (IsServer) isEquiped.Value = true;
+        if (IsServer)
+        {
+            isEquiped.Value = true;
+            isTryingToFire.Value = false;
+            spinupTimer = 0f;
+            if (spinupTime > 0) canFire = false;
+        }
     }
 
     [Rpc(SendTo.Everyone, AllowTargetOverride = true)]
@@ -177,7 +187,9 @@ public class Weapon : NetworkBehaviour
 
     public virtual void Fire()
     {
-        if (!IsServer || !canFire) return;
+        if (!IsServer) return;
+        isTryingToFire.Value = true;
+        if (!canFire) return;
         if (currentProjectile == null)
         {
             GameObject newProjectileObj = SpawnManager.Instance.Spawn(
@@ -217,6 +229,8 @@ public class Weapon : NetworkBehaviour
     public virtual void StopFire()
     {
         if (!IsServer) return;
+        isTryingToFire.Value = false;
+        spinupTimer = 0f;
         if (currentProjectile == null || !currentProjectile.hasHoldModifier) return;
 
         DoHoldModifierEnd(currentProjectile);

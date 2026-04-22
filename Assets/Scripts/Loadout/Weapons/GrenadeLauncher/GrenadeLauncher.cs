@@ -5,11 +5,14 @@ using Unity.Netcode;
 [RequireComponent(typeof(NetworkAnimator))]
 public class GrenadeLauncher : Weapon
 {
+    [Header("Visuals")]
+    [SerializeField] private Animator animator;
     [SerializeField] private Transform shellEjectPoint;
     [SerializeField] private GameObject grenadeShellPrefab;
+
+    [Header("Attributes")]
     [SerializeField] private float shellEjectForce = 200;
     [SerializeField] private float shellSpinForce = 1000;
-    [SerializeField] private Animator animator;
 
     protected override void PostFiredRpc()
     {
