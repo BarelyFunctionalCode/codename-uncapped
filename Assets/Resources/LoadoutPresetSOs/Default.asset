@@ -15,9 +15,9 @@ MonoBehaviour:
   loadoutName: Default
   loadoutDescription: ??????
   armorClass: 1
-  weapon1: {fileID: 11400000, guid: 2fbf7223e52b04382bdf300ae8d9c490, type: 2}
-  weapon2: {fileID: 11400000, guid: eea5112c5b5e34b3b842d950a0de0b60, type: 2}
+  weapon1: {fileID: 11400000, guid: 437c63dad2e6b41ff8dae5dd3022d18f, type: 2}
+  weapon2: {fileID: 11400000, guid: 2fbf7223e52b04382bdf300ae8d9c490, type: 2}
   heavyWeapon: {fileID: 0}
   throwable: {fileID: 11400000, guid: 41e205e45a2f94106bc47ad5312e5f3e, type: 2}
   equipment: {fileID: 0}
-  drive: {fileID: 11400000, guid: cad87e9367b1844cfa995a98396adf8f, type: 2}
+  drive: {fileID: 11400000, guid: f3d23f44a51bb4825b27b3d0583559de, type: 2}

@@ -26,7 +26,7 @@ public class Drive : NetworkBehaviour
         characterRef.OnValueChanged -= OnCharacterRefUpdated;
     }
 
-    private void Update()
+    protected virtual void Update()
     {
         if (!IsServer || !isInitialized) return;
         if (character == null) return;

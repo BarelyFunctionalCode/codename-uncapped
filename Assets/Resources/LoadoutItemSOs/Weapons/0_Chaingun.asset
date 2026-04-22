@@ -16,4 +16,7 @@ MonoBehaviour:
   itemDescription: Ratta tat tat and pew pew pew
   itemType: 1
   itemPrefab: {fileID: 4289124731927348451, guid: 05fd925f10bafb443b0d648cfbe3c989, type: 3}
+  showcaseItemPrefab: {fileID: 0}
+  showcaseAdditionalCameraDistance: 1
+  applicableArmorClasses: 00000000
   isAvailable: 1
