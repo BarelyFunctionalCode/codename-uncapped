@@ -138,6 +138,15 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
+                    ""name"": ""Use Gear"",
+                    ""type"": ""Button"",
+                    ""id"": ""60daa210-29ba-4adf-8f01-a6d242475bbe"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""Previous Weapon"",
                     ""type"": ""Button"",
                     ""id"": ""8683dfa9-c9ba-465b-bc56-9669e43ea5cb"",
@@ -212,6 +221,17 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Throwable"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""488e49b3-6ced-45dd-b0e2-e1b69cd5776b"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Use Gear"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -478,6 +498,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Character_PrimaryFire = m_Character.FindAction("Primary Fire", throwIfNotFound: true);
         m_Character_Throwable = m_Character.FindAction("Throwable", throwIfNotFound: true);
         m_Character_ActivateDrive = m_Character.FindAction("Activate Drive", throwIfNotFound: true);
+        m_Character_UseGear = m_Character.FindAction("Use Gear", throwIfNotFound: true);
         m_Character_PreviousWeapon = m_Character.FindAction("Previous Weapon", throwIfNotFound: true);
         m_Character_NextWeapon = m_Character.FindAction("Next Weapon", throwIfNotFound: true);
         m_Character_Ski = m_Character.FindAction("Ski", throwIfNotFound: true);
@@ -577,6 +598,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Character_PrimaryFire;
     private readonly InputAction m_Character_Throwable;
     private readonly InputAction m_Character_ActivateDrive;
+    private readonly InputAction m_Character_UseGear;
     private readonly InputAction m_Character_PreviousWeapon;
     private readonly InputAction m_Character_NextWeapon;
     private readonly InputAction m_Character_Ski;
@@ -614,6 +636,10 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Character/ActivateDrive".
         /// </summary>
         public InputAction @ActivateDrive => m_Wrapper.m_Character_ActivateDrive;
+        /// <summary>
+        /// Provides access to the underlying input action "Character/UseGear".
+        /// </summary>
+        public InputAction @UseGear => m_Wrapper.m_Character_UseGear;
         /// <summary>
         /// Provides access to the underlying input action "Character/PreviousWeapon".
         /// </summary>
@@ -679,6 +705,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @ActivateDrive.started += instance.OnActivateDrive;
             @ActivateDrive.performed += instance.OnActivateDrive;
             @ActivateDrive.canceled += instance.OnActivateDrive;
+            @UseGear.started += instance.OnUseGear;
+            @UseGear.performed += instance.OnUseGear;
+            @UseGear.canceled += instance.OnUseGear;
             @PreviousWeapon.started += instance.OnPreviousWeapon;
             @PreviousWeapon.performed += instance.OnPreviousWeapon;
             @PreviousWeapon.canceled += instance.OnPreviousWeapon;
@@ -723,6 +752,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @ActivateDrive.started -= instance.OnActivateDrive;
             @ActivateDrive.performed -= instance.OnActivateDrive;
             @ActivateDrive.canceled -= instance.OnActivateDrive;
+            @UseGear.started -= instance.OnUseGear;
+            @UseGear.performed -= instance.OnUseGear;
+            @UseGear.canceled -= instance.OnUseGear;
             @PreviousWeapon.started -= instance.OnPreviousWeapon;
             @PreviousWeapon.performed -= instance.OnPreviousWeapon;
             @PreviousWeapon.canceled -= instance.OnPreviousWeapon;
@@ -956,6 +988,13 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnActivateDrive(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Use Gear" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnUseGear(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "Previous Weapon" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>

@@ -10,9 +10,8 @@ public class Boost : Drive
 
     public sealed override void OnNetworkSpawn()
     {
+        cooldown = 10f;
         base.OnNetworkSpawn();
-        
-        if (IsServer) cooldown.Value = 10f;
     }
 
     protected sealed override void Update()

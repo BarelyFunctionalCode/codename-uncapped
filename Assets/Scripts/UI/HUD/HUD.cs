@@ -33,9 +33,9 @@ public class HUD : MonoBehaviour
     [SerializeField] private Transform weaponsContainer;
     [SerializeField] private GameObject weaponUIPrefabObj;
     [SerializeField] private ThrowableUI throwableUI;
+    [SerializeField] private GearUI gearUI;
     [SerializeField] private Slider driveCooldownSlider;
     [SerializeField] private GameObject driveOnlineTextObj;
-    [SerializeField] private Transform gearContainer;
     [SerializeField] private RectTransform dynamicReticle;
     [SerializeField] private GameObject hitMarkerObj;
     [SerializeField] private AudioSource hitMarkerSound;
@@ -171,6 +171,8 @@ public class HUD : MonoBehaviour
         leaderboard.Deinitialize();
         killFeed.Deinitialize();
         identifierManager.Deinitialize();
+        throwableUI.Deinitialize();
+        gearUI.Deinitialize();
 
         if (health != null) health.onAppliedDamage.RemoveListener(SetHitMarker);
         if (GameModeHandler.Instance)
@@ -255,6 +257,11 @@ public class HUD : MonoBehaviour
         throwableUI.Initialize(throwableManager);
     }
 
+    public void SetGearUI(Gear gear)
+    {
+        gearUI.Initialize(gear);
+    }
+
     public void SetDrive(Drive drive)
     {
         currentDrive = drive;
@@ -288,7 +295,7 @@ public class HUD : MonoBehaviour
     public void SetCursorState(bool enabled, bool usingCustomCursor = false)
     {
         if (enabled) cursorLockCounter++;
-        else cursorLockCounter--;
+        else cursorLockCounter = Mathf.Max(0, cursorLockCounter - 1);
 
         Cursor.visible = !(usingCustomCursor && enabled);
         Cursor.lockState = cursorLockCounter > 0 ? CursorLockMode.Confined : CursorLockMode.Locked;

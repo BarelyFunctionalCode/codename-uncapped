@@ -242,7 +242,13 @@ public class LevelManager : NetworkBehaviour
 
         // Get map size and center from terrain in level
         Terrain terrain = Terrain.activeTerrain;
-        if (terrain == null) return null;
+        if (terrain == null)
+        {
+            GameObject spawnPoint = new GameObject("SoloSpawnPoint");
+                spawnPoint.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+                Destroy(spawnPoint, 5f); // Cleanup spawn point after 5 seconds
+                return spawnPoint.transform;
+        }
         Vector3 terrainSize = terrain.terrainData.size;
         Vector3 terrainCenter = terrain.transform.position + terrainSize / 2f;
 

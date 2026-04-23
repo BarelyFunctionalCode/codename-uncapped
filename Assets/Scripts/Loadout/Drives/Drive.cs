@@ -6,8 +6,9 @@ public class Drive : NetworkBehaviour
     private NetworkVariable<NetworkBehaviourReference> characterRef = new();
     protected Character character;
 
-    protected NetworkVariable<float> cooldown = new();
-    private NetworkVariable<float> cooldownTimer = new();
+    protected float cooldown = 0f;
+    private float cooldownTimer = 0f;
+    public NetworkVariable<float> cooldownRatio = new();
 
     public NetworkVariable<bool> isOnline = new();
     private bool isActivated = false;
@@ -31,15 +32,16 @@ public class Drive : NetworkBehaviour
         if (!IsServer || !isInitialized) return;
         if (character == null) return;
 
-        if (cooldownTimer.Value > 0) cooldownTimer.Value -= Time.deltaTime;
+        if (cooldownTimer > 0) cooldownTimer -= Time.deltaTime;
+        cooldownRatio.Value = cooldownTimer / cooldown;
 
-        if (cooldownTimer.Value <= 0 && !isOnline.Value && CanTurnOnline()) isOnline.Value = true;
+        if (cooldownTimer <= 0 && !isOnline.Value && CanTurnOnline()) isOnline.Value = true;
     }
 
     public float GetCooldownRatio()
     {
-        if (cooldown.Value <= 0) return 0;
-        return Mathf.Clamp01(cooldownTimer.Value / cooldown.Value);
+        if (cooldown <= 0) return 0;
+        return cooldownRatio.Value;
     }
 
     private void OnCharacterRefUpdated(NetworkBehaviourReference previousValue, NetworkBehaviourReference newValue)
@@ -53,8 +55,16 @@ public class Drive : NetworkBehaviour
         if (!IsServer) return;
 
         characterRef.Value = new NetworkBehaviourReference(character);
-        if (!character.isAI.Value) SetDriveUIClientRpc();
+        if (character.IsPlayerCharacter.Value) SetDriveUIClientRpc();
         isInitialized = true;
+    }
+
+    public void Deinitialize()
+    {
+        if (!IsServer) return;
+
+        characterRef.Value = null;
+        isInitialized = false;
     }
 
     [Rpc(SendTo.Owner)]
@@ -81,7 +91,7 @@ public class Drive : NetworkBehaviour
 
         isActivated = false;
         isOnline.Value = false;
-        cooldownTimer.Value = cooldown.Value;
+        cooldownTimer = cooldown;
         OnDeactivated();
     }
     protected virtual void OnDeactivated() {}

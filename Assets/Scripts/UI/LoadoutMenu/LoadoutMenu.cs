@@ -10,7 +10,7 @@ public class LoadoutMenu : MonoBehaviour
     [SerializeField] private ExpandableList weapons2List;
     [SerializeField] private ExpandableList heavyWeaponsList;
     [SerializeField] private ExpandableList throwablesList;
-    [SerializeField] private ExpandableList equipmentsList;
+    [SerializeField] private ExpandableList gearList;
     [SerializeField] private ExpandableList drivesList;
 
     [SerializeField] private TMP_Text itemDetailsPanelTitle;
@@ -88,7 +88,7 @@ public class LoadoutMenu : MonoBehaviour
         weapons2List.ClearList();
         heavyWeaponsList.ClearList();
         throwablesList.ClearList();
-        equipmentsList.ClearList();
+        gearList.ClearList();
         drivesList.ClearList();
 
         foreach (LoadoutItemSO item in CharacterLoadout.WeaponLoadoutItems)
@@ -117,11 +117,11 @@ public class LoadoutMenu : MonoBehaviour
             }
         }
 
-        foreach (LoadoutItemSO item in CharacterLoadout.EquipmentLoadoutItems)
+        foreach (LoadoutItemSO item in CharacterLoadout.GearLoadoutItems)
         {
             if (item.applicableArmorClasses.Contains(selectedArmorClass) || item.applicableArmorClasses.Contains(LoadoutArmorClass.Any))
             {
-                equipmentsList.AddListItem(item.itemName, item.isAvailable, item).AddListener((itemSO) => OnLoadoutItemSelected(itemSO, "Equipment"));
+                gearList.AddListItem(item.itemName, item.isAvailable, item).AddListener((itemSO) => OnLoadoutItemSelected(itemSO, "Gear"));
             }
         }
 
@@ -159,9 +159,9 @@ public class LoadoutMenu : MonoBehaviour
         {
             tempLoadout.throwableSO = loadoutItem;
         }
-        else if (loadoutItem.itemType == LoadoutItemType.Equipment)
+        else if (loadoutItem.itemType == LoadoutItemType.Gear)
         {
-            tempLoadout.equipmentSO = loadoutItem;
+            tempLoadout.gearSO = loadoutItem;
         }
         else if (loadoutItem.itemType == LoadoutItemType.Drive)
         {

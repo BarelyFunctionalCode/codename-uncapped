@@ -19,7 +19,7 @@ using UnityEngine.SceneManagement;
 [RequireComponent(typeof(PickupContainer))]
 public class Character : Entity
 {
-    public NetworkVariable<bool> isAI = new();
+    public NetworkVariable<bool> IsPlayerCharacter = new();
 
     // Debug
     private DevVectorRenderer devVectorRenderer;
@@ -125,7 +125,7 @@ public class Character : Entity
         characterMovement.ProcessFixedUpdate();
 
         // This makes the client's local rotation authoritative
-        if (IsOwner && !IsHost && !isAI.Value) ClientAuthorityRotationSyncRpc(localRb.rotation);
+        if (!IsHost && IsOwner && IsPlayerCharacter.Value) ClientAuthorityRotationSyncRpc(localRb.rotation);
 
         characterInputs.ResetJumpInput();
     }
@@ -144,12 +144,12 @@ public class Character : Entity
         // Specified ID means this character is for a Player
         if (characterId == 0)
         {
-            isAI.Value = true;
+            IsPlayerCharacter.Value = false;
             characterId = NetworkObjectId + 1;
         }
-        else isAI.Value = false;
+        else IsPlayerCharacter.Value = true;
         
-        if (!isAI.Value && GameManager.Instance.usingSteam == true) identification.SetEntityName(new Friend(characterId).Name);
+        if (IsPlayerCharacter.Value && GameManager.Instance.usingSteam == true) identification.SetEntityName(new Friend(characterId).Name);
         else identification.SetEntityName($"Character {characterId}");
         identification.SetEntityId(characterId);
 
@@ -187,17 +187,17 @@ public class Character : Entity
         characterMovement.UpdateCharacterData(characterType.characterCollider, null);
         GetComponent<PickupContainer>().pickupHoldPoint = characterType.pickupContainerHoldPoint;
 
-        if (IsOwner) InitializeOwner(isAI.Value);
+        if (IsOwner) InitializeOwner(IsPlayerCharacter.Value);
     }
 
     // InitializeOwner is called once on the local client after the character's CharacterType object is spawned and initialized.
     // This is to set up any local-only parts of the character object, like the camera and UI.
-    public void InitializeOwner(bool isAI)
+    public void InitializeOwner(bool isPlayerCharacter)
     {
         if (!IsOwner) return;
 
         // Initialize Character Puppet for local client prediction of character movement before server updates are received
-        if (!IsHost && !isAI && !characterPuppetObj)
+        if (!IsHost && isPlayerCharacter && !characterPuppetObj)
         {
             // Spawn a non-authoritative puppet on local client for predicting the character's position and rotation before the server updates it
             characterPuppetObj = Instantiate(characterPuppetPrefabObj, localCharacterType.transform.position, localCharacterType.transform.rotation);

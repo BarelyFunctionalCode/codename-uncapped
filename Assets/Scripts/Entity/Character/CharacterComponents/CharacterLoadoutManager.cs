@@ -18,6 +18,7 @@ public class CharacterLoadoutManager : NetworkBehaviour
     private ThrowableManager throwableManager;
 
     private Drive equippedDrive;
+    private Gear equippedGear;
 
     protected virtual void Update()
     {
@@ -71,6 +72,7 @@ public class CharacterLoadoutManager : NetworkBehaviour
         AddThrowable(currentLoadout.Value.throwableSO.itemPrefab, character);
 
         AddDrive(currentLoadout.Value.driveSO.itemPrefab, character);
+        AddGear(currentLoadout.Value.gearSO.itemPrefab, character);
         isRestocked = true;
     }
 
@@ -96,6 +98,22 @@ public class CharacterLoadoutManager : NetworkBehaviour
             networkObj.Despawn();
             Destroy(throwableManager.gameObject);
             throwableManager = null;
+        }
+        if (equippedDrive != null)
+        {
+            equippedDrive.Deinitialize();
+            NetworkObject networkObj = equippedDrive.GetComponentInParent<NetworkObject>();
+            networkObj.Despawn();
+            Destroy(equippedDrive.gameObject);
+            equippedDrive = null;
+        }
+        if (equippedGear != null)
+        {
+            equippedGear.Deinitialize();
+            NetworkObject networkObj = equippedGear.GetComponentInParent<NetworkObject>();
+            networkObj.Despawn();
+            Destroy(equippedGear.gameObject);
+            equippedGear = null;
         }
     }
 
@@ -159,6 +177,22 @@ public class CharacterLoadoutManager : NetworkBehaviour
         equippedDrive.Initialize(character);
     }
 
+    private void AddGear(GameObject gearPrefabObj, Character character)
+    {
+        if (!IsServer) return;
+
+        GameObject newGear = SpawnManager.Instance.Spawn(
+            gearPrefabObj,
+            false,
+            character.transform.position,
+            character.transform.rotation,
+            character.transform,
+            character.OwnerClientId
+        );
+        equippedGear = newGear.GetComponentInChildren<Gear>();
+        equippedGear.Initialize(character);
+    }
+
     [Rpc(SendTo.Server)]
     public void NextWeaponRpc()
     {
@@ -195,4 +229,7 @@ public class CharacterLoadoutManager : NetworkBehaviour
 
     [Rpc(SendTo.Server)]
     public void ActivateDriveRpc() => equippedDrive.Activate();
+
+    [Rpc(SendTo.Server)]
+    public void UseGearRpc() => equippedGear.Use();
 }

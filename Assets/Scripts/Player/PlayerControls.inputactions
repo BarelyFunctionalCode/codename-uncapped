@@ -52,6 +52,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "Use Gear",
+                    "type": "Button",
+                    "id": "60daa210-29ba-4adf-8f01-a6d242475bbe",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Previous Weapon",
                     "type": "Button",
                     "id": "8683dfa9-c9ba-465b-bc56-9669e43ea5cb",
@@ -126,6 +135,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Throwable",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "488e49b3-6ced-45dd-b0e2-e1b69cd5776b",
+                    "path": "<Keyboard>/q",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Use Gear",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

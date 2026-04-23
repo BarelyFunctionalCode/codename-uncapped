@@ -115,7 +115,7 @@ public class ThrowableManager : NetworkBehaviour
         characterRef.TryGet(out Character character);
         originalParentNetworkObject = GetComponentInParent<NetworkObject>();
         transform.parent = character.localCharacterType.throwableMountPoint;
-        if (IsOwner && !character.isAI.Value)
+        if (IsOwner && character.IsPlayerCharacter.Value)
         {
             playerCamera = Camera.main;
             Player.Instance.playerHUD.SetThrowableUI(this);

@@ -11,6 +11,7 @@ public class LobbyPC : MonoBehaviour
     [SerializeField] private LayerMask noPlayerMask;
 
     [SerializeField] private GameObject interactPromptObj;
+    [SerializeField] private GameObject autoStartObj;
 
     [SerializeField] private GameObject cursorObj;
     [SerializeField] public AudioSource musicSource;
@@ -46,6 +47,12 @@ public class LobbyPC : MonoBehaviour
         inactiveTabButtonAlpha = tabColor.a;
         tabColor.a = activeTabButtonAlpha;
         activeTabButton.image.color = tabColor;
+
+        DevNetworkManager possibleDevNetworkManager = FindAnyObjectByType<DevNetworkManager>();
+        if (possibleDevNetworkManager != null && possibleDevNetworkManager.doAutoStart)
+        {
+            autoStartObj.SetActive(true);
+        }
     }
 
     void OnDestroy()

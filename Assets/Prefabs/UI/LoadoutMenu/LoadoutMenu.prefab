@@ -246,7 +246,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 56.15
+  m_fontSize: 45.45
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -462,7 +462,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &1630927577838090943
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -498,7 +498,7 @@ MonoBehaviour:
   weapons2List: {fileID: 7465354811255347141}
   heavyWeaponsList: {fileID: 6947682575412061746}
   throwablesList: {fileID: 1153003755266711950}
-  equipmentsList: {fileID: 764887180753058107}
+  gearList: {fileID: 764887180753058107}
   drivesList: {fileID: 5106137260560463030}
   itemDetailsPanelTitle: {fileID: 317356408017423187}
   itemDetailsPanelDescription: {fileID: 3768085212487870198}
@@ -1559,7 +1559,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 48.4
+  m_fontSize: 39.2
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2889,11 +2889,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1055200280868117394, guid: 96ff5f0d216854f9bb642ab5443fe2a3, type: 3}
       propertyPath: m_Name
-      value: Equipment
+      value: Gear
       objectReference: {fileID: 0}
     - target: {fileID: 1216572402332907860, guid: 96ff5f0d216854f9bb642ab5443fe2a3, type: 3}
       propertyPath: m_text
-      value: Equipment
+      value: "Gear\t"
       objectReference: {fileID: 0}
     - target: {fileID: 1514901683926254802, guid: 96ff5f0d216854f9bb642ab5443fe2a3, type: 3}
       propertyPath: m_Pivot.x

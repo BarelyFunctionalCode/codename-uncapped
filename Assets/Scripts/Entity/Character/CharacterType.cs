@@ -196,7 +196,7 @@ public class CharacterType : NetworkBehaviour, IIdentifiable
         if (deathEffectPrefab != null)
         {
             deathObj = Instantiate(deathEffectPrefab, transform.position, Quaternion.identity);
-            deathObj.GetComponent<CharacterDeath>().Initialize(!character.isAI.Value && (!NetworkObject.IsSpawned || IsOwner), inheritedVelocity);
+            deathObj.GetComponent<CharacterDeath>().Initialize(character.IsPlayerCharacter.Value && (!NetworkObject.IsSpawned || IsOwner), inheritedVelocity);
         }
     }
 

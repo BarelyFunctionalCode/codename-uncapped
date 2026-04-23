@@ -124,7 +124,7 @@ public class Weapon : NetworkBehaviour
         transform.parent = character.localCharacterType.weaponMountPoint;
         transform.localPosition = Vector3.zero;
         transform.localRotation = Quaternion.identity;
-        if (IsOwner && !character.isAI.Value)
+        if (IsOwner && character.IsPlayerCharacter.Value)
         {
             if (!IsHost && character.localCharacterType)
             {

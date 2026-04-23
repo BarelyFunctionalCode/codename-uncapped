@@ -9,9 +9,8 @@ public class Blink : Drive
 
     public sealed override void OnNetworkSpawn()
     {
+        cooldown = 5f;
         base.OnNetworkSpawn();
-        
-        if (IsServer) cooldown.Value = 5f;
     }
 
     protected sealed override bool CanTurnOnline()

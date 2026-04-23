@@ -9,7 +9,7 @@ public class DevNetworkManager : MonoBehaviour
 {
     [SerializeField] private GameObject networkManagerPrefab;
 
-    [SerializeField] private bool doAutoStart = true;
+    public bool doAutoStart = true;
     private float playerWaitTimer = 10f;
 
     private string desiredSceneName;

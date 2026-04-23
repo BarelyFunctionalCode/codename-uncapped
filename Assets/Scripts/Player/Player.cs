@@ -125,6 +125,11 @@ public class Player : MonoBehaviour, PlayerControls.ICharacterActions
         if (context.started) Character.characterLoadout.ActivateDriveRpc();
     }
 
+    public void OnUseGear(InputAction.CallbackContext context)
+    {
+        if (context.started) Character.characterLoadout.UseGearRpc();
+    }
+
     public void OnPreviousWeapon(InputAction.CallbackContext context)
     {
         if (context.started) Character.characterLoadout.PreviousWeaponRpc();

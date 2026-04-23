@@ -11,7 +11,7 @@ public enum LoadoutItemType
     Weapon,
     HeavyWeapon,
     Throwable,
-    Equipment,
+    Gear,
     Drive
 }
 
@@ -35,7 +35,7 @@ public class CharacterLoadout : INetworkSerializable, IEquatable<CharacterLoadou
             writer.WriteValueSafe(weapon2SO != null ? WeaponLoadoutItems.IndexOf(WeaponLoadoutItems.First(w => w == weapon2SO)) : -1);
             writer.WriteValueSafe(heavyWeaponSO != null ? HeavyWeaponLoadoutItems.IndexOf(HeavyWeaponLoadoutItems.First(w => w == heavyWeaponSO)) : -1);
             writer.WriteValueSafe(throwableSO != null ? ThrowableLoadoutItems.IndexOf(ThrowableLoadoutItems.First(w => w == throwableSO)) : -1);
-            writer.WriteValueSafe(equipmentSO != null ? EquipmentLoadoutItems.IndexOf(EquipmentLoadoutItems.First(w => w == equipmentSO)) : -1);
+            writer.WriteValueSafe(gearSO != null ? GearLoadoutItems.IndexOf(GearLoadoutItems.First(w => w == gearSO)) : -1);
             writer.WriteValueSafe(driveSO != null ? DriveLoadoutItems.IndexOf(DriveLoadoutItems.First(w => w == driveSO)) : -1);
         }
         else
@@ -49,8 +49,8 @@ public class CharacterLoadout : INetworkSerializable, IEquatable<CharacterLoadou
             heavyWeaponSO = heavyWeaponIndex != -1 ? HeavyWeaponLoadoutItems[heavyWeaponIndex] : null;
             reader.ReadValueSafe(out int throwableIndex);
             throwableSO = throwableIndex != -1 ? ThrowableLoadoutItems[throwableIndex] : null;
-            reader.ReadValueSafe(out int equipmentIndex);
-            equipmentSO = equipmentIndex != -1 ? EquipmentLoadoutItems[equipmentIndex] : null;
+            reader.ReadValueSafe(out int gearIndex);
+            gearSO = gearIndex != -1 ? GearLoadoutItems[gearIndex] : null;
             reader.ReadValueSafe(out int driveIndex);
             driveSO = driveIndex != -1 ? DriveLoadoutItems[driveIndex] : null;
         }
@@ -65,7 +65,7 @@ public class CharacterLoadout : INetworkSerializable, IEquatable<CharacterLoadou
             weapon2SO == other.weapon2SO &&
             heavyWeaponSO == other.heavyWeaponSO &&
             throwableSO == other.throwableSO &&
-            equipmentSO == other.equipmentSO &&
+            gearSO == other.gearSO &&
             driveSO == other.driveSO;
     }
 
@@ -109,13 +109,13 @@ public class CharacterLoadout : INetworkSerializable, IEquatable<CharacterLoadou
         }
     }
 
-    private static List<LoadoutItemSO> _equipmentLoadoutItems;
-    public static List<LoadoutItemSO> EquipmentLoadoutItems
+    private static List<LoadoutItemSO> _gearLoadoutItems;
+    public static List<LoadoutItemSO> GearLoadoutItems
     {
         get
         {
-            _equipmentLoadoutItems ??= Resources.LoadAll<LoadoutItemSO>("LoadoutItemSOs/Equipments").ToList();
-            return _equipmentLoadoutItems;
+            _gearLoadoutItems ??= Resources.LoadAll<LoadoutItemSO>("LoadoutItemSOs/Gear").ToList();
+            return _gearLoadoutItems;
         }
     }
 
@@ -139,8 +139,8 @@ public class CharacterLoadout : INetworkSerializable, IEquatable<CharacterLoadou
         //     itemSO = HeavyWeaponLoadoutItems.FirstOrDefault(w => w != null && w.itemPrefab.name == prefabName);
         else if (prefab.GetComponentInChildren<ThrowableManager>() != null)
             itemSO = ThrowableLoadoutItems.FirstOrDefault(w => w != null && w.itemPrefab.name == prefabName);
-        // else if (prefab.GetComponentInChildren<Equipment>() != null)
-        //     itemSO = EquipmentLoadoutItems.FirstOrDefault(w => w != null && w.itemPrefab.name == prefabName);
+        else if (prefab.GetComponentInChildren<Gear>() != null)
+            itemSO = GearLoadoutItems.FirstOrDefault(w => w != null && w.itemPrefab.name == prefabName);
         else if (prefab.GetComponentInChildren<Drive>() != null)
             itemSO = DriveLoadoutItems.FirstOrDefault(w => w != null && w.itemPrefab.name == prefabName);
 
@@ -152,7 +152,7 @@ public class CharacterLoadout : INetworkSerializable, IEquatable<CharacterLoadou
     public LoadoutItemSO weapon2SO;
     public LoadoutItemSO heavyWeaponSO;
     public LoadoutItemSO throwableSO;
-    public LoadoutItemSO equipmentSO;
+    public LoadoutItemSO gearSO;
     public LoadoutItemSO driveSO;
 
     public CharacterLoadout()
@@ -162,7 +162,7 @@ public class CharacterLoadout : INetworkSerializable, IEquatable<CharacterLoadou
         weapon2SO = null;
         heavyWeaponSO = null;
         throwableSO = null;
-        equipmentSO = null;
+        gearSO = null;
         driveSO = null;
     }
 
@@ -173,7 +173,7 @@ public class CharacterLoadout : INetworkSerializable, IEquatable<CharacterLoadou
         weapon2SO = other.weapon2SO;
         heavyWeaponSO = other.heavyWeaponSO;
         throwableSO = other.throwableSO;
-        equipmentSO = other.equipmentSO;
+        gearSO = other.gearSO;
         driveSO = other.driveSO;
     }
 
@@ -184,7 +184,7 @@ public class CharacterLoadout : INetworkSerializable, IEquatable<CharacterLoadou
         weapon2SO = loadoutSO.weapon2;
         heavyWeaponSO = loadoutSO.heavyWeapon;
         throwableSO = loadoutSO.throwable;
-        equipmentSO = loadoutSO.equipment;
+        gearSO = loadoutSO.gear;
         driveSO = loadoutSO.drive;
     }   
 }
