@@ -10,6 +10,7 @@ public class CharacterMovement : EntityComponent, IGravityModifiable
     public Vector3 SurfacePoint { get; private set; } = Vector3.zero;
     public float DistanceToSurface { get; private set; } = Mathf.Infinity;
 
+    private Character character;
     private Collider characterCollider = null;
     private Rigidbody characterRb = null;
 
@@ -72,6 +73,8 @@ public class CharacterMovement : EntityComponent, IGravityModifiable
     {
         base.Initialize(entity);
 
+        character = (Character)entity;
+
         if (IsServer) gravityModifier.Value = 1f;
         if (!IsServer && !IsOwner) return;
 
@@ -107,8 +110,13 @@ public class CharacterMovement : EntityComponent, IGravityModifiable
 
     public void ProcessFixedUpdate()
     {
+        if (characterRb == null || characterCollider == null) return;
+
         // Set physics material based on skiing state to apply friction
         characterCollider.material = isSkiing ? skiMaterial : normalMaterial;
+
+        if (character.IsPlayerCharacter.Value)
+            Player.Instance.thirdPersonCamera.SpeedBasedCameraEffects(characterRb.linearVelocity.magnitude);
 
         // Main movement logic
         HandleMovement();
@@ -194,7 +202,6 @@ public class CharacterMovement : EntityComponent, IGravityModifiable
 
     private void HandleMovement()
     {
-        if (characterRb == null || characterCollider == null) return;
         Vector3 currentVelocity = characterRb.linearVelocity;
         Vector3 desiredAcc = Vector3.zero;
         Vector3 groundImpulse = Vector3.zero;

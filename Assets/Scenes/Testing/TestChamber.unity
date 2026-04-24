@@ -133,47 +133,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4078005235194836090, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
       propertyPath: field of view
-      value: 60.000004
+      value: 90
       objectReference: {fileID: 0}
     - target: {fileID: 4078005235194836090, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
       propertyPath: far clip plane
-      value: 5000
+      value: 2000
       objectReference: {fileID: 0}
     - target: {fileID: 4078005235194836090, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
       propertyPath: near clip plane
-      value: 0.1
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 4078005235194836090, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
       propertyPath: orthographic size
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 4078005235194836091, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4078005235194836091, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 2.0897775
-      objectReference: {fileID: 0}
-    - target: {fileID: 4078005235194836091, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -1.7993258
-      objectReference: {fileID: 0}
-    - target: {fileID: 4078005235194836091, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.9952006
-      objectReference: {fileID: 0}
-    - target: {fileID: 4078005235194836091, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0.09785626
-      objectReference: {fileID: 0}
-    - target: {fileID: 4078005235194836091, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4078005235194836091, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 8342725605565068429, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
       propertyPath: m_LocalPosition.x
@@ -219,11 +191,50 @@ PrefabInstance:
       propertyPath: GlobalObjectIdHash
       value: 203687675
       objectReference: {fileID: 0}
+    - target: {fileID: 8782793398188800434, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
+      propertyPath: Lens.FieldOfView
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 8782793398188800434, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
+      propertyPath: Target.TrackingTarget
+      value: 
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
+--- !u!1 &422989035
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 422989036}
+  m_Layer: 0
+  m_Name: DummyCameraTarget
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &422989036
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 422989035}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -13.1, y: 1.56, z: -37.4}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &672289086
 GameObject:
   m_ObjectHideFlags: 0
@@ -697,3 +708,4 @@ SceneRoots:
   - {fileID: 1091005432}
   - {fileID: 770466827}
   - {fileID: 1918486753}
+  - {fileID: 422989036}

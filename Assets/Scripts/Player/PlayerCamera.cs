@@ -1,20 +1,46 @@
 using Unity.Cinemachine;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 public class PlayerCamera : MonoBehaviour
 {
-    [SerializeField] private CinemachineCamera cam;
-    private CinemachineBasicMultiChannelPerlin noise;
+    // Lense Distortion: 0 --- -0.5
+    // Vignette: 0 --- 0.5
+    // FOV: preset --- +20
 
-    private float minShakeValue = 0;
-    private float maxShakeValue = 5;
+    [SerializeField] private CinemachineCamera cam;
+    private float defaultFOV = 90f;
+    private CinemachineBasicMultiChannelPerlin noise;
+    private Vignette vignette;
+    private LensDistortion lensDistortion;
+    [SerializeField] ParticleSystem windLinesParticleSystem;
+
+    private readonly float minShakeValue = 0;
+    private readonly float maxShakeValue = 5;
+
+    private readonly float minCharacterSpeed = 40;
+    private readonly float maxCharacterSpeed = 120;
+    private readonly float maxVignetteIntensity = 0.5f;
+    private readonly float maxLensDistortionIntensity = -0.5f;
+    private readonly float maxFOVIncrease = 20f;
+    private readonly float windLinesMinSpeed = 10f;
+    private readonly float windLinesMaxSpeed = 35f;
+    private readonly float windLinesMinEmissionRate = 4f;
+    private readonly float windLinesMaxEmissionRate = 20f;
+    private readonly float windLinesMaxColorAlpha = 0.25f;
 
     public bool IsEnabled => cam.Priority.Value > 0;
 
     void Awake()
     {
+        cam.Lens.FieldOfView = defaultFOV;
+
         noise = cam.GetComponent<CinemachineBasicMultiChannelPerlin>();
+        CinemachineVolumeSettings volumeSettings = cam.GetComponent<CinemachineVolumeSettings>();
+        volumeSettings.Profile.TryGet(out vignette);
+        volumeSettings.Profile.TryGet(out lensDistortion);
+
         Player.Instance.Character.health.onHealthChanged.AddListener(DamageScreenshake);
     }
 
@@ -46,5 +72,28 @@ public class PlayerCamera : MonoBehaviour
 
         noise.FrequencyGain += -healthDeltaRatio;
         noise.FrequencyGain = Mathf.Clamp(noise.FrequencyGain, minShakeValue, maxShakeValue);
+    }
+
+    public void SpeedBasedCameraEffects(float speed)
+    {
+        float effectIntensity = Mathf.InverseLerp(minCharacterSpeed, maxCharacterSpeed, speed);
+
+        float vignetteIntensity = effectIntensity * maxVignetteIntensity;
+        float lensDistortionIntensity = effectIntensity * maxLensDistortionIntensity;
+        float fovIncrease = effectIntensity * maxFOVIncrease;
+        vignette.intensity.value = vignetteIntensity;
+        lensDistortion.intensity.value = lensDistortionIntensity;
+        cam.Lens.FieldOfView = defaultFOV + fovIncrease;
+
+        float windLinesEmissionRate = Mathf.Lerp(windLinesMinEmissionRate, windLinesMaxEmissionRate, effectIntensity);
+        float windLinesSpeed = Mathf.Lerp(windLinesMinSpeed, windLinesMaxSpeed, effectIntensity);
+
+        var emission = windLinesParticleSystem.emission;
+        emission.rateOverTime = windLinesEmissionRate;
+        var main = windLinesParticleSystem.main;
+        main.startSpeed = windLinesSpeed;
+        var startColor = main.startColor.color;
+        startColor.a = Mathf.Lerp(0, windLinesMaxColorAlpha, effectIntensity);
+        main.startColor = startColor;
     }
 }
