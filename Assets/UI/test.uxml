@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Styles.uss?fileID=7433441132597879392&amp;guid=e6702a426de0a44fda3691e2135d7411&amp;type=3#Styles"/>
+    <ui:VisualElement name="Toast" style="flex-grow: 1;">
+        <ui:Label text="TITLE" name="Title" style="font-size: 28px; -unity-font-style: bold;"/>
+        <ui:Label text="Notification Message" name="Message" emoji-fallback-support="true" style="font-size: 24px; white-space: normal;"/>
+    </ui:VisualElement>
+</ui:UXML>

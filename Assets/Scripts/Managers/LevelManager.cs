@@ -32,7 +32,7 @@ public class LevelManager : NetworkBehaviour
         if (GameManager.Instance == null || !GameManager.Instance.isInitialized) return;
         if (IsHost) {
             GameModeHandler.Instance.currentPhase.OnValueChanged += OnGameModePhaseChange;
-            GameManager.Instance.OnClientConnectedEvent.AddListener(LateJoiningClient);
+            CharacterManager.Instance.OnCharacterAdded.AddListener(OnNewCharacterAdded);
         }
     }
 
@@ -41,7 +41,7 @@ public class LevelManager : NetworkBehaviour
         base.OnNetworkDespawn();
 
         if (GameModeHandler.Instance != null) GameModeHandler.Instance.currentPhase.OnValueChanged -= OnGameModePhaseChange;
-        if (GameManager.Instance != null) GameManager.Instance.OnClientConnectedEvent.RemoveListener(LateJoiningClient);
+        if (CharacterManager.Instance != null) CharacterManager.Instance.OnCharacterAdded.RemoveListener(OnNewCharacterAdded);
     }
 
     public override void OnDestroy()
@@ -50,11 +50,11 @@ public class LevelManager : NetworkBehaviour
         if (Instance == this) Instance = null;
     }
 
-    private void LateJoiningClient(ulong clientId)
+    private void OnNewCharacterAdded(ulong characterId)
     {
         if (!IsHost) return;
 
-        Character character = CharacterManager.Instance.GetCharacterByClientId(clientId);
+        Character character = CharacterManager.Instance.GetCharacterByEntityId(characterId);
         if (character == null) return;
 
         Identification entityIdentification = character.identification;
@@ -66,6 +66,7 @@ public class LevelManager : NetworkBehaviour
 
         character.Teleport(spawnPoint.position, spawnPoint.rotation);
         character.characterInputs.SetHUDActiveRpc(true);
+        character.characterInputs.SetCharacterControlsRpc(true);
     }
 
 

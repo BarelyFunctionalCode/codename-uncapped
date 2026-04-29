@@ -30,9 +30,11 @@ public class Weapon : NetworkBehaviour
     private Projectile currentProjectile;
     protected AudioSource audioSource;
     protected Camera playerCamera;
+    protected Transform characterAimTransform;
 
     protected NetworkObject originalParentNetworkObject;
     private NetworkVariable<NetworkBehaviourReference> characterRef = new();
+    private Character character;
 
     public NetworkVariable<bool> isEquiped = new();
     public NetworkVariable<float> ammoCount = new();
@@ -73,20 +75,9 @@ public class Weapon : NetworkBehaviour
     {
         if (!isInitialized || !isEquiped.Value) return;
 
-        if (IsOwner)
-        {
-            Vector3 newWeaponAimPosition = playerCamera.transform.position + playerCamera.transform.forward * 1000f;
-
-            Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-            RaycastHit hitInfo;
-            if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity, ~ignoreLayers))
-                newWeaponAimPosition = hitInfo.point;
-
-            WeaponLookRpc(newWeaponAimPosition);
-        }
-
         if (IsServer)
         {
+            projectileSpawnPoint.LookAt(character.characterAimPosition);
             if (!canFire)
             {
                 fireRateTimer.Value += Time.deltaTime;
@@ -99,11 +90,6 @@ public class Weapon : NetworkBehaviour
                 }
             }
         }
-    }
-    [Rpc(SendTo.Server)]
-    private void WeaponLookRpc(Vector3 lookPosition)
-    {
-        projectileSpawnPoint.LookAt(lookPosition);
     }
 
     public void Initialize(Character character)
@@ -120,11 +106,12 @@ public class Weapon : NetworkBehaviour
         if (isInitialized) return;
 
         characterRef.TryGet(out Character character);
+        this.character = character;
         originalParentNetworkObject = GetComponentInParent<NetworkObject>();
         transform.parent = character.localCharacterType.weaponMountPoint;
         transform.localPosition = Vector3.zero;
         transform.localRotation = Quaternion.identity;
-        if (IsOwner && character.IsPlayerCharacter.Value)
+        if (IsOwner && character.IsPlayerCharacter)
         {
             if (!IsHost && character.localCharacterType)
             {
@@ -137,6 +124,10 @@ public class Weapon : NetworkBehaviour
             
             playerCamera = Camera.main;
             Player.Instance.playerHUD.AddWeaponUI(this);
+        }
+        else
+        {
+            characterAimTransform = character.localCharacterType.cameraLookAtTarget;
         }
 
         if (isEquiped.Value) EquipRpc(RpcTarget.Me);

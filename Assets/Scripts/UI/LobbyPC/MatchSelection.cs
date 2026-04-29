@@ -25,7 +25,7 @@ public class MatchSelection : NetworkBehaviour
     [SerializeField] private Transform playerListColumn0;
     [SerializeField] private Transform playerListColumn1;
     [SerializeField] private GameObject lobbyPlayerPrefabObj;
-    private List<LobbyPlayer> lobbyPlayers = new();
+    private List<LobbyCharacter> lobbyPlayers = new();
 
     private LevelSO selectedLevel;
     public GameModeSO selectedGameMode;
@@ -41,8 +41,8 @@ public class MatchSelection : NetworkBehaviour
 
         if (IsHost)
         {
-            GameManager.Instance.OnClientConnectedEvent.AddListener(AddPlayer);
-            GameManager.Instance.OnClientDisconnectedEvent.AddListener(RemovePlayer);
+            CharacterManager.Instance.OnCharacterAdded.AddListener(AddCharacter);
+            GameManager.Instance.OnClientDisconnectedEvent.AddListener(RemoveCharacter);
         }
 
         InitializeMenu();
@@ -107,9 +107,9 @@ public class MatchSelection : NetworkBehaviour
         playerListTeamSeparatorObj.SetActive(selectedGameMode.teamBasedType == TeamBasedType.TEAM);
         if (IsHost)
         {
-            foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+            foreach (Character character in CharacterManager.Instance.characters)
             {
-                AddPlayer(client.ClientId);
+                AddCharacter(character.identification.FetchEntityId());
             }
         }
     }
@@ -144,7 +144,7 @@ public class MatchSelection : NetworkBehaviour
         selectedGameModeDescriptionText.text = selectedGameMode.description;
         playerListTeamSeparatorObj.SetActive(selectedGameMode.teamBasedType == TeamBasedType.TEAM);
 
-        foreach (LobbyPlayer lobbyPlayer in lobbyPlayers)
+        foreach (LobbyCharacter lobbyPlayer in lobbyPlayers)
         {
             lobbyPlayer.UpdateTeamButtons(selectedGameMode.teamBasedType == TeamBasedType.TEAM);
         }
@@ -222,14 +222,14 @@ public class MatchSelection : NetworkBehaviour
     }
 
 
-    private void AddPlayer(ulong clientId)
+    private void AddCharacter(ulong characterId)
     {
         if (!IsHost) return;
 
-        LobbyPlayer lobbyPlayerToRemove = lobbyPlayers.Find(lp => lp.GetComponent<LobbyPlayer>().clientId == clientId);
+        LobbyCharacter lobbyPlayerToRemove = lobbyPlayers.Find(lp => lp.GetComponent<LobbyCharacter>().characterId == characterId);
         if (lobbyPlayerToRemove != null) return;
 
-        Character character = CharacterManager.Instance.GetCharacterByClientId(clientId);
+        Character character = CharacterManager.Instance.GetCharacterByEntityId(characterId);
         if (!character.isInitialized) return;
 
         Identification entityIdentification = character.identification;
@@ -237,11 +237,11 @@ public class MatchSelection : NetworkBehaviour
         string playerName = entityIdentification.FetchEntityName();
         int teamId = (selectedGameMode.teamBasedType == TeamBasedType.TEAM) ? (int)entityIdentification.FetchTeamId() : -1;
 
-        AddPlayerRpc(clientId, playerName, teamId);
+        AddCharacterRpc(characterId, playerName, teamId);
     }
 
     [Rpc(SendTo.Everyone)]
-    private void AddPlayerRpc(ulong clientId, string playerName, int teamId)
+    private void AddCharacterRpc(ulong characterId, string playerName, int teamId)
     {
         Transform parentColumn = teamId == 0 ? playerListColumn0 : playerListColumn1;
         if (selectedGameMode.teamBasedType != TeamBasedType.TEAM)
@@ -251,21 +251,21 @@ public class MatchSelection : NetworkBehaviour
         }
 
         GameObject lobbyPlayerObj = Instantiate(lobbyPlayerPrefabObj, parentColumn);
-        LobbyPlayer lobbyPlayer = lobbyPlayerObj.GetComponent<LobbyPlayer>();
-        lobbyPlayer.Initialize(this, clientId, playerName, teamId, IsHost);
+        LobbyCharacter lobbyPlayer = lobbyPlayerObj.GetComponent<LobbyCharacter>();
+        lobbyPlayer.Initialize(this, characterId, playerName, teamId, IsHost);
         lobbyPlayers.Add(lobbyPlayer);
     }
 
-    private void RemovePlayer(ulong clientId)
+    private void RemoveCharacter(ulong characterId)
     {
         if (!NetworkManager.IsListening || !IsHost) return;
-        RemovePlayerRpc(clientId);
+        RemoveCharacterRpc(characterId);
     }
 
     [Rpc(SendTo.Everyone)]
-    private void RemovePlayerRpc(ulong clientId)
+    private void RemoveCharacterRpc(ulong characterId)
     {
-        LobbyPlayer lobbyPlayerToRemove = lobbyPlayers.Find(lp => lp.GetComponent<LobbyPlayer>().clientId == clientId);
+        LobbyCharacter lobbyPlayerToRemove = lobbyPlayers.Find(lp => lp.GetComponent<LobbyCharacter>().characterId == characterId);
         if (lobbyPlayerToRemove != null)
         {
             lobbyPlayers.Remove(lobbyPlayerToRemove);
@@ -273,18 +273,18 @@ public class MatchSelection : NetworkBehaviour
         }
     }
 
-    public void TryChangePlayerTeam(ulong clientId, int newTeam)
+    public void TryChangeCharacterTeam(ulong characterId, int newTeam)
     {
         if (!IsHost) return;
         if (selectedGameMode.teamBasedType != TeamBasedType.TEAM) return;
         if ((newTeam == 0 ? playerListColumn0 : playerListColumn1).childCount >= selectedMaxPlayers / 2) return;
-        ChangePlayerTeamRpc(clientId, newTeam);
+        ChangeCharacterTeamRpc(characterId, newTeam);
     }
 
     [Rpc(SendTo.Everyone)]
-    private void ChangePlayerTeamRpc(ulong clientId, int newTeam)
+    private void ChangeCharacterTeamRpc(ulong characterId, int newTeam)
     {
-        LobbyPlayer lobbyPlayer = lobbyPlayers.Find(lp => lp.GetComponent<LobbyPlayer>().clientId == clientId);
+        LobbyCharacter lobbyPlayer = lobbyPlayers.Find(lp => lp.GetComponent<LobbyCharacter>().characterId == characterId);
         if (lobbyPlayer != null)
         {
             lobbyPlayer.transform.SetParent(newTeam == 0 ? playerListColumn0 : playerListColumn1);

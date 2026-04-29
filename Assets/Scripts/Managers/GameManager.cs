@@ -11,7 +11,6 @@ using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using System.Linq;
 using System;
-using System.Dynamic;
 
 
 public class GameManager : MonoBehaviour
@@ -52,7 +51,6 @@ public class GameManager : MonoBehaviour
     private string desiredLevelName = "";
     private GameModeData desiredGameModeData = null;
 
-    public UnityEvent<ulong> OnClientConnectedEvent = new();
     public UnityEvent<ulong> OnClientDisconnectedEvent = new();
     public UnityEvent<string> OnLevelLoadedEvent = new();
 

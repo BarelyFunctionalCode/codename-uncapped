@@ -14,6 +14,7 @@ public class ThrowableManager : NetworkBehaviour
     private float fireRate = 2;
 
     protected Camera playerCamera;
+    protected Transform characterAimTransform;
     protected NetworkObject originalParentNetworkObject;
     private NetworkVariable<NetworkBehaviourReference> characterRef = new();
 
@@ -59,9 +60,9 @@ public class ThrowableManager : NetworkBehaviour
 
         if (IsOwner)
         {
-            Vector3 newWeaponAimPosition = playerCamera.transform.position + playerCamera.transform.forward * 1000f;
+            Vector3 newWeaponAimPosition = playerCamera ? playerCamera.transform.position + playerCamera.transform.forward * 1000f : characterAimTransform.position + characterAimTransform.forward * 1000f;
 
-            Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+            Ray ray = playerCamera ? playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)) : new Ray(characterAimTransform.position, characterAimTransform.forward);
             RaycastHit hitInfo;
             if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity, ~ignoreLayers))
                 newWeaponAimPosition = hitInfo.point;
@@ -115,10 +116,14 @@ public class ThrowableManager : NetworkBehaviour
         characterRef.TryGet(out Character character);
         originalParentNetworkObject = GetComponentInParent<NetworkObject>();
         transform.parent = character.localCharacterType.throwableMountPoint;
-        if (IsOwner && character.IsPlayerCharacter.Value)
+        if (IsOwner && character.IsPlayerCharacter)
         {
             playerCamera = Camera.main;
             Player.Instance.playerHUD.SetThrowableUI(this);
+        }
+        else
+        {
+            characterAimTransform = character.localCharacterType.cameraLookAtTarget;
         }
 
         isInitialized = true;

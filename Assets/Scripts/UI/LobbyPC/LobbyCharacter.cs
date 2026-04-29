@@ -1,21 +1,21 @@
 using TMPro;
 using UnityEngine;
 
-public class LobbyPlayer : MonoBehaviour
+public class LobbyCharacter : MonoBehaviour
 {
     [SerializeField] private TMP_Text playerNameText;
     [SerializeField] private GameObject leftArrowButtonObj;
     [SerializeField] private GameObject rightArrowButtonObj;
 
     private MatchSelection matchSelection;
-    public ulong clientId;
+    public ulong characterId;
     private int teamIndex = -1;
 
 
     public void Initialize(MatchSelection matchSelection, ulong id, string name, int team, bool isHost = false)
     {
         this.matchSelection = matchSelection;
-        clientId = id;
+        characterId = id;
         playerNameText.text = name;
         teamIndex = team;
     
@@ -50,7 +50,7 @@ public class LobbyPlayer : MonoBehaviour
     public void OnTeamChangeButtonPressed(int team)
     {
         if (team == teamIndex) return;
-        matchSelection.TryChangePlayerTeam(clientId, team);
+        matchSelection.TryChangeCharacterTeam(characterId, team);
     }
 
     public void OnTeamChange(int newTeam)

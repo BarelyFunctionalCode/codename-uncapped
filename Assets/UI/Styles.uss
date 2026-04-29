@@ -1,0 +1,13 @@
+:root {
+    -unity-font-definition: url("project://database/Assets/Fonts/VCR_OSD_MONO%20SDF-internal.asset?fileID=11400000&guid=19aad70f333df446fa14a26603c1ab70&type=2#VCR_OSD_MONO SDF-internal");
+    -unity-material: url("project://database/Assets/Shaders/RetroStaticUI.shadergraph?fileID=-876546973899608171&guid=69700b1ae33124c94ba8dda5b7003190&type=3#RetroStaticUI");
+    -unity-text-generator: standard;
+    --Primary: rgb(93, 211, 158);
+    --Secondary: rgb(211, 95, 147);
+    --Background: rgb(39, 33, 60);
+}
+
+#Toast {
+    background-color: var(--Secondary);
+    color: var(--Primary);
+}

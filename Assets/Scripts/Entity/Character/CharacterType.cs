@@ -15,6 +15,7 @@ public class CharacterType : NetworkBehaviour, IIdentifiable
     public Animator characterAnimator;
     public Transform weaponMountPoint;
     public Transform throwableMountPoint;
+    public Transform gearMountPoint;
     public AudioSource hoverAudioSource;
     public AudioSource windAudioSource;
     public Transform FFIdentifierTargetTransform;
@@ -196,7 +197,7 @@ public class CharacterType : NetworkBehaviour, IIdentifiable
         if (deathEffectPrefab != null)
         {
             deathObj = Instantiate(deathEffectPrefab, transform.position, Quaternion.identity);
-            deathObj.GetComponent<CharacterDeath>().Initialize(character.IsPlayerCharacter.Value && (!NetworkObject.IsSpawned || IsOwner), inheritedVelocity);
+            deathObj.GetComponent<CharacterDeath>().Initialize(character.IsPlayerCharacter && (!NetworkObject.IsSpawned || IsOwner), inheritedVelocity);
         }
     }
 

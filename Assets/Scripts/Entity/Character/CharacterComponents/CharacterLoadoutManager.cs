@@ -231,5 +231,5 @@ public class CharacterLoadoutManager : NetworkBehaviour
     public void ActivateDriveRpc() => equippedDrive.Activate();
 
     [Rpc(SendTo.Server)]
-    public void UseGearRpc() => equippedGear.Use();
+    public void UseGearRpc(bool isButtonDown) => equippedGear.Use(isButtonDown);
 }

@@ -22,8 +22,8 @@ public class PlayerCamera : MonoBehaviour
     private readonly float minCharacterSpeed = 40;
     private readonly float maxCharacterSpeed = 120;
     private readonly float maxVignetteIntensity = 0.5f;
-    private readonly float maxLensDistortionIntensity = -0.5f;
-    private readonly float maxFOVIncrease = 20f;
+    private readonly float maxLensDistortionIntensity = -0.3f;
+    private readonly float maxFOVIncrease = 15f;
     private readonly float windLinesMinSpeed = 10f;
     private readonly float windLinesMaxSpeed = 35f;
     private readonly float windLinesMinEmissionRate = 4f;

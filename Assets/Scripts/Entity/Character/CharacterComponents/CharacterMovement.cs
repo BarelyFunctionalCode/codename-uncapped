@@ -115,7 +115,7 @@ public class CharacterMovement : EntityComponent, IGravityModifiable
         // Set physics material based on skiing state to apply friction
         characterCollider.material = isSkiing ? skiMaterial : normalMaterial;
 
-        if (character.IsPlayerCharacter.Value)
+        if (character.IsPlayerCharacter)
             Player.Instance.thirdPersonCamera.SpeedBasedCameraEffects(characterRb.linearVelocity.magnitude);
 
         // Main movement logic
@@ -159,7 +159,6 @@ public class CharacterMovement : EntityComponent, IGravityModifiable
         lastGroundedTime += Time.deltaTime;
         entity.state.SetIsGrounded(false);
 
-        DistanceToSurface = Mathf.Infinity;
         SurfaceNormal = Vector3.up;
         SurfacePoint = Vector3.zero;
 
@@ -172,18 +171,17 @@ public class CharacterMovement : EntityComponent, IGravityModifiable
                 Vector3.down
             ),
             out hit,
-            DistanceToSurface,
+            Mathf.Infinity,
             groundeDetectionLayerMask
         );
         if (didHit)
         {            
+            SurfacePoint = hit.point;
+            DistanceToSurface = Mathf.Max(Vector3.Distance(SurfacePoint, groundCheckPoint) - characterCollider.bounds.extents.y - 0.2f, 0.0f);
+            
             // Surface too steep
             float slope = Vector3.Dot(hit.normal, Vector3.up);
             if (slope <= 0.1f) return;
-
-            SurfacePoint = hit.point;
-            DistanceToSurface = Mathf.Max(Vector3.Distance(SurfacePoint, groundCheckPoint) - characterCollider.bounds.extents.y - 0.2f, 0.0f);
-
 
             // Breakaway vertical speed check
             if (characterRb.linearVelocity.y > 20.0f) return;

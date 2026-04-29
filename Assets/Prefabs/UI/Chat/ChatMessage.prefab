@@ -68,14 +68,14 @@ MonoBehaviour:
   m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 217af16c3b94046a59146215b4ae2f40, type: 2}
-  m_sharedMaterial: {fileID: -4479449131171202838, guid: 217af16c3b94046a59146215b4ae2f40, type: 2}
+  m_sharedMaterial: {fileID: 2100000, guid: be43eb6a2282147929085783cda6eaca, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
     rgba: 4283185664
-  m_fontColor: {r: 0, g: 0.2264799, b: 0.29799998, a: 1}
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -213,7 +213,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 2100000, guid: a7def0cc389714e82a98d2fc93396251, type: 2}
+  m_Material: {fileID: 2100000, guid: eaaf39a59c78449e2b726a282fac3a76, type: 2}
   m_Color: {r: 0, g: 0.74509805, b: 0.98039216, a: 0.6039216}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -326,7 +326,7 @@ MonoBehaviour:
   m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 217af16c3b94046a59146215b4ae2f40, type: 2}
-  m_sharedMaterial: {fileID: -4479449131171202838, guid: 217af16c3b94046a59146215b4ae2f40, type: 2}
+  m_sharedMaterial: {fileID: 2100000, guid: 06933fa72e6a148f4a1823ed7f4e3996, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

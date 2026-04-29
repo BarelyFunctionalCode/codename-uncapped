@@ -143,14 +143,14 @@ MonoBehaviour:
   m_text: 67%
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 217af16c3b94046a59146215b4ae2f40, type: 2}
-  m_sharedMaterial: {fileID: 2100000, guid: 3c61331386bcbe30f9d64d329c5a517b, type: 2}
+  m_sharedMaterial: {fileID: 2100000, guid: 06933fa72e6a148f4a1823ed7f4e3996, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 3858759935
-  m_fontColor: {r: 1, g: 0, b: 0, a: 0.9019608}
+    rgba: 4278190335
+  m_fontColor: {r: 1, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -280,14 +280,14 @@ MonoBehaviour:
   m_text: Big Chungus
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 217af16c3b94046a59146215b4ae2f40, type: 2}
-  m_sharedMaterial: {fileID: 2100000, guid: 3c61331386bcbe30f9d64d329c5a517b, type: 2}
+  m_sharedMaterial: {fileID: 2100000, guid: 06933fa72e6a148f4a1823ed7f4e3996, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 3858759935
-  m_fontColor: {r: 1, g: 0, b: 0, a: 0.9019608}
+    rgba: 4278190335
+  m_fontColor: {r: 1, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -446,7 +446,6 @@ MonoBehaviour:
   mainIndicator: {fileID: 7151798794826638893}
   offscreenIndicator: {fileID: 9083716242882522365}
   activateSound: {fileID: 8578440253637241035}
-  identifiableObject: {fileID: 0}
 --- !u!82 &8578440253637241035
 AudioSource:
   m_ObjectHideFlags: 0

@@ -1,3 +1,4 @@
+using System.Linq;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
@@ -297,14 +298,22 @@ public class IdentifierUI : MonoBehaviour
 
         // Renderer.isVisible can be used to check if the object is completely off screen, but not reliable to confirm visibility,
         // since it will also be true if only a small part or even the shadow is visible.
-        for (int i = 0; i < objectRenderers.Length; i++)
+        bool hasNullRenderers = false;
+        for (int i = objectRenderers.Length - 1; i >= 0; i--)
         {
+            if (objectRenderers[i] == null)
+            {
+                hasNullRenderers = true;
+                continue;
+            }
+            
             if (objectRenderers[i].isVisible)
             {
                 isVisible = true;
                 break;
             }
         }
+        if (hasNullRenderers) objectRenderers = objectRenderers.Where(r => r != null).ToArray();
         if (!isVisible) return false;
 
         // Perform a raycast to check if there are any obstacles between the camera and the object

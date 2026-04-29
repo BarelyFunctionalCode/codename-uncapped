@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: RetroStatic
+  m_Name: RetroStaticPrimaryUI
   m_Shader: {fileID: -6465566751694194690, guid: 2b18dccedd7934801b47c3c47484b0ee, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -112,6 +112,7 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
+    - _Static_Color: 1
     - _Stencil: 0
     - _StencilComp: 8
     - _StencilOp: 0
@@ -127,7 +128,7 @@ Material:
     - White: {r: 1, g: 1, b: 1, a: 1}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _ClipRect: {r: 0, g: 0, b: 0, a: 0}
-    - _Color: {r: 1.2167859, g: 1.2167859, b: 1.2167859, a: 1}
+    - _Color: {r: 1, g: 0.7951087, b: 0, a: 0.5019608}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
