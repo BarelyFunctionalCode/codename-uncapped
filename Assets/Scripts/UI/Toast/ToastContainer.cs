@@ -29,11 +29,11 @@ public class ToastController
         else titleLabel.style.display = DisplayStyle.Flex;
 
         messageLabel.text = data.content;
-        if (data.color != default)
-        {
-            if (!string.IsNullOrEmpty(data.title)) titleLabel.style.color = data.color;
-            else messageLabel.style.color = data.color;
-        }
+        // if (data.color != default)
+        // {
+        //     if (!string.IsNullOrEmpty(data.title)) titleLabel.style.color = data.color;
+        //     else messageLabel.style.color = data.color;
+        // }
     }
 
     public bool Update()

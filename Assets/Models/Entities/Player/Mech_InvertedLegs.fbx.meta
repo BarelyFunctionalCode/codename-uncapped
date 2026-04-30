@@ -202,7 +202,7 @@ ModelImporter:
     minBoneWeight: 0.001
     optimizeBones: 1
     generateMeshLods: 0
-    meshLodGenerationFlags: 0
+    meshLodGenerationFlags: 1
     maximumMeshLod: -1
     meshOptimizationFlags: -1
     indexFormat: 0

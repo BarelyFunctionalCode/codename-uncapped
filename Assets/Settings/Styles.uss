@@ -3,13 +3,27 @@
     -unity-material: url("project://database/Assets/Shaders/RetroStaticUI.shadergraph?fileID=-876546973899608171&guid=69700b1ae33124c94ba8dda5b7003190&type=3#RetroStaticUI");
     -unity-text-generator: standard;
     --Primary: rgb(93, 211, 158);
-    --Secondary: rgb(211, 95, 147);
+    --Secondary: rgba(211, 95, 147, 0.9);
     --Background: rgb(39, 33, 60);
+    opacity: 1;
 }
 
-#Toast {
+.primary {
+    background-color: var(--Primary);
+}
+
+Label.primary {
+    color: var(--Primary);
+    filter: tint(rgb(51, 51, 51));
+}
+
+.secondary {
     background-color: var(--Secondary);
+}
+
+.secondary > Label {
+    background-color: rgba(255, 255, 255, 0);
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    opacity: 1;
     color: var(--Primary);
 }
-
-
