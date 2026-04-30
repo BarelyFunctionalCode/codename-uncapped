@@ -2,19 +2,27 @@
     -unity-font-definition: url("project://database/Assets/Fonts/VCR_OSD_MONO%20SDF-internal.asset?fileID=11400000&guid=19aad70f333df446fa14a26603c1ab70&type=2#VCR_OSD_MONO SDF-internal");
     -unity-material: url("project://database/Assets/Shaders/RetroStaticUI.shadergraph?fileID=-876546973899608171&guid=69700b1ae33124c94ba8dda5b7003190&type=3#RetroStaticUI");
     -unity-text-generator: standard;
-    --Primary: rgb(93, 211, 158);
-    --Secondary: rgba(211, 95, 147, 0.9);
+    --Primary: rgba(93, 211, 158, 0.9);
+    --Secondary: rgba(211, 95, 147, 0.8);
     --Background: rgb(39, 33, 60);
     opacity: 1;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+    border-bottom-left-radius: 2px;
 }
 
 .primary {
     background-color: var(--Primary);
+    color: var(--Secondary);
 }
 
-Label.primary {
-    color: var(--Primary);
-    filter: tint(rgb(51, 51, 51));
+.primary > Label {
+    color: var(--Secondary);
+}
+
+.primary > Image {
+    -unity-background-image-tint-color: var(--Secondary);
 }
 
 .secondary {
@@ -26,4 +34,8 @@ Label.primary {
     -unity-background-image-tint-color: rgb(255, 255, 255);
     opacity: 1;
     color: var(--Primary);
+}
+
+.background {
+    background-color: var(--Background);
 }

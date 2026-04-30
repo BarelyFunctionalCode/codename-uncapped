@@ -21,7 +21,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: VCR_OSD_MONO SDF - Static-Secondary
-  m_Shader: {fileID: -6465566751694194690, guid: 69700b1ae33124c94ba8dda5b7003190, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 2b18dccedd7934801b47c3c47484b0ee, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
