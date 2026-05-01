@@ -10,6 +10,7 @@
     border-top-right-radius: 2px;
     border-bottom-right-radius: 2px;
     border-bottom-left-radius: 2px;
+    --Red: rgb(229, 61, 61);
 }
 
 .primary {
@@ -38,4 +39,77 @@
 
 .background {
     background-color: var(--Background);
+}
+
+.dangerButton {
+    background-color: var(--Red);
+    color: rgb(255, 255, 255);
+    transition-duration: 0.3s;
+}
+
+.dangerButton:hover {
+    background-color: var(--Red);
+    color: rgb(255, 255, 255);
+    scale: 1.05 1.05 1.05;
+    filter: grayscale(0.8);
+    transition-duration: 0.3s;
+}
+
+.expandableList {
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    background-color: rgba(0, 0, 0, 0);
+    transition-duration: 1s;
+    overflow: hidden;
+    position: relative;
+    height: 60px;
+    max-height: none;
+    transition-property: height;
+}
+
+.expandableList:focus {
+    overflow: hidden;
+    transition-duration: 1s;
+    height: 500px;
+    transition-property: height;
+}
+
+.expandableList > #Options {
+    opacity: 0.2;
+    transition-property: opacity;
+    transition-duration: 0.5s;
+}
+
+.expandableList:focus > #Options {
+    opacity: 1;
+    transition-property: opacity;
+    transition-duration: 0.5s;
+}
+
+.expandableList > #ListName > #Arrow {
+    height: 32px;
+    width: 32px;
+    aspect-ratio: 1;
+    background-image: url("project://database/Assets/Images/HUD/TriangleIcon.png?fileID=2800000&guid=8f9c29442f01da7da8cc4ce9c2155acc&type=3#TriangleIcon");
+    background-color: rgba(255, 255, 255, 0);
+    rotate: 90deg;
+    transition-property: rotate;
+    transition-duration: 1s;
+}
+
+.expandableList:focus > #ListName > #Arrow {
+    height: 32px;
+    width: 32px;
+    aspect-ratio: 1;
+    background-image: url("project://database/Assets/Images/HUD/TriangleIcon.png?fileID=2800000&guid=8f9c29442f01da7da8cc4ce9c2155acc&type=3#TriangleIcon");
+    background-color: rgba(255, 255, 255, 0);
+    rotate: 180deg;
+    transition-property: rotate;
+    transition-duration: 1s;
 }

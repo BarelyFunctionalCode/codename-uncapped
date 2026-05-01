@@ -1,15 +1,15 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <ui:Template name="ExpandableListItem" src="project://database/Assets/Scripts/UI/LoadoutMenu/ExpandableListItem.uxml?fileID=9197481963319205126&amp;guid=6ed6bc8c335f941e2a0dae4a7b02c932&amp;type=3#ExpandableListItem"/>
     <Style src="project://database/Assets/Settings/Styles.uss?fileID=7433441132597879392&amp;guid=e6702a426de0a44fda3691e2135d7411&amp;type=3#Styles"/>
-    <ui:VisualElement style="flex-grow: 0; overflow: hidden; height: 200px; border-top-left-radius: 8px; border-top-right-radius: 8px; border-bottom-right-radius: 8px; border-bottom-left-radius: 8px;">
-        <ui:Button name="Button" class="primary" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; flex-direction: row; justify-content: space-between; flex-grow: 0; align-items: center; height: 60px; align-self: flex-start; width: 100%;">
+    <ui:Button text="" name="List" class="expandableList" style="margin-bottom: 10px; border-top-left-radius: 8px; border-top-right-radius: 8px; border-bottom-right-radius: 8px; border-bottom-left-radius: 8px;">
+        <ui:VisualElement name="ListName" class="primary" style="flex-grow: 0; width: 100%; height: 60px; flex-direction: row; align-self: flex-start; align-items: center; justify-content: space-between; flex-shrink: 0; padding-top: 10px; padding-right: 12px; padding-bottom: 10px; padding-left: 12px; overflow: visible;">
             <ui:Label text="Weapon" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; font-size: 28px; -unity-font-style: normal;"/>
-            <ui:Image source="" style="height: 32px; width: 32px; aspect-ratio: 1; background-image: url(&quot;project://database/Assets/Images/HUD/TriangleIcon.png?fileID=2800000&amp;guid=8f9c29442f01da7da8cc4ce9c2155acc&amp;type=3#TriangleIcon&quot;); background-color: rgba(255, 255, 255, 0); rotate: 90deg;"/>
-        </ui:Button>
-        <ui:VisualElement name="VisualElement" class="background" style="flex-grow: 1; padding-top: 10px; margin-bottom: 0; padding-bottom: 10px; position: absolute; left: 0; right: 0; top: 60px; padding-left: 10px; padding-right: 10px;">
+            <ui:Image source="" name="Arrow"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="Options" class="background" style="flex-grow: 1; padding-top: 10px; margin-bottom: 0; padding-bottom: 10px; position: relative; left: 0; right: 0; top: 0; padding-left: 10px; padding-right: 10px; overflow: visible; flex-shrink: 0;">
             <ui:Instance template="ExpandableListItem" name="TemplateContainer"/>
             <ui:Instance template="ExpandableListItem"/>
             <ui:Instance template="ExpandableListItem"/>
         </ui:VisualElement>
-    </ui:VisualElement>
+    </ui:Button>
 </ui:UXML>
