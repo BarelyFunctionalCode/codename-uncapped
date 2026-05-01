@@ -3,7 +3,7 @@
     -unity-material: url("project://database/Assets/Shaders/RetroStaticUI.shadergraph?fileID=-876546973899608171&guid=69700b1ae33124c94ba8dda5b7003190&type=3#RetroStaticUI");
     -unity-text-generator: standard;
     --Primary: rgba(93, 211, 158, 0.9);
-    --Secondary: rgba(211, 95, 147, 0.8);
+    --Secondary: rgba(211, 95, 147, 0.7);
     --Background: rgb(39, 33, 60);
     opacity: 1;
     border-top-left-radius: 2px;
@@ -15,7 +15,7 @@
 
 .primary {
     background-color: var(--Primary);
-    color: var(--Secondary);
+    color: var(--Primary);
 }
 
 .primary > Label {
@@ -28,6 +28,7 @@
 
 .secondary {
     background-color: var(--Secondary);
+    color: var(--Secondary);
 }
 
 .secondary > Label {
@@ -56,37 +57,24 @@
 }
 
 .expandableList {
-    margin-top: 0;
-    margin-right: 0;
-    margin-bottom: 0;
-    margin-left: 0;
-    padding-top: 0;
-    padding-right: 0;
-    padding-bottom: 0;
-    padding-left: 0;
     background-color: rgba(0, 0, 0, 0);
     transition-duration: 1s;
-    overflow: hidden;
-    position: relative;
-    height: 60px;
-    max-height: none;
-    transition-property: height;
+    transition-property: flex-grow;
 }
 
 .expandableList:focus {
-    overflow: hidden;
     transition-duration: 1s;
-    height: 500px;
-    transition-property: height;
+    transition-property: flex-grow;
+    flex-grow: 1;
 }
 
-.expandableList > #Options {
+.expandableList > #Options > * {
     opacity: 0.2;
     transition-property: opacity;
     transition-duration: 0.5s;
 }
 
-.expandableList:focus > #Options {
+.expandableList:focus > #Options > * {
     opacity: 1;
     transition-property: opacity;
     transition-duration: 0.5s;
