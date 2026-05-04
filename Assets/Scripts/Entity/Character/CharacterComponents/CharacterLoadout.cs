@@ -129,6 +129,16 @@ public class CharacterLoadout : INetworkSerializable, IEquatable<CharacterLoadou
         }
     }
 
+    public static Dictionary<LoadoutItemType, List<LoadoutItemSO>> LoadoutItemsByType => new()
+    {
+        { LoadoutItemType.ArmorClass, ArmorClassLoadoutItems },
+        { LoadoutItemType.Weapon, WeaponLoadoutItems },
+        { LoadoutItemType.HeavyWeapon, HeavyWeaponLoadoutItems },
+        { LoadoutItemType.Throwable, ThrowableLoadoutItems },
+        { LoadoutItemType.Gear, GearLoadoutItems },
+        { LoadoutItemType.Drive, DriveLoadoutItems }
+    };
+
     public static LoadoutItemSO GetLoadoutItemSOFromPrefab(GameObject prefab)
     {
         string prefabName = prefab.name.Replace("(Clone)", "").Trim();

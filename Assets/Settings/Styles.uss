@@ -3,39 +3,43 @@
     -unity-material: url("project://database/Assets/Shaders/RetroStaticUI.shadergraph?fileID=-876546973899608171&guid=69700b1ae33124c94ba8dda5b7003190&type=3#RetroStaticUI");
     -unity-text-generator: standard;
     --Primary: rgba(93, 211, 158, 0.9);
-    --Secondary: rgba(211, 95, 147, 0.7);
-    --Background: rgb(39, 33, 60);
+    --Primary-Text: rgb(93, 211, 158);
+    --Secondary: rgba(211, 95, 147, 0.74);
     opacity: 1;
     border-top-left-radius: 2px;
     border-top-right-radius: 2px;
     border-bottom-right-radius: 2px;
     border-bottom-left-radius: 2px;
+    --Secondary-Text: rgb(211, 95, 147);
+    --Background: rgb(39, 33, 60);
     --Red: rgb(229, 61, 61);
 }
 
 .primary {
     background-color: var(--Primary);
-    color: var(--Primary);
+    color: var(--Primary-Text);
 }
 
 .primary > Label {
-    color: var(--Secondary);
+    color: var(--Secondary-Text);
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.2);
 }
 
 .primary > Image {
-    -unity-background-image-tint-color: var(--Secondary);
+    -unity-background-image-tint-color: var(--Secondary-Text);
 }
 
 .secondary {
     background-color: var(--Secondary);
-    color: var(--Secondary);
+    color: var(--Secondary-Text);
 }
 
 .secondary > Label {
     background-color: rgba(255, 255, 255, 0);
     -unity-background-image-tint-color: rgb(255, 255, 255);
     opacity: 1;
-    color: var(--Primary);
+    color: var(--Primary-Text);
 }
 
 .background {
@@ -54,50 +58,4 @@
     scale: 1.05 1.05 1.05;
     filter: grayscale(0.8);
     transition-duration: 0.3s;
-}
-
-.expandableList {
-    background-color: rgba(0, 0, 0, 0);
-    transition-duration: 1s;
-    transition-property: flex-grow;
-}
-
-.expandableList:focus {
-    transition-duration: 1s;
-    transition-property: flex-grow;
-    flex-grow: 1;
-}
-
-.expandableList > #Options > * {
-    opacity: 0.2;
-    transition-property: opacity;
-    transition-duration: 0.5s;
-}
-
-.expandableList:focus > #Options > * {
-    opacity: 1;
-    transition-property: opacity;
-    transition-duration: 0.5s;
-}
-
-.expandableList > #ListName > #Arrow {
-    height: 32px;
-    width: 32px;
-    aspect-ratio: 1;
-    background-image: url("project://database/Assets/Images/HUD/TriangleIcon.png?fileID=2800000&guid=8f9c29442f01da7da8cc4ce9c2155acc&type=3#TriangleIcon");
-    background-color: rgba(255, 255, 255, 0);
-    rotate: 90deg;
-    transition-property: rotate;
-    transition-duration: 1s;
-}
-
-.expandableList:focus > #ListName > #Arrow {
-    height: 32px;
-    width: 32px;
-    aspect-ratio: 1;
-    background-image: url("project://database/Assets/Images/HUD/TriangleIcon.png?fileID=2800000&guid=8f9c29442f01da7da8cc4ce9c2155acc&type=3#TriangleIcon");
-    background-color: rgba(255, 255, 255, 0);
-    rotate: 180deg;
-    transition-property: rotate;
-    transition-duration: 1s;
 }

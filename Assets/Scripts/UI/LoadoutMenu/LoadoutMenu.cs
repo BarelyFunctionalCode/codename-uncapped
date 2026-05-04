@@ -5,13 +5,13 @@ public class LoadoutMenu : MonoBehaviour
 {
     [SerializeField] private GameObject showcasePrefabObj;
     private Showcase showcaseInstance;
-    [SerializeField] private ExpandableList armorClassesList;
-    [SerializeField] private ExpandableList weapons1List;
-    [SerializeField] private ExpandableList weapons2List;
-    [SerializeField] private ExpandableList heavyWeaponsList;
-    [SerializeField] private ExpandableList throwablesList;
-    [SerializeField] private ExpandableList gearList;
-    [SerializeField] private ExpandableList drivesList;
+    // [SerializeField] private ExpandableListOld armorClassesList;
+    // [SerializeField] private ExpandableListOld weapons1List;
+    // [SerializeField] private ExpandableListOld weapons2List;
+    // [SerializeField] private ExpandableListOld heavyWeaponsList;
+    // [SerializeField] private ExpandableListOld throwablesList;
+    // [SerializeField] private ExpandableListOld gearList;
+    // [SerializeField] private ExpandableListOld drivesList;
 
     [SerializeField] private TMP_Text itemDetailsPanelTitle;
     [SerializeField] private TMP_Text itemDetailsPanelDescription;
@@ -28,7 +28,7 @@ public class LoadoutMenu : MonoBehaviour
     {
         gameObject.SetActive(false);
         BuildLoadoutLists();
-        armorClassesList.ToggleList();
+        // armorClassesList.ToggleList();
     }
 
     public void Initialize(CharacterLoadoutManager playerLoadoutManager, HUD hud)
@@ -76,62 +76,62 @@ public class LoadoutMenu : MonoBehaviour
 
     private void BuildLoadoutLists()
     {
-        if (armorClassesList.itemCount == 0)
-        {
-            foreach (LoadoutItemSO item in CharacterLoadout.ArmorClassLoadoutItems)
-            {
-                armorClassesList.AddListItem(item.itemName, item.isAvailable, item).AddListener((itemSO) => OnLoadoutItemSelected(itemSO, "ArmorClasses"));
-            }
-        }
+        // if (armorClassesList.itemCount == 0)
+        // {
+        //     foreach (LoadoutItemSO item in CharacterLoadout.ArmorClassLoadoutItems)
+        //     {
+        //         armorClassesList.AddListItem(item.itemName, item.isAvailable, item).AddListener((itemSO) => OnLoadoutItemSelected(itemSO, "ArmorClasses"));
+        //     }
+        // }
 
-        weapons1List.ClearList();
-        weapons2List.ClearList();
-        heavyWeaponsList.ClearList();
-        throwablesList.ClearList();
-        gearList.ClearList();
-        drivesList.ClearList();
+        // weapons1List.ClearList();
+        // weapons2List.ClearList();
+        // heavyWeaponsList.ClearList();
+        // throwablesList.ClearList();
+        // gearList.ClearList();
+        // drivesList.ClearList();
 
-        foreach (LoadoutItemSO item in CharacterLoadout.WeaponLoadoutItems)
-        {
-            if (item.applicableArmorClasses.Contains(selectedArmorClass) || item.applicableArmorClasses.Contains(LoadoutArmorClass.Any))
-            {
-                weapons1List.AddListItem(item.itemName, item.isAvailable, item).AddListener((itemSO) => OnLoadoutItemSelected(itemSO, "Weapons1"));
-                weapons2List.AddListItem(item.itemName, item.isAvailable, item).AddListener((itemSO) => OnLoadoutItemSelected(itemSO, "Weapons2"));
-            }
-        }
+        // foreach (LoadoutItemSO item in CharacterLoadout.WeaponLoadoutItems)
+        // {
+        //     if (item.applicableArmorClasses.Contains(selectedArmorClass) || item.applicableArmorClasses.Contains(LoadoutArmorClass.Any))
+        //     {
+        //         weapons1List.AddListItem(item.itemName, item.isAvailable, item).AddListener((itemSO) => OnLoadoutItemSelected(itemSO, "Weapons1"));
+        //         weapons2List.AddListItem(item.itemName, item.isAvailable, item).AddListener((itemSO) => OnLoadoutItemSelected(itemSO, "Weapons2"));
+        //     }
+        // }
 
-        heavyWeaponsList.gameObject.SetActive(selectedArmorClass == LoadoutArmorClass.Heavy);
-        if (selectedArmorClass == LoadoutArmorClass.Heavy)
-        {
-            foreach (LoadoutItemSO item in CharacterLoadout.HeavyWeaponLoadoutItems)
-            {
-                heavyWeaponsList.AddListItem(item.itemName, item.isAvailable, item).AddListener((itemSO) => OnLoadoutItemSelected(itemSO, "HeavyWeapons"));
-            }
-        }
+        // heavyWeaponsList.gameObject.SetActive(selectedArmorClass == LoadoutArmorClass.Heavy);
+        // if (selectedArmorClass == LoadoutArmorClass.Heavy)
+        // {
+        //     foreach (LoadoutItemSO item in CharacterLoadout.HeavyWeaponLoadoutItems)
+        //     {
+        //         heavyWeaponsList.AddListItem(item.itemName, item.isAvailable, item).AddListener((itemSO) => OnLoadoutItemSelected(itemSO, "HeavyWeapons"));
+        //     }
+        // }
 
-        foreach (LoadoutItemSO item in CharacterLoadout.ThrowableLoadoutItems)
-        {
-            if (item.applicableArmorClasses.Contains(selectedArmorClass) || item.applicableArmorClasses.Contains(LoadoutArmorClass.Any))
-            {
-                throwablesList.AddListItem(item.itemName, item.isAvailable, item).AddListener((itemSO) => OnLoadoutItemSelected(itemSO, "Throwables"));
-            }
-        }
+        // foreach (LoadoutItemSO item in CharacterLoadout.ThrowableLoadoutItems)
+        // {
+        //     if (item.applicableArmorClasses.Contains(selectedArmorClass) || item.applicableArmorClasses.Contains(LoadoutArmorClass.Any))
+        //     {
+        //         throwablesList.AddListItem(item.itemName, item.isAvailable, item).AddListener((itemSO) => OnLoadoutItemSelected(itemSO, "Throwables"));
+        //     }
+        // }
 
-        foreach (LoadoutItemSO item in CharacterLoadout.GearLoadoutItems)
-        {
-            if (item.applicableArmorClasses.Contains(selectedArmorClass) || item.applicableArmorClasses.Contains(LoadoutArmorClass.Any))
-            {
-                gearList.AddListItem(item.itemName, item.isAvailable, item).AddListener((itemSO) => OnLoadoutItemSelected(itemSO, "Gear"));
-            }
-        }
+        // foreach (LoadoutItemSO item in CharacterLoadout.GearLoadoutItems)
+        // {
+        //     if (item.applicableArmorClasses.Contains(selectedArmorClass) || item.applicableArmorClasses.Contains(LoadoutArmorClass.Any))
+        //     {
+        //         gearList.AddListItem(item.itemName, item.isAvailable, item).AddListener((itemSO) => OnLoadoutItemSelected(itemSO, "Gear"));
+        //     }
+        // }
 
-        foreach (LoadoutItemSO item in CharacterLoadout.DriveLoadoutItems)
-        {
-            if (item.applicableArmorClasses.Contains(selectedArmorClass) || item.applicableArmorClasses.Contains(LoadoutArmorClass.Any))
-            {
-                drivesList.AddListItem(item.itemName, item.isAvailable, item).AddListener((itemSO) => OnLoadoutItemSelected(itemSO, "Drives"));
-            }
-        }
+        // foreach (LoadoutItemSO item in CharacterLoadout.DriveLoadoutItems)
+        // {
+        //     if (item.applicableArmorClasses.Contains(selectedArmorClass) || item.applicableArmorClasses.Contains(LoadoutArmorClass.Any))
+        //     {
+        //         drivesList.AddListItem(item.itemName, item.isAvailable, item).AddListener((itemSO) => OnLoadoutItemSelected(itemSO, "Drives"));
+        //     }
+        // }
     }   
 
     private void OnLoadoutItemSelected(ScriptableObject itemSO, string listName)
