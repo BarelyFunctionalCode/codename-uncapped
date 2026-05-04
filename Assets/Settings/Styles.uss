@@ -1,23 +1,56 @@
 :root {
-    -unity-font-definition: url("project://database/Assets/Fonts/VCR_OSD_MONO%20SDF-internal.asset?fileID=11400000&guid=19aad70f333df446fa14a26603c1ab70&type=2#VCR_OSD_MONO SDF-internal");
+    -unity-font-definition: url("project://database/Assets/Fonts/welbutrin/Welbut__%20Bitmap.asset?fileID=11400000&guid=7a29126173bc1b4fba9bdcf432284dfb&type=2#Welbut__ Bitmap");
     -unity-material: url("project://database/Assets/Shaders/RetroStaticUI.shadergraph?fileID=-876546973899608171&guid=69700b1ae33124c94ba8dda5b7003190&type=3#RetroStaticUI");
     -unity-text-generator: standard;
-    --Primary: rgba(93, 211, 158, 0.9);
-    --Primary-Text: rgb(93, 211, 158);
-    --Secondary: rgba(211, 95, 147, 0.74);
+    --Primary: rgba(0, 207, 131, 0.7);
+    --Primary-Text: rgba(0, 207, 132, 0.95);
+    --Secondary: rgba(138, 0, 62, 0.7);
     opacity: 1;
     border-top-left-radius: 2px;
     border-top-right-radius: 2px;
     border-bottom-right-radius: 2px;
     border-bottom-left-radius: 2px;
-    --Secondary-Text: rgb(211, 95, 147);
-    --Background: rgb(39, 33, 60);
-    --Red: rgb(229, 61, 61);
+    --Secondary-Text: rgba(137, 0, 61, 0.95);
+    --Background: rgba(39, 33, 60, 0.5);
+    --Red: rgb(229, 61, 83);
+}
+
+Button {
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    transition-duration: 0.3s;
+}
+
+Button:hover {
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    transition-duration: 0.3s;
+    filter: grayscale(0.6);
+    translate: 0 5px;
+    scale: 1 0.95;
 }
 
 .primary {
     background-color: var(--Primary);
     color: var(--Primary-Text);
+    -unity-font-style: bold;
+}
+
+Button.primary {
+    background-color: var(--Primary);
+    color: var(--Secondary-Text);
 }
 
 .primary > Label {
@@ -33,6 +66,12 @@
 .secondary {
     background-color: var(--Secondary);
     color: var(--Secondary-Text);
+    -unity-font-style: bold;
+}
+
+Button.secondary {
+    background-color: var(--Secondary);
+    color: var(--Primary-Text);
 }
 
 .secondary > Label {
@@ -55,7 +94,5 @@
 .dangerButton:hover {
     background-color: var(--Red);
     color: rgb(255, 255, 255);
-    scale: 1.05 1.05 1.05;
-    filter: grayscale(0.8);
     transition-duration: 0.3s;
 }

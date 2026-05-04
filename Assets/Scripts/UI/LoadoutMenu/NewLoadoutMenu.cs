@@ -3,23 +3,26 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+[RequireComponent(typeof(UIDocument))]
 public class NewLoadoutMenu : MonoBehaviour
 {
-    [SerializeField] private VisualTreeAsset expandableListTemplate;
+    // Used to display a 3D preview of the currently selected item.
     [SerializeField] private GameObject showcasePrefabObj;
     private Showcase showcaseInstance;
 
+    // References to UI elements.
     private UIDocument loadoutUIDocument;
+    private VisualElement OptionsListsContainer => loadoutUIDocument.rootVisualElement.Q("OptionsLists");
     private Label SelectedItemNameLabel =>loadoutUIDocument.rootVisualElement.Query("ItemInfo").Children<Label>("ItemName").First();
     private Label SelectedItemDescriptionLabel =>loadoutUIDocument.rootVisualElement.Query("ItemInfo").Children<Label>("ItemDescription").First();
 
+    // Data used to populate the loadout option lists.
     private struct LoadoutListData
     {
         public LoadoutItemType itemType;
         public string listName;
         public Func<List<LoadoutItemSO>> items;
     }
-
     private readonly List<LoadoutListData> loadoutListsData = new()
     {
         new LoadoutListData { itemType = LoadoutItemType.Weapon, listName = "PRIMARY WEAPON", items = () => CharacterLoadout.WeaponLoadoutItems },
@@ -29,6 +32,7 @@ public class NewLoadoutMenu : MonoBehaviour
         new LoadoutListData { itemType = LoadoutItemType.Drive, listName = "DRIVE", items = () => CharacterLoadout.DriveLoadoutItems }
     };
 
+    // References to the player using the loadout menu.
     private CharacterLoadoutManager playerLoadoutManager;
     private CharacterLoadout tempLoadout;
 
@@ -37,22 +41,22 @@ public class NewLoadoutMenu : MonoBehaviour
     {
         loadoutUIDocument = GetComponent<UIDocument>();
     }
+    
     void Start()
     {
+        // Initialize menu and showcase instance.
         BuildLoadoutLists();
         if (showcaseInstance == null) showcaseInstance = Instantiate(showcasePrefabObj).GetComponent<Showcase>();
         else showcaseInstance.Clear();
     }
 
+    // Iterate through the lists of loadout items, spawning a list for each category, and populating each list with the category's respective items.
     private void BuildLoadoutLists()
     {
         for (int i = 0; i < loadoutListsData.Count; i++)
         {
-            var templateContainer = expandableListTemplate.Instantiate();
-            loadoutUIDocument.rootVisualElement.Q("OptionsLists").Add(templateContainer);
-            
-            var newExpandableList = templateContainer.Q<ExpandableList>();
-            newExpandableList.Init(loadoutListsData[i].listName, OnListItemSelected);
+            ExpandableList newExpandableList = (ExpandableList)UIManager.Spawn("UI/ExpandableList/ExpandableList", OptionsListsContainer);
+            newExpandableList.Initialize(loadoutListsData[i].listName, OnListItemSelected);
 
             foreach (LoadoutItemSO item in loadoutListsData[i].items())
             {
@@ -61,6 +65,7 @@ public class NewLoadoutMenu : MonoBehaviour
         }
     }
 
+    // Update player's loadout based on the selected item, and update the showcase preview and item description accordingly.
     private void OnListItemSelected(string listName, string itemValue)
     {
         LoadoutItemType itemType = loadoutListsData.Find(data => data.listName == listName).itemType;

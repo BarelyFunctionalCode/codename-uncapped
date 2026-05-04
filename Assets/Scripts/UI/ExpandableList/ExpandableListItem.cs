@@ -1,33 +1,19 @@
-using TMPro;
-using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.UI;
+using System;
+using UnityEngine.UIElements;
 
-public class ExpandableListItem : MonoBehaviour
+
+// A single item in an ExpandableList, consisting of a label and an optional disabled overlay.
+[UxmlElement]
+public partial class ExpandableListItem : CustomUIElementBase
 {
-    [SerializeField] private TMP_Text itemNameText;
-    [SerializeField] private Button itemButton;
-    [SerializeField] private GameObject disabledOverlayObj;
+    private Label ItemNameLabel => this.Q<Label>("ItemName");
+    private VisualElement DisabledOverlay => this.Q<VisualElement>("DisabledOverlay");
 
-    private UnityEvent<ScriptableObject> onListItemSelected = new();
-    private ScriptableObject associatedItemSO;
 
-    private void OnDestroy()
+    public void Initialize(Action<string> onItemSelected, string itemName, string itemValue, bool isEnabled = true)
     {
-        onListItemSelected.RemoveAllListeners();
-    }
-
-    public UnityEvent<ScriptableObject> Initialize(string itemName, bool isEnabled = true, ScriptableObject itemSO = null)
-    {
-        itemNameText.text = itemName;
-        associatedItemSO = itemSO;
-        itemButton.interactable = isEnabled;
-        disabledOverlayObj.SetActive(!isEnabled);
-        return onListItemSelected;
-    }
-
-    public void OnButtonClicked()
-    {
-        onListItemSelected?.Invoke(associatedItemSO);
+        ItemNameLabel.text = itemName;
+        SetEnabled(isEnabled);
+        RegisterCallback<ClickEvent>(_ => onItemSelected?.Invoke(itemValue));
     }
 }
