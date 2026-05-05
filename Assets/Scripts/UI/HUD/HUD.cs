@@ -49,7 +49,7 @@ public class HUD : MonoBehaviour
     [SerializeField] private ChatWindow chatWindow;
     [SerializeField] public LoadoutMenu loadoutMenu;
     [SerializeField] private PauseMenu pauseMenu;
-    [SerializeField] private Leaderboard leaderboard;
+    [SerializeField] private LeaderboardOld leaderboard;
     [SerializeField] private ToastContainerController killFeed;
     int cursorLockCounter = 0;
 
