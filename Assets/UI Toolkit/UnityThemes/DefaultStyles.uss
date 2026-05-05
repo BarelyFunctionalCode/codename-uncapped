@@ -1,42 +1,56 @@
+UIDocumentRootElement {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
 :root {
     -unity-font-definition: url("project://database/Assets/Fonts/welbutrin/Welbut__%20Bitmap.asset?fileID=11400000&guid=7a29126173bc1b4fba9bdcf432284dfb&type=2#Welbut__ Bitmap");
     -unity-material: url("project://database/Assets/Shaders/RetroStaticUI.shadergraph?fileID=-876546973899608171&guid=69700b1ae33124c94ba8dda5b7003190&type=3#RetroStaticUI");
-    -unity-text-generator: standard;
     --Primary: rgba(0, 207, 131, 0.7);
     --Primary-Text: rgba(0, 207, 132, 0.95);
     --Secondary: rgba(138, 0, 62, 0.7);
-    opacity: 1;
-    border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
-    border-bottom-right-radius: 2px;
-    border-bottom-left-radius: 2px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
     --Secondary-Text: rgba(137, 0, 61, 0.95);
     --Background: rgba(39, 33, 60, 0.5);
     --Red: rgb(229, 61, 83);
+    flex-shrink: 0;
+    flex-grow: 1;
+    white-space: nowrap;
+    -unity-text-align: middle-left;
+    -unity-font-style: normal;
+}
+
+:disabled {
+    filter: grayscale(1) blur(1);
 }
 
 Button {
-    border-top-width: 0;
-    border-right-width: 0;
-    border-bottom-width: 0;
-    border-left-width: 0;
+    transition-duration: 0.3s;
+    -unity-text-auto-size: best-fit 10px 100px;
+    -unity-text-generator: advanced;
+    -unity-text-align: middle-center;
+    padding-top: 1%;
+    padding-right: 1%;
+    padding-bottom: 1%;
+    padding-left: 1%;
+    aspect-ratio: 4;
+    margin-top: 10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    margin-left: 10px;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
     border-bottom-right-radius: 8px;
     border-bottom-left-radius: 8px;
-    transition-duration: 0.3s;
 }
 
 Button:hover {
-    border-top-width: 0;
-    border-right-width: 0;
-    border-bottom-width: 0;
-    border-left-width: 0;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
-    border-bottom-right-radius: 8px;
-    border-bottom-left-radius: 8px;
-    transition-duration: 0.3s;
     filter: grayscale(0.6);
     translate: 0 5px;
     scale: 1 0.95;
@@ -45,7 +59,6 @@ Button:hover {
 .primary {
     background-color: var(--Primary);
     color: var(--Primary-Text);
-    -unity-font-style: bold;
 }
 
 Button.primary {
@@ -53,10 +66,15 @@ Button.primary {
     color: var(--Secondary-Text);
 }
 
+Label.primary {
+    background-color: rgba(0, 0, 0, 0);
+}
+
 .primary > Label {
     color: var(--Secondary-Text);
     -unity-text-outline-width: 1px;
     -unity-text-outline-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(0, 0, 0, 0);
 }
 
 .primary > Image {
@@ -66,7 +84,6 @@ Button.primary {
 .secondary {
     background-color: var(--Secondary);
     color: var(--Secondary-Text);
-    -unity-font-style: bold;
 }
 
 Button.secondary {
@@ -74,10 +91,12 @@ Button.secondary {
     color: var(--Primary-Text);
 }
 
+Label.secondary {
+    background-color: rgba(0, 0, 0, 0);
+}
+
 .secondary > Label {
-    background-color: rgba(255, 255, 255, 0);
-    -unity-background-image-tint-color: rgb(255, 255, 255);
-    opacity: 1;
+    background-color: rgba(0, 0, 0, 0);
     color: var(--Primary-Text);
 }
 
@@ -85,14 +104,31 @@ Button.secondary {
     background-color: var(--Background);
 }
 
+Label.title {
+    -unity-font-style: bold;
+    align-self: flex-start;
+}
+
+Label.description {
+    -unity-text-align: upper-left;
+    white-space: normal;
+    text-overflow: ellipsis;
+    flex-grow: 1;
+    overflow: hidden;
+    align-self: flex-start;
+}
+
 .dangerButton {
     background-color: var(--Red);
     color: rgb(255, 255, 255);
-    transition-duration: 0.3s;
 }
 
 .dangerButton:hover {
-    background-color: var(--Red);
-    color: rgb(255, 255, 255);
-    transition-duration: 0.3s;
+}
+
+.verticalBorder {
+    width: 10px;
+    margin-right: 20px;
+    margin-left: 20px;
+    flex-shrink: 0;
 }

@@ -26,6 +26,9 @@ public static class UIManager
     {
         var elementInstance = uiAsset.Instantiate();
         var elementToAdd = elementInstance.Children().FirstOrDefault();
+        var stylesheets = uiAsset.stylesheets;
+        foreach (var stylesheet in stylesheets)
+            elementToAdd.styleSheets.Add(stylesheet);
         parent.Add(elementToAdd);
 
         CustomUIElementBase customElement = elementToAdd.Q<CustomUIElementBase>();

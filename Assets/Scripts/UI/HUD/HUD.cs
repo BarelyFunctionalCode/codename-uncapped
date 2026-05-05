@@ -50,7 +50,7 @@ public class HUD : MonoBehaviour
     [SerializeField] public LoadoutMenu loadoutMenu;
     [SerializeField] private PauseMenu pauseMenu;
     [SerializeField] private Leaderboard leaderboard;
-    [SerializeField] private ToastContainer killFeed;
+    [SerializeField] private ToastContainerController killFeed;
     int cursorLockCounter = 0;
 
     private float dynamicReticleMaxMoveRange = 50f;

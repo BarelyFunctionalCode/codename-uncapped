@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6381915592763803464}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45,7 +45,7 @@ GameObject:
   - component: {fileID: 5850464637954970390}
   - component: {fileID: 3415163131462229104}
   - component: {fileID: 5588304970838023559}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -133,7 +133,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4027075508082684396}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: StartAttachPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -167,7 +167,7 @@ GameObject:
   - component: {fileID: 8263549528329392978}
   - component: {fileID: 5534683328367922197}
   - component: {fileID: 7178961990591595846}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: EndAttachPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -346,7 +346,7 @@ GameObject:
   - component: {fileID: 7137480953643656122}
   - component: {fileID: 3853699526264835772}
   - component: {fileID: 3984575192981816991}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Grappler
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -433,7 +433,7 @@ GameObject:
   - component: {fileID: 4790810903718398372}
   - component: {fileID: 3232745378853420219}
   - component: {fileID: 8215676854209395807}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Cube (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -522,7 +522,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6389905530895920017}
   - component: {fileID: 2552141795137868624}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Line
   m_TagString: Untagged
   m_Icon: {fileID: 0}

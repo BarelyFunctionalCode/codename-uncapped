@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &8860457803988626213
+--- !u!1 &931561012778406377
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,23 +8,23 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 4936675849984391109}
-  - component: {fileID: 7418497695302536929}
-  - component: {fileID: 2856692538924383521}
+  - component: {fileID: 696138446900170260}
+  - component: {fileID: 5330459880322339851}
+  - component: {fileID: 2922185031751212646}
   m_Layer: 5
-  m_Name: NewToastContainer
+  m_Name: LoadoutMenu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4936675849984391109
+--- !u!4 &696138446900170260
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8860457803988626213}
+  m_GameObject: {fileID: 931561012778406377}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -33,13 +33,13 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7418497695302536929
+--- !u!114 &5330459880322339851
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8860457803988626213}
+  m_GameObject: {fileID: 931561012778406377}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
@@ -47,7 +47,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
   m_PanelSettings: {fileID: 11400000, guid: dd8085f13792f48459d211974882a624, type: 2}
   m_ParentUI: {fileID: 0}
-  sourceAsset: {fileID: 9197481963319205126, guid: 74c4bf6ccdabe4f2f9d047de9bc84e52, type: 3}
+  sourceAsset: {fileID: 9197481963319205126, guid: 8bad16efae5de438ab48e2122ad10b4d, type: 3}
   m_SortingOrder: 0
   m_Position: 0
   m_WorldSpaceSizeMode: 1
@@ -56,18 +56,16 @@ MonoBehaviour:
   m_PivotReferenceSize: 0
   m_Pivot: 0
   m_WorldSpaceCollider: {fileID: 0}
---- !u!114 &2856692538924383521
+--- !u!114 &2922185031751212646
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8860457803988626213}
+  m_GameObject: {fileID: 931561012778406377}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4aca1bdfadc3316ad80ff7adbdad51eb, type: 3}
+  m_Script: {fileID: 11500000, guid: 3f34e10e1820b49ba9c2e5ea47242867, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ToastContainer
-  type: 0
-  hideTime: 5
-  toastTemplate: {fileID: 9197481963319205126, guid: 7ce57ea0561ab4111a90d62a441f11c3, type: 3}
+  m_EditorClassIdentifier: Assembly-CSharp::NewLoadoutMenu
+  showcasePrefabObj: {fileID: 797614986375708773, guid: d83d625051dbc4c0c90319e4b73a1a72, type: 3}

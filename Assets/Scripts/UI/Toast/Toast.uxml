@@ -1,7 +1,0 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
-    <Style src="project://database/Assets/Settings/Styles.uss?fileID=7433441132597879392&amp;guid=e6702a426de0a44fda3691e2135d7411&amp;type=3"/>
-    <ui:VisualElement name="Toast" class="secondary" style="flex-grow: 0; height: auto; border-top-left-radius: 2px; border-top-right-radius: 2px; border-bottom-right-radius: 2px; border-bottom-left-radius: 2px; padding-left: 5px; padding-top: 5px; padding-right: 5px; padding-bottom: 5px; margin-bottom: 5px; transition-property: opacity, margin-top, padding; transition-duration: 0.25s, 0.5s, 0.5s; transition-timing-function: ease, ease-out-cubic, ease-in-out-bounce; transition-delay: 0s, 0s, 1s; opacity: 1;">
-        <ui:Label text="TITLE" name="Title" enabled="true" style="font-size: 24px; -unity-font-style: bold; display: flex; width: 100%; margin-top: 0; margin-right: 0; margin-bottom: 5px; margin-left: 0; padding-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; -unity-text-generator: standard; -unity-text-auto-size: none;"/>
-        <ui:Label text="Notification Message" name="Message" emoji-fallback-support="true" style="font-size: 20px; white-space: normal; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; margin-top: 0; margin-bottom: 0; margin-left: 0; margin-right: 0;"/>
-    </ui:VisualElement>
-</ui:UXML>
