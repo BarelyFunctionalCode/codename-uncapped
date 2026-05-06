@@ -43,7 +43,7 @@ Leaderboard {
     align-items: stretch;
 }
 
-#SectionBorder {
+#SectionSeparator {
     flex-grow: 0;
     height: 100%;
     flex-shrink: 0;
@@ -100,7 +100,12 @@ Leaderboard {
     width: 45px;
 }
 
-#LeaderboardRow > #Name {
+LeaderboardEntry {
+    transition-property: opacity;
+    transition-duration: 0.1s;
+}
+
+LeaderboardEntry > #Name {
     flex-grow: 1;
     margin-right: 10px;
     text-overflow: ellipsis;

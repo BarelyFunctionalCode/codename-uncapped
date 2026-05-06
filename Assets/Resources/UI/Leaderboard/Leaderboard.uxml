@@ -2,9 +2,9 @@
     <Style src="project://database/Assets/Resources/UI/Leaderboard/Styles.uss?fileID=7433441132597879392&amp;guid=644319ba44cf6d2f9bca63d6932ca915&amp;type=3#Styles"/>
     <Leaderboard name="" class="background">
         <ui:VisualElement name="Container" class="background">
-            <ui:Label text="GAME MODE NAME" name="GameModeName" class="primary"/>
+            <ui:Label text="GAME MODE NAME" name="GameModeName" class="primary" style="-unity-text-auto-size: none;"/>
             <ui:VisualElement name="CharacterData">
-                <ui:VisualElement name="Section1" class="section">
+                <ui:VisualElement name="Section0" class="section">
                     <ui:VisualElement name="SectionHeader" class="row">
                         <ui:Label text="NAME" name="Name" class="primary columnHeader"/>
                         <ui:VisualElement name="Stats">
@@ -15,84 +15,11 @@
                         </ui:VisualElement>
                     </ui:VisualElement>
                     <ui:VisualElement name="SectionHeaderBorder" class="primary"/>
-                    <ui:VisualElement name="SectionBody">
-                        <ui:VisualElement name="LeaderboardRow" class="row">
-                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
-                            <ui:VisualElement name="Stats">
-                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
-                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
-                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
-                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
-                            </ui:VisualElement>
-                        </ui:VisualElement>
-                        <ui:VisualElement name="LeaderboardRow" class="row">
-                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
-                            <ui:VisualElement name="Stats">
-                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
-                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
-                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
-                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
-                            </ui:VisualElement>
-                        </ui:VisualElement>
-                        <ui:VisualElement name="LeaderboardRow" class="row">
-                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
-                            <ui:VisualElement name="Stats">
-                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
-                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
-                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
-                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
-                            </ui:VisualElement>
-                        </ui:VisualElement>
-                        <ui:VisualElement name="LeaderboardRow" class="row">
-                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
-                            <ui:VisualElement name="Stats">
-                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
-                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
-                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
-                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
-                            </ui:VisualElement>
-                        </ui:VisualElement>
-                        <ui:VisualElement name="LeaderboardRow" class="row">
-                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
-                            <ui:VisualElement name="Stats">
-                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
-                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
-                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
-                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
-                            </ui:VisualElement>
-                        </ui:VisualElement>
-                        <ui:VisualElement name="LeaderboardRow" class="row">
-                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
-                            <ui:VisualElement name="Stats">
-                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
-                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
-                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
-                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
-                            </ui:VisualElement>
-                        </ui:VisualElement>
-                        <ui:VisualElement name="LeaderboardRow" class="row">
-                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
-                            <ui:VisualElement name="Stats">
-                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
-                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
-                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
-                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
-                            </ui:VisualElement>
-                        </ui:VisualElement>
-                        <ui:VisualElement name="LeaderboardRow" class="row">
-                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
-                            <ui:VisualElement name="Stats">
-                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
-                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
-                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
-                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
-                            </ui:VisualElement>
-                        </ui:VisualElement>
-                    </ui:VisualElement>
+                    <ui:VisualElement name="SectionBody"/>
                 </ui:VisualElement>
-                <ui:VisualElement name="SectionBorder" class="primary"/>
-                <ui:VisualElement name="Section2" class="section" style="flex-grow: 1; flex-shrink: 0; align-items: stretch;">
-                    <ui:VisualElement name="ColumnHeader" class="row">
+                <ui:VisualElement name="SectionSeparator" class="primary"/>
+                <ui:VisualElement name="Section1" class="section" style="flex-grow: 1; flex-shrink: 0; align-items: stretch;">
+                    <ui:VisualElement name="SectionHeader" class="row">
                         <ui:Label text="NAME" name="Name" class="primary columnHeader"/>
                         <ui:VisualElement name="Stats">
                             <ui:Label text="K" name="Kills" class="primary columnHeader"/>
@@ -101,81 +28,8 @@
                             <ui:Label text="C" name="Captures" focusable="true" class="primary columnHeader"/>
                         </ui:VisualElement>
                     </ui:VisualElement>
-                    <ui:VisualElement name="ColumnHeaderBorder" class="primary" style="flex-grow: 0; height: 5px; flex-shrink: 0; margin-top: 10px; margin-bottom: 10px; width: 100%;"/>
-                    <ui:VisualElement name="ColumnBody" style="flex-grow: 1; flex-shrink: 0; align-items: center;">
-                        <ui:VisualElement name="LeaderboardRow" class="row">
-                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
-                            <ui:VisualElement name="Stats">
-                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
-                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
-                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
-                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
-                            </ui:VisualElement>
-                        </ui:VisualElement>
-                        <ui:VisualElement name="LeaderboardRow" class="row">
-                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
-                            <ui:VisualElement name="Stats">
-                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
-                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
-                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
-                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
-                            </ui:VisualElement>
-                        </ui:VisualElement>
-                        <ui:VisualElement name="LeaderboardRow" class="row">
-                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
-                            <ui:VisualElement name="Stats">
-                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
-                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
-                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
-                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
-                            </ui:VisualElement>
-                        </ui:VisualElement>
-                        <ui:VisualElement name="LeaderboardRow" class="row">
-                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
-                            <ui:VisualElement name="Stats">
-                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
-                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
-                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
-                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
-                            </ui:VisualElement>
-                        </ui:VisualElement>
-                        <ui:VisualElement name="LeaderboardRow" class="row">
-                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
-                            <ui:VisualElement name="Stats">
-                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
-                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
-                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
-                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
-                            </ui:VisualElement>
-                        </ui:VisualElement>
-                        <ui:VisualElement name="LeaderboardRow" class="row">
-                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
-                            <ui:VisualElement name="Stats">
-                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
-                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
-                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
-                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
-                            </ui:VisualElement>
-                        </ui:VisualElement>
-                        <ui:VisualElement name="LeaderboardRow" class="row">
-                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
-                            <ui:VisualElement name="Stats">
-                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
-                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
-                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
-                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
-                            </ui:VisualElement>
-                        </ui:VisualElement>
-                        <ui:VisualElement name="LeaderboardRow" class="row">
-                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
-                            <ui:VisualElement name="Stats">
-                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
-                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
-                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
-                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
-                            </ui:VisualElement>
-                        </ui:VisualElement>
-                    </ui:VisualElement>
+                    <ui:VisualElement name="SectionHeaderBorder" class="primary" style="flex-grow: 0; height: 5px; flex-shrink: 0; margin-top: 10px; margin-bottom: 10px; width: 100%;"/>
+                    <ui:VisualElement name="SectionBody" style="flex-grow: 1; flex-shrink: 0; align-items: center;"/>
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>

@@ -18,7 +18,7 @@ public class LeaderboardOld : MonoBehaviour
     [SerializeField] private GameObject capturesStat0Obj;
     [SerializeField] private GameObject capturesStat1Obj;
 
-    private List<LeaderboardEntry> entries = new();
+    private List<LeaderboardEntryOld> entries = new();
     private bool isTeamBased = false;
     private bool enableCapturesStat;
 
@@ -92,19 +92,19 @@ public class LeaderboardOld : MonoBehaviour
         int teamIndex = character.identification.FetchTeamId();
         if (teamIndex == -1) return;
 
-        LeaderboardEntry entryToRemove = entries.Find(entry => entry.characterId == characterId);
+        LeaderboardEntryOld entryToRemove = entries.Find(entry => entry.characterId == characterId);
         if (entryToRemove != null) RemoveEntry(characterId);
         
         string name = character.identification.FetchEntityName();
         GameObject entryObj = Instantiate(leaderboardEntryPrefabObj, (!isTeamBased || teamIndex == 0) ? listColumn0Obj.transform : listColumn1Obj.transform);
-        LeaderboardEntry entry = entryObj.GetComponent<LeaderboardEntry>();
+        LeaderboardEntryOld entry = entryObj.GetComponent<LeaderboardEntryOld>();
         entry.Initialize(characterId, name, enableCapturesStat);
         entries.Add(entry);
     }
 
     private void RemoveEntry(ulong characterId)
     {
-        LeaderboardEntry entryToRemove = entries.Find(entry => entry.characterId == characterId);
+        LeaderboardEntryOld entryToRemove = entries.Find(entry => entry.characterId == characterId);
         if (entryToRemove != null)
         {
             Destroy(entryToRemove.gameObject);
@@ -114,13 +114,13 @@ public class LeaderboardOld : MonoBehaviour
 
     private void OnStatEventReceived(StatEvent statEvent)
     {
-        LeaderboardEntry entryToUpdate = entries.Find(entry => entry.characterId == statEvent.Source);
+        LeaderboardEntryOld entryToUpdate = entries.Find(entry => entry.characterId == statEvent.Source);
         if (entryToUpdate != null) entryToUpdate.UpdateStats(statEvent);
     }
 
     public void ClearEntries()
     {
-        foreach (LeaderboardEntry entry in entries)
+        foreach (LeaderboardEntryOld entry in entries)
         {
             Destroy(entry.gameObject);
         }

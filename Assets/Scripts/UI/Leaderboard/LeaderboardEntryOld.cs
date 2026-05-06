@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class LeaderboardEntry : MonoBehaviour
+public class LeaderboardEntryOld : MonoBehaviour
 {
     [SerializeField] private TMP_Text nameText;
     [SerializeField] private TMP_Text killsText;
