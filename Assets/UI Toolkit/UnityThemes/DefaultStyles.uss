@@ -24,6 +24,7 @@ UIDocumentRootElement {
     white-space: nowrap;
     -unity-text-align: middle-left;
     -unity-font-style: normal;
+    -unity-text-generator: advanced;
 }
 
 :disabled {

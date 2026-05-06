@@ -1,269 +1,178 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/Resources/UI/Leaderboard/Styles.uss?fileID=7433441132597879392&amp;guid=644319ba44cf6d2f9bca63d6932ca915&amp;type=3#Styles"/>
-    <Leaderboard name="" class="background" style="flex-shrink: 0; flex-grow: 1; align-items: center; justify-content: center; align-content: center;">
-        <ui:VisualElement name="VisualElement" class="background" style="flex-grow: 0; width: 80%; height: 90%; align-items: center; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
-            <ui:Label text="GAME MODE NAME" name="GameModeName" class="primary" style="font-size: 35px; -unity-text-align: middle-center; margin-top: 10px; margin-right: 10px; margin-bottom: 10px; margin-left: 10px;"/>
-            <ui:VisualElement name="Border" class="primary" style="flex-grow: 0; height: 10px; flex-shrink: 0; margin-top: 10px; margin-bottom: 10px; width: 100%;"/>
-            <ui:VisualElement name="CharacterData" style="flex-grow: 1; flex-shrink: 0; width: 100%; flex-direction: row;">
-                <ui:VisualElement name="Column1" style="flex-grow: 1; flex-shrink: 0; align-items: stretch;">
-                    <ui:VisualElement name="ColumnHeader" style="flex-grow: 0; width: 100%; height: auto; flex-direction: row; justify-content: space-between;">
-                        <ui:Label text="NAME" name="Name" class="primary" style="font-size: 18px;"/>
-                        <ui:VisualElement name="Stats" style="flex-grow: 0; flex-direction: row; justify-content: space-around; align-content: stretch; flex-shrink: 0; width: 40%;">
-                            <ui:Label text="K" name="Kills" class="primary" style="font-size: 18px;"/>
-                            <ui:Label text="D" name="Deaths" class="primary" style="font-size: 18px;"/>
-                            <ui:Label text="A" name="Assists" class="primary" style="font-size: 18px;"/>
-                            <ui:Label text="C" name="Captures" class="primary" style="font-size: 18px;"/>
+    <Leaderboard name="" class="background">
+        <ui:VisualElement name="Container" class="background">
+            <ui:Label text="GAME MODE NAME" name="GameModeName" class="primary"/>
+            <ui:VisualElement name="CharacterData">
+                <ui:VisualElement name="Section1" class="section">
+                    <ui:VisualElement name="SectionHeader" class="row">
+                        <ui:Label text="NAME" name="Name" class="primary columnHeader"/>
+                        <ui:VisualElement name="Stats">
+                            <ui:Label text="K" name="Kills" class="primary columnHeader"/>
+                            <ui:Label text="D" name="Deaths" class="primary columnHeader"/>
+                            <ui:Label text="A" name="Assists" class="primary columnHeader"/>
+                            <ui:Label text="C" name="Captures" focusable="true" class="primary columnHeader"/>
                         </ui:VisualElement>
                     </ui:VisualElement>
-                    <ui:VisualElement name="ColumnHeaderBorder" class="primary" style="flex-grow: 0; height: 5px; flex-shrink: 0; margin-top: 10px; margin-bottom: 10px; width: 100%;"/>
-                    <ui:VisualElement name="ColumnBody" style="flex-grow: 1; flex-shrink: 0; align-items: center;">
-                        <ui:VisualElement name="Character" style="flex-grow: 0; width: 100%; height: auto; flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
-                            <ui:Label text="PEEPEE POOPOOER69" name="Name" class="secondary" style="font-size: 18px;"/>
-                            <ui:VisualElement name="Stats" style="flex-grow: 0; flex-direction: row; justify-content: space-around; align-content: stretch; flex-shrink: 0; height: auto; width: 40%;">
-                                <ui:Label text="67" name="Kills" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="-1" name="Deaths" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="e" name="Assists" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="22" name="Captures" class="secondary" style="font-size: 18px;"/>
+                    <ui:VisualElement name="SectionHeaderBorder" class="primary"/>
+                    <ui:VisualElement name="SectionBody">
+                        <ui:VisualElement name="LeaderboardRow" class="row">
+                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
+                            <ui:VisualElement name="Stats">
+                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
+                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
+                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
+                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
                             </ui:VisualElement>
                         </ui:VisualElement>
-                        <ui:VisualElement name="Character" style="flex-grow: 0; width: 100%; height: auto; flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
-                            <ui:Label text="PEEPEE POOPOOER69" name="Name" class="secondary" style="font-size: 18px;"/>
-                            <ui:VisualElement name="Stats" style="flex-grow: 0; flex-direction: row; justify-content: space-around; align-content: stretch; flex-shrink: 0; height: auto; width: 40%;">
-                                <ui:Label text="67" name="Kills" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="-1" name="Deaths" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="e" name="Assists" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="22" name="Captures" class="secondary" style="font-size: 18px;"/>
+                        <ui:VisualElement name="LeaderboardRow" class="row">
+                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
+                            <ui:VisualElement name="Stats">
+                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
+                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
+                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
+                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
                             </ui:VisualElement>
                         </ui:VisualElement>
-                        <ui:VisualElement name="Character" style="flex-grow: 0; width: 100%; height: auto; flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
-                            <ui:Label text="PEEPEE POOPOOER69" name="Name" class="secondary" style="font-size: 18px;"/>
-                            <ui:VisualElement name="Stats" style="flex-grow: 0; flex-direction: row; justify-content: space-around; align-content: stretch; flex-shrink: 0; height: auto; width: 40%;">
-                                <ui:Label text="67" name="Kills" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="-1" name="Deaths" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="e" name="Assists" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="22" name="Captures" class="secondary" style="font-size: 18px;"/>
+                        <ui:VisualElement name="LeaderboardRow" class="row">
+                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
+                            <ui:VisualElement name="Stats">
+                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
+                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
+                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
+                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
                             </ui:VisualElement>
                         </ui:VisualElement>
-                        <ui:VisualElement name="Character" style="flex-grow: 0; width: 100%; height: auto; flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
-                            <ui:Label text="PEEPEE POOPOOER69" name="Name" class="secondary" style="font-size: 18px;"/>
-                            <ui:VisualElement name="Stats" style="flex-grow: 0; flex-direction: row; justify-content: space-around; align-content: stretch; flex-shrink: 0; height: auto; width: 40%;">
-                                <ui:Label text="67" name="Kills" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="-1" name="Deaths" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="e" name="Assists" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="22" name="Captures" class="secondary" style="font-size: 18px;"/>
+                        <ui:VisualElement name="LeaderboardRow" class="row">
+                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
+                            <ui:VisualElement name="Stats">
+                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
+                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
+                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
+                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
                             </ui:VisualElement>
                         </ui:VisualElement>
-                        <ui:VisualElement name="Character" style="flex-grow: 0; width: 100%; height: auto; flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
-                            <ui:Label text="PEEPEE POOPOOER69" name="Name" class="secondary" style="font-size: 18px;"/>
-                            <ui:VisualElement name="Stats" style="flex-grow: 0; flex-direction: row; justify-content: space-around; align-content: stretch; flex-shrink: 0; height: auto; width: 40%;">
-                                <ui:Label text="67" name="Kills" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="-1" name="Deaths" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="e" name="Assists" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="22" name="Captures" class="secondary" style="font-size: 18px;"/>
+                        <ui:VisualElement name="LeaderboardRow" class="row">
+                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
+                            <ui:VisualElement name="Stats">
+                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
+                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
+                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
+                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
                             </ui:VisualElement>
                         </ui:VisualElement>
-                        <ui:VisualElement name="Character" style="flex-grow: 0; width: 100%; height: auto; flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
-                            <ui:Label text="PEEPEE POOPOOER69" name="Name" class="secondary" style="font-size: 18px;"/>
-                            <ui:VisualElement name="Stats" style="flex-grow: 0; flex-direction: row; justify-content: space-around; align-content: stretch; flex-shrink: 0; height: auto; width: 40%;">
-                                <ui:Label text="67" name="Kills" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="-1" name="Deaths" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="e" name="Assists" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="22" name="Captures" class="secondary" style="font-size: 18px;"/>
+                        <ui:VisualElement name="LeaderboardRow" class="row">
+                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
+                            <ui:VisualElement name="Stats">
+                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
+                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
+                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
+                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
                             </ui:VisualElement>
                         </ui:VisualElement>
-                        <ui:VisualElement name="Character" style="flex-grow: 0; width: 100%; height: auto; flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
-                            <ui:Label text="PEEPEE POOPOOER69" name="Name" class="secondary" style="font-size: 18px;"/>
-                            <ui:VisualElement name="Stats" style="flex-grow: 0; flex-direction: row; justify-content: space-around; align-content: stretch; flex-shrink: 0; height: auto; width: 40%;">
-                                <ui:Label text="67" name="Kills" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="-1" name="Deaths" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="e" name="Assists" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="22" name="Captures" class="secondary" style="font-size: 18px;"/>
+                        <ui:VisualElement name="LeaderboardRow" class="row">
+                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
+                            <ui:VisualElement name="Stats">
+                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
+                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
+                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
+                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
                             </ui:VisualElement>
                         </ui:VisualElement>
-                        <ui:VisualElement name="Character" style="flex-grow: 0; width: 100%; height: auto; flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
-                            <ui:Label text="PEEPEE POOPOOER69" name="Name" class="secondary" style="font-size: 18px;"/>
-                            <ui:VisualElement name="Stats" style="flex-grow: 0; flex-direction: row; justify-content: space-around; align-content: stretch; flex-shrink: 0; height: auto; width: 40%;">
-                                <ui:Label text="67" name="Kills" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="-1" name="Deaths" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="e" name="Assists" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="22" name="Captures" class="secondary" style="font-size: 18px;"/>
-                            </ui:VisualElement>
-                        </ui:VisualElement>
-                        <ui:VisualElement name="Character" style="flex-grow: 0; width: 100%; height: auto; flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
-                            <ui:Label text="PEEPEE POOPOOER69" name="Name" class="secondary" style="font-size: 18px;"/>
-                            <ui:VisualElement name="Stats" style="flex-grow: 0; flex-direction: row; justify-content: space-around; align-content: stretch; flex-shrink: 0; height: auto; width: 40%;">
-                                <ui:Label text="67" name="Kills" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="-1" name="Deaths" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="e" name="Assists" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="22" name="Captures" class="secondary" style="font-size: 18px;"/>
-                            </ui:VisualElement>
-                        </ui:VisualElement>
-                        <ui:VisualElement name="Character" style="flex-grow: 0; width: 100%; height: auto; flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
-                            <ui:Label text="PEEPEE POOPOOER69" name="Name" class="secondary" style="font-size: 18px;"/>
-                            <ui:VisualElement name="Stats" style="flex-grow: 0; flex-direction: row; justify-content: space-around; align-content: stretch; flex-shrink: 0; height: auto; width: 40%;">
-                                <ui:Label text="67" name="Kills" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="-1" name="Deaths" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="e" name="Assists" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="22" name="Captures" class="secondary" style="font-size: 18px;"/>
-                            </ui:VisualElement>
-                        </ui:VisualElement>
-                        <ui:VisualElement name="Character" style="flex-grow: 0; width: 100%; height: auto; flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
-                            <ui:Label text="PEEPEE POOPOOER69" name="Name" class="secondary" style="font-size: 18px;"/>
-                            <ui:VisualElement name="Stats" style="flex-grow: 0; flex-direction: row; justify-content: space-around; align-content: stretch; flex-shrink: 0; height: auto; width: 40%;">
-                                <ui:Label text="67" name="Kills" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="-1" name="Deaths" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="e" name="Assists" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="22" name="Captures" class="secondary" style="font-size: 18px;"/>
-                            </ui:VisualElement>
-                        </ui:VisualElement>
-                        <ui:VisualElement name="Character" style="flex-grow: 0; width: 100%; height: auto; flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
-                            <ui:Label text="PEEPEE POOPOOER69" name="Name" class="secondary" style="font-size: 18px;"/>
-                            <ui:VisualElement name="Stats" style="flex-grow: 0; flex-direction: row; justify-content: space-around; align-content: stretch; flex-shrink: 0; height: auto; width: 40%;">
-                                <ui:Label text="67" name="Kills" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="-1" name="Deaths" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="e" name="Assists" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="22" name="Captures" class="secondary" style="font-size: 18px;"/>
-                            </ui:VisualElement>
-                        </ui:VisualElement>
-                        <ui:VisualElement name="Character" style="flex-grow: 0; width: 100%; height: auto; flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
-                            <ui:Label text="PEEPEE POOPOOER69" name="Name" class="secondary" style="font-size: 18px;"/>
-                            <ui:VisualElement name="Stats" style="flex-grow: 0; flex-direction: row; justify-content: space-around; align-content: stretch; flex-shrink: 0; height: auto; width: 40%;">
-                                <ui:Label text="67" name="Kills" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="-1" name="Deaths" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="e" name="Assists" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="22" name="Captures" class="secondary" style="font-size: 18px;"/>
+                        <ui:VisualElement name="LeaderboardRow" class="row">
+                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
+                            <ui:VisualElement name="Stats">
+                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
+                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
+                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
+                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
                             </ui:VisualElement>
                         </ui:VisualElement>
                     </ui:VisualElement>
                 </ui:VisualElement>
-                <ui:VisualElement name="Border" class="primary" style="flex-grow: 0; height: 100%; flex-shrink: 0; margin-top: 0; margin-bottom: 0; width: 5px; margin-right: 10px; margin-left: 10px;"/>
-                <ui:VisualElement name="Column1" style="flex-grow: 1; flex-shrink: 0; align-items: stretch;">
-                    <ui:VisualElement name="ColumnHeader" style="flex-grow: 0; width: 100%; height: auto; flex-direction: row; justify-content: space-between;">
-                        <ui:Label text="NAME" name="Name" class="primary" style="font-size: 18px;"/>
-                        <ui:VisualElement name="Stats" style="flex-grow: 0; flex-direction: row; justify-content: space-around; align-content: stretch; flex-shrink: 0; width: 40%;">
-                            <ui:Label text="K" name="Kills" class="primary" style="font-size: 18px;"/>
-                            <ui:Label text="D" name="Deaths" class="primary" style="font-size: 18px;"/>
-                            <ui:Label text="A" name="Assists" class="primary" style="font-size: 18px;"/>
-                            <ui:Label text="C" name="Captures" class="primary" style="font-size: 18px;"/>
+                <ui:VisualElement name="SectionBorder" class="primary"/>
+                <ui:VisualElement name="Section2" class="section" style="flex-grow: 1; flex-shrink: 0; align-items: stretch;">
+                    <ui:VisualElement name="ColumnHeader" class="row">
+                        <ui:Label text="NAME" name="Name" class="primary columnHeader"/>
+                        <ui:VisualElement name="Stats">
+                            <ui:Label text="K" name="Kills" class="primary columnHeader"/>
+                            <ui:Label text="D" name="Deaths" class="primary columnHeader"/>
+                            <ui:Label text="A" name="Assists" class="primary columnHeader"/>
+                            <ui:Label text="C" name="Captures" focusable="true" class="primary columnHeader"/>
                         </ui:VisualElement>
                     </ui:VisualElement>
                     <ui:VisualElement name="ColumnHeaderBorder" class="primary" style="flex-grow: 0; height: 5px; flex-shrink: 0; margin-top: 10px; margin-bottom: 10px; width: 100%;"/>
                     <ui:VisualElement name="ColumnBody" style="flex-grow: 1; flex-shrink: 0; align-items: center;">
-                        <ui:VisualElement name="Character" style="flex-grow: 0; width: 100%; height: auto; flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
-                            <ui:Label text="PEEPEE POOPOOER69" name="Name" class="secondary" style="font-size: 18px;"/>
-                            <ui:VisualElement name="Stats" style="flex-grow: 0; flex-direction: row; justify-content: space-around; align-content: stretch; flex-shrink: 0; height: auto; width: 40%;">
-                                <ui:Label text="67" name="Kills" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="-1" name="Deaths" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="e" name="Assists" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="22" name="Captures" class="secondary" style="font-size: 18px;"/>
+                        <ui:VisualElement name="LeaderboardRow" class="row">
+                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
+                            <ui:VisualElement name="Stats">
+                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
+                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
+                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
+                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
                             </ui:VisualElement>
                         </ui:VisualElement>
-                        <ui:VisualElement name="Character" style="flex-grow: 0; width: 100%; height: auto; flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
-                            <ui:Label text="PEEPEE POOPOOER69" name="Name" class="secondary" style="font-size: 18px;"/>
-                            <ui:VisualElement name="Stats" style="flex-grow: 0; flex-direction: row; justify-content: space-around; align-content: stretch; flex-shrink: 0; height: auto; width: 40%;">
-                                <ui:Label text="67" name="Kills" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="-1" name="Deaths" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="e" name="Assists" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="22" name="Captures" class="secondary" style="font-size: 18px;"/>
+                        <ui:VisualElement name="LeaderboardRow" class="row">
+                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
+                            <ui:VisualElement name="Stats">
+                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
+                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
+                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
+                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
                             </ui:VisualElement>
                         </ui:VisualElement>
-                        <ui:VisualElement name="Character" style="flex-grow: 0; width: 100%; height: auto; flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
-                            <ui:Label text="PEEPEE POOPOOER69" name="Name" class="secondary" style="font-size: 18px;"/>
-                            <ui:VisualElement name="Stats" style="flex-grow: 0; flex-direction: row; justify-content: space-around; align-content: stretch; flex-shrink: 0; height: auto; width: 40%;">
-                                <ui:Label text="67" name="Kills" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="-1" name="Deaths" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="e" name="Assists" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="22" name="Captures" class="secondary" style="font-size: 18px;"/>
+                        <ui:VisualElement name="LeaderboardRow" class="row">
+                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
+                            <ui:VisualElement name="Stats">
+                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
+                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
+                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
+                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
                             </ui:VisualElement>
                         </ui:VisualElement>
-                        <ui:VisualElement name="Character" style="flex-grow: 0; width: 100%; height: auto; flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
-                            <ui:Label text="PEEPEE POOPOOER69" name="Name" class="secondary" style="font-size: 18px;"/>
-                            <ui:VisualElement name="Stats" style="flex-grow: 0; flex-direction: row; justify-content: space-around; align-content: stretch; flex-shrink: 0; height: auto; width: 40%;">
-                                <ui:Label text="67" name="Kills" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="-1" name="Deaths" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="e" name="Assists" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="22" name="Captures" class="secondary" style="font-size: 18px;"/>
+                        <ui:VisualElement name="LeaderboardRow" class="row">
+                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
+                            <ui:VisualElement name="Stats">
+                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
+                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
+                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
+                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
                             </ui:VisualElement>
                         </ui:VisualElement>
-                        <ui:VisualElement name="Character" style="flex-grow: 0; width: 100%; height: auto; flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
-                            <ui:Label text="PEEPEE POOPOOER69" name="Name" class="secondary" style="font-size: 18px;"/>
-                            <ui:VisualElement name="Stats" style="flex-grow: 0; flex-direction: row; justify-content: space-around; align-content: stretch; flex-shrink: 0; height: auto; width: 40%;">
-                                <ui:Label text="67" name="Kills" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="-1" name="Deaths" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="e" name="Assists" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="22" name="Captures" class="secondary" style="font-size: 18px;"/>
+                        <ui:VisualElement name="LeaderboardRow" class="row">
+                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
+                            <ui:VisualElement name="Stats">
+                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
+                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
+                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
+                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
                             </ui:VisualElement>
                         </ui:VisualElement>
-                        <ui:VisualElement name="Character" style="flex-grow: 0; width: 100%; height: auto; flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
-                            <ui:Label text="PEEPEE POOPOOER69" name="Name" class="secondary" style="font-size: 18px;"/>
-                            <ui:VisualElement name="Stats" style="flex-grow: 0; flex-direction: row; justify-content: space-around; align-content: stretch; flex-shrink: 0; height: auto; width: 40%;">
-                                <ui:Label text="67" name="Kills" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="-1" name="Deaths" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="e" name="Assists" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="22" name="Captures" class="secondary" style="font-size: 18px;"/>
+                        <ui:VisualElement name="LeaderboardRow" class="row">
+                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
+                            <ui:VisualElement name="Stats">
+                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
+                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
+                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
+                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
                             </ui:VisualElement>
                         </ui:VisualElement>
-                        <ui:VisualElement name="Character" style="flex-grow: 0; width: 100%; height: auto; flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
-                            <ui:Label text="PEEPEE POOPOOER69" name="Name" class="secondary" style="font-size: 18px;"/>
-                            <ui:VisualElement name="Stats" style="flex-grow: 0; flex-direction: row; justify-content: space-around; align-content: stretch; flex-shrink: 0; height: auto; width: 40%;">
-                                <ui:Label text="67" name="Kills" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="-1" name="Deaths" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="e" name="Assists" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="22" name="Captures" class="secondary" style="font-size: 18px;"/>
+                        <ui:VisualElement name="LeaderboardRow" class="row">
+                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
+                            <ui:VisualElement name="Stats">
+                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
+                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
+                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
+                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
                             </ui:VisualElement>
                         </ui:VisualElement>
-                        <ui:VisualElement name="Character" style="flex-grow: 0; width: 100%; height: auto; flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
-                            <ui:Label text="PEEPEE POOPOOER69" name="Name" class="secondary" style="font-size: 18px;"/>
-                            <ui:VisualElement name="Stats" style="flex-grow: 0; flex-direction: row; justify-content: space-around; align-content: stretch; flex-shrink: 0; height: auto; width: 40%;">
-                                <ui:Label text="67" name="Kills" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="-1" name="Deaths" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="e" name="Assists" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="22" name="Captures" class="secondary" style="font-size: 18px;"/>
-                            </ui:VisualElement>
-                        </ui:VisualElement>
-                        <ui:VisualElement name="Character" style="flex-grow: 0; width: 100%; height: auto; flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
-                            <ui:Label text="PEEPEE POOPOOER69" name="Name" class="secondary" style="font-size: 18px;"/>
-                            <ui:VisualElement name="Stats" style="flex-grow: 0; flex-direction: row; justify-content: space-around; align-content: stretch; flex-shrink: 0; height: auto; width: 40%;">
-                                <ui:Label text="67" name="Kills" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="-1" name="Deaths" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="e" name="Assists" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="22" name="Captures" class="secondary" style="font-size: 18px;"/>
-                            </ui:VisualElement>
-                        </ui:VisualElement>
-                        <ui:VisualElement name="Character" style="flex-grow: 0; width: 100%; height: auto; flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
-                            <ui:Label text="PEEPEE POOPOOER69" name="Name" class="secondary" style="font-size: 18px;"/>
-                            <ui:VisualElement name="Stats" style="flex-grow: 0; flex-direction: row; justify-content: space-around; align-content: stretch; flex-shrink: 0; height: auto; width: 40%;">
-                                <ui:Label text="67" name="Kills" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="-1" name="Deaths" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="e" name="Assists" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="22" name="Captures" class="secondary" style="font-size: 18px;"/>
-                            </ui:VisualElement>
-                        </ui:VisualElement>
-                        <ui:VisualElement name="Character" style="flex-grow: 0; width: 100%; height: auto; flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
-                            <ui:Label text="PEEPEE POOPOOER69" name="Name" class="secondary" style="font-size: 18px;"/>
-                            <ui:VisualElement name="Stats" style="flex-grow: 0; flex-direction: row; justify-content: space-around; align-content: stretch; flex-shrink: 0; height: auto; width: 40%;">
-                                <ui:Label text="67" name="Kills" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="-1" name="Deaths" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="e" name="Assists" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="22" name="Captures" class="secondary" style="font-size: 18px;"/>
-                            </ui:VisualElement>
-                        </ui:VisualElement>
-                        <ui:VisualElement name="Character" style="flex-grow: 0; width: 100%; height: auto; flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
-                            <ui:Label text="PEEPEE POOPOOER69" name="Name" class="secondary" style="font-size: 18px;"/>
-                            <ui:VisualElement name="Stats" style="flex-grow: 0; flex-direction: row; justify-content: space-around; align-content: stretch; flex-shrink: 0; height: auto; width: 40%;">
-                                <ui:Label text="67" name="Kills" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="-1" name="Deaths" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="e" name="Assists" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="22" name="Captures" class="secondary" style="font-size: 18px;"/>
-                            </ui:VisualElement>
-                        </ui:VisualElement>
-                        <ui:VisualElement name="Character" style="flex-grow: 0; width: 100%; height: auto; flex-direction: row; justify-content: space-between; margin-bottom: 5px;">
-                            <ui:Label text="PEEPEE POOPOOER69" name="Name" class="secondary" style="font-size: 18px;"/>
-                            <ui:VisualElement name="Stats" style="flex-grow: 0; flex-direction: row; justify-content: space-around; align-content: stretch; flex-shrink: 0; height: auto; width: 40%;">
-                                <ui:Label text="67" name="Kills" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="-1" name="Deaths" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="e" name="Assists" class="secondary" style="font-size: 18px;"/>
-                                <ui:Label text="22" name="Captures" class="secondary" style="font-size: 18px;"/>
+                        <ui:VisualElement name="LeaderboardRow" class="row">
+                            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXXXXXX" name="Name" class="primary columnRow"/>
+                            <ui:VisualElement name="Stats">
+                                <ui:Label text="XX" name="Kills" class="primary columnRow"/>
+                                <ui:Label text="XXX" name="Deaths" class="primary columnRow"/>
+                                <ui:Label text="X" name="Assists" class="primary columnRow"/>
+                                <ui:Label text="XX" name="Captures" class="primary columnRow"/>
                             </ui:VisualElement>
                         </ui:VisualElement>
                     </ui:VisualElement>
