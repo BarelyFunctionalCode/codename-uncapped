@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ChatMessage : MonoBehaviour
+public class ChatMessageOld : MonoBehaviour
 {
     [SerializeField] private TMP_Text messageNameText;
     [SerializeField] private TMP_Text messageContentText;

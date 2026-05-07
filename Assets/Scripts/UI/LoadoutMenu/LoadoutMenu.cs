@@ -174,7 +174,6 @@ public class LoadoutMenu : MonoBehaviour
     // Apply the changes to the player's loadout and close the menu
     private void OnConfirmClicked()
     {
-        Debug.Log("Confirm clicked. Applying loadout changes.");
         bool applyImmediately = GameModeHandler.Instance.currentPhase.Value != Phase.ACTIVE;
         playerLoadoutManager.UpdateLoadoutRpc(tempLoadout, applyImmediately);
         hud.ToggleMenu(HUDMenu.LoadoutMenu);
@@ -183,7 +182,6 @@ public class LoadoutMenu : MonoBehaviour
     // Close the menu without applying changes
     private void OnCancelClicked()
     {
-        Debug.Log("Cancel clicked. Discarding loadout changes.");
         hud.ToggleMenu(HUDMenu.LoadoutMenu);
     }
 }

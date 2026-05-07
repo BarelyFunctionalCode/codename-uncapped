@@ -7,9 +7,9 @@ using Unity.Netcode;
 using UnityEngine.SceneManagement;
 using System.Reflection;
 
-public class PauseMenu : MonoBehaviour
+public class PauseMenuOld : MonoBehaviour
 {
-    public static PauseMenu Instance { get; private set; }
+    public static PauseMenuOld Instance { get; private set; }
 
     public bool devMode { get; private set; } = true;
     [SerializeField] private Button quitButton;

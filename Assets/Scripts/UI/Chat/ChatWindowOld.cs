@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ChatWindow : MonoBehaviour
+public class ChatWindowOld : MonoBehaviour
 {
     [SerializeField] private Transform messagesContainer;
     [SerializeField] private ScrollRect scrollRect;
@@ -104,7 +104,7 @@ public class ChatWindow : MonoBehaviour
         messageTimer = messageDisplayDuration;
         if (!isAlwaysActive && !gameObject.activeSelf) gameObject.SetActive(true);
         GameObject newMessageObj = Instantiate(chatMessagePrefabObj, messagesContainer);
-        newMessageObj.GetComponent<ChatMessage>().Initialize(messageData, messageContainerColor);
+        newMessageObj.GetComponent<ChatMessageOld>().Initialize(messageData, messageContainerColor);
     }
 
     private void OnChatInputSubmit(string _)

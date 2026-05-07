@@ -1,0 +1,16 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Resources/UI/PauseMenu/Styles.uss?fileID=7433441132597879392&amp;guid=0fd13de09c2014e8eae7e58a68d3048a&amp;type=3#Styles"/>
+    <PauseMenu>
+        <ui:TabView tabindex="0">
+            <ui:Tab label="Match" name="Match"/>
+            <ui:Tab label="Gameplay" name="Gameplay"/>
+            <ui:Tab label="Video" name="Video" tabindex="1"/>
+            <ui:Tab label="Audio" name="Audio" tabindex="2">
+                <ui:Label text="2"/>
+            </ui:Tab>
+            <ui:Tab label="Controls" tabindex="3" name="Controls">
+                <ui:Label text="3"/>
+            </ui:Tab>
+        </ui:TabView>
+    </PauseMenu>
+</ui:UXML>
