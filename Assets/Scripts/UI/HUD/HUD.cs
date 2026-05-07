@@ -48,7 +48,7 @@ public class HUD : MonoBehaviour
     private List<HUDMenu> openMenus = new();
     [SerializeField] private ChatWindowOld chatWindow;
     [SerializeField] public LoadoutMenu loadoutMenu;
-    [SerializeField] private PauseMenuOld pauseMenu;
+    [SerializeField] private PauseMenuController pauseMenu;
     [SerializeField] private LeaderboardController leaderboard;
     [SerializeField] private ToastContainerController killFeed;
     int cursorLockCounter = 0;
@@ -133,7 +133,7 @@ public class HUD : MonoBehaviour
         playerControls.UI.Leaderboard.canceled += ctx => leaderboard.ToggleMenu(false);
         playerControls.UI.Enable();
 
-        PauseMenuOld.Instance.Initialize(player, character);
+        pauseMenu.Initialize(player, character);
         chatWindow.Initialize(this);
         centerClusterUI.Initialize(character);
         loadoutMenu.Initialize(character.GetComponent<CharacterLoadoutManager>(), this);
@@ -164,7 +164,7 @@ public class HUD : MonoBehaviour
         playerControls.UI.Leaderboard.started -= ctx => leaderboard.ToggleMenu(true);
         playerControls.UI.Leaderboard.canceled -= ctx => leaderboard.ToggleMenu(false);
 
-        PauseMenuOld.Instance.Deinitialize();
+        pauseMenu.Deinitialize();
         chatWindow.Deinitialize();
         centerClusterUI.Deinitialize();
         loadoutMenu.Deinitialize();

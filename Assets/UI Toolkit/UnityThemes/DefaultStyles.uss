@@ -36,15 +36,9 @@ Button {
     -unity-text-auto-size: best-fit 10px 100px;
     -unity-text-generator: advanced;
     -unity-text-align: middle-center;
-    padding-top: 1%;
-    padding-right: 1%;
-    padding-bottom: 1%;
-    padding-left: 1%;
+    padding: 3px;
     aspect-ratio: 4;
-    margin-top: 10px;
-    margin-right: 10px;
-    margin-bottom: 10px;
-    margin-left: 10px;
+    margin: 10px;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
     border-bottom-right-radius: 8px;
