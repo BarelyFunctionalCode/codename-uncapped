@@ -105,6 +105,19 @@ public partial class CustomUIVectorElementBase : VisualElement, ITransitionAnima
         painter2D.Fill();
     }
 
+    public void BuildFillShape(MeshGenerationContext mgc, List<Vector2> points, FillGradient fillGradient)
+    {
+        if (points.Count < 3) return;
+
+        var painter2D = mgc.painter2D;
+        painter2D.fillGradient = fillGradient;
+        painter2D.BeginPath();
+        painter2D.MoveTo(points[0]);
+        for (int i = 1; i < points.Count; i++) painter2D.LineTo(points[i]);
+        painter2D.ClosePath();
+        painter2D.Fill();
+    }
+
     public void BuildLineShape(MeshGenerationContext mgc, List<Vector2> points, Color lineColor, float lineWidth, LineJoin lineJoin = LineJoin.Miter, LineCap lineCap = LineCap.Round)
     {
         if (points.Count < 2) return;

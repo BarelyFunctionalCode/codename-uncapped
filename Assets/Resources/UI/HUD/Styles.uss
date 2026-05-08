@@ -1,9 +1,9 @@
 .hudElement {
-    --vector-fill-color: rgba(221, 80, 238, 0.53);
+    --vector-fill-color: rgb(221, 80, 238);
     --vector-fill-color-transition-time: 500;
     flex-shrink: 0;
     flex-grow: 1;
-    --vector-line-color: rgb(53, 7, 36);
+    --vector-line-color: rgb(173, 173, 173);
 }
 
 .hudElement:hover {

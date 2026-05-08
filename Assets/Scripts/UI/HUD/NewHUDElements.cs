@@ -33,6 +33,30 @@ public partial class HUDLeftSide : VectorFillShape
     // Used to generate the visual content for this element
     protected override void OnGenerateVisualContent(MeshGenerationContext mgc)
     {
+        Color fillColor = resolvedColors.GetValueOrDefault(s_VectorFillColor.name, Color.clear);
+        Color lineColor = resolvedColors.GetValueOrDefault(s_VectorLineColor.name, Color.clear);
+        var gradient = new Gradient();
+
+        // Blend color from red at 0% to blue at 100%
+        var colors = new GradientColorKey[3];
+        colors[0] = new GradientColorKey(fillColor, 0.0f);
+        colors[2] = new GradientColorKey(fillColor, 0.5f);
+        colors[1] = new GradientColorKey(Color.white, 1.0f);
+
+        // Blend alpha from opaque at 0% to transparent at 100%
+        var alphas = new GradientAlphaKey[2];
+        alphas[0] = new GradientAlphaKey(fillColor.a, 0.0f);
+        alphas[1] = new GradientAlphaKey(0.0f, 0.5f);
+
+        gradient.SetKeys(colors, alphas);
+
+        var fillGradient = FillGradient.MakeLinearGradient(
+            gradient,
+            new Vector2(50, layout.height - 220),
+            new Vector2(layout.width, layout.height),
+            AddressMode.Clamp
+        );
+
         List<Vector2> points = new()
         {
             Vector2.zero,
@@ -48,8 +72,8 @@ public partial class HUDLeftSide : VectorFillShape
             new Vector2(0, layout.height),
         };
 
-        BuildFillShape(mgc, points, resolvedColors.GetValueOrDefault(s_VectorFillColor.name, Color.clear));
-        BuildLineShape(mgc, points.GetRange(0, 7), resolvedColors.GetValueOrDefault(s_VectorLineColor.name, Color.clear), 5, LineJoin.Bevel, LineCap.Butt);
+        BuildFillShape(mgc, points, fillGradient);
+        BuildLineShape(mgc, points.GetRange(0, 7), lineColor, 5, LineJoin.Bevel, LineCap.Butt);
     }
 }
 
@@ -59,6 +83,30 @@ public partial class HUDRightSide : VectorFillShape
     // Used to generate the visual content for this element
     protected override void OnGenerateVisualContent(MeshGenerationContext mgc)
     {
+        Color fillColor = resolvedColors.GetValueOrDefault(s_VectorFillColor.name, Color.clear);
+        Color lineColor = resolvedColors.GetValueOrDefault(s_VectorLineColor.name, Color.clear);
+        var gradient = new Gradient();
+
+        // Blend color from red at 0% to blue at 100%
+        var colors = new GradientColorKey[3];
+        colors[0] = new GradientColorKey(fillColor, 0.0f);
+        colors[2] = new GradientColorKey(fillColor, 0.5f);
+        colors[1] = new GradientColorKey(Color.white, 1.0f);
+
+        // Blend alpha from opaque at 0% to transparent at 100%
+        var alphas = new GradientAlphaKey[2];
+        alphas[0] = new GradientAlphaKey(fillColor.a, 0.0f);
+        alphas[1] = new GradientAlphaKey(0.0f, 0.5f);
+
+        gradient.SetKeys(colors, alphas);
+
+        var fillGradient = FillGradient.MakeLinearGradient(
+            gradient,
+            new Vector2(layout.width - 50, layout.height - 220),
+            new Vector2(0, layout.height),
+            AddressMode.Clamp
+        );
+
         List<Vector2> points = new()
         {
             new Vector2(layout.width, 0),
@@ -74,7 +122,7 @@ public partial class HUDRightSide : VectorFillShape
             new Vector2(layout.width, layout.height),
         };
 
-        BuildFillShape(mgc, points, resolvedColors.GetValueOrDefault(s_VectorFillColor.name, Color.clear));
-        BuildLineShape(mgc, points.GetRange(0, 7), resolvedColors.GetValueOrDefault(s_VectorLineColor.name, Color.clear), 5, LineJoin.Bevel, LineCap.Butt);
+        BuildFillShape(mgc, points, fillGradient);
+        BuildLineShape(mgc, points.GetRange(0, 7), lineColor, 5, LineJoin.Bevel, LineCap.Butt);
     }
 }
