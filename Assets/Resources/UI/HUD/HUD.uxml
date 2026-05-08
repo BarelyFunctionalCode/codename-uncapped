@@ -1,0 +1,5 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Resources/UI/HUD/Styles.uss?fileID=7433441132597879392&amp;guid=61a9ca0707946bd25b7d3797c7163225&amp;type=3#Styles"/>
+    <HUDLeftSide class="hudElement" style="position: absolute; left: 0; bottom: 0; height: 60%; max-width: 25%; aspect-ratio: 0.5;"/>
+    <HUDRightSide class="hudElement" style="position: absolute; right: 0; bottom: 0; height: 60%; max-width: 25%; aspect-ratio: 0.5;"/>
+</ui:UXML>

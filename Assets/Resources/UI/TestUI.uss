@@ -1,6 +1,0 @@
-VectorTesting {
-    --vector-fill-color: rgba(80, 238, 192, 0.53);
-}
-
-VectorTesting:hover {
-}

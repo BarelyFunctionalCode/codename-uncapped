@@ -1,6 +1,0 @@
-<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/Resources/UI/TestUI.uss?fileID=7433441132597879392&amp;guid=61a9ca0707946bd25b7d3797c7163225&amp;type=3#TestUI"/>
-    <ui:VisualElement style="flex-grow: 0; height: 60%; position: absolute; left: 0; bottom: 0;">
-        <VectorTesting style="flex-grow: 1; flex-shrink: 0;"/>
-    </ui:VisualElement>
-</ui:UXML>
