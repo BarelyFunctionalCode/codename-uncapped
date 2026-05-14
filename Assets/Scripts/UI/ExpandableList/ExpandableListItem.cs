@@ -3,7 +3,7 @@ using UnityEngine.UIElements;
 
 
 // A single item in an ExpandableList, consisting of a label and an optional disabled overlay.
-[UxmlElement]
+[UxmlElement(libraryPath = "BasicElements/ExpandableListItem")]
 public partial class ExpandableListItem : CustomUIElementBase
 {
     private Label ItemNameLabel => this.Q<Label>("ItemName");

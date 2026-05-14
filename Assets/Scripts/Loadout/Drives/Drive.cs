@@ -1,14 +1,33 @@
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Events;
+
+
+public enum DriveState
+{
+    Ready,
+    Active,
+    Cooldown
+}
 
 public class Drive : NetworkBehaviour
 {
     private NetworkVariable<NetworkBehaviourReference> characterRef = new();
     protected Character character;
 
+    private DriveUI driveUI;
+
+    public NetworkVariable<DriveState> driveState = new();
+
+    private bool isCooldownActive = false;
     protected float cooldown = 0f;
     private float cooldownTimer = 0f;
     public NetworkVariable<float> cooldownRatio = new();
+    public NetworkVariable<int> cooldownSeconds = new();
+
+    protected float effectDuration = 0f;
+    private float effectDurationTimer = 0f;
+    public NetworkVariable<float> effectDurationRatio = new();
 
     public NetworkVariable<bool> isOnline = new();
     private bool isActivated = false;
@@ -32,10 +51,30 @@ public class Drive : NetworkBehaviour
         if (!IsServer || !isInitialized) return;
         if (character == null) return;
 
-        if (cooldownTimer > 0) cooldownTimer -= Time.deltaTime;
-        cooldownRatio.Value = cooldownTimer / cooldown;
-
-        if (cooldownTimer <= 0 && !isOnline.Value && CanTurnOnline()) isOnline.Value = true;
+        if (!isActivated)
+        {
+            if (cooldownTimer > 0) cooldownTimer -= Time.deltaTime;
+            if (cooldownTimer <= 0)
+            {
+                if (isCooldownActive)
+                {
+                    isCooldownActive = false;
+                    driveState.Value = DriveState.Ready;
+                }
+                if (!isOnline.Value && CanTurnOnline()) isOnline.Value = true;
+            }
+            cooldownRatio.Value = cooldownTimer / cooldown;
+            cooldownSeconds.Value = Mathf.CeilToInt(cooldownTimer);
+        }
+        else
+        {
+            if (effectDuration > 0)
+            {
+                if (effectDurationTimer > 0) effectDurationTimer -= Time.deltaTime;
+                if (effectDurationTimer <= 0) Deactivate();
+                effectDurationRatio.Value = effectDurationTimer / effectDuration;
+            }
+        }
     }
 
     public float GetCooldownRatio()
@@ -65,12 +104,20 @@ public class Drive : NetworkBehaviour
 
         characterRef.Value = null;
         isInitialized = false;
+        RemoveDriveUIClientRpc();
     }
 
     [Rpc(SendTo.Owner)]
     private void SetDriveUIClientRpc()
     {
-        Player.Instance.playerHUD.SetDrive(this);
+        driveUI = Player.Instance.playerHUD.SetDrive(this);
+    }
+
+    [Rpc(SendTo.Owner)]
+    private void RemoveDriveUIClientRpc()
+    {
+        driveUI?.Deinitialize();
+        driveUI = null;
     }
 
     protected virtual bool CanTurnOnline() => false;
@@ -81,6 +128,8 @@ public class Drive : NetworkBehaviour
 
         isActivated = true;
         bool isFinished = OnActivated();
+        if (effectDuration > 0) effectDurationTimer = effectDuration;
+        driveState.Value = DriveState.Active;
         if (isFinished) Deactivate();
     }
     protected virtual bool OnActivated() { return true; }
@@ -90,8 +139,12 @@ public class Drive : NetworkBehaviour
         if (!IsServer || !isActivated) return;
 
         isActivated = false;
-        isOnline.Value = false;
         cooldownTimer = cooldown;
+        isCooldownActive = true;
+        driveState.Value = DriveState.Cooldown;
+        isOnline.Value = false;
+        effectDurationTimer = 0f;
+        effectDurationRatio.Value = 0f;
         OnDeactivated();
     }
     protected virtual void OnDeactivated() {}

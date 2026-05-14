@@ -5,28 +5,12 @@ public class Boost : Drive
 {
     [SerializeField] GameObject boostEffectParticleSystemPrefab;
     private float effectValue = 15f;
-    private float effectDuration = 2f;
-    private float effectDurationTimer = 0f;
 
     public sealed override void OnNetworkSpawn()
     {
         cooldown = 10f;
+        effectDuration = 3f;
         base.OnNetworkSpawn();
-    }
-
-    protected sealed override void Update()
-    {
-        base.Update();
-
-        if (effectDurationTimer > 0) 
-        {
-            effectDurationTimer -= Time.deltaTime;
-
-            if (effectDurationTimer <= 0)
-            {
-                Deactivate();
-            }
-        }
     }
 
     protected sealed override bool CanTurnOnline()
@@ -39,7 +23,7 @@ public class Boost : Drive
         base.OnActivated();
 
         character.characterMovement.jetDirectionalForceXYMultiplier = effectValue;
-        effectDurationTimer = effectDuration;
+        // PlayBoostEffectClientRpc(character.transform.position);
 
         return false;
     }
@@ -49,7 +33,6 @@ public class Boost : Drive
         base.OnDeactivated();
 
         character.characterMovement.jetDirectionalForceXYMultiplier = 1f;
-        effectDurationTimer = 0f;
     }
 
     [Rpc(SendTo.Everyone)]

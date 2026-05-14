@@ -1391,8 +1391,8 @@
     "m_ObjectId": "1e1c38aab0fc4a6ba218aa7c96900817",
     "m_Title": "Emmisive Strength",
     "m_Position": {
-        "x": 1255.9998779296875,
-        "y": -128.99996948242188
+        "x": 1256.0,
+        "y": -129.0
     }
 }
 
@@ -1677,7 +1677,7 @@
     "m_Title": "Static Generator",
     "m_Position": {
         "x": -1010.0,
-        "y": -347.0000305175781
+        "y": -347.0
     }
 }
 
@@ -2168,7 +2168,7 @@
     "m_Title": "Sprite Cutout",
     "m_Position": {
         "x": -222.0,
-        "y": 238.00001525878907
+        "y": 238.0
     }
 }
 
@@ -3158,8 +3158,8 @@
     "m_ObjectId": "6566ec3b85674394ad5ec3c23e11d3b7",
     "m_Title": "Sprite Color Tint",
     "m_Position": {
-        "x": 511.4998779296875,
-        "y": -437.9999694824219
+        "x": 511.5,
+        "y": -438.0
     }
 }
 
@@ -3849,7 +3849,7 @@
     "m_ObjectId": "8cf4e61bde7746dba0906c43fb8f8bab",
     "m_Title": "Pixel Split",
     "m_Position": {
-        "x": 409.9996643066406,
+        "x": 410.0,
         "y": 909.0
     }
 }
@@ -4287,7 +4287,7 @@
     "m_Title": "Scan Lines",
     "m_Position": {
         "x": 307.0,
-        "y": 488.0000305175781
+        "y": 488.0
     }
 }
 

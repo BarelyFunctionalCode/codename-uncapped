@@ -3,7 +3,7 @@ using UnityEngine.UIElements;
 
 
 // A vertically expandable list of items, with a header that can be clicked to open/close the list.
-[UxmlElement]
+[UxmlElement(libraryPath = "BasicElements/ExpandableList")]
 public partial class ExpandableList : CustomUIElementBase
 {
     public UnityEvent<string, string> OnListItemSelected = new();

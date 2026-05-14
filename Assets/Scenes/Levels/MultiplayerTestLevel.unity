@@ -3016,7 +3016,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1931757068917247694, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
       propertyPath: debugMode
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2270528528485219496, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
       propertyPath: m_AnchorMax.y
@@ -3272,7 +3272,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4031944517337735888, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
       propertyPath: doAutoStart
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4078005235194836090, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
       propertyPath: field of view

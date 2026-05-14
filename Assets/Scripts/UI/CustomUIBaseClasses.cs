@@ -118,7 +118,7 @@ public partial class CustomUIVectorElementBase : VisualElement, ITransitionAnima
         painter2D.Fill();
     }
 
-    public void BuildLineShape(MeshGenerationContext mgc, List<Vector2> points, Color lineColor, float lineWidth, LineJoin lineJoin = LineJoin.Miter, LineCap lineCap = LineCap.Round)
+    public void BuildLineShape(MeshGenerationContext mgc, List<Vector2> points, Color lineColor, float lineWidth, LineJoin lineJoin = LineJoin.Miter, LineCap lineCap = LineCap.Round, bool closed = false)
     {
         if (points.Count < 2) return;
 
@@ -130,6 +130,39 @@ public partial class CustomUIVectorElementBase : VisualElement, ITransitionAnima
         painter2D.BeginPath();
         painter2D.MoveTo(points[0]);
         for (int i = 1; i < points.Count; i++) painter2D.LineTo(points[i]);
+        if (closed) painter2D.ClosePath();
+        painter2D.Stroke();
+    }
+
+    public void BuildLineShape(MeshGenerationContext mgc, List<Vector2> points, Gradient gradient, float lineWidth, LineJoin lineJoin = LineJoin.Miter, LineCap lineCap = LineCap.Round, bool closed = false)
+    {
+        if (points.Count < 2) return;
+
+        var painter2D = mgc.painter2D;
+        painter2D.strokeGradient = gradient;
+        painter2D.lineWidth = lineWidth;
+        painter2D.lineJoin = lineJoin;
+        painter2D.lineCap = lineCap;
+        painter2D.BeginPath();
+        painter2D.MoveTo(points[0]);
+        for (int i = 1; i < points.Count; i++) painter2D.LineTo(points[i]);
+        if (closed) painter2D.ClosePath();
+        painter2D.Stroke();
+    }
+
+    public void BuildLineShape(MeshGenerationContext mgc, List<Vector2> points, FillGradient gradient, float lineWidth, LineJoin lineJoin = LineJoin.Miter, LineCap lineCap = LineCap.Round, bool closed = false)
+    {
+        if (points.Count < 2) return;
+
+        var painter2D = mgc.painter2D;
+        painter2D.strokeFillGradient = gradient;
+        painter2D.lineWidth = lineWidth;
+        painter2D.lineJoin = lineJoin;
+        painter2D.lineCap = lineCap;
+        painter2D.BeginPath();
+        painter2D.MoveTo(points[0]);
+        for (int i = 1; i < points.Count; i++) painter2D.LineTo(points[i]);
+        if (closed) painter2D.ClosePath();
         painter2D.Stroke();
     }
 }

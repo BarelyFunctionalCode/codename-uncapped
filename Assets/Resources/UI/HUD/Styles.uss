@@ -1,11 +1,71 @@
-.hudElement {
-    --vector-fill-color: rgb(221, 80, 238);
-    --vector-fill-color-transition-time: 500;
-    flex-shrink: 0;
-    flex-grow: 1;
-    --vector-line-color: rgb(173, 173, 173);
+:root {
+    --HUD-Outline: rgb(91, 91, 91);
+    justify-content: center;
 }
 
-.hudElement:hover {
-    --vector-fill-color: rgba(255, 0, 0, 0.53);
+.container {
+    --vector-fill-color: var(--Secondary);
+    flex-shrink: 0;
+    flex-grow: 1;
+    --vector-line-color: var(--HUD-Outline);
+}
+
+HUDCenter {
+    position: absolute;
+    bottom: 0;
+    width: 45%;
+    height: 150px;
+    align-self: center;
+    --vector-line-color: var(--HUD-Outline);
+    --vector-fill-color: var(--Secondary);
+    --energy-fill-color: var(--Energy);
+    --health-fill-color: var(--Health);
+    justify-content: flex-end;
+}
+
+HUDObjectiveContainer {
+    position: absolute;
+    width: 30%;
+    height: 50px;
+    align-self: center;
+    --vector-line-color: var(--HUD-Outline);
+    --vector-fill-color: var(--Secondary);
+    top: 0;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 2.5px;
+    padding-bottom: 2.5px;
+    color: rgb(210, 210, 210);
+}
+
+HUDObjectiveContainer > .subcontainer {
+    height: auto;
+    min-width: 100px;
+    margin-top: 5px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    margin-left: 5px;
+    position: relative;
+    align-items: center;
+}
+
+HUDObjectiveContainer > #LeftObjectiveContainer {
+}
+
+HUDObjectiveContainer > #RightObjectiveContainer {
+}
+
+HUDObjectiveContainer > #CenterObjectiveContainer {
+    align-items: center;
+    flex-grow: 1;
+}
+
+#KillFeed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 25%;
+    height: 35%;
 }

@@ -3,7 +3,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-[UxmlElement]
+[UxmlElement(libraryPath = "Leaderboard/Leaderboard")]
 public partial class Leaderboard : CustomUIElementBase
 {
     private Label GameModeName => this.Q<Label>("GameModeName");
@@ -91,7 +91,7 @@ public partial class Leaderboard : CustomUIElementBase
     }
 }
 
-[UxmlElement]
+[UxmlElement(libraryPath = "Leaderboard/LeaderboardEntry")]
 public partial class LeaderboardEntry : CustomUIElementBase
 {
     public ulong characterId;

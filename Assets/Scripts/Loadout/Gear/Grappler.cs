@@ -28,7 +28,7 @@ public class Grappler : Gear
 
     public sealed override void OnNetworkSpawn()
     {
-        cooldown = 0f;
+        Cooldown = 0f;
         rechargeRate = 15f;
         MaxAmmo = 3;
         base.OnNetworkSpawn();

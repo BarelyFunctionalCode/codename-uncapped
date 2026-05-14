@@ -213,23 +213,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  iconSprite: {fileID: 21300000, guid: 576de9cab578941a7aa12b929096d4e7, type: 3}
+  cooldown: 0.1
+  cooldownTimer:
+    m_InternalValue: 0
+  maxAmmo: 300
+  ammo:
+    m_InternalValue: 0
   projectileSpawnPoint: {fileID: 3771308007267277276}
   modelObj: {fileID: 7493794893673303530}
   projectilePrefabObj: {fileID: 7921271632778685638, guid: dc231d87e5cb18546910f63251627b08, type: 3}
-  iconSprite: {fileID: 21300000, guid: 576de9cab578941a7aa12b929096d4e7, type: 3}
   reticleSprite: {fileID: -3217016368052946701, guid: eb241feee62f13843bb239fd2bfd183d, type: 3}
   fireSound: {fileID: 8300000, guid: 929f97229a2b6f5bdb9d3b5113d10760, type: 3}
-  maxAmmo: 300
   damage: 3
-  fireRate: 0.05
   spinupTime: 1
   ignoreLayers:
     serializedVersion: 2
     m_Bits: 776
   isEquiped:
     m_InternalValue: 1
-  ammoCount:
-    m_InternalValue: 0
   barrelTransform: {fileID: 5215083173137961299}
   barrelAudioSource: {fileID: 2806064575493448804}
   spinupSound: {fileID: 8300000, guid: b45643c641e7ece62bab977264b57d52, type: 3}

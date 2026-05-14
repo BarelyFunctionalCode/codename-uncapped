@@ -11,7 +11,7 @@ public class Player : MonoBehaviour, PlayerControls.ICharacterActions
     public PlayerControls playerControls;
     public PlayerCamera thirdPersonCamera;
     public PlayerCamera firstPersonCamera;
-    public HUD playerHUD;
+    public HUDController playerHUD;
 
     public Character Character { get; private set; }
 

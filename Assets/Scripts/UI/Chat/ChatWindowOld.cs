@@ -12,7 +12,7 @@ public class ChatWindowOld : MonoBehaviour
     [SerializeField] private bool isAlwaysActive = false;
 
     private bool isInitialized = false;
-    private HUD hud;
+    private HUDOld hud;
 
     private float messageDisplayDuration = 10f;
     private float messageTimer = 0f;
@@ -58,7 +58,7 @@ public class ChatWindowOld : MonoBehaviour
         }
     }
 
-    public void Initialize(HUD hud)
+    public void Initialize(HUDOld hud)
     {
         if (isInitialized) return;
 

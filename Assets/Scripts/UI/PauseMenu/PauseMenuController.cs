@@ -7,7 +7,7 @@ using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
-[UxmlElement]
+[UxmlElement(libraryPath = "PauseMenu/PauseMenu")]
 public partial class PauseMenu : CustomUIElementBase
 {
     private Button leaveButton;
@@ -60,7 +60,7 @@ public partial class PauseMenu : CustomUIElementBase
     }
 }
 
-[UxmlElement]
+[UxmlElement(libraryPath = "PauseMenu/PauseMenuControl")]
 public partial class PauseMenuControl : CustomUIElementBase
 {
     private Label nameLabel;
@@ -95,7 +95,7 @@ public partial class PauseMenuControl : CustomUIElementBase
     }
 }
 
-[UxmlElement]
+[UxmlElement(libraryPath = "PauseMenu/PauseMenuDebug")]
 public partial class PauseMenuDebug : CustomUIElementBase
 {
     private Toggle toggle;

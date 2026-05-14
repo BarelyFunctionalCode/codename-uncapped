@@ -3,25 +3,24 @@ using UnityEngine;
 using Unity.Netcode;
 
 [RequireComponent(typeof(AudioSource))]
-public class Weapon : NetworkBehaviour
+public class Weapon : LoadoutItem
 {
     public static List<string> interactionIgnoreTags = new() { "Projectile" };
     [Header("Visuals")]
     [SerializeField] private Transform projectileSpawnPoint;
     [SerializeField] private GameObject modelObj;
     [SerializeField] private GameObject projectilePrefabObj;
-    [SerializeField] public Sprite iconSprite;
     [SerializeField] public Sprite reticleSprite;
     [SerializeField] protected AudioClip fireSound;
     
     [Header("Attributes")]
-    [SerializeField] public float maxAmmo = 10000;
     [SerializeField] private float damage = 1;
-    [SerializeField] private float fireRate = 0.05f;
     [SerializeField] private float spinupTime = -1f;
     
     [Header("Collision")]
     [SerializeField] private LayerMask ignoreLayers;
+
+    private LoadoutItemUI weaponUI;
 
     private bool canFire = true;
     protected NetworkVariable<bool>  isTryingToFire = new(false);
@@ -36,9 +35,6 @@ public class Weapon : NetworkBehaviour
     private NetworkVariable<NetworkBehaviourReference> characterRef = new();
     private Character character;
 
-    public NetworkVariable<bool> isEquiped = new();
-    public NetworkVariable<float> ammoCount = new();
-    private NetworkVariable<float> fireRateTimer = new();
     protected bool isInitialized = false;
 
 
@@ -57,8 +53,8 @@ public class Weapon : NetworkBehaviour
         {
             characterRef.Value = null;
             isEquiped.Value = false;
-            ammoCount.Value = maxAmmo;
-            fireRateTimer.Value = 0;
+            ammo.Value = MaxAmmo;
+            cooldownTimer.Value = Cooldown;
         }
 
         // This is very important. This makes sure that when a late client joins, they get initialized properly.
@@ -80,12 +76,11 @@ public class Weapon : NetworkBehaviour
             projectileSpawnPoint.LookAt(character.characterAimPosition);
             if (!canFire)
             {
-                fireRateTimer.Value += Time.deltaTime;
+                if (cooldownTimer.Value > 0) cooldownTimer.Value -= Time.deltaTime;
                 if (isTryingToFire.Value && spinupTimer <= spinupTime) spinupTimer += Time.deltaTime;
 
-                if (ammoCount.Value > 0 && fireRateTimer.Value >= fireRate && spinupTimer >= spinupTime)
+                if (ammo.Value > 0 && cooldownTimer.Value <= 0 && spinupTimer >= spinupTime)
                 {
-                    fireRateTimer.Value = 0;
                     canFire = true;
                 }
             }
@@ -123,7 +118,7 @@ public class Weapon : NetworkBehaviour
             }
             
             playerCamera = Camera.main;
-            Player.Instance.playerHUD.AddWeaponUI(this);
+            weaponUI = Player.Instance.playerHUD.AddWeaponUI(this);
         }
         else
         {
@@ -139,11 +134,13 @@ public class Weapon : NetworkBehaviour
     {
         if (!IsServer) return;
         DeinitializeRpc();
+        isEquiped.Value = false;
         isInitialized = false;
     }
     [Rpc(SendTo.Everyone)]
     public void DeinitializeRpc()
     {
+        weaponUI?.Deinitialize();
         modelObj.transform.parent = transform;
         transform.parent = originalParentNetworkObject.transform;
         isInitialized = false;
@@ -173,7 +170,7 @@ public class Weapon : NetworkBehaviour
     public void refillAmmo()
     {
         if (!IsServer) return;
-        ammoCount.Value = maxAmmo;
+        ammo.Value = MaxAmmo;
     }
 
     public virtual void Fire()
@@ -202,7 +199,8 @@ public class Weapon : NetworkBehaviour
         };
 
         currentProjectile = null;
-        ammoCount.Value--;
+        ammo.Value--;
+        cooldownTimer.Value = Cooldown;
         canFire = false;
     }
 
@@ -227,7 +225,7 @@ public class Weapon : NetworkBehaviour
         DoHoldModifierEnd(currentProjectile);
 
         currentProjectile = null;
-        ammoCount.Value--;
+        ammo.Value--;
         canFire = false;
     }
 

@@ -9,9 +9,13 @@ UIDocumentRootElement {
 :root {
     -unity-font-definition: url("project://database/Assets/Fonts/welbutrin/Welbut__%20Bitmap.asset?fileID=11400000&guid=7a29126173bc1b4fba9bdcf432284dfb&type=2#Welbut__ Bitmap");
     -unity-material: url("project://database/Assets/Shaders/RetroStaticUI.shadergraph?fileID=-876546973899608171&guid=69700b1ae33124c94ba8dda5b7003190&type=3#RetroStaticUI");
-    --Primary: rgba(0, 207, 131, 0.7);
-    --Primary-Text: rgba(0, 207, 132, 0.95);
+    --Primary: rgba(34, 237, 230, 0.7);
+    --Primary-Text: rgba(34, 237, 230, 0.95);
     --Secondary: rgba(138, 0, 62, 0.7);
+    --Active-Color: rgba(46, 207, 202, 0.95);
+    --Cooldown-Color: rgba(188, 59, 59, 0.75);
+    --Energy: rgba(46, 207, 202, 0.95);
+    --Health: rgba(188, 59, 59, 0.75);
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
     border-bottom-right-radius: 8px;
@@ -33,8 +37,8 @@ UIDocumentRootElement {
 
 Button {
     transition-duration: 0.3s;
-    -unity-text-auto-size: best-fit 10px 100px;
     -unity-text-generator: advanced;
+    -unity-text-auto-size: best-fit 10px 100px;
     -unity-text-align: middle-center;
     padding: 3px;
     aspect-ratio: 4;
@@ -62,6 +66,11 @@ Button.primary {
 }
 
 Label.primary {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+Image.primary {
+    -unity-background-image-tint-color: var(--Primary-Text);
     background-color: rgba(0, 0, 0, 0);
 }
 
@@ -126,4 +135,21 @@ Label.description {
     margin-right: 20px;
     margin-left: 20px;
     flex-shrink: 0;
+}
+
+RetroNumber {
+    -unity-font-definition: url("project://database/Assets/Fonts/fonts-DSEG_v046/DSEG14ClassicMini-Regular%20Bitmap.asset?fileID=11400000&guid=62189914401de4eea99cba59a0b7c712&type=2#DSEG14ClassicMini-Regular Bitmap");
+    justify-content: center;
+}
+
+RetroNumber > #BackgroundLabel {
+    position: absolute;
+    -unity-text-generator: advanced;
+    -unity-text-auto-size: best-fit 10px 100px;
+    color: rgba(36, 36, 36, 0.8);
+}
+
+RetroNumber > #Text {
+    -unity-text-generator: advanced;
+    -unity-text-auto-size: best-fit 10px 100px;
 }

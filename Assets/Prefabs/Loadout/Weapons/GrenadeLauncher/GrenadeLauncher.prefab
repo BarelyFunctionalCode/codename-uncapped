@@ -50,22 +50,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  iconSprite: {fileID: 21300000, guid: 7ed913803a8cb4db9837a28d3a8961a2, type: 3}
+  cooldown: 1
+  cooldownTimer:
+    m_InternalValue: 0
+  maxAmmo: 25
+  ammo:
+    m_InternalValue: 0
   projectileSpawnPoint: {fileID: 7053101878330708289}
   modelObj: {fileID: 809033310396754321}
   projectilePrefabObj: {fileID: 7666252333429008558, guid: 73e8b5ed4afdf3e4a824bff50d465bcc, type: 3}
-  iconSprite: {fileID: 21300000, guid: 7ed913803a8cb4db9837a28d3a8961a2, type: 3}
   reticleSprite: {fileID: 7839025787504956628, guid: 550fb64ed426f1e44a8ae001f13ca548, type: 3}
   fireSound: {fileID: 8300000, guid: a8a877d7e9d84491885e190b936fb23a, type: 3}
-  maxAmmo: 25
   damage: 70
-  fireRate: 2
   spinupTime: -1
   ignoreLayers:
     serializedVersion: 2
     m_Bits: 776
   isEquiped:
-    m_InternalValue: 0
-  ammoCount:
     m_InternalValue: 0
   animator: {fileID: 631072955746057078}
   shellEjectPoint: {fileID: 1518291778265757106}
@@ -344,7 +346,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1776499438
+  GlobalObjectIdHash: 1969094637
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1

@@ -1,13 +1,12 @@
 #ToastContainer {
     overflow: hidden;
-    width: 25%;
-    height: 40%;
     left: 0;
     top: 0;
     padding-top: 10px;
     padding-left: 10px;
     padding-bottom: 10px;
     padding-right: 10px;
+    flex-grow: 0;
 }
 
 #Toast {

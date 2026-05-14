@@ -37,7 +37,7 @@ public class LoadoutMenu : MonoBehaviour
     // References to the player using the loadout menu.
     private CharacterLoadoutManager playerLoadoutManager;
     private CharacterLoadout tempLoadout;
-    private HUD hud;
+    private HUDOld hud;
 
     private bool isInitialized = false;
 
@@ -48,7 +48,7 @@ public class LoadoutMenu : MonoBehaviour
     }
     
     // Set references to the player's loadout and HUD
-    public void Initialize(CharacterLoadoutManager playerLoadoutManager, HUD hud)
+    public void Initialize(CharacterLoadoutManager playerLoadoutManager, HUDOld hud)
     {
         if (isInitialized) return;
 

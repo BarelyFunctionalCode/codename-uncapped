@@ -1,20 +1,16 @@
 using Unity.Netcode;
 using UnityEngine;
 
-public class Gear : NetworkBehaviour
+public class Gear : LoadoutItem
 {
     private NetworkVariable<NetworkBehaviourReference> characterRef = new();
     protected Character character;
 
-    [SerializeField] public Sprite iconSprite;
     [SerializeField] private GameObject modelObj;
 
-    protected float cooldown = 0f;
-    public NetworkVariable<float> cooldownTimer = new();
-    private NetworkVariable<bool> canUse = new();
+    private LoadoutItemUI gearUI;
 
-    public int MaxAmmo { get; protected set; }
-    public NetworkVariable<int> ammo = new();
+    private NetworkVariable<bool> canUse = new();
 
     protected float rechargeRate = -1f;
     private float rechargeTimer = 0f;
@@ -98,6 +94,7 @@ public class Gear : NetworkBehaviour
 
         characterRef.Value = new NetworkBehaviourReference(character);
         InitializeRpc(characterRef.Value);
+        isEquiped.Value = true;
         OnInitialize(character);
         isInitialized = true;
     }
@@ -114,7 +111,7 @@ public class Gear : NetworkBehaviour
         }
         if (IsOwner && character.IsPlayerCharacter)
         {
-            Player.Instance.playerHUD.SetGearUI(this);
+            gearUI = Player.Instance.playerHUD.SetGearUI(this);
         }
         isInitialized = true;
     }
@@ -132,7 +129,9 @@ public class Gear : NetworkBehaviour
     [Rpc(SendTo.Everyone)]
     public void DeinitializeRpc()
     {
+        gearUI?.Deinitialize();
         if (modelObj != null) modelObj.transform.parent = transform;
+        isEquiped.Value = false;
         isInitialized = false;
     }
     protected virtual void OnDeinitialize() {}
@@ -153,7 +152,7 @@ public class Gear : NetworkBehaviour
         IsActive = true;
         bool isFinished = OnUse();
         ammo.Value = Mathf.Max(0, ammo.Value - 1);
-        cooldownTimer.Value = cooldown;
+        cooldownTimer.Value = Cooldown;
         if (isFinished) StopUse();
     }
     protected virtual bool OnUse() { return true; }
