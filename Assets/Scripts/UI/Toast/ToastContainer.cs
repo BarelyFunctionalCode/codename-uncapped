@@ -46,13 +46,12 @@ public partial class ToastContainer : CustomUIElementBase
         Toast newToast = (Toast)UIManager.Spawn("UI/Toast/Toast", this);
         newToast.Initialize(data, hideTime);
         activeToasts.Add(newToast);
-
-        if (activeToasts.Count > maxToasts) activeToasts[0].Update(float.MaxValue);
     }
 
     public void Update()
     {
         if (!isActive) return;
+        if (activeToasts.Count > maxToasts) activeToasts[0].RemoveFromHierarchy();
         for (int i = activeToasts.Count - 1; i >= 0; i--)
         {
             if (activeToasts[i].Update(Time.time - updateTime)) activeToasts.RemoveAt(i);

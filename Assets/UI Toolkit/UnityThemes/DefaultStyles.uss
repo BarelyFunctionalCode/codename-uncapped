@@ -12,6 +12,8 @@ UIDocumentRootElement {
     --Primary: rgba(34, 237, 230, 0.7);
     --Primary-Text: rgba(34, 237, 230, 0.95);
     --Secondary: rgba(138, 0, 62, 0.7);
+    --Caution: rgba(198, 224, 46, 0.7);
+    --Caution-Text: rgba(198, 224, 46, 0.95);
     --Active-Color: rgba(46, 207, 202, 0.95);
     --Cooldown-Color: rgba(188, 59, 59, 0.75);
     --Energy: rgba(46, 207, 202, 0.95);
@@ -102,6 +104,15 @@ Label.secondary {
 .secondary > Label {
     background-color: rgba(0, 0, 0, 0);
     color: var(--Primary-Text);
+}
+
+.caution {
+    background-color: var(--Caution);
+    color: var(--Caution-Text);
+}
+
+Label.caution {
+    background-color: rgba(0, 0, 0, 0);
 }
 
 .background {

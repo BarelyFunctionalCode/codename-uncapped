@@ -235,7 +235,7 @@ MonoBehaviour:
   identifierManager: {fileID: 7438491681978546768}
   chatWindow: {fileID: 6033623558929804005}
   loadoutMenu: {fileID: 8991334647380439516}
-  pauseMenu: {fileID: 5234948001126256474}
+  pauseMenu: {fileID: 0}
   leaderboard: {fileID: 4522554830476026242}
 --- !u!1 &354439633661193801
 GameObject:
@@ -4269,7 +4269,6 @@ RectTransform:
   - {fileID: 5351569467990395915}
   - {fileID: 9000138466214700355}
   - {fileID: 7146528931904448677}
-  - {fileID: 8248744312141323648}
   - {fileID: 6765289334359810478}
   - {fileID: 8503841721455423009}
   m_Father: {fileID: 230422446030208538}
@@ -4618,87 +4617,6 @@ MonoBehaviour:
 Transform:
   m_CorrespondingSourceObject: {fileID: 7588474006296162538, guid: 197cec5e2492b423083687bde264bf12, type: 3}
   m_PrefabInstance: {fileID: 2255206215429545675}
-  m_PrefabAsset: {fileID: 0}
---- !u!1001 &5823345377775193487
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 7225800473973223131}
-    m_Modifications:
-    - target: {fileID: 2497739652866314255, guid: 7ed8eeb13c2da5d42b346e8d5ce42f56, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -73.45713
-      objectReference: {fileID: 0}
-    - target: {fileID: 2497739652866314255, guid: 7ed8eeb13c2da5d42b346e8d5ce42f56, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 470.6134
-      objectReference: {fileID: 0}
-    - target: {fileID: 2497739652866314255, guid: 7ed8eeb13c2da5d42b346e8d5ce42f56, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 427135.88
-      objectReference: {fileID: 0}
-    - target: {fileID: 2497739652866314255, guid: 7ed8eeb13c2da5d42b346e8d5ce42f56, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2497739652866314255, guid: 7ed8eeb13c2da5d42b346e8d5ce42f56, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2497739652866314255, guid: 7ed8eeb13c2da5d42b346e8d5ce42f56, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2497739652866314255, guid: 7ed8eeb13c2da5d42b346e8d5ce42f56, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2497739652866314255, guid: 7ed8eeb13c2da5d42b346e8d5ce42f56, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2497739652866314255, guid: 7ed8eeb13c2da5d42b346e8d5ce42f56, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2497739652866314255, guid: 7ed8eeb13c2da5d42b346e8d5ce42f56, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6013329821977034969, guid: 7ed8eeb13c2da5d42b346e8d5ce42f56, type: 3}
-      propertyPath: m_SortingOrder
-      value: 999
-      objectReference: {fileID: 0}
-    - target: {fileID: 8270277282730940706, guid: 7ed8eeb13c2da5d42b346e8d5ce42f56, type: 3}
-      propertyPath: m_Name
-      value: PauseMenu
-      objectReference: {fileID: 0}
-    - target: {fileID: 8270277282730940706, guid: 7ed8eeb13c2da5d42b346e8d5ce42f56, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 7ed8eeb13c2da5d42b346e8d5ce42f56, type: 3}
---- !u!114 &5234948001126256474 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1762852198824379093, guid: 7ed8eeb13c2da5d42b346e8d5ce42f56, type: 3}
-  m_PrefabInstance: {fileID: 5823345377775193487}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a01ea651bfb1b425b9ed60d67e590999, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PauseMenuController
---- !u!4 &8248744312141323648 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2497739652866314255, guid: 7ed8eeb13c2da5d42b346e8d5ce42f56, type: 3}
-  m_PrefabInstance: {fileID: 5823345377775193487}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6073681292002291642
 PrefabInstance:

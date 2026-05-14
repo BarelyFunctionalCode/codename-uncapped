@@ -1,29 +1,44 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 [RequireComponent(typeof(UIDocument))]
 public class HUDController : MonoBehaviour
 {
+    // Main HUD Document
     private UIDocument hudUIDocument;
 
+    // Static Sections of the HUD
     private HUDObjectiveContainer objectiveContainer;
     private HUDCenter centerContainer;
     private HUDLeftSide leftSideContainer;
     private HUDRightSide rightSideContainer;
+    private Label currentPhaseText;
+    private Dictionary<Phase, string> phaseColors = new()
+    {
+        { Phase.ACTIVE, "secondary" },
+        { Phase.PRELOAD, "secondary" },
+        { Phase.WARMUP, "caution" },
+        { Phase.ENDGAME, "primary" },
+        { Phase.NULL, "secondary" }
+    };
 
+    // HUD Elements added at runtime
     private ToastContainer killFeed;
+    private PauseMenu pauseMenu;
 
+    // Player References
     private Character character;
     private PlayerControls playerControls;
 
+    // Menu Management
     private List<HUDMenu> openMenus = new();
     private HUDMenu menuLock = HUDMenu.None;
     int cursorLockCounter = 0;
 
     private bool isActive = false;
     private bool isInitialized = false;
+
 
     private void Awake()
     {
@@ -37,6 +52,8 @@ public class HUDController : MonoBehaviour
 
         leftSideContainer = hudRoot.Q<HUDLeftSide>();
         rightSideContainer = hudRoot.Q<HUDRightSide>();
+
+        currentPhaseText = hudRoot.Q<Label>("CurrentPhase");
     }
 
     private void Update()
@@ -50,7 +67,6 @@ public class HUDController : MonoBehaviour
         }
     }
 
-
     public void Initialize(Player player, Character character)
     {
         if (isInitialized) return;
@@ -59,19 +75,20 @@ public class HUDController : MonoBehaviour
         playerControls = player.playerControls;
 
         // TODO: Spawn other menu documents
+
+        pauseMenu = (PauseMenu)UIManager.Spawn("UI/PauseMenu/PauseMenu", hudUIDocument.rootVisualElement);
         
-        // playerControls.UI.PauseMenu.performed += ctx => ToggleMenu(HUDMenu.PauseMenu);
-        // playerControls.UI.LoadoutMenu.performed += ctx => ToggleMenu(HUDMenu.LoadoutMenu);
-        // playerControls.UI.Chat.performed += ctx => ToggleMenu(HUDMenu.Chat, true);
-        // playerControls.UI.Close.performed += ctx => HandleCloseInput();
+        playerControls.UI.PauseMenu.performed += ctx => ToggleMenu(HUDMenu.PauseMenu);
+        playerControls.UI.LoadoutMenu.performed += ctx => ToggleMenu(HUDMenu.LoadoutMenu);
+        playerControls.UI.Chat.performed += ctx => ToggleMenu(HUDMenu.Chat, true);
+        playerControls.UI.Close.performed += ctx => HandleCloseInput();
 
         // playerControls.UI.Leaderboard.started += ctx => leaderboard.ToggleMenu(true);
         // playerControls.UI.Leaderboard.canceled += ctx => leaderboard.ToggleMenu(false);
-        // playerControls.UI.Enable();
+        playerControls.UI.Enable();
 
-        // pauseMenu.Initialize(player, character);
+        pauseMenu.Initialize(player, character);
         // chatWindow.Initialize(this);
-        // centerClusterUI.Initialize(character);
         // loadoutMenu.Initialize(character.GetComponent<CharacterLoadoutManager>(), this);
         // leaderboard.Initialize();
         killFeed = (ToastContainer)UIManager.Spawn("UI/Toast/ToastContainer", hudUIDocument.rootVisualElement);
@@ -82,7 +99,7 @@ public class HUDController : MonoBehaviour
         // health.onAppliedDamage.AddListener(SetHitMarker);
         GameModeHandler.Instance.OnStatUpdated.AddListener(SetObjectiveData);
         GameModeHandler.Instance.currentPhaseCountdown.OnValueChanged += SetCountDownTimer;
-        // GameModeHandler.Instance.currentPhase.OnValueChanged += SetCurrentPhaseData;
+        GameModeHandler.Instance.currentPhase.OnValueChanged += SetCurrentPhaseData;
 
         isInitialized = true;
         SetHUDActive(false);
@@ -94,17 +111,16 @@ public class HUDController : MonoBehaviour
         isInitialized = false;
 
         playerControls.UI.Disable();
-        // playerControls.UI.PauseMenu.performed -= ctx => ToggleMenu(HUDMenu.PauseMenu);
-        // playerControls.UI.LoadoutMenu.performed -= ctx => ToggleMenu(HUDMenu.LoadoutMenu);
-        // playerControls.UI.Chat.performed -= ctx => ToggleMenu(HUDMenu.Chat, true);
-        // playerControls.UI.Close.performed -= ctx => HandleCloseInput();
+        playerControls.UI.PauseMenu.performed -= ctx => ToggleMenu(HUDMenu.PauseMenu);
+        playerControls.UI.LoadoutMenu.performed -= ctx => ToggleMenu(HUDMenu.LoadoutMenu);
+        playerControls.UI.Chat.performed -= ctx => ToggleMenu(HUDMenu.Chat, true);
+        playerControls.UI.Close.performed -= ctx => HandleCloseInput();
 
         // playerControls.UI.Leaderboard.started -= ctx => leaderboard.ToggleMenu(true);
         // playerControls.UI.Leaderboard.canceled -= ctx => leaderboard.ToggleMenu(false);
 
-        // pauseMenu.Deinitialize();
+        pauseMenu.Deinitialize();
         // chatWindow.Deinitialize();
-        // centerClusterUI.Deinitialize();
         // loadoutMenu.Deinitialize();
         // leaderboard.Deinitialize();
         killFeed?.Deinitialize();
@@ -120,18 +136,12 @@ public class HUDController : MonoBehaviour
         {
             GameModeHandler.Instance.OnStatUpdated.RemoveListener(SetObjectiveData);
             GameModeHandler.Instance.currentPhaseCountdown.OnValueChanged -= SetCountDownTimer;
-            // GameModeHandler.Instance.currentPhase.OnValueChanged -= SetCurrentPhaseData;
+            GameModeHandler.Instance.currentPhase.OnValueChanged -= SetCurrentPhaseData;
         }
 
         character = null;
         playerControls = null;
     }
-
-
-
-
-
-
 
     public void SetHUDActive(bool isActive)
     {
@@ -162,20 +172,22 @@ public class HUDController : MonoBehaviour
         objectiveContainer.Clock.Text = $"{minutes:00}:{seconds:00}";
     }
 
-    
     private void SetCurrentPhaseData(Phase _, Phase phase)
     {
-        // TODO: Do this
         if (phase == Phase.NULL)
         {
-            // currentPhaseText.gameObject.SetActive(false);
+            currentPhaseText.text = "";
             return;
-        } 
-        
-        // currentPhaseText.text = phase.ToString();
-        // currentPhaseText.color = phaseColors[phase];
-        // if (phase == Phase.ACTIVE) currentPhaseText.gameObject.SetActive(false);
-        // else currentPhaseText.gameObject.SetActive(true);
+        }
+
+        currentPhaseText.text = phase.ToString();
+        currentPhaseText.ClearClassList();
+        if (phaseColors.TryGetValue(phase, out string colorClass))
+        {
+            currentPhaseText.AddToClassList(colorClass);
+        }
+        if (phase == Phase.ACTIVE) currentPhaseText.style.display = DisplayStyle.None;
+        else currentPhaseText.style.display = DisplayStyle.Flex;
     }
 
     public DriveUI SetDrive(Drive drive)
@@ -208,23 +220,6 @@ public class HUDController : MonoBehaviour
         return weaponUI;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
     public void SetCursorState(bool enabled, bool usingCustomCursor = false)
     {
         if (enabled) cursorLockCounter++;
@@ -275,7 +270,7 @@ public class HUDController : MonoBehaviour
                 // loadoutMenu.ToggleMenu();
                 break;
             case HUDMenu.PauseMenu:
-                // pauseMenu.ToggleMenu();
+                pauseMenu.ToggleMenu();
                 break;
             default:
                 break;
