@@ -1,0 +1,94 @@
+:root {
+}
+
+ChatWindow {
+    width: 25%;
+    height: 45%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    --vector-line-color: var(--Primary-Text);
+    --vector-fill-color: var(--Primary);
+    flex-shrink: 0;
+}
+
+#messages-container {
+    flex-shrink: 0;
+    padding-top: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+}
+
+#text-input-container {
+    padding-top: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+}
+
+#text-input {
+    color: var(--Secondary-Text);
+    font-size: 14px;
+    -unity-text-align: upper-left;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    width: 100%;
+    height: 100%;
+    flex-shrink: 0;
+    flex-grow: 1;
+}
+
+
+
+.unity-scroll-view {
+    flex-shrink: 1;
+}
+
+.unity-scroll-view__content-and-vertical-scroll-container {
+    flex-grow: 1;
+    flex-direction: row;
+}
+
+.unity-scroll-view__content-viewport {
+    flex: auto;
+    overflow: hidden;
+}
+
+.unity-scroll-view--vertical > .unity-scroll-view__content-and-vertical-scroll-container > .unity-scroll-view__content-viewport {
+    flex-direction: column;
+}
+
+.unity-scroll-view__content-container {
+    flex-shrink: 0;
+}
+
+.unity-scroll-view--vertical > .unity-scroll-view__content-and-vertical-scroll-container > .unity-scroll-view__content-viewport > .unity-scroll-view__content-container {
+    flex-direction: column;
+}
+
+.unity-scroll-view--vertical.unity-scroll-view--scroll > .unity-scroll-view__content-and-vertical-scroll-container > .unity-scroll-view__content-viewport > .unity-scroll-view__content-container {
+    overflow: scroll;
+}
+
+ChatMessage {
+    flex-shrink: 0;
+    min-height: 100px;
+    --vector-line-color: rgb(0, 0, 0);
+    margin-top: 5px;
+    margin-right: 5px;
+    margin-left: 5px;
+}
+
+ChatMessage > Label {
+    white-space: normal;
+    margin-top: 5px;
+    margin-right: 5px;
+    margin-left: 5px;
+}
+
+ChatMessage > #sender-label {
+    font-size: 14px;
+    -unity-font-style: bold;
+}
