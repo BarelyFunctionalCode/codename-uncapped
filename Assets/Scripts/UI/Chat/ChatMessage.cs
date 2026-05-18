@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 [UxmlElement(libraryPath = "Chat/ChatMessage")]
 public partial class ChatMessage : VectorFillShape
 {
-    static float outlineWidth = 5f;
+    static float outlineWidth = 4f;
     static float cornerWidth = 20f;
 
     Label senderLabel;
@@ -39,6 +39,7 @@ public partial class ChatMessage : VectorFillShape
     protected override void OnGenerateVisualContent(MeshGenerationContext mgc)
     {
         Color lineColor = resolvedColors.GetValueOrDefault(s_VectorLineColor.name, Color.clear);
+        Color fillColor = resolvedColors.GetValueOrDefault(s_VectorFillColor.name, Color.clear);
 
         List<Vector2> points = new()
         {
@@ -49,6 +50,28 @@ public partial class ChatMessage : VectorFillShape
             new Vector2(outlineWidth * 0.5f + cornerWidth, layout.height - outlineWidth * 0.5f),
             new Vector2(outlineWidth * 0.5f, layout.height - outlineWidth * 0.5f - cornerWidth * 0.5f),
         };
-        BuildLineShape(mgc, points, lineColor, outlineWidth, LineJoin.Bevel, LineCap.Butt, true);
+        BuildLineShape(mgc, points, lineColor, outlineWidth, LineJoin.Miter, LineCap.Butt, true);
+
+        points = new()
+        {
+            new Vector2(outlineWidth, outlineWidth),
+            new Vector2(layout.width - outlineWidth - cornerWidth + outlineWidth * 0.4f, outlineWidth),
+            new Vector2(layout.width - outlineWidth, outlineWidth + cornerWidth * 0.5f - outlineWidth * 0.2f),
+            new Vector2(layout.width - outlineWidth, layout.height - outlineWidth),
+            new Vector2(outlineWidth + cornerWidth - outlineWidth * 0.4f, layout.height - outlineWidth),
+            new Vector2(outlineWidth, layout.height - outlineWidth - cornerWidth * 0.5f + outlineWidth * 0.2f),
+        };
+        BuildFillShape(mgc, points, fillColor);
+    }
+
+    public void Initialize(NotificationData messageData, Color containerColor)
+    {
+        // messageContainerImage.color = containerColor;
+        senderLabel.text = messageData.title;
+        // messageNameText.color = messageData.color;
+        messageLabel.text = messageData.content;
+        // Color contentColor = messageContainerImage.color;
+        // contentColor = Color.Lerp(contentColor, Color.black, 0.8f);
+        // messageContentText.color = contentColor;
     }
 }

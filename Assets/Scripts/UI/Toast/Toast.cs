@@ -31,7 +31,7 @@ public partial class Toast : CustomUIElementBase
     public bool Update(float deltaTime)
     {
         if (hideTimer >= 0) hideTimer += deltaTime;
-        if (ToastElement != null && hideTimer >= hideTime && ToastElement.parent.IndexOf(ToastElement) == 0)
+        if (ToastElement != null && ToastElement.parent != null && hideTimer >= hideTime && ToastElement.parent.IndexOf(ToastElement) == 0)
         {
             hideTimer = -1f;
             ToastElement.style.opacity = 0f;

@@ -26,13 +26,14 @@ public static class UIManager
     {
         var elementInstance = uiAsset.Instantiate();
         var elementToAdd = elementInstance.Children().FirstOrDefault();
+
+        CustomUIElementBase customElement = elementToAdd.Q<CustomUIElementBase>();
+        if (customElement != null) elementToAdd = customElement;
+
         var stylesheets = uiAsset.stylesheets;
         foreach (var stylesheet in stylesheets)
             elementToAdd.styleSheets.Add(stylesheet);
         parent.Add(elementToAdd);
-
-        CustomUIElementBase customElement = elementToAdd.Q<CustomUIElementBase>();
-        if (customElement != null) return customElement;
 
         return elementToAdd;
     }

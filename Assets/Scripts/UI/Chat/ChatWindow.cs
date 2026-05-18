@@ -8,12 +8,22 @@ using UnityEngine.UIElements;
 [UxmlElement(libraryPath = "Chat/ChatWindow")]
 public partial class ChatWindow : VectorFillShape
 {
-    static float outlineWidth = 15f;
+    private static float outlineWidth = 15f;
 
-    VisualElement messagesContainer;
-    VisualElement textInputContainer;
-    ScrollView messagesScrollView;
-    TextField textInput;
+    private VisualElement messagesContainer;
+    private VisualElement textInputContainer;
+    private ScrollView messagesScrollView;
+    private TextField textInput;
+
+    private ToastContainer passiveChatNotificationsContainer;
+
+    private HUDController hud;
+
+    private long chatAutoHideDelay = 5;
+
+    private bool isInitialized = false;
+    private bool isMenuActive = false;
+    private bool isPointerInMessageList = false;
 
     public ChatWindow()
     {
@@ -39,18 +49,17 @@ public partial class ChatWindow : VectorFillShape
             name = "text-input",
             label = "",
             multiline = true,
-            isDelayed = true,
         };
         textInput.textEdition.hidePlaceholderOnFocus = true;
         textInput.textEdition.placeholder = "Type a message...";
         textInput.verticalScrollerVisibility = ScrollerVisibility.AlwaysVisible;
         textInputContainer.Add(textInput);
 
-        RegisterCallback<GeometryChangedEvent>(evt =>
-        {
-            messagesContainer.style.height = new Length(layout.height * 0.6f + outlineWidth);
-            textInputContainer.style.height = new Length(layout.height * 0.4f - outlineWidth * 2f);
-        });
+
+        messagesScrollView.RegisterCallback<PointerEnterEvent>(evt => isPointerInMessageList = true);
+        messagesScrollView.RegisterCallback<PointerLeaveEvent>(evt => isPointerInMessageList = false);
+        textInput.RegisterCallback<NavigationCancelEvent>(OnChatInputCancel);
+        textInput.RegisterCallback<NavigationSubmitEvent>(OnChatInputSubmit, TrickleDown.TrickleDown);
     }
 
     protected override void OnGenerateVisualContent(MeshGenerationContext mgc)
@@ -95,5 +104,104 @@ public partial class ChatWindow : VectorFillShape
             new Vector2(layout.width, layout.height * 0.6f + outlineWidth + outlineWidth),
         };
         BuildFillShape(mgc, points, fillColor);
+    }
+
+    public void Initialize(HUDController hud)
+    {
+        if (isInitialized) return;
+
+        NotificationManager.Instance.newNotificationReceivedEvent.AddListener(OnNewMessageReceived);
+
+        passiveChatNotificationsContainer = (ToastContainer)UIManager.Spawn("UI/Toast/ToastContainer", parent ?? this);
+        passiveChatNotificationsContainer.name = "passive-chat-notifications";
+        for (int i = 0; i < styleSheets.count; i++)
+            passiveChatNotificationsContainer.styleSheets.Add(styleSheets[i]);
+        passiveChatNotificationsContainer.Initialize(NotificationType.ChatMessage, 5f);
+
+        this.hud = hud;
+        isInitialized = true;
+
+        RegisterCallback<GeometryChangedEvent>(ResizeChatWindow);
+    }
+
+    public void Deinitialize()
+    {
+        if (!isInitialized) return;
+        isInitialized = false;
+
+        UnregisterCallback<GeometryChangedEvent>(ResizeChatWindow);
+
+        if (NotificationManager.Instance != null)
+        {
+            NotificationManager.Instance.newNotificationReceivedEvent.RemoveListener(OnNewMessageReceived);
+        }
+        passiveChatNotificationsContainer.RemoveFromHierarchy();
+        hud = null;
+    }
+
+    public bool ToggleMenu()
+    {
+        isMenuActive = !isMenuActive;
+        EnableInClassList("active-menu", isMenuActive);
+        passiveChatNotificationsContainer.EnableInClassList("active-menu", isMenuActive);
+        if (isMenuActive)
+        {
+            BringToFront();
+            schedule.Execute(() =>
+            {
+                textInput.Focus();
+                messagesScrollView.verticalScroller.value = messagesScrollView.verticalScroller.highValue;
+            }).ExecuteLater(100);
+        }
+        else
+        {
+            isPointerInMessageList = false;
+            textInput.Blur();
+        }
+        return isMenuActive;
+    }
+
+    private void ResizeChatWindow(GeometryChangedEvent evt)
+    {
+        messagesContainer.style.height = new Length(layout.height * 0.6f + outlineWidth);
+        textInputContainer.style.height = new Length(layout.height * 0.4f - outlineWidth * 2f);
+
+        passiveChatNotificationsContainer.style.width = messagesContainer.resolvedStyle.width;
+        passiveChatNotificationsContainer.style.height = messagesContainer.style.height;
+    }
+
+    private void OnNewMessageReceived(NotificationData messageData)
+    {
+        if (messageData.type != NotificationType.ChatMessage) return;
+
+        ChatMessage newMessage = (ChatMessage)UIManager.Spawn("UI/Chat/ChatMessage", messagesScrollView.contentContainer);
+        newMessage.Initialize(messageData, Color.clear);
+        if (!isPointerInMessageList)
+        schedule.Execute(
+            () => messagesScrollView.verticalScroller.value = messagesScrollView.verticalScroller.highValue
+        ).StartingIn(100);
+    }
+
+    private void OnChatInputSubmit(NavigationSubmitEvent evt)
+    {
+        string message = textInput.value;
+        if (!string.IsNullOrWhiteSpace(message))
+        {
+            NotificationManager.Instance.SendChatNotificationRpc(message);
+            textInput.value = string.Empty;
+            schedule.Execute(CheckToHideChat).ExecuteLater(chatAutoHideDelay * 1000);
+        }
+        evt.StopPropagation();
+    }
+
+    private void OnChatInputCancel(EventBase evt)
+    {
+        if (hud) hud.ToggleMenu(HUDMenu.Chat);
+    }
+
+    private void CheckToHideChat()
+    {
+        if (textInput.value != string.Empty) return;
+        if (hud && style.display == DisplayStyle.Flex) hud.ToggleMenu(HUDMenu.Chat);
     }
 }

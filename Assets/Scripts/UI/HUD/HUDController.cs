@@ -26,6 +26,7 @@ public class HUDController : MonoBehaviour
     // HUD Elements added at runtime
     private ToastContainer killFeed;
     private PauseMenu pauseMenu;
+    private ChatWindow chatWindow;
 
     // Player References
     private Character character;
@@ -42,6 +43,12 @@ public class HUDController : MonoBehaviour
 
     private void Awake()
     {
+        if (Player.Instance != null && this != Player.Instance.playerHUD)
+        {
+            Destroy(this);
+            return;
+        }
+
         hudUIDocument = GetComponent<UIDocument>();
         var hudRoot = hudUIDocument.rootVisualElement;
         objectiveContainer = hudRoot.Q<HUDObjectiveContainer>();
@@ -77,6 +84,7 @@ public class HUDController : MonoBehaviour
         // TODO: Spawn other menu documents
 
         pauseMenu = (PauseMenu)UIManager.Spawn("UI/PauseMenu/PauseMenu", hudUIDocument.rootVisualElement);
+        chatWindow = (ChatWindow)UIManager.Spawn("UI/Chat/ChatWindow", hudUIDocument.rootVisualElement);
         
         playerControls.UI.PauseMenu.performed += ctx => ToggleMenu(HUDMenu.PauseMenu);
         playerControls.UI.LoadoutMenu.performed += ctx => ToggleMenu(HUDMenu.LoadoutMenu);
@@ -88,7 +96,7 @@ public class HUDController : MonoBehaviour
         playerControls.UI.Enable();
 
         pauseMenu.Initialize(player, character);
-        // chatWindow.Initialize(this);
+        chatWindow.Initialize(this);
         // loadoutMenu.Initialize(character.GetComponent<CharacterLoadoutManager>(), this);
         // leaderboard.Initialize();
         killFeed = (ToastContainer)UIManager.Spawn("UI/Toast/ToastContainer", hudUIDocument.rootVisualElement);
@@ -120,7 +128,7 @@ public class HUDController : MonoBehaviour
         // playerControls.UI.Leaderboard.canceled -= ctx => leaderboard.ToggleMenu(false);
 
         pauseMenu.Deinitialize();
-        // chatWindow.Deinitialize();
+        chatWindow.Deinitialize();
         // loadoutMenu.Deinitialize();
         // leaderboard.Deinitialize();
         killFeed?.Deinitialize();
@@ -263,7 +271,7 @@ public class HUDController : MonoBehaviour
             case HUDMenu.Chat:
                 // Only enable chat if no other menus are open, and lock other menus while chat is open.
                 if (openMenus.Count > 0 && !openMenus.Contains(HUDMenu.Chat)) return;
-                // bool isActive = chatWindow.ToggleMenu();
+                bool isActive = chatWindow.ToggleMenu();
                 menuLock = isActive ? HUDMenu.Chat : HUDMenu.None;
                 break;
             case HUDMenu.LoadoutMenu:

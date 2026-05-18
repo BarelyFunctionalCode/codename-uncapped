@@ -17,7 +17,6 @@ public partial class PauseMenuControl : CustomUIElementBase
         remapButton = this.Q<Button>("RemapButton");
 
         nameLabel.text = action.name;
-        Debug.Log("Binding: " + action.bindings[0].ToDisplayString() + " for action: " + action.name);
         valueLabel.text = action.bindings[0].ToDisplayString();
 
         remapButton.clicked += () => OnRemapButtonClicked(action);
