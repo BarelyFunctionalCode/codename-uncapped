@@ -7,19 +7,21 @@ using UnityEngine.UIElements;
 public partial class ToastContainer : CustomUIElementBase
 {
     private List<Toast> activeToasts = new();
+    private int maxToasts;
     private NotificationType type;
     private float hideTime;
-    private int maxToasts;
-
+    private float updateTime;
     private bool isActive = false;
 
-    private float updateTime;
+
 
     public void Initialize(NotificationType type, float hideTime, int maxToasts = 5)
     {
         this.type = type;
         this.hideTime = hideTime;
         this.maxToasts = maxToasts;
+        
+        if (NotificationManager.Instance == null) return;
         NotificationManager.Instance.newNotificationReceivedEvent.AddListener(OnNewToastNotification);
         isActive = true;
         Update();

@@ -11,6 +11,13 @@ PauseMenu {
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
     position: absolute;
+    opacity: 0;
+    transition-property: opacity;
+    transition-duration: 0.3s;
+}
+
+PauseMenu.active-menu {
+    opacity: 1;
 }
 
 .unity-tab-view {

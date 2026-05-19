@@ -1,6 +1,6 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/Resources/UI/Leaderboard/Styles.uss?fileID=7433441132597879392&amp;guid=644319ba44cf6d2f9bca63d6932ca915&amp;type=3#Styles"/>
-    <Leaderboard name="" class="background">
+    <Leaderboard name="" class="background active-menu">
         <ui:VisualElement name="Container" class="background">
             <ui:Label text="GAME MODE NAME" name="GameModeName" class="primary" style="-unity-text-auto-size: none;"/>
             <ui:VisualElement name="CharacterData">

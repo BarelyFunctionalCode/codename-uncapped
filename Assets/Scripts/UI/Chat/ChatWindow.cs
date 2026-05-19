@@ -25,6 +25,7 @@ public partial class ChatWindow : VectorFillShape
     private bool isMenuActive = false;
     private bool isPointerInMessageList = false;
 
+
     public ChatWindow()
     {
         style.paddingLeft = outlineWidth;
@@ -60,6 +61,23 @@ public partial class ChatWindow : VectorFillShape
         messagesScrollView.RegisterCallback<PointerLeaveEvent>(evt => isPointerInMessageList = false);
         textInput.RegisterCallback<NavigationCancelEvent>(OnChatInputCancel);
         textInput.RegisterCallback<NavigationSubmitEvent>(OnChatInputSubmit, TrickleDown.TrickleDown);
+
+        RegisterCallback<GeometryChangedEvent>(evt => {
+            messagesContainer.style.height = new Length(layout.height * 0.6f + outlineWidth);
+            textInputContainer.style.height = new Length(layout.height * 0.4f - outlineWidth * 2f);
+
+            if (passiveChatNotificationsContainer == null)
+            {
+                passiveChatNotificationsContainer = (ToastContainer)UIManager.Spawn("UI/Toast/ToastContainer", parent ?? this);
+                passiveChatNotificationsContainer.name = "passive-chat-notifications";
+                for (int i = 0; i < styleSheets.count; i++)
+                    passiveChatNotificationsContainer.styleSheets.Add(styleSheets[i]);
+                passiveChatNotificationsContainer.Initialize(NotificationType.ChatMessage, 5f);
+            }
+
+            passiveChatNotificationsContainer.style.width = messagesContainer.resolvedStyle.width;
+            passiveChatNotificationsContainer.style.height = messagesContainer.style.height;
+        });
     }
 
     protected override void OnGenerateVisualContent(MeshGenerationContext mgc)
@@ -112,24 +130,16 @@ public partial class ChatWindow : VectorFillShape
 
         NotificationManager.Instance.newNotificationReceivedEvent.AddListener(OnNewMessageReceived);
 
-        passiveChatNotificationsContainer = (ToastContainer)UIManager.Spawn("UI/Toast/ToastContainer", parent ?? this);
-        passiveChatNotificationsContainer.name = "passive-chat-notifications";
-        for (int i = 0; i < styleSheets.count; i++)
-            passiveChatNotificationsContainer.styleSheets.Add(styleSheets[i]);
-        passiveChatNotificationsContainer.Initialize(NotificationType.ChatMessage, 5f);
+        EnableInClassList("active-menu", false);
 
         this.hud = hud;
         isInitialized = true;
-
-        RegisterCallback<GeometryChangedEvent>(ResizeChatWindow);
     }
 
     public void Deinitialize()
     {
         if (!isInitialized) return;
         isInitialized = false;
-
-        UnregisterCallback<GeometryChangedEvent>(ResizeChatWindow);
 
         if (NotificationManager.Instance != null)
         {
@@ -143,6 +153,7 @@ public partial class ChatWindow : VectorFillShape
     {
         isMenuActive = !isMenuActive;
         EnableInClassList("active-menu", isMenuActive);
+        pickingMode = isMenuActive ? PickingMode.Position : PickingMode.Ignore;
         passiveChatNotificationsContainer.EnableInClassList("active-menu", isMenuActive);
         if (isMenuActive)
         {
@@ -159,15 +170,6 @@ public partial class ChatWindow : VectorFillShape
             textInput.Blur();
         }
         return isMenuActive;
-    }
-
-    private void ResizeChatWindow(GeometryChangedEvent evt)
-    {
-        messagesContainer.style.height = new Length(layout.height * 0.6f + outlineWidth);
-        textInputContainer.style.height = new Length(layout.height * 0.4f - outlineWidth * 2f);
-
-        passiveChatNotificationsContainer.style.width = messagesContainer.resolvedStyle.width;
-        passiveChatNotificationsContainer.style.height = messagesContainer.style.height;
     }
 
     private void OnNewMessageReceived(NotificationData messageData)

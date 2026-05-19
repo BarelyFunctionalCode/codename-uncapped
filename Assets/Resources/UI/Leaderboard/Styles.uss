@@ -4,6 +4,16 @@ Leaderboard {
     align-items: center;
     justify-content: center;
     align-content: center;
+    opacity: 0;
+    transition-property: opacity;
+    transition-duration: 0.2s;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+Leaderboard.active-menu {
+    opacity: 1;
 }
 
 #Container {

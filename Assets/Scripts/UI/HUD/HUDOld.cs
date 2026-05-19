@@ -46,10 +46,10 @@ public class HUDOld : MonoBehaviour
     private Health health;
     private PlayerControls playerControls;
     private List<HUDMenu> openMenus = new();
-    [SerializeField] private ChatWindowOld chatWindow;
+    // [SerializeField] private ChatWindowOld chatWindow;
     [SerializeField] public LoadoutMenu loadoutMenu;
     // [SerializeField] private PauseMenuController pauseMenu;
-    [SerializeField] private LeaderboardController leaderboard;
+    // [SerializeField] private LeaderboardController leaderboard;
     // [SerializeField] private ToastContainerController killFeed;
     int cursorLockCounter = 0;
 
@@ -106,8 +106,8 @@ public class HUDOld : MonoBehaviour
         playerControls.UI.Chat.performed -= ctx => ToggleMenu(HUDMenu.Chat, true);
         playerControls.UI.Close.performed -= ctx => HandleCloseInput();
         
-        playerControls.UI.Leaderboard.started -= ctx => leaderboard.ToggleMenu(true);
-        playerControls.UI.Leaderboard.canceled -= ctx => leaderboard.ToggleMenu(false);
+        // playerControls.UI.Leaderboard.started -= ctx => leaderboard.ToggleMenu(true);
+        // playerControls.UI.Leaderboard.canceled -= ctx => leaderboard.ToggleMenu(false);
 
         if (health != null) health.onAppliedDamage.RemoveListener(SetHitMarker);
         GameModeHandler.Instance.currentPhaseCountdown.OnValueChanged -= SetCountDownTimer;
@@ -129,15 +129,15 @@ public class HUDOld : MonoBehaviour
         playerControls.UI.Chat.performed += ctx => ToggleMenu(HUDMenu.Chat, true);
         playerControls.UI.Close.performed += ctx => HandleCloseInput();
 
-        playerControls.UI.Leaderboard.started += ctx => leaderboard.ToggleMenu(true);
-        playerControls.UI.Leaderboard.canceled += ctx => leaderboard.ToggleMenu(false);
+        // playerControls.UI.Leaderboard.started += ctx => leaderboard.ToggleMenu(true);
+        // playerControls.UI.Leaderboard.canceled += ctx => leaderboard.ToggleMenu(false);
         playerControls.UI.Enable();
 
         // pauseMenu.Initialize(player, character);
-        chatWindow.Initialize(this);
+        // chatWindow.Initialize(this);
         // centerClusterUI.Initialize(character);
         loadoutMenu.Initialize(character.GetComponent<CharacterLoadoutManager>(), this);
-        leaderboard.Initialize();
+        // leaderboard.Initialize();
         // killFeed.Initialize();
         identifierManager.Initialize();
 
@@ -161,14 +161,14 @@ public class HUDOld : MonoBehaviour
         playerControls.UI.Chat.performed -= ctx => ToggleMenu(HUDMenu.Chat, true);
         playerControls.UI.Close.performed -= ctx => HandleCloseInput();
 
-        playerControls.UI.Leaderboard.started -= ctx => leaderboard.ToggleMenu(true);
-        playerControls.UI.Leaderboard.canceled -= ctx => leaderboard.ToggleMenu(false);
+        // playerControls.UI.Leaderboard.started -= ctx => leaderboard.ToggleMenu(true);
+        // playerControls.UI.Leaderboard.canceled -= ctx => leaderboard.ToggleMenu(false);
 
         // pauseMenu.Deinitialize();
-        chatWindow.Deinitialize();
+        // chatWindow.Deinitialize();
         // centerClusterUI.Deinitialize();
         loadoutMenu.Deinitialize();
-        leaderboard.Deinitialize();
+        // leaderboard.Deinitialize();
         // killFeed.Deinitialize();
         identifierManager.Deinitialize();
         // throwableUI.Deinitialize();
@@ -335,7 +335,7 @@ public class HUDOld : MonoBehaviour
             case HUDMenu.Chat:
                 // Only enable chat if no other menus are open, and lock other menus while chat is open.
                 if (openMenus.Count > 0 && !openMenus.Contains(HUDMenu.Chat)) return;
-                bool isActive = chatWindow.ToggleMenu();
+                // bool isActive = chatWindow.ToggleMenu();
                 menuLock = isActive ? HUDMenu.Chat : HUDMenu.None;
                 break;
             case HUDMenu.LoadoutMenu:

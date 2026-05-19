@@ -6,14 +6,14 @@ using UnityEngine.UIElements;
 [UxmlElement(libraryPath = "Leaderboard/Leaderboard")]
 public partial class Leaderboard : CustomUIElementBase
 {
-    private Label GameModeName => this.Q<Label>("GameModeName");
-    private VisualElement Section0 => this.Q<VisualElement>("Section0");
-    private VisualElement Section0Body => Section0.Q<VisualElement>("SectionBody");
-    private Label Section0Name => Section0.Query<VisualElement>("SectionHeader").Children<Label>("Name").First();
-    private VisualElement Section1 => this.Q<VisualElement>("Section1");
-    private VisualElement Section1Body => Section1.Q<VisualElement>("SectionBody");
-    private Label Section1Name => Section1.Query<VisualElement>("SectionHeader").Children<Label>("Name").First();
-    private VisualElement SectionSeparator => this.Q<VisualElement>("SectionSeparator");
+    private Label gameModeNameLabel;
+    private VisualElement section0;
+    private VisualElement section0Body;
+    private Label section0NameLabel;
+    private VisualElement section1;
+    private VisualElement section1Body;
+    private Label section1NameLabel;
+    private VisualElement sectionSeparator;
 
     private VisualElement[] captureStatHeaders = new VisualElement[2];
 
@@ -21,18 +21,78 @@ public partial class Leaderboard : CustomUIElementBase
     private bool isTeamBased = false;
     private bool enableCapturesStat = false;
 
+    private bool isMenuActive = false;
 
-    public void Initialize(string gameModeName, string section0Name, string section1Name, bool isTeamBased, bool enableCapturesStat)
+
+    public void Initialize()
     {
+        EnableInClassList("active-menu", false);
+
+        GameModeHandler.Instance.OnGameModeChanged.AddListener(SetGameModeData);
+        GameModeHandler.Instance.TriggerGameModeUpdateRpc(NetworkManager.Singleton.LocalClientId);
+
+        GameModeHandler.Instance.OnStatUpdated.AddListener(OnStatEventReceived);
+        GameModeHandler.Instance.TriggerCharactersStatsDumpRpc(NetworkManager.Singleton.LocalClientId);
+
+        CharacterManager.Instance.OnCharacterChangedTeam.AddListener(AddEntry);
+        foreach (Character character in CharacterManager.Instance.characters)
+        {
+            AddEntry(new NetworkBehaviourReference(character));
+        }
+    }
+
+    public void Deinitialize()
+    {
+        if (GameModeHandler.Instance)
+        {
+            GameModeHandler.Instance.OnGameModeChanged.RemoveListener(SetGameModeData);
+            GameModeHandler.Instance.OnStatUpdated.RemoveListener(OnStatEventReceived);
+        }
+        if (CharacterManager.Instance)
+        {
+            CharacterManager.Instance.OnCharacterChangedTeam.RemoveListener(AddEntry);
+        }
+        ClearEntries();
+    }
+
+    public bool ToggleMenu(bool isActive)
+    {
+        isMenuActive = isActive;
+        EnableInClassList("active-menu", isMenuActive);
+        pickingMode = isMenuActive ? PickingMode.Position : PickingMode.Ignore;
+        if (isMenuActive) BringToFront();
+        return isMenuActive;
+    }
+
+    public void SetGameModeData(GameModes g)
+    {
+        TeamBasedType teamBasedType = GameModeHandler.Instance.FetchTeamBasedType(g);
+
+        string gameModeName = g.ToString();
+        bool isTeamBased = teamBasedType == TeamBasedType.TEAM;
+        bool enableCapturesStat = false; // TODO: Change this to be based on the selected GameModeSO
+
+        string section0Name = isTeamBased ? GameModeHandler.Instance.currentGameMode.TeamStructure.GetTeamByIndex(0) : "Player";
+        string section1Name = isTeamBased ? GameModeHandler.Instance.currentGameMode.TeamStructure.GetTeamByIndex(1) : "";
+
+        gameModeNameLabel = this.Q<Label>("GameModeName");
+        section0 = this.Q<VisualElement>("Section0");
+        section0Body = section0.Q<VisualElement>("SectionBody");
+        section0NameLabel = section0.Query<VisualElement>("SectionHeader").Children<Label>("Name").First();
+        section1 = this.Q<VisualElement>("Section1");
+        section1Body = section1.Q<VisualElement>("SectionBody");
+        section1NameLabel = section1.Query<VisualElement>("SectionHeader").Children<Label>("Name").First();
+        sectionSeparator = this.Q<VisualElement>("SectionSeparator");   
         captureStatHeaders = this.Query<Label>(name: "Captures", className: "columnHeader").ToList().ToArray();
-        GameModeName.text = gameModeName;
-        Section0Name.text = section0Name;
-        Section1Name.text = section1Name;
+
+        gameModeNameLabel.text = gameModeName;
+        section0NameLabel.text = section0Name;
+        section1NameLabel.text = section1Name;
         this.isTeamBased = isTeamBased;
         this.enableCapturesStat = enableCapturesStat;
 
-        Section1.style.display = isTeamBased ? DisplayStyle.Flex : DisplayStyle.None;
-        SectionSeparator.style.display = isTeamBased ? DisplayStyle.Flex : DisplayStyle.None;
+        section1.style.display = isTeamBased ? DisplayStyle.Flex : DisplayStyle.None;
+        sectionSeparator.style.display = isTeamBased ? DisplayStyle.Flex : DisplayStyle.None;
 
         foreach (var captureStatHeader in captureStatHeaders)
         {
@@ -57,14 +117,21 @@ public partial class Leaderboard : CustomUIElementBase
         }
     }
 
-    public void AddEntry(ulong characterId, int teamIndex, string name)
+    public void AddEntry(NetworkBehaviourReference characterRef)
     {
+        characterRef.TryGet(out Character character);
+        if (character == null) return;
+        
+        ulong characterId = character.identification.FetchEntityId();
+        int teamIndex = character.identification.FetchTeamId();
+        string name = character.identification.FetchEntityName();
+
         if (teamIndex == -1) return;
 
         LeaderboardEntry entryToRemove = entries.Find(entry => entry.characterId == characterId);
         if (entryToRemove != null) RemoveEntry(characterId);
         
-        VisualElement parent = (!isTeamBased || teamIndex == 0) ? Section0Body : Section1Body;
+        VisualElement parent = (!isTeamBased || teamIndex == 0) ? section0Body : section1Body;
         LeaderboardEntry entry = (LeaderboardEntry)UIManager.Spawn("ui/Leaderboard/LeaderboardEntry", parent);
         entry.Initialize(characterId, name, enableCapturesStat);
         entries.Add(entry);
@@ -96,11 +163,11 @@ public partial class LeaderboardEntry : CustomUIElementBase
 {
     public ulong characterId;
 
-    private Label Name => this.Q<Label>("Name");
-    private Label Kills => this.Q<Label>("Kills");
-    private Label Deaths => this.Q<Label>("Deaths");
-    private Label Assists => this.Q<Label>("Assists");
-    private Label Captures => this.Q<Label>("Captures");
+    private Label nameLabel;
+    private Label killsLabel;
+    private Label deathsLabel;
+    private Label assistsLabel;
+    private Label capturesLabel;
 
     public int sortingIndex = 0;
 
@@ -109,20 +176,26 @@ public partial class LeaderboardEntry : CustomUIElementBase
 
     public void Initialize(ulong characterId, string name, bool enableCapturesStat = false, int kills = 0, int deaths = 0, int assists = 0, int captures = 0)
     {
-        this.characterId = characterId;
-        Name.text = name;
-        Kills.text = kills.ToString();
-        Deaths.text = deaths.ToString();
-        Assists.text = assists.ToString();
-        Captures.text = captures.ToString();
-        Captures.style.display = enableCapturesStat ? DisplayStyle.Flex : DisplayStyle.None;
+        nameLabel = this.Q<Label>("Name");
+        killsLabel = this.Q<Label>("Kills");
+        deathsLabel = this.Q<Label>("Deaths");
+        assistsLabel = this.Q<Label>("Assists");
+        capturesLabel = this.Q<Label>("Captures");
 
-        statLabels = new()
+        this.characterId = characterId;
+        nameLabel.text = name;
+        killsLabel.text = kills.ToString();
+        deathsLabel.text = deaths.ToString();
+        assistsLabel.text = assists.ToString();
+        capturesLabel.text = captures.ToString();
+        capturesLabel.style.display = enableCapturesStat ? DisplayStyle.Flex : DisplayStyle.None;
+
+    statLabels = new()
         {
-            { StatEventType.KILL, Kills },
-            { StatEventType.DEATHS, Deaths },
-            { StatEventType.KILL_ASSIST, Assists },
-            { StatEventType.FLAG_CAPTURE, Captures }
+            { StatEventType.KILL, this.killsLabel },
+            { StatEventType.DEATHS, this.deathsLabel },
+            { StatEventType.KILL_ASSIST, assistsLabel },
+            { StatEventType.FLAG_CAPTURE, capturesLabel }
         };
 
         statValues = new()
@@ -146,83 +219,4 @@ public partial class LeaderboardEntry : CustomUIElementBase
                         Mathf.CeilToInt(statValues[StatEventType.KILL_ASSIST] * 0.5f) + 
                         (int)(statValues[StatEventType.FLAG_CAPTURE] * 2f);
     }
-}
-
-
-public class LeaderboardController : MonoBehaviour
-{
-    private UIDocument leaderboardUIDocument;
-    private Leaderboard leaderboard;
-    private bool isActive = false;
-
-
-    public void Initialize()
-    {
-        leaderboardUIDocument = GetComponent<UIDocument>();
-        leaderboard = leaderboardUIDocument.rootVisualElement.Q<Leaderboard>();
-        leaderboard.style.display = DisplayStyle.None;
-
-        GameModeHandler.Instance.OnGameModeChanged.AddListener(SetGameModeData);
-        GameModeHandler.Instance.TriggerGameModeUpdateRpc(NetworkManager.Singleton.LocalClientId);
-
-        GameModeHandler.Instance.OnStatUpdated.AddListener(OnStatEventReceived);
-        GameModeHandler.Instance.TriggerCharactersStatsDumpRpc(NetworkManager.Singleton.LocalClientId);
-
-        CharacterManager.Instance.OnCharacterChangedTeam.AddListener(AddEntry);
-        foreach (Character character in CharacterManager.Instance.characters)
-        {
-            AddEntry(new NetworkBehaviourReference(character));
-        }
-    }
-
-    public void Deinitialize()
-    {
-        if (GameModeHandler.Instance)
-        {
-            GameModeHandler.Instance.OnGameModeChanged.RemoveListener(SetGameModeData);
-            GameModeHandler.Instance.OnStatUpdated.RemoveListener(OnStatEventReceived);
-        }
-        if (CharacterManager.Instance)
-        {
-            CharacterManager.Instance.OnCharacterChangedTeam.RemoveListener(AddEntry);
-        }
-        ClearEntries();
-    }
-
-    public void ToggleMenu(bool enabled)
-    {
-        if (!isActive) return;
-        leaderboard.style.display = enabled ? DisplayStyle.Flex : DisplayStyle.None;
-    }
-
-    private void SetGameModeData(GameModes g)
-    {
-        TeamBasedType teamBasedType = GameModeHandler.Instance.FetchTeamBasedType(g);
-
-        string gameModeName = g.ToString();
-        bool isTeamBased = teamBasedType == TeamBasedType.TEAM;
-        bool enableCapturesStat = false; // TODO: Change this to be based on the selected GameModeSO
-
-        string section0Name = isTeamBased ? GameModeHandler.Instance.currentGameMode.TeamStructure.GetTeamByIndex(0) : "Player";
-        string section1Name = isTeamBased ? GameModeHandler.Instance.currentGameMode.TeamStructure.GetTeamByIndex(1) : "";
-
-        leaderboard.Initialize(gameModeName, section0Name, section1Name, isTeamBased, enableCapturesStat);
-
-        isActive = true;
-    }
-
-    private void OnStatEventReceived(StatEvent statEvent) => leaderboard.OnStatEventReceived(statEvent);
-
-    private void AddEntry(NetworkBehaviourReference characterRef)
-    {
-        characterRef.TryGet(out Character character);
-        if (character == null) return;
-        
-        ulong characterId = character.identification.FetchEntityId();
-        int teamIndex = character.identification.FetchTeamId();
-        string name = character.identification.FetchEntityName();
-        leaderboard.AddEntry(characterId, teamIndex, name);
-    }
-
-    private void ClearEntries() => leaderboard.ClearEntries();
 }

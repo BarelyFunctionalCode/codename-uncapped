@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
@@ -15,6 +14,8 @@ public partial class PauseMenu : CustomUIElementBase
 
     private VisualElement controlsContentContainer;
     private VisualElement debugContentContainer;
+
+    private bool isMenuActive = false;
 
 
     public void Initialize(Player player, Character character)
@@ -36,7 +37,7 @@ public partial class PauseMenu : CustomUIElementBase
         quitButton.RegisterCallback<ClickEvent>(Quit);
         
         
-        style.display = DisplayStyle.None;
+        EnableInClassList("active-menu", false);
 
 
         PlayerControls playerControls = player.playerControls;
@@ -103,10 +104,11 @@ public partial class PauseMenu : CustomUIElementBase
 
     public bool ToggleMenu()
     {
-        bool currentState = style.display == DisplayStyle.Flex;
-        style.display = currentState ? DisplayStyle.None : DisplayStyle.Flex;
-        if (!currentState) BringToFront();
-        return style.display == DisplayStyle.Flex;
+        isMenuActive = !isMenuActive;
+        EnableInClassList("active-menu", isMenuActive);
+        pickingMode = isMenuActive ? PickingMode.Position : PickingMode.Ignore;
+        if (isMenuActive) BringToFront();
+        return isMenuActive;
     }
 
     public void AddControl(InputAction action)
@@ -124,5 +126,4 @@ public partial class PauseMenu : CustomUIElementBase
 
     private void Leave(ClickEvent evt) => GameManager.Instance.PrepGoToOwnLobby();
     private void Quit(ClickEvent evt) => Application.Quit();
-
 }

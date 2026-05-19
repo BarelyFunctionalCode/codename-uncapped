@@ -1,21 +1,20 @@
-
-
 ChatWindow {
     width: 25%;
     height: 45%;
     position: absolute;
     top: 0;
-    right: 0;
+    right: -100%;
     --vector-line-color: var(--Secondary-Text);
     --vector-fill-color: var(--Secondary);
     flex-shrink: 0;
-    transition-property: opacity;
-    transition-duration: 0.3s;
+    transition-property: opacity, right;
+    transition-duration: 0.3s, 0.3s;
     opacity: 0;
 }
 
 ChatWindow.active-menu {
     opacity: 1;
+    right: 0%;
 }
 
 #messages-container {

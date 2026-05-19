@@ -2,9 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-
-
-
 [UxmlElement(libraryPath = "HUD/LoadoutItem")]
 public partial class LoadoutItemUI : VectorFillShape
 {
@@ -87,6 +84,7 @@ public partial class LoadoutItemUI : VectorFillShape
 
     private Color outlineColor;
     private Color disabledOutlineColor = new(1, 1, 1, 0.1f);
+
 
     public LoadoutItemUI()
     {

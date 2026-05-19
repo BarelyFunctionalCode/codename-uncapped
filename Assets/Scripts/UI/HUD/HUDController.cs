@@ -27,6 +27,7 @@ public class HUDController : MonoBehaviour
     private ToastContainer killFeed;
     private PauseMenu pauseMenu;
     private ChatWindow chatWindow;
+    private Leaderboard leaderboard;
 
     // Player References
     private Character character;
@@ -85,20 +86,21 @@ public class HUDController : MonoBehaviour
 
         pauseMenu = (PauseMenu)UIManager.Spawn("UI/PauseMenu/PauseMenu", hudUIDocument.rootVisualElement);
         chatWindow = (ChatWindow)UIManager.Spawn("UI/Chat/ChatWindow", hudUIDocument.rootVisualElement);
+        leaderboard = (Leaderboard)UIManager.Spawn("UI/Leaderboard/Leaderboard", hudUIDocument.rootVisualElement);
         
         playerControls.UI.PauseMenu.performed += ctx => ToggleMenu(HUDMenu.PauseMenu);
         playerControls.UI.LoadoutMenu.performed += ctx => ToggleMenu(HUDMenu.LoadoutMenu);
         playerControls.UI.Chat.performed += ctx => ToggleMenu(HUDMenu.Chat, true);
         playerControls.UI.Close.performed += ctx => HandleCloseInput();
 
-        // playerControls.UI.Leaderboard.started += ctx => leaderboard.ToggleMenu(true);
-        // playerControls.UI.Leaderboard.canceled += ctx => leaderboard.ToggleMenu(false);
+        playerControls.UI.Leaderboard.started += ctx => leaderboard.ToggleMenu(true);
+        playerControls.UI.Leaderboard.canceled += ctx => leaderboard.ToggleMenu(false);
         playerControls.UI.Enable();
 
         pauseMenu.Initialize(player, character);
         chatWindow.Initialize(this);
         // loadoutMenu.Initialize(character.GetComponent<CharacterLoadoutManager>(), this);
-        // leaderboard.Initialize();
+        leaderboard.Initialize();
         killFeed = (ToastContainer)UIManager.Spawn("UI/Toast/ToastContainer", hudUIDocument.rootVisualElement);
         killFeed.name = "KillFeed";
         killFeed.Initialize(NotificationType.KillFeed, 5f);
@@ -124,13 +126,13 @@ public class HUDController : MonoBehaviour
         playerControls.UI.Chat.performed -= ctx => ToggleMenu(HUDMenu.Chat, true);
         playerControls.UI.Close.performed -= ctx => HandleCloseInput();
 
-        // playerControls.UI.Leaderboard.started -= ctx => leaderboard.ToggleMenu(true);
-        // playerControls.UI.Leaderboard.canceled -= ctx => leaderboard.ToggleMenu(false);
+        playerControls.UI.Leaderboard.started -= ctx => leaderboard.ToggleMenu(true);
+        playerControls.UI.Leaderboard.canceled -= ctx => leaderboard.ToggleMenu(false);
 
         pauseMenu.Deinitialize();
         chatWindow.Deinitialize();
         // loadoutMenu.Deinitialize();
-        // leaderboard.Deinitialize();
+        leaderboard.Deinitialize();
         killFeed?.Deinitialize();
         killFeed = null;
         // identifierManager.Deinitialize();

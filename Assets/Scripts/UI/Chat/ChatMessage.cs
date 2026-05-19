@@ -14,6 +14,7 @@ public partial class ChatMessage : VectorFillShape
     Label senderLabel;
     Label messageLabel;
 
+
     public ChatMessage()
     {
         style.paddingLeft = outlineWidth;
