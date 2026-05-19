@@ -66,27 +66,27 @@ public partial class DriveUI : CustomUIElementBase
 
         onlineText = new Label("DRIVE IS ONLINE")
         {
-            name = "OnlineText"
+            name = "online-text"
         };
         Add(onlineText);
 
         numberText = new RetroNumber()
         {
-            name = "NumberText",
+            name = "number-text",
             Text = "100"
         };
         Add(numberText);
 
         activeFillBar = new VisualElement()
         {
-            name = "ActiveFillBar"
+            name = "active-fill-bar"
         };
         Add(activeFillBar);
         activeFillBar.SendToBack();
 
         cooldownFillBar = new VisualElement()
         {
-            name = "CooldownFillBar"
+            name = "cooldown-fill-bar"
         };
         Add(cooldownFillBar);
         cooldownFillBar.SendToBack();

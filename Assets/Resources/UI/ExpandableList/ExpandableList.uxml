@@ -1,10 +1,10 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/Resources/UI/ExpandableList/Styles.uss?fileID=7433441132597879392&amp;guid=e517c859f0f2047eeb774c738afb6ffd&amp;type=3#Styles"/>
-    <ExpandableList name="List" focusable="true">
-        <ui:VisualElement name="Header" class="primary">
-            <ui:Label text="XXXXXXXXXXXX" name="ListName" style="font-size: 28px;"/>
-            <ui:Image source="" name="Arrow"/>
+    <ExpandableList name="list" focusable="true">
+        <ui:VisualElement name="header" class="primary">
+            <ui:Label text="XXXXXXXXXXXX" name="list-name" style="font-size: 28px;"/>
+            <ui:Image source="" name="arrow"/>
         </ui:VisualElement>
-        <ui:VisualElement name="Options" class="background"/>
+        <ui:VisualElement name="options" class="background"/>
     </ExpandableList>
 </ui:UXML>

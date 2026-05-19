@@ -42,7 +42,7 @@ LoadoutItemUI > RetroNumber {
     color: var(--Loadout-Item-Text-Color);
 }
 
-LoadoutItemUI #CooldownLabel {
+LoadoutItemUI #cooldown-label {
     position: absolute;
     width: 100%;
     height: 50%;

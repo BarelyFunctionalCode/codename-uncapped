@@ -1,4 +1,4 @@
-#List {
+#list {
     flex-shrink: 0;
     height: 60px;
     margin-bottom: 10px;
@@ -11,7 +11,7 @@
     overflow: hidden;
 }
 
-#Header {
+#header {
     flex-shrink: 0;
     flex-direction: row;
     align-items: center;
@@ -25,7 +25,7 @@
     padding-left: 12px;
 }
 
-#Options {
+#options {
     padding-top: 10px;
     padding-right: 10px;
     padding-bottom: 10px;
@@ -33,19 +33,19 @@
     flex-shrink: 0;
 }
 
-#Options > * {
+#options > * {
     opacity: 0.2;
     transition-property: opacity;
     transition-duration: 0.5s;
 }
 
-#List:focus > #Options > * {
+#list:focus > #options > * {
     opacity: 1;
     transition-property: opacity;
     transition-duration: 0.5s;
 }
 
-#Arrow {
+#arrow {
     height: 32px;
     width: 32px;
     aspect-ratio: 1;
@@ -56,7 +56,7 @@
     background-image: url("project://database/Assets/Images/HUD/TriangleIcon.png?fileID=2800000&guid=8f9c29442f01da7da8cc4ce9c2155acc&type=3#TriangleIcon");
 }
 
-#List:focus #Arrow {
+#list:focus #arrow {
     height: 32px;
     width: 32px;
     aspect-ratio: 1;
@@ -82,6 +82,6 @@ ExpandableListItem {
     height: 40px;
 }
 
-#ItemName {
+#item-name {
     font-size: 24px;
 }

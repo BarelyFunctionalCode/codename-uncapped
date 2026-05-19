@@ -262,9 +262,6 @@ public partial class HUDCenter : VectorFillShape
         };
         BuildFillShape(mgc, points, energyFillGradient);
 
-
-
-
         var healthGradient = new Gradient();
         colors = new GradientColorKey[2];
         colors[0] = new GradientColorKey(healthFillColor, 0.0f);
@@ -337,9 +334,9 @@ public partial class HUDObjectiveContainer : VectorFillShape
 
     public HUDObjectiveContainer()
     {
-        VisualElement LeftContainer = new() { name = "LeftObjectiveContainer" };
-        VisualElement CenterContainer = new() { name = "CenterObjectiveContainer" };
-        VisualElement RightContainer = new() { name = "RightObjectiveContainer" };
+        VisualElement LeftContainer = new() { name = "left-objective-container" };
+        VisualElement CenterContainer = new() { name = "center-objective-container" };
+        VisualElement RightContainer = new() { name = "right-objective-container" };
         LeftContainer.AddToClassList("subcontainer");
         CenterContainer.AddToClassList("subcontainer");
         RightContainer.AddToClassList("subcontainer");
@@ -347,9 +344,9 @@ public partial class HUDObjectiveContainer : VectorFillShape
         Add(CenterContainer);
         Add(RightContainer);
 
-        LeftObjectiveNumber = new() { name = "LeftObjectiveNumber", Text = "66" };
-        Clock = new() { name = "CenterObjectiveNumber", Text = "10:25"  };
-        RightObjectiveNumber = new() { name = "RightObjectiveNumber", Text = "77"  };
+        LeftObjectiveNumber = new() { name = "left-objective-number", Text = "66" };
+        Clock = new() { name = "center-objective-number", Text = "10:25"  };
+        RightObjectiveNumber = new() { name = "right-objective-number", Text = "77"  };
         LeftContainer.Add(LeftObjectiveNumber);
         CenterContainer.Add(Clock);
         RightContainer.Add(RightObjectiveNumber);

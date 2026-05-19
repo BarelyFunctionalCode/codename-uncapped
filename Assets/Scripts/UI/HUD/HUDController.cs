@@ -61,7 +61,7 @@ public class HUDController : MonoBehaviour
         leftSideContainer = hudRoot.Q<HUDLeftSide>();
         rightSideContainer = hudRoot.Q<HUDRightSide>();
 
-        currentPhaseText = hudRoot.Q<Label>("CurrentPhase");
+        currentPhaseText = hudRoot.Q<Label>("current-phase");
     }
 
     private void Update()
@@ -102,7 +102,7 @@ public class HUDController : MonoBehaviour
         // loadoutMenu.Initialize(character.GetComponent<CharacterLoadoutManager>(), this);
         leaderboard.Initialize();
         killFeed = (ToastContainer)UIManager.Spawn("UI/Toast/ToastContainer", hudUIDocument.rootVisualElement);
-        killFeed.name = "KillFeed";
+        killFeed.name = "kill-feed";
         killFeed.Initialize(NotificationType.KillFeed, 5f);
         // identifierManager.Initialize();
 

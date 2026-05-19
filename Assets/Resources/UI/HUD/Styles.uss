@@ -51,18 +51,18 @@ HUDObjectiveContainer > .subcontainer {
     align-items: center;
 }
 
-HUDObjectiveContainer > #LeftObjectiveContainer {
+HUDObjectiveContainer > #left-objective-container {
 }
 
-HUDObjectiveContainer > #RightObjectiveContainer {
+HUDObjectiveContainer > #right-objective-container {
 }
 
-HUDObjectiveContainer > #CenterObjectiveContainer {
+HUDObjectiveContainer > #center-objective-container {
     align-items: center;
     flex-grow: 1;
 }
 
-#KillFeed {
+#kill-feed {
     position: absolute;
     top: 0;
     left: 0;
@@ -70,7 +70,7 @@ HUDObjectiveContainer > #CenterObjectiveContainer {
     height: 35%;
 }
 
-#ReticleContainer {
+#reticle-container {
     flex-grow: 0;
     width: 90%;
     align-self: center;

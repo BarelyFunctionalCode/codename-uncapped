@@ -6,13 +6,16 @@ using UnityEngine.UIElements;
 [UxmlElement(libraryPath = "BasicElements/ExpandableListItem")]
 public partial class ExpandableListItem : CustomUIElementBase
 {
-    private Label ItemNameLabel => this.Q<Label>("ItemName");
-    private VisualElement DisabledOverlay => this.Q<VisualElement>("DisabledOverlay");
+    private Label itemNameLabel;
+    private VisualElement disabledOverlay;
 
 
     public void Initialize(Action<string> onItemSelected, string itemName, string itemValue, bool isEnabled = true)
     {
-        ItemNameLabel.text = itemName;
+        itemNameLabel = this.Q<Label>("item-name");
+        disabledOverlay = this.Q<VisualElement>("disabled-overlay");
+
+        itemNameLabel.text = itemName;
         SetEnabled(isEnabled);
         RegisterCallback<ClickEvent>(_ => onItemSelected?.Invoke(itemValue));
     }

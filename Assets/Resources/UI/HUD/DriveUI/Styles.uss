@@ -53,7 +53,7 @@ DriveUI.cooldown {
     border-left-color: var(--Cooldown-Color);
 }
 
-DriveUI > #OnlineText {
+DriveUI > #online-text {
     opacity: 0;
     transition-property: opacity;
     transition-duration: 0.2s;
@@ -68,11 +68,11 @@ DriveUI > #OnlineText {
     color: var(--Drive-Outline);
 }
 
-DriveUI.online > #OnlineText {
+DriveUI.online > #online-text {
     opacity: 1;
 }
 
-DriveUI > #NumberText {
+DriveUI > #number-text {
     flex-shrink: 0;
     flex-grow: 1;
     padding-top: 5px;
@@ -92,15 +92,15 @@ DriveUI > #NumberText {
     transition-duration: 0.2s;
 }
 
-DriveUI.active > #NumberText {
+DriveUI.active > #number-text {
     opacity: 1;
 }
 
-DriveUI.cooldown > #NumberText {
+DriveUI.cooldown > #number-text {
     opacity: 1;
 }
 
-DriveUI > #ActiveFillBar {
+DriveUI > #active-fill-bar {
     left: 0;
     bottom: 0;
     right: 0;
@@ -112,11 +112,11 @@ DriveUI > #ActiveFillBar {
     transition-duration: 0.5s;
 }
 
-DriveUI.active > #ActiveFillBar {
+DriveUI.active > #active-fill-bar {
     opacity: 1;
 }
 
-DriveUI > #CooldownFillBar {
+DriveUI > #cooldown-fill-bar {
     left: 0;
     bottom: 0;
     opacity: 1;
@@ -128,6 +128,6 @@ DriveUI > #CooldownFillBar {
     transition-duration: 0.5s;
 }
 
-DriveUI.ready > #CooldownFillBar {
+DriveUI.ready > #cooldown-fill-bar {
     opacity: 0;
 }

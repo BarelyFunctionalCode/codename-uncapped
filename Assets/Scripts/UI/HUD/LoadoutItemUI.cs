@@ -101,7 +101,7 @@ public partial class LoadoutItemUI : VectorFillShape
 
         cooldownLabel = new RetroNumber()
         {
-            name = "CooldownLabel"
+            name = "cooldown-label",
         };
         Add(cooldownLabel);
         BringToFront();

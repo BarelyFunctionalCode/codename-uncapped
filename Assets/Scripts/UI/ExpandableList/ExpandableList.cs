@@ -7,9 +7,9 @@ using UnityEngine.UIElements;
 public partial class ExpandableList : CustomUIElementBase
 {
     public UnityEvent<string, string> OnListItemSelected = new();
-    private VisualElement ListHeader => this.Q<VisualElement>("Header");
-    private Label NameLabel => this.Q<Label>("ListName");
-    private VisualElement ListOptionsContainer => this.Q<VisualElement>("Options");
+    private VisualElement listHeader;
+    private Label nameLabel;
+    private VisualElement listOptionsContainer;
 
     float buttonHeight;
     bool isOpen = false;
@@ -22,10 +22,14 @@ public partial class ExpandableList : CustomUIElementBase
 
     public void Initialize(string listName, UnityAction<string, string> onItemSelectedCallback = null)
     {
+        listHeader = this.Q<VisualElement>("header");
+        nameLabel = this.Q<Label>("list-name");
+        listOptionsContainer = this.Q<VisualElement>("options-container");
+        
         // Set list header label and register click event to open/close list.
-        NameLabel.text = listName;
+        nameLabel.text = listName;
         RegisterCallback<BlurEvent>(_ => CloseList());
-        ListHeader.RegisterCallback<PointerDownEvent>(OnListHeaderClicked);
+        listHeader.RegisterCallback<PointerDownEvent>(OnListHeaderClicked);
 
         if (onItemSelectedCallback != null) OnListItemSelected.AddListener(onItemSelectedCallback);
     }
@@ -33,7 +37,7 @@ public partial class ExpandableList : CustomUIElementBase
     // Functions for opening/closing the list based on click and focus events.
     private void OnListHeaderClicked(PointerDownEvent evt)
     {
-        if (evt.currentTarget != ListHeader) return;
+        if (evt.currentTarget != listHeader) return;
 
         if (isOpen) Blur();
         else OpenList();
@@ -41,7 +45,7 @@ public partial class ExpandableList : CustomUIElementBase
     private void OpenList()
     {
         isOpen = true;
-        float targetHeight = ListOptionsContainer.resolvedStyle.height;
+        float targetHeight = listOptionsContainer.resolvedStyle.height;
         style.height = targetHeight + buttonHeight;
     }
     private void CloseList()
@@ -54,11 +58,11 @@ public partial class ExpandableList : CustomUIElementBase
     // Triggers UnityEvent OnListItemSelected when clicked, passing the list name and item value as parameters.
     public void AddListItem(string itemName, string itemValue, bool isEnabled = true)
     {
-        ExpandableListItem newItem = (ExpandableListItem)UIManager.Spawn("UI/ExpandableList/ExpandableListItem", ListOptionsContainer);
+        ExpandableListItem newItem = (ExpandableListItem)UIManager.Spawn("UI/ExpandableList/ExpandableListItem", listOptionsContainer);
         newItem.Initialize(OnItemSelected, itemName, itemValue, isEnabled);
     }
     private void OnItemSelected(string itemValue)
     {
-        OnListItemSelected.Invoke(NameLabel.text, itemValue);
+        OnListItemSelected.Invoke(nameLabel.text, itemValue);
     }
 }
