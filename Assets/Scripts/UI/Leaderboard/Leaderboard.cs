@@ -26,6 +26,16 @@ public partial class Leaderboard : CustomUIElementBase
 
     public void Initialize()
     {
+        gameModeNameLabel = this.Q<Label>("GameModeName");
+        section0 = this.Q<VisualElement>("Section0");
+        section0Body = section0.Q<VisualElement>("SectionBody");
+        section0NameLabel = section0.Query<VisualElement>("SectionHeader").Children<Label>("Name").First();
+        section1 = this.Q<VisualElement>("Section1");
+        section1Body = section1.Q<VisualElement>("SectionBody");
+        section1NameLabel = section1.Query<VisualElement>("SectionHeader").Children<Label>("Name").First();
+        sectionSeparator = this.Q<VisualElement>("SectionSeparator");   
+        captureStatHeaders = this.Query<Label>(name: "Captures", className: "columnHeader").ToList().ToArray();
+
         EnableInClassList("active-menu", false);
 
         GameModeHandler.Instance.OnGameModeChanged.AddListener(SetGameModeData);
@@ -74,16 +84,6 @@ public partial class Leaderboard : CustomUIElementBase
 
         string section0Name = isTeamBased ? GameModeHandler.Instance.currentGameMode.TeamStructure.GetTeamByIndex(0) : "Player";
         string section1Name = isTeamBased ? GameModeHandler.Instance.currentGameMode.TeamStructure.GetTeamByIndex(1) : "";
-
-        gameModeNameLabel = this.Q<Label>("GameModeName");
-        section0 = this.Q<VisualElement>("Section0");
-        section0Body = section0.Q<VisualElement>("SectionBody");
-        section0NameLabel = section0.Query<VisualElement>("SectionHeader").Children<Label>("Name").First();
-        section1 = this.Q<VisualElement>("Section1");
-        section1Body = section1.Q<VisualElement>("SectionBody");
-        section1NameLabel = section1.Query<VisualElement>("SectionHeader").Children<Label>("Name").First();
-        sectionSeparator = this.Q<VisualElement>("SectionSeparator");   
-        captureStatHeaders = this.Query<Label>(name: "Captures", className: "columnHeader").ToList().ToArray();
 
         gameModeNameLabel.text = gameModeName;
         section0NameLabel.text = section0Name;

@@ -3,20 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-[RequireComponent(typeof(UIDocument))]
-public class LoadoutMenu : MonoBehaviour
+[UxmlElement(libraryPath = "LoadoutMenu/LoadoutMenu")]
+public partial class LoadoutMenu : CustomUIElementBase
 {
     // Used to display a 3D preview of the currently selected item.
-    [SerializeField] private GameObject showcasePrefabObj;
+    static private GameObject showcasePrefabObj;
     private Showcase showcaseInstance;
 
-    // References to UI elements.
-    private UIDocument loadoutUIDocument;
-    private VisualElement OptionsListsContainer => loadoutUIDocument.rootVisualElement.Q("OptionsLists");
-    private Label SelectedItemNameLabel =>loadoutUIDocument.rootVisualElement.Query("ItemInfo").Children<Label>("ItemName").First();
-    private Label SelectedItemDescriptionLabel =>loadoutUIDocument.rootVisualElement.Query("ItemInfo").Children<Label>("ItemDescription").First();
-
-    [SerializeField] private bool isOpen = false;
+    private VisualElement optionsListsContainer;
+    private Label selectedItemNameLabel;
+    private Label selectedItemDescriptionLabel;
 
     // Data used to populate the loadout option lists.
     private struct LoadoutListData
@@ -37,29 +33,33 @@ public class LoadoutMenu : MonoBehaviour
     // References to the player using the loadout menu.
     private CharacterLoadoutManager playerLoadoutManager;
     private CharacterLoadout tempLoadout;
-    private HUDOld hud;
+    private HUDController hud;
 
     private bool isInitialized = false;
+    private bool isMenuActive = false;
 
 
-    void Awake()
-    {
-        loadoutUIDocument = GetComponent<UIDocument>();
-    }
-    
     // Set references to the player's loadout and HUD
-    public void Initialize(CharacterLoadoutManager playerLoadoutManager, HUDOld hud)
+    public void Initialize(CharacterLoadoutManager playerLoadoutManager, HUDController hud)
     {
         if (isInitialized) return;
+
+        if (showcasePrefabObj == null) showcasePrefabObj = Resources.Load<GameObject>("UI/LoadoutMenu/Showcase");
+
+        optionsListsContainer = this.Q("options-lists");
+        selectedItemNameLabel = this.Query("item-info").Children<Label>("item-name").First();
+        selectedItemDescriptionLabel = this.Query("item-info").Children<Label>("item-description").First();
 
         this.playerLoadoutManager = playerLoadoutManager;
         this.hud = hud;
 
         // Initialize menu and showcase instance.
         BuildLoadoutLists();
-        loadoutUIDocument.enabled = isOpen;
-        if (showcaseInstance == null) showcaseInstance = Instantiate(showcasePrefabObj).GetComponent<Showcase>();
-        else showcaseInstance.Clear();
+        EnableInClassList("active-menu", isMenuActive);
+
+        // Register callbacks for confirm and cancel buttons.
+        this.Q<Button>("confirm-button").clicked += OnConfirmClicked;
+        this.Q<Button>("cancel-button").clicked += OnCancelClicked;
 
         isInitialized = true;
     }
@@ -70,7 +70,7 @@ public class LoadoutMenu : MonoBehaviour
         if (!isInitialized) return;
         isInitialized = false;
 
-        if (showcaseInstance != null) Destroy(showcaseInstance.gameObject);
+        if (showcaseInstance != null) UnityEngine.Object.Destroy(showcaseInstance.gameObject);
         showcaseInstance = null;
 
         playerLoadoutManager = null;
@@ -80,12 +80,12 @@ public class LoadoutMenu : MonoBehaviour
     // Toggle the visibility of the loadout menu
     public bool ToggleMenu()
     {
-        loadoutUIDocument.enabled = !loadoutUIDocument.enabled;
-        if (loadoutUIDocument.enabled)
+        isMenuActive = !isMenuActive;
+        EnableInClassList("active-menu", isMenuActive);
+        if (isMenuActive)
         {
             tempLoadout = new CharacterLoadout(playerLoadoutManager.currentLoadout.Value);
-            BuildLoadoutLists();
-            if (showcaseInstance == null) showcaseInstance = Instantiate(showcasePrefabObj).GetComponent<Showcase>();
+            if (showcaseInstance == null) showcaseInstance = UnityEngine.Object.Instantiate(showcasePrefabObj).GetComponent<Showcase>();
             else showcaseInstance.Clear();
             if (tempLoadout.weapon1SO != null) showcaseInstance.AddObject(
                 tempLoadout.weapon1SO.showcaseItemPrefab != null ?
@@ -93,27 +93,13 @@ public class LoadoutMenu : MonoBehaviour
                 tempLoadout.weapon1SO.itemPrefab,
                 tempLoadout.weapon1SO.showcaseAdditionalCameraDistance
             );
-
-            // Register callbacks for confirm and cancel buttons.
-            var confirmButton = loadoutUIDocument.rootVisualElement.Q<Button>("ConfirmButton");
-            if (confirmButton != null) confirmButton.clicked += OnConfirmClicked;
-            var cancelButton = loadoutUIDocument.rootVisualElement.Q<Button>("CancelButton");
-            if (cancelButton != null) cancelButton.clicked += OnCancelClicked;
         }
         else
         {
-            if (showcaseInstance != null) Destroy(showcaseInstance.gameObject);
+            if (showcaseInstance != null) UnityEngine.Object.Destroy(showcaseInstance.gameObject);
             showcaseInstance = null;
-
-            if (loadoutUIDocument.rootVisualElement != null)
-            {
-                var confirmButton = loadoutUIDocument.rootVisualElement.Q<Button>("ConfirmButton");
-                if (confirmButton != null) confirmButton.clicked -= OnConfirmClicked;
-                var cancelButton = loadoutUIDocument.rootVisualElement.Q<Button>("CancelButton");
-                if (cancelButton != null) cancelButton.clicked -= OnCancelClicked;
-            }
         }
-        return loadoutUIDocument.enabled;
+        return isMenuActive;
     }
 
     // Iterate through the lists of loadout items, spawning a list for each category, and populating each list with the category's respective items.
@@ -121,7 +107,7 @@ public class LoadoutMenu : MonoBehaviour
     {
         for (int i = 0; i < loadoutListsData.Count; i++)
         {
-            ExpandableList newExpandableList = (ExpandableList)UIManager.Spawn("UI/ExpandableList/ExpandableList", OptionsListsContainer);
+            ExpandableList newExpandableList = (ExpandableList)UIManager.Spawn("UI/ExpandableList/ExpandableList", optionsListsContainer);
             newExpandableList.Initialize(loadoutListsData[i].listName, OnListItemSelected);
 
             foreach (LoadoutItemSO item in loadoutListsData[i].items())
@@ -136,8 +122,8 @@ public class LoadoutMenu : MonoBehaviour
     {
         LoadoutItemType itemType = loadoutListsData.Find(data => data.listName == listName).itemType;
         LoadoutItemSO selectedItem = CharacterLoadout.LoadoutItemsByType[itemType].Find(item => item.itemName == itemValue);
-        SelectedItemNameLabel.text = selectedItem.itemName;
-        SelectedItemDescriptionLabel.text = selectedItem.itemDescription;
+        selectedItemNameLabel.text = selectedItem.itemName;
+        selectedItemDescriptionLabel.text = selectedItem.itemDescription;
 
         if (showcaseInstance != null)
         {

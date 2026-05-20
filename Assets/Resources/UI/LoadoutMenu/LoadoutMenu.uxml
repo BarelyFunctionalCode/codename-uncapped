@@ -1,31 +1,31 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/Resources/UI/LoadoutMenu/Styles.uss?fileID=7433441132597879392&amp;guid=89a035138ac51c975a254f7f453090ef&amp;type=3#Styles"/>
-    <ui:VisualElement name="Background">
-        <ui:VisualElement name="LoadoutMenu" class="primary">
-            <ui:VisualElement name="MenuBar">
+    <LoadoutMenu class="active-menu">
+        <ui:VisualElement name="container" class="primary">
+            <ui:VisualElement name="menu-bar">
                 <ui:Label text="LOADOUT.EXE" class="secondary title" style="font-size: 50px;"/>
                 <ui:Button text="X" class="dangerButton" style="height: 100%; aspect-ratio: 1; border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0; border-top-left-radius: 2px; border-top-right-radius: 2px; border-bottom-right-radius: 2px; border-bottom-left-radius: 2px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; font-size: 50px; -unity-text-align: middle-center;"/>
             </ui:VisualElement>
-            <ui:VisualElement name="ContentBackground">
-                <ui:VisualElement name="Content" class="background">
-                    <ui:VisualElement name="Preview" picking-mode="Ignore">
-                        <ui:Image name="CharacterPreview" class="showcase" style="background-image: url(&quot;project://database/Assets/Materials/ShowcaseRenderTexture.renderTexture?fileID=8400000&amp;guid=f7a2da3411f0947c29d362de35715d18&amp;type=2#ShowcaseRenderTexture&quot;);"/>
-                        <ui:VisualElement name="Buttons" picking-mode="Ignore">
-                            <ui:Button text="CONFIRM" name="ConfirmButton" class="primary"/>
-                            <ui:Button text="CANCEL" name="CancelButton" class="secondary"/>
+            <ui:VisualElement name="content-background">
+                <ui:VisualElement name="content" class="background">
+                    <ui:VisualElement name="preview" picking-mode="Ignore">
+                        <ui:Image name="character-preview" class="showcase" style="background-image: url(&quot;project://database/Assets/Materials/ShowcaseRenderTexture.renderTexture?fileID=8400000&amp;guid=f7a2da3411f0947c29d362de35715d18&amp;type=2#ShowcaseRenderTexture&quot;);"/>
+                        <ui:VisualElement name="buttons" picking-mode="Ignore">
+                            <ui:Button text="CONFIRM" name="confirm-button" class="primary"/>
+                            <ui:Button text="CANCEL" name="cancel-button" class="secondary"/>
                         </ui:VisualElement>
                     </ui:VisualElement>
-                    <ui:VisualElement name="LoadoutSelection" class="secondary">
-                        <ui:VisualElement name="OptionsLists"/>
-                        <ui:VisualElement name="Border" class="primary verticalBorder"/>
-                        <ui:VisualElement name="ItemInfo">
-                            <ui:Image name="ItemPreview" class="showcase"/>
-                            <ui:Label text="ITEM NAME" name="ItemName" class="primary title" style="font-size: 30px;"/>
-                            <ui:Label text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." name="ItemDescription" class="primary description" style="font-size: 20px;"/>
+                    <ui:VisualElement name="loadout-selection" class="secondary">
+                        <ui:VisualElement name="options-lists"/>
+                        <ui:VisualElement name="border" class="primary verticalBorder"/>
+                        <ui:VisualElement name="item-info">
+                            <ui:Image name="item-preview" class="showcase"/>
+                            <ui:Label text="ITEM NAME" name="item-name" class="primary title" style="font-size: 30px;"/>
+                            <ui:Label text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." name="item-description" class="primary description" style="font-size: 20px;"/>
                         </ui:VisualElement>
                     </ui:VisualElement>
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
-    </ui:VisualElement>
+    </LoadoutMenu>
 </ui:UXML>

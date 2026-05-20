@@ -7,20 +7,30 @@
     flex-grow: 1;
 }
 
-#Background {
+LoadoutMenu {
     flex-grow: 1;
     -unity-material: none;
     background-color: rgb(0, 0, 0);
     flex-shrink: 0;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition-property: opacity;
+    transition-duration: 0.3s;
 }
 
-#LoadoutMenu {
+LoadoutMenu.active-menu {
+    opacity: 1;
+}
+
+#container {
     -unity-material: none;
     flex-grow: 1;
     flex-shrink: 0;
 }
 
-#MenuBar {
+#menu-bar {
     flex-direction: row;
     justify-content: space-between;
     height: 50px;
@@ -31,7 +41,7 @@
     padding-left: 30px;
 }
 
-#ContentBackground {
+#content-background {
     flex-shrink: 0;
     flex-grow: 1;
     margin-right: 5px;
@@ -40,7 +50,7 @@
     background-color: rgb(0, 0, 0);
 }
 
-#Content {
+#content {
     -unity-material: url("project://database/Assets/Shaders/RetroStaticUI.shadergraph?fileID=-876546973899608171&guid=69700b1ae33124c94ba8dda5b7003190&type=3#RetroStaticUI");
     padding-top: 20px;
     padding-right: 20px;
@@ -51,7 +61,7 @@
     flex-direction: row;
 }
 
-#Preview {
+#preview {
     flex-grow: 0;
     margin-right: 20px;
     width: 40%;
@@ -59,7 +69,7 @@
     overflow: hidden;
 }
 
-#Buttons {
+#buttons {
     flex-grow: 0;
     flex-direction: row;
     justify-content: space-around;
@@ -73,7 +83,7 @@
     align-items: center;
 }
 
-#LoadoutSelection {
+#loadout-selection {
     flex-grow: 1;
     flex-direction: row;
     border-top-left-radius: 8px;
@@ -86,16 +96,16 @@
     padding-left: 10px;
 }
 
-#OptionsLists {
+#options-lists {
     width: 40%;
 }
 
-#ItemInfo {
+#item-info {
     flex-grow: 1;
     align-items: center;
 }
 
-#ItemPreview {
+#item-preview {
     max-width: 90%;
     background-image: url("project://database/Assets/Materials/ShowcaseRenderTexture.renderTexture?fileID=8400000&guid=f7a2da3411f0947c29d362de35715d18&type=2#ShowcaseRenderTexture");
 }

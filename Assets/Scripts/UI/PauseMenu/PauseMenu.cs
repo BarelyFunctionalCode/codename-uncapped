@@ -27,7 +27,6 @@ public partial class PauseMenu : CustomUIElementBase
         leaveButton = this.Q<Button>("LeaveButton");
         quitButton = this.Q<Button>("QuitButton");
         controlsContentContainer = this.Query<VisualElement>("Controls").Children<VisualElement>("Content").First();
-
         debugContentContainer = this.Query<VisualElement>("Debug").Children<VisualElement>("Content").First();
         // if (!devMode) this.Q<Tab>("Debug").RemoveFromHierarchy();
         // else debugContentContainer = this.Query<VisualElement>("Debug").Children<VisualElement>("Content").First();

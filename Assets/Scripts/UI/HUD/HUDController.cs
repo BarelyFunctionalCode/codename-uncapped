@@ -28,6 +28,7 @@ public class HUDController : MonoBehaviour
     private PauseMenu pauseMenu;
     private ChatWindow chatWindow;
     private Leaderboard leaderboard;
+    private LoadoutMenu loadoutMenu;
 
     // Player References
     private Character character;
@@ -87,7 +88,8 @@ public class HUDController : MonoBehaviour
         pauseMenu = (PauseMenu)UIManager.Spawn("UI/PauseMenu/PauseMenu", hudUIDocument.rootVisualElement);
         chatWindow = (ChatWindow)UIManager.Spawn("UI/Chat/ChatWindow", hudUIDocument.rootVisualElement);
         leaderboard = (Leaderboard)UIManager.Spawn("UI/Leaderboard/Leaderboard", hudUIDocument.rootVisualElement);
-        
+        loadoutMenu = (LoadoutMenu)UIManager.Spawn("UI/LoadoutMenu/LoadoutMenu", hudUIDocument.rootVisualElement);
+
         playerControls.UI.PauseMenu.performed += ctx => ToggleMenu(HUDMenu.PauseMenu);
         playerControls.UI.LoadoutMenu.performed += ctx => ToggleMenu(HUDMenu.LoadoutMenu);
         playerControls.UI.Chat.performed += ctx => ToggleMenu(HUDMenu.Chat, true);
@@ -99,7 +101,7 @@ public class HUDController : MonoBehaviour
 
         pauseMenu.Initialize(player, character);
         chatWindow.Initialize(this);
-        // loadoutMenu.Initialize(character.GetComponent<CharacterLoadoutManager>(), this);
+        loadoutMenu.Initialize(character.GetComponent<CharacterLoadoutManager>(), this);
         leaderboard.Initialize();
         killFeed = (ToastContainer)UIManager.Spawn("UI/Toast/ToastContainer", hudUIDocument.rootVisualElement);
         killFeed.name = "kill-feed";
@@ -131,7 +133,7 @@ public class HUDController : MonoBehaviour
 
         pauseMenu.Deinitialize();
         chatWindow.Deinitialize();
-        // loadoutMenu.Deinitialize();
+        loadoutMenu.Deinitialize();
         leaderboard.Deinitialize();
         killFeed?.Deinitialize();
         killFeed = null;
@@ -277,7 +279,7 @@ public class HUDController : MonoBehaviour
                 menuLock = isActive ? HUDMenu.Chat : HUDMenu.None;
                 break;
             case HUDMenu.LoadoutMenu:
-                // loadoutMenu.ToggleMenu();
+                loadoutMenu.ToggleMenu();
                 break;
             case HUDMenu.PauseMenu:
                 pauseMenu.ToggleMenu();

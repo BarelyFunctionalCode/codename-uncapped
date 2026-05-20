@@ -5,6 +5,6 @@
             <ui:Label text="XXXXXXXXXXXX" name="list-name" style="font-size: 28px;"/>
             <ui:Image source="" name="arrow"/>
         </ui:VisualElement>
-        <ui:VisualElement name="options" class="background"/>
+        <ui:VisualElement name="options-container" class="background"/>
     </ExpandableList>
 </ui:UXML>

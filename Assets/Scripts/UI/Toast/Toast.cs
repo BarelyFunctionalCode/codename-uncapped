@@ -18,7 +18,6 @@ public partial class Toast : CustomUIElementBase
         titleLabel = toastElement.Q<Label>("Title");
         messageLabel = toastElement.Q<Label>("Message");
 
-
         this.hideTime = hideTime;
 
         titleLabel.text = data.title;

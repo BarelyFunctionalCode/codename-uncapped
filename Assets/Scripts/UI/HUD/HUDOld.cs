@@ -47,7 +47,7 @@ public class HUDOld : MonoBehaviour
     private PlayerControls playerControls;
     private List<HUDMenu> openMenus = new();
     // [SerializeField] private ChatWindowOld chatWindow;
-    [SerializeField] public LoadoutMenu loadoutMenu;
+    // [SerializeField] public LoadoutMenuOld loadoutMenu;
     // [SerializeField] private PauseMenuController pauseMenu;
     // [SerializeField] private LeaderboardController leaderboard;
     // [SerializeField] private ToastContainerController killFeed;
@@ -136,7 +136,7 @@ public class HUDOld : MonoBehaviour
         // pauseMenu.Initialize(player, character);
         // chatWindow.Initialize(this);
         // centerClusterUI.Initialize(character);
-        loadoutMenu.Initialize(character.GetComponent<CharacterLoadoutManager>(), this);
+        // loadoutMenu.Initialize(character.GetComponent<CharacterLoadoutManager>(), this);
         // leaderboard.Initialize();
         // killFeed.Initialize();
         identifierManager.Initialize();
@@ -167,7 +167,7 @@ public class HUDOld : MonoBehaviour
         // pauseMenu.Deinitialize();
         // chatWindow.Deinitialize();
         // centerClusterUI.Deinitialize();
-        loadoutMenu.Deinitialize();
+        // loadoutMenu.Deinitialize();
         // leaderboard.Deinitialize();
         // killFeed.Deinitialize();
         identifierManager.Deinitialize();
@@ -339,7 +339,7 @@ public class HUDOld : MonoBehaviour
                 menuLock = isActive ? HUDMenu.Chat : HUDMenu.None;
                 break;
             case HUDMenu.LoadoutMenu:
-                loadoutMenu.ToggleMenu();
+                // loadoutMenu.ToggleMenu();
                 break;
             case HUDMenu.PauseMenu:
                 // pauseMenu.ToggleMenu();
