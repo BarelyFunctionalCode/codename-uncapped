@@ -69,10 +69,9 @@ public partial class ChatWindow : VectorFillShape
             if (passiveChatNotificationsContainer == null)
             {
                 passiveChatNotificationsContainer = (ToastContainer)UIManager.Spawn("UI/Toast/ToastContainer", parent ?? this);
-                passiveChatNotificationsContainer.name = "passive-chat-notifications";
                 for (int i = 0; i < styleSheets.count; i++)
                     passiveChatNotificationsContainer.styleSheets.Add(styleSheets[i]);
-                passiveChatNotificationsContainer.Initialize(NotificationType.ChatMessage, 5f);
+                passiveChatNotificationsContainer.Initialize("passive-chat-notifications", NotificationType.ChatMessage, 5f);
             }
 
             passiveChatNotificationsContainer.style.width = messagesContainer.resolvedStyle.width;

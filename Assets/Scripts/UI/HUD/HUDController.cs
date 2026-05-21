@@ -24,6 +24,7 @@ public class HUDController : MonoBehaviour
     };
 
     // HUD Elements added at runtime
+    private FFIndicatorManager ffIndicatorManager;
     private ToastContainer killFeed;
     private PauseMenu pauseMenu;
     private ChatWindow chatWindow;
@@ -85,10 +86,12 @@ public class HUDController : MonoBehaviour
 
         // TODO: Spawn other menu documents
 
+        ffIndicatorManager = (FFIndicatorManager)UIManager.Spawn("UI/HUD/FFIndicator/FFIndicatorManager", hudUIDocument.rootVisualElement);
         pauseMenu = (PauseMenu)UIManager.Spawn("UI/PauseMenu/PauseMenu", hudUIDocument.rootVisualElement);
         chatWindow = (ChatWindow)UIManager.Spawn("UI/Chat/ChatWindow", hudUIDocument.rootVisualElement);
         leaderboard = (Leaderboard)UIManager.Spawn("UI/Leaderboard/Leaderboard", hudUIDocument.rootVisualElement);
         loadoutMenu = (LoadoutMenu)UIManager.Spawn("UI/LoadoutMenu/LoadoutMenu", hudUIDocument.rootVisualElement);
+        killFeed = (ToastContainer)UIManager.Spawn("UI/Toast/ToastContainer", hudUIDocument.rootVisualElement);
 
         playerControls.UI.PauseMenu.performed += ctx => ToggleMenu(HUDMenu.PauseMenu);
         playerControls.UI.LoadoutMenu.performed += ctx => ToggleMenu(HUDMenu.LoadoutMenu);
@@ -99,14 +102,12 @@ public class HUDController : MonoBehaviour
         playerControls.UI.Leaderboard.canceled += ctx => leaderboard.ToggleMenu(false);
         playerControls.UI.Enable();
 
+        ffIndicatorManager.Initialize();
         pauseMenu.Initialize(player, character);
         chatWindow.Initialize(this);
         loadoutMenu.Initialize(character.GetComponent<CharacterLoadoutManager>(), this);
         leaderboard.Initialize();
-        killFeed = (ToastContainer)UIManager.Spawn("UI/Toast/ToastContainer", hudUIDocument.rootVisualElement);
-        killFeed.name = "kill-feed";
-        killFeed.Initialize(NotificationType.KillFeed, 5f);
-        // identifierManager.Initialize();
+        killFeed.Initialize("kill-feed", NotificationType.KillFeed, 5f);
 
         // health.onAppliedDamage.AddListener(SetHitMarker);
         GameModeHandler.Instance.OnStatUpdated.AddListener(SetObjectiveData);
@@ -131,13 +132,13 @@ public class HUDController : MonoBehaviour
         playerControls.UI.Leaderboard.started -= ctx => leaderboard.ToggleMenu(true);
         playerControls.UI.Leaderboard.canceled -= ctx => leaderboard.ToggleMenu(false);
 
+        ffIndicatorManager.Deinitialize();
         pauseMenu.Deinitialize();
         chatWindow.Deinitialize();
         loadoutMenu.Deinitialize();
         leaderboard.Deinitialize();
         killFeed?.Deinitialize();
         killFeed = null;
-        // identifierManager.Deinitialize();
 
         leftSideContainer.Query<LoadoutItemUI>().ForEach(child => child.Deinitialize());
         rightSideContainer.Query<LoadoutItemUI>().ForEach(child => child.Deinitialize());

@@ -39,7 +39,7 @@ public class HUDOld : MonoBehaviour
     [SerializeField] private RectTransform dynamicReticle;
     [SerializeField] private GameObject hitMarkerObj;
     [SerializeField] private AudioSource hitMarkerSound;
-    [SerializeField] private IdentifierManager identifierManager;
+    // [SerializeField] private IdentifierManager identifierManager;
 
     private Character character;
     private Drive currentDrive;
@@ -139,7 +139,7 @@ public class HUDOld : MonoBehaviour
         // loadoutMenu.Initialize(character.GetComponent<CharacterLoadoutManager>(), this);
         // leaderboard.Initialize();
         // killFeed.Initialize();
-        identifierManager.Initialize();
+        // identifierManager.Initialize();
 
         health.onAppliedDamage.AddListener(SetHitMarker);
         GameModeHandler.Instance.OnStatUpdated.AddListener(SetObjectiveData);
@@ -170,7 +170,7 @@ public class HUDOld : MonoBehaviour
         // loadoutMenu.Deinitialize();
         // leaderboard.Deinitialize();
         // killFeed.Deinitialize();
-        identifierManager.Deinitialize();
+        // identifierManager.Deinitialize();
         // throwableUI.Deinitialize();
         // gearUI.Deinitialize();
 

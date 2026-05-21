@@ -15,8 +15,9 @@ public partial class ToastContainer : CustomUIElementBase
 
 
 
-    public void Initialize(NotificationType type, float hideTime, int maxToasts = 5)
+    public void Initialize(string name, NotificationType type, float hideTime, int maxToasts = 5)
     {
+        this.name = name;
         this.type = type;
         this.hideTime = hideTime;
         this.maxToasts = maxToasts;
