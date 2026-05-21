@@ -77,6 +77,12 @@ public class HUDController : MonoBehaviour
         }
     }
 
+    private void LateUpdate()
+    {
+        if (!isInitialized) return;
+        if (ffIndicatorManager != null) ffIndicatorManager.Update();
+    }
+
     public void Initialize(Player player, Character character)
     {
         if (isInitialized) return;

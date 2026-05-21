@@ -1,57 +1,8 @@
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
-public struct IdentifierData
-{
-    public Color color;
-    public string topText;
-    public string bottomText;
-    public bool isActive;
-    public Transform targetTransform;
-    public bool isAlwaysVisible;
-}
-
-public interface IIdentifiable
-{
-    public IdentifierData GetIdentifierData();
-}
-
-
-
-[UxmlElement(libraryPath = "FFIndicator")]
-public partial class FFIndicatorManager : VisualElement
-{
-    private bool isInitialized = false;
-
-    public void Initialize()
-    {
-        if (isInitialized) return;
-        isInitialized = true;
-        SpawnManager.Instance.Subscribe(RegisterIdentifier);
-    }
-
-    public void Deinitialize()
-    {
-        if (!isInitialized) return;
-        isInitialized = false;
-        if (SpawnManager.Instance != null) SpawnManager.Instance.Unsubscribe(RegisterIdentifier);
-    }
-
-    public void RegisterIdentifier(GameObject obj)
-    {
-        if (obj == null) return;
-        if (Player.Instance && Player.Instance.Character &&
-            Player.Instance.Character.localCharacterType && 
-            obj.transform.IsChildOf(Player.Instance.Character.transform)) return;
-        if (!obj.TryGetComponent<IIdentifiable>(out var identifiable)) return;
-
-        FFIndicator newIndicator = (FFIndicator)UIManager.Spawn("UI/HUD/FFIndicator/FFIndicator", this);
-        newIndicator.Initialize(identifiable);
-    }
-}
 
 [UxmlElement(libraryPath = "FFIndicator")]
 public partial class FFIndicator : VectorFillShape
@@ -64,6 +15,7 @@ public partial class FFIndicator : VectorFillShape
 
     private IIdentifiable identifiable;
     private Collider objectCollider = null;
+
 
     public FFIndicator()
     {
@@ -82,6 +34,8 @@ public partial class FFIndicator : VectorFillShape
         };
         bottomLabel.style.color = textColor;
         Add(bottomLabel);
+
+        EnableInClassList("active", false);
     }
 
     public void Initialize(IIdentifiable identifiable)
@@ -100,8 +54,6 @@ public partial class FFIndicator : VectorFillShape
 
         style.top = -layout.height * 0.5f;
         style.left = -layout.width * 0.5f;
-
-        schedule.Execute(Update).Every(20);
     }
 
     protected override void OnGenerateVisualContent(MeshGenerationContext mgc)
@@ -133,20 +85,19 @@ public partial class FFIndicator : VectorFillShape
         BuildFillShape(mgc, points, fillColor);
     }
 
-    private void Update()
+    public void Update()
     {
         IdentifierData data = identifiable?.GetIdentifierData() ?? default;
         if (data.Equals(default(IdentifierData)) || data.targetTransform == null)
         {
             Debug.LogWarning($"Invalid identifier data or target transform is null. Removing indicator. Data: {data}");
-            schedule.Execute(Update).Pause();
             RemoveFromHierarchy();
             return;
         }
         if (objectCollider == null)
         {
             GameObject identifiableObject = data.targetTransform.GetComponentInParent<NetworkObject>().gameObject;
-            Collider collider = identifiableObject.GetComponentInParent<Collider>();
+            Collider collider = identifiableObject.GetComponentInChildren<Collider>();
             if (collider != null) objectCollider = collider;
             else return;
         }   
@@ -164,31 +115,45 @@ public partial class FFIndicator : VectorFillShape
                 Camera.main
             );
 
-            Vector2 objectScreenSize = (objectScreenPosition - objectScreenCornerPosition) * 2.5f;
+            Vector2 objectScreenSize = (objectScreenPosition - objectScreenCornerPosition) * 4f;
             Vector2 scale = new(
                 Mathf.Clamp(objectScreenSize.x / layout.width, 0.2f, 5f),
                 Mathf.Clamp(objectScreenSize.y / layout.height, 0.2f, 5f)
             );
-            // Debug.DrawLine(objectCollider.bounds.center, objectCollider.bounds.center + Camera.main.transform.up * objectBounds.y - Camera.main.transform.right * objectBounds.x, Color.red);
-            Debug.Log($"Object Screen Position: {objectScreenPosition}, Object Screen Size: {objectScreenSize}, Scale: {scale}");
             style.scale = scale;
+            Vector2 textScale = new(Mathf.Max(1, 1 / scale.x), Mathf.Max(1, 1 / scale.y));
+            topLabel.style.scale = textScale;
+            bottomLabel.style.scale = textScale;
             style.translate = objectScreenPosition - new Vector2(layout.width, layout.height) * 0.5f;
+
+            topLabel.text = data.topText;
+            bottomLabel.text = data.bottomText;
         }
     }
 
     private bool VisibilityCheck(IdentifierData data, Vector2 objectScreenPosition)
     {
-        if (data.isActive && !data.isAlwaysVisible)
+        if (!data.isActive) return false;
+        if (!data.isAlwaysVisible)
         {
+            // Check if the object is behind camera
+            Vector3 directionToObject = (data.targetTransform.position - Camera.main.transform.position).normalized;
+            float dot = Vector3.Dot(Camera.main.transform.forward, directionToObject);
+            if (dot < 0) return false;
+
             // Check if the object is off-screen
             bool isOffScreen = objectScreenPosition.x < 0 || objectScreenPosition.x > Screen.width ||
                             objectScreenPosition.y < 0 || objectScreenPosition.y > Screen.height;
             if (isOffScreen) return false;
 
-            // Check if the object is behind an obstacle
-            Vector3 directionToObject = data.targetTransform.position - Camera.main.transform.position;
-            float dot = Vector3.Dot(Camera.main.transform.forward, directionToObject.normalized);
-            if (dot < 0) return false; // Object is behind the camera
+            // Perform a raycast to check if there are any obstacles between the camera and the object
+            bool isVisible = false;
+            Ray ray = new(Camera.main.transform.position, directionToObject);
+            if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
+            {
+                isVisible = hit.collider.transform == data.targetTransform || data.targetTransform.IsChildOf(hit.collider.gameObject.transform);
+            }
+            if (!isVisible) return false;
         }
         return true;
     }

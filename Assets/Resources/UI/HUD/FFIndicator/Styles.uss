@@ -9,43 +9,45 @@ FFIndicatorManager {
 
 FFIndicator {
     position: absolute;
-    width: 100px;
-    height: 100px;
-    scale: 20 20;
+    width: 2000px;
+    height: 2000px;
     rotate: 1080deg;
     opacity: 0;
-    transition-property: opacity, rotate, scale;
-    transition-duration: 0.5s, 0s, 0s;
+    transition-property: opacity, rotate, width, height;
+    transition-duration: 0.1s, 0s, 0s, 0s;
     flex-shrink: 0;
-    transition-delay: 0s, 0.5s, 0.5s;
+    transition-delay: 0s, 0.1s, 0.1s, 0.1s;
     --vector-line-color: rgba(217, 32, 32, 0.8);
-    transform-origin: center;
-    top: 0;
-    left: 0;
-    transition-timing-function: ease, ease, ease;
+    transition-timing-function: ease, ease, ease, ease;
+    top: 0%;
+    left: 0%;
 }
 
 FFIndicator.active {
     rotate: 0;
-    scale: 1 1;
-    transition-property: opacity, rotate, scale;
-    transition-duration: 0.3s, 1s, 0.3s;
-    transition-timing-function: ease, ease-out-cubic, ease-out-cubic;
-    transition-delay: 0s, 0s, 0s;
+    transition-property: opacity, rotate, width, height;
+    transition-duration: 0.1s, 1s, 1s, 1s;
+    transition-timing-function: ease, ease-out-cubic, ease-out-cubic, ease-out-cubic;
+    transition-delay: 0s, 0s, 0s, 0s;
     opacity: 1;
+    width: 100px;
+    height: 100px;
 }
 
 #top-label {
     position: absolute;
-    top: -20px;
+    top: -28px;
     left: -3px;
+    transform-origin: left bottom;
 }
 
 #bottom-label {
     position: absolute;
-    bottom: -20px;
+    bottom: -28px;
     right: -3px;
     -unity-text-align: middle-right;
+    transform-origin: right top;
+    scale: 1 1;
 }
 
 Label {
@@ -54,6 +56,7 @@ Label {
     transition-duration: 0.2s;
     transition-property: opacity;
     transition-timing-function: ease;
+    font-size: 20px;
 }
 
 FFIndicator.active > Label {
@@ -61,5 +64,5 @@ FFIndicator.active > Label {
     transition-property: opacity;
     transition-duration: 0.2s;
     transition-timing-function: ease;
-    transition-delay: 0.5s;
+    transition-delay: 1s;
 }
