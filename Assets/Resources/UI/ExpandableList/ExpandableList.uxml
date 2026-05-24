@@ -2,7 +2,8 @@
     <Style src="project://database/Assets/Resources/UI/ExpandableList/Styles.uss?fileID=7433441132597879392&amp;guid=e517c859f0f2047eeb774c738afb6ffd&amp;type=3#Styles"/>
     <ExpandableList name="list" focusable="true">
         <ui:VisualElement name="header" class="primary">
-            <ui:Label text="XXXXXXXXXXXX" name="list-name" style="font-size: 28px;"/>
+            <ui:Label text="XXXXXXXXXXXX" name="list-name" style="font-size: 28px; flex-grow: 1;"/>
+            <ui:Label text="XXXXXXXXXXXX" name="list-selected-item" style="font-size: 20px; filter: opacity(0.6); margin-right: 20px;"/>
             <ui:Image source="" name="arrow"/>
         </ui:VisualElement>
         <ui:VisualElement name="options-container" class="background"/>

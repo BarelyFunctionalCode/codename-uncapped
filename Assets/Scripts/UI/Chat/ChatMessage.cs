@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 
 // A single item in an ExpandableList, consisting of a label and an optional disabled overlay.
-[UxmlElement(libraryPath = "Chat/ChatMessage")]
+[UxmlElement(libraryPath = "Chat")]
 public partial class ChatMessage : VectorFillShape
 {
     static float outlineWidth = 4f;

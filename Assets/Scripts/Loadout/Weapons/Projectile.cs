@@ -214,6 +214,7 @@ public class Projectile : NetworkBehaviour, IGravityModifiable
             );
             foreach (Collider c in damagedReceivers.ToList())
             {
+                if (c == null) continue;
                 IDamageable cDamageable = c.gameObject.GetComponentInParent<IDamageable>();
                 Rigidbody cRb = c.gameObject.GetComponentInParent<Rigidbody>();
 

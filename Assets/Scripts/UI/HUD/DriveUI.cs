@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 
-[UxmlElement(libraryPath = "HUD/Drive")]
+[UxmlElement(libraryPath = "HUD")]
 public partial class DriveUI : CustomUIElementBase
 {
     // TEST PROPERTIES

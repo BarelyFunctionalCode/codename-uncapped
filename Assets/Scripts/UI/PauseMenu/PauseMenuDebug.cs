@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using System;
 
-[UxmlElement(libraryPath = "PauseMenu/PauseMenuDebug")]
+[UxmlElement(libraryPath = "PauseMenu")]
 public partial class PauseMenuDebug : CustomUIElementBase
 {
     private Toggle toggle;

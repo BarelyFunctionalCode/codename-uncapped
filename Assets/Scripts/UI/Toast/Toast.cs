@@ -1,7 +1,7 @@
 using UnityEngine.UIElements;
 
 
-[UxmlElement(libraryPath = "Toast/Toast")]
+[UxmlElement(libraryPath = "Toast")]
 public partial class Toast : CustomUIElementBase
 {
     private VisualElement toastElement;

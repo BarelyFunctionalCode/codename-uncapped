@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine.UIElements;
 
 
-[UxmlElement(libraryPath = "Toast/ToastContainer")]
+[UxmlElement(libraryPath = "Toast")]
 public partial class ToastContainer : CustomUIElementBase
 {
     private List<Toast> activeToasts = new();

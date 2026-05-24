@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 
 // A single item in an ExpandableList, consisting of a label and an optional disabled overlay.
-[UxmlElement(libraryPath = "Chat/ChatWindow")]
+[UxmlElement(libraryPath = "Chat")]
 public partial class ChatWindow : VectorFillShape
 {
     private static float outlineWidth = 15f;
@@ -144,7 +144,7 @@ public partial class ChatWindow : VectorFillShape
         {
             NotificationManager.Instance.newNotificationReceivedEvent.RemoveListener(OnNewMessageReceived);
         }
-        passiveChatNotificationsContainer.RemoveFromHierarchy();
+        if (passiveChatNotificationsContainer != null) passiveChatNotificationsContainer.RemoveFromHierarchy();
         hud = null;
     }
 

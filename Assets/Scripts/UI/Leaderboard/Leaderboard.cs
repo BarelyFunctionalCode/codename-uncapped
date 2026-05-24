@@ -3,7 +3,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-[UxmlElement(libraryPath = "Leaderboard/Leaderboard")]
+[UxmlElement(libraryPath = "Leaderboard")]
 public partial class Leaderboard : CustomUIElementBase
 {
     private Label gameModeNameLabel;

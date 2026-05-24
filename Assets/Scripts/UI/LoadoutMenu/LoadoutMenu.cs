@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-[UxmlElement(libraryPath = "LoadoutMenu/LoadoutMenu")]
+[UxmlElement(libraryPath = "LoadoutMenu")]
 public partial class LoadoutMenu : CustomUIElementBase
 {
     // Used to display a 3D preview of the currently selected item.

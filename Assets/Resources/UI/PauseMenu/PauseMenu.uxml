@@ -3,25 +3,25 @@
     <PauseMenu class="active-menu">
         <ui:TabView tabindex="0" class="unity-tab-view">
             <ui:Tab label="Match" name="Match">
-                <ui:VisualElement name="Content" class="tabContent">
+                <ui:VisualElement name="Content" class="tab-content">
                     <ui:Button text="Leave" name="LeaveButton" class="primary"/>
                     <ui:Button text="Quit To Desktop" name="QuitButton" class="primary"/>
                 </ui:VisualElement>
             </ui:Tab>
             <ui:Tab label="Gameplay" name="Gameplay" tabindex="1">
-                <ui:VisualElement name="Content" class="tabContent"/>
+                <ui:VisualElement name="Content" class="tab-content"/>
             </ui:Tab>
             <ui:Tab label="Video" name="Video" tabindex="2">
-                <ui:VisualElement name="Content" class="tabContent"/>
+                <ui:VisualElement name="Content" class="tab-content"/>
             </ui:Tab>
             <ui:Tab label="Audio" name="Audio" tabindex="3">
-                <ui:VisualElement name="Content" class="tabContent"/>
+                <ui:VisualElement name="Content" class="tab-content"/>
             </ui:Tab>
             <ui:Tab label="Controls" tabindex="4" name="Controls">
-                <ui:VisualElement name="Content" class="tabContent"/>
+                <ui:VisualElement name="Content" class="tab-content"/>
             </ui:Tab>
             <ui:Tab label="Debug" tabindex="5" name="Debug">
-                <ui:VisualElement name="Content" class="tabContent"/>
+                <ui:VisualElement name="Content" class="tab-content"/>
             </ui:Tab>
         </ui:TabView>
     </PauseMenu>

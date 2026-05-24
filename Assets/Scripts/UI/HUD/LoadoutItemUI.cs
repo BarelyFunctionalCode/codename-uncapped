@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-[UxmlElement(libraryPath = "HUD/LoadoutItem")]
+[UxmlElement(libraryPath = "HUD")]
 public partial class LoadoutItemUI : VectorFillShape
 {
     private float _maxCooldown = 0f;

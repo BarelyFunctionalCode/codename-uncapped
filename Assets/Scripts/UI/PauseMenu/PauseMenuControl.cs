@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
-[UxmlElement(libraryPath = "PauseMenu/PauseMenuControl")]
+[UxmlElement(libraryPath = "PauseMenu")]
 public partial class PauseMenuControl : CustomUIElementBase
 {
     private Label nameLabel;

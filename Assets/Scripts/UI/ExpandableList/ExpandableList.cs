@@ -3,16 +3,18 @@ using UnityEngine.UIElements;
 
 
 // A vertically expandable list of items, with a header that can be clicked to open/close the list.
-[UxmlElement(libraryPath = "BasicElements/ExpandableList")]
+[UxmlElement(libraryPath = "BasicElements")]
 public partial class ExpandableList : CustomUIElementBase
 {
     public UnityEvent<string, string> OnListItemSelected = new();
     private VisualElement listHeader;
     private Label nameLabel;
+    private Label selectedItemLabel;
     private VisualElement listOptionsContainer;
 
     float buttonHeight;
     bool isOpen = false;
+    bool closeOnSelect = false;
 
 
     protected override void OnSpawned()
@@ -20,11 +22,13 @@ public partial class ExpandableList : CustomUIElementBase
         buttonHeight = resolvedStyle.height;
     }
 
-    public void Initialize(string listName, UnityAction<string, string> onItemSelectedCallback = null)
+    public void Initialize(string listName, UnityAction<string, string> onItemSelectedCallback = null, bool closeOnSelect = false)
     {
         listHeader = this.Q<VisualElement>("header");
         nameLabel = this.Q<Label>("list-name");
+        selectedItemLabel = this.Q<Label>("list-selected-item");
         listOptionsContainer = this.Q<VisualElement>("options-container");
+        this.closeOnSelect = closeOnSelect;
         
         // Set list header label and register click event to open/close list.
         nameLabel.text = listName;
@@ -52,6 +56,7 @@ public partial class ExpandableList : CustomUIElementBase
     {
         isOpen = false;
         style.height = buttonHeight;
+        Blur();
     }
 
     // Adds an item to the list with the provided name, value, and enabled state.
@@ -63,6 +68,10 @@ public partial class ExpandableList : CustomUIElementBase
     }
     private void OnItemSelected(string itemValue)
     {
+        selectedItemLabel.text = itemValue;
         OnListItemSelected.Invoke(nameLabel.text, itemValue);
+        if (closeOnSelect) CloseList();
     }
+
+    public void SetSelectedItem(string itemValue) => OnItemSelected(itemValue);
 }

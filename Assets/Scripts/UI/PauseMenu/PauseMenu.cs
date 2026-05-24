@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
-[UxmlElement(libraryPath = "PauseMenu/PauseMenu")]
+[UxmlElement(libraryPath = "PauseMenu")]
 public partial class PauseMenu : CustomUIElementBase
 {
     private Button leaveButton;

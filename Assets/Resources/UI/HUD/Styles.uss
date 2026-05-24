@@ -88,3 +88,33 @@ HUDObjectiveContainer > #center-objective-container {
     border-top-color: rgba(0, 0, 0, 0);
     justify-content: center;
 }
+
+.reticle {
+    flex-grow: 0;
+    width: 10px;
+    height: 10px;
+    align-self: center;
+    flex-shrink: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    border-top-left-radius: 50%;
+    border-top-right-radius: 50%;
+    border-bottom-right-radius: 50%;
+    border-bottom-left-radius: 50%;
+    position: absolute;
+    transition-property: width, height, rotate, background-color;
+    transition-duration: 0.1s, 0.1s, 0.1s, 0.1s;
+}
+
+#reticle-container.hit-marker > .reticle {
+    width: 70px;
+    height: 3px;
+    background-color: rgb(255, 97, 97);
+}
+
+#reticle-container.hit-marker > #reticle-l {
+    rotate: 15deg;
+}
+
+#reticle-container.hit-marker > #reticle-r {
+    rotate: 15deg;
+}

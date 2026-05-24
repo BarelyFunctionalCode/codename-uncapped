@@ -14,6 +14,8 @@ public class HUDController : MonoBehaviour
     private HUDLeftSide leftSideContainer;
     private HUDRightSide rightSideContainer;
     private Label currentPhaseText;
+    private VisualElement reticleContainer;
+
     private Dictionary<Phase, string> phaseColors = new()
     {
         { Phase.ACTIVE, "secondary" },
@@ -64,6 +66,7 @@ public class HUDController : MonoBehaviour
         rightSideContainer = hudRoot.Q<HUDRightSide>();
 
         currentPhaseText = hudRoot.Q<Label>("current-phase");
+        reticleContainer = hudRoot.Q<VisualElement>("reticle-container");
     }
 
     private void Update()
@@ -80,7 +83,7 @@ public class HUDController : MonoBehaviour
     private void LateUpdate()
     {
         if (!isInitialized) return;
-        if (ffIndicatorManager != null) ffIndicatorManager.Update();
+        ffIndicatorManager?.Update();
     }
 
     public void Initialize(Player player, Character character)
@@ -115,7 +118,9 @@ public class HUDController : MonoBehaviour
         leaderboard.Initialize();
         killFeed.Initialize("kill-feed", NotificationType.KillFeed, 5f);
 
-        // health.onAppliedDamage.AddListener(SetHitMarker);
+        character.health.onAppliedDamage.AddListener(SetHitMarker);
+        reticleContainer.EnableInClassList("hit-marker", false);
+        
         GameModeHandler.Instance.OnStatUpdated.AddListener(SetObjectiveData);
         GameModeHandler.Instance.currentPhaseCountdown.OnValueChanged += SetCountDownTimer;
         GameModeHandler.Instance.currentPhase.OnValueChanged += SetCurrentPhaseData;
@@ -150,7 +155,7 @@ public class HUDController : MonoBehaviour
         rightSideContainer.Query<LoadoutItemUI>().ForEach(child => child.Deinitialize());
         centerContainer.Q<DriveUI>()?.Deinitialize();
 
-        // if (health != null) health.onAppliedDamage.RemoveListener(SetHitMarker);
+        if (character != null && character.health != null) character.health.onAppliedDamage.RemoveListener(SetHitMarker);
         if (GameModeHandler.Instance)
         {
             GameModeHandler.Instance.OnStatUpdated.RemoveListener(SetObjectiveData);
@@ -207,6 +212,12 @@ public class HUDController : MonoBehaviour
         }
         if (phase == Phase.ACTIVE) currentPhaseText.style.display = DisplayStyle.None;
         else currentPhaseText.style.display = DisplayStyle.Flex;
+    }
+
+    private void SetHitMarker(float damage)
+    {
+        reticleContainer.EnableInClassList("hit-marker", true);
+        reticleContainer.schedule.Execute(() => reticleContainer.EnableInClassList("hit-marker", false)).ExecuteLater(100);
     }
 
     public DriveUI SetDrive(Drive drive)
