@@ -23,6 +23,17 @@ ExpandableList {
     padding-bottom: 10px;
     padding-left: 12px;
     justify-content: flex-end;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    transition-property: border-radius;
+    transition-duration: 0.2s;
+}
+
+ExpandableList:focus #header {
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
 }
 
 #options-container {
@@ -39,7 +50,7 @@ ExpandableList {
     transition-duration: 0.5s;
 }
 
-#list:focus > #options-container > * {
+ExpandableList:focus > #options-container > * {
     opacity: 1;
     transition-property: opacity;
     transition-duration: 0.5s;
@@ -56,7 +67,7 @@ ExpandableList {
     background-image: url("project://database/Assets/Images/HUD/TriangleIcon.png?fileID=2800000&guid=8f9c29442f01da7da8cc4ce9c2155acc&type=3#TriangleIcon");
 }
 
-#list:focus #arrow {
+ExpandableList:focus #arrow {
     height: 32px;
     width: 32px;
     aspect-ratio: 1;
