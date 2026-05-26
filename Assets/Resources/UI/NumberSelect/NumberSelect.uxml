@@ -1,0 +1,9 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Resources/UI/NumberSelect/Styles.uss?fileID=7433441132597879392&amp;guid=4a06d6d1932c04b8aa92df0061f2524a&amp;type=3#Styles"/>
+    <NumberSelect class="primary">
+        <ui:Label text="Name of Option" name="name-label"/>
+        <ui:Button text="" name="left-arrow"/>
+        <ui:TextField label="" placeholder-text="" name="value-field" value="000" max-length="3"/>
+        <ui:Button text="" name="right-arrow"/>
+    </NumberSelect>
+</ui:UXML>

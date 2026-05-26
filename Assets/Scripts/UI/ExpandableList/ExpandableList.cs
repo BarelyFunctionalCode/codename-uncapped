@@ -56,7 +56,7 @@ public partial class ExpandableList : CustomUIElementBase
     {
         isOpen = false;
         style.height = buttonHeight;
-        Blur();
+        schedule.Execute(Blur).StartingIn(100);
     }
 
     // Adds an item to the list with the provided name, value, and enabled state.

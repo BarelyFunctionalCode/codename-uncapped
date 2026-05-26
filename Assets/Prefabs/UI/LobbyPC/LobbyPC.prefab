@@ -159,7 +159,7 @@ Transform:
   m_GameObject: {fileID: 693384157063041217}
   serializedVersion: 2
   m_LocalRotation: {x: 0.09785626, y: -0, z: -0, w: 0.9952006}
-  m_LocalPosition: {x: 0, y: 2.0897775, z: -1.7993258}
+  m_LocalPosition: {x: 0, y: 2.0756829, z: -1.7283481}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -355,7 +355,7 @@ Transform:
   m_GameObject: {fileID: 1412952431852196046}
   serializedVersion: 2
   m_LocalRotation: {x: 0.09785626, y: -0, z: -0, w: 0.9952006}
-  m_LocalPosition: {x: 0, y: 2.0897775, z: -1.7993258}
+  m_LocalPosition: {x: 0, y: 2.0756829, z: -1.7283481}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -381,11 +381,11 @@ MonoBehaviour:
   m_StreamingVersion: 20241001
   m_LegacyPriority: 0
   Target:
-    TrackingTarget: {fileID: 0}
+    TrackingTarget: {fileID: 1496507778971885047}
     LookAtTarget: {fileID: 0}
     CustomLookAtTarget: 0
   Lens:
-    FieldOfView: 60.000004
+    FieldOfView: 60
     OrthographicSize: 10
     NearClipPlane: 0.1
     FarClipPlane: 5000
@@ -416,7 +416,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 886251e9a18ece04ea8e61686c173e1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachinePositionComposer
-  CameraDistance: 1.93
+  CameraDistance: 1.84
   DeadZoneDepth: 0
   Composition:
     ScreenPosition: {x: 0, y: 0}
@@ -808,8 +808,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -0.6}
-  m_LocalScale: {x: 0.482325, y: 0.8574668, z: 7.441049}
-  m_ConstrainProportionsScale: 1
+  m_LocalScale: {x: 0.048343435, y: 0.0859439, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5770849178840119813}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

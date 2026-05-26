@@ -1,4 +1,4 @@
-#list {
+ExpandableList {
     flex-shrink: 0;
     height: 60px;
     margin-bottom: 10px;

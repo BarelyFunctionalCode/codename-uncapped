@@ -5,23 +5,19 @@
             <ui:Tab label="Match" name="match">
                 <ui:VisualElement name="content" class="tab-content" style="width: 100%; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
                     <ui:VisualElement name="match-configuration" style="width: 40%;">
-                        <ui:VisualElement name="options-lists"/>
                         <ui:VisualElement name="match-info">
-                            <ui:Label text="LEVEL NAME" name="level-name" class="title"/>
+                            <ui:VisualElement name="level-select" class="option-container" style="flex-grow: 1; margin-top: 0;"/>
                             <ui:Label text="level description level description level description level description level description level description level description level description level description level description level description level description level description level description level description level description level description level description level description level description level description level description level description level description level description level description level description level description " name="level-description" class="description"/>
-                            <ui:Label text="GAME MODE NAME" name="game-mode-name" class="title" style="margin-top: 30px;"/>
+                            <ui:VisualElement name="game-mode-select" class="option-container" style="flex-grow: 1;"/>
                             <ui:Label text="game mode description game mode description game mode description game mode description game mode description game mode description game mode description game mode description game mode description game mode description game mode description game mode description game mode description game mode description game mode description game mode description game mode description game mode description game mode description " name="game-mode-description" class="description"/>
+                            <ui:VisualElement name="other-options" class="option-container" style="flex-grow: 1;"/>
                         </ui:VisualElement>
                         <ui:VisualElement name="buttons" style="flex-grow: 1; width: 50%;">
                             <ui:Button text="Start Match" name="start-button" class="primary"/>
                         </ui:VisualElement>
                     </ui:VisualElement>
                     <ui:VisualElement name="player-section">
-                        <ui:VisualElement name="player-list">
-                            <ui:VisualElement name="player-list-entry">
-                                <ui:Label text="XXXXXXXXXXXXXXXXXXXX&#x9;" name="player-name"/>
-                            </ui:VisualElement>
-                        </ui:VisualElement>
+                        <ui:VisualElement name="player-list"/>
                         <ui:VisualElement name="chat-container"/>
                     </ui:VisualElement>
                 </ui:VisualElement>
