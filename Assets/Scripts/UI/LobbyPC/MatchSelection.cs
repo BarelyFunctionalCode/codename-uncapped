@@ -33,7 +33,7 @@ public class MatchSelection : NetworkBehaviour
     private int selectedTimeLimit;
     private int selectedWinConditionValue;
 
-    [SerializeField] private LobbyPCOld lobbyPC;
+    [SerializeField] private LobbyPCController lobbyPC;
 
     public sealed override void OnNetworkSpawn()
     {

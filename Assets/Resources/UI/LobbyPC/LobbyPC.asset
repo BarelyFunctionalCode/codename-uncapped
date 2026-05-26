@@ -17,7 +17,7 @@ MonoBehaviour:
   m_TargetTexture: {fileID: 0}
   m_RenderMode: 1
   m_ColliderUpdateMode: 0
-  m_ColliderIsTrigger: 1
+  m_ColliderIsTrigger: 0
   m_ScaleMode: 1
   m_ReferenceSpritePixelsPerUnit: 100
   m_PixelsPerUnit: 1000

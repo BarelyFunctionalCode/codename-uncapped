@@ -9,22 +9,22 @@ UIDocumentRootElement {
 :root {
     -unity-font-definition: url("project://database/Assets/Fonts/welbutrin/Welbut__%20Bitmap.asset?fileID=11400000&guid=7a29126173bc1b4fba9bdcf432284dfb&type=2#Welbut__ Bitmap");
     -unity-material: url("project://database/Assets/Shaders/RetroStaticUI.shadergraph?fileID=-876546973899608171&guid=69700b1ae33124c94ba8dda5b7003190&type=3#RetroStaticUI");
+    --Background: rgba(39, 33, 60, 0.5);
     --Primary: rgba(34, 237, 230, 0.7);
     --Primary-Text: rgba(34, 237, 230, 0.95);
     --Secondary: rgba(138, 0, 62, 0.7);
+    --Secondary-Text: rgba(137, 0, 61, 0.95);
     --Caution: rgba(198, 224, 46, 0.7);
     --Caution-Text: rgba(198, 224, 46, 0.95);
     --Active-Color: rgba(46, 207, 202, 0.95);
     --Cooldown-Color: rgba(188, 59, 59, 0.75);
     --Energy: rgba(46, 207, 202, 0.95);
     --Health: rgba(188, 59, 59, 0.75);
+    --Red: rgb(229, 61, 83);
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
     border-bottom-right-radius: 8px;
     border-bottom-left-radius: 8px;
-    --Secondary-Text: rgba(137, 0, 61, 0.95);
-    --Background: rgba(39, 33, 60, 0.5);
-    --Red: rgb(229, 61, 83);
     flex-shrink: 0;
     flex-grow: 1;
     white-space: nowrap;

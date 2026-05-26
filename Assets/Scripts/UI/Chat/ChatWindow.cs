@@ -63,9 +63,9 @@ public partial class ChatWindow : VectorFillShape
         textInput.RegisterCallback<NavigationSubmitEvent>(OnChatInputSubmit, TrickleDown.TrickleDown);
 
         RegisterCallback<GeometryChangedEvent>(evt => {
-            messagesContainer.style.height = new Length(layout.height * 0.6f + outlineWidth);
-            textInputContainer.style.height = new Length(layout.height * 0.4f - outlineWidth * 2f);
+            messagesContainer.style.height = new Length(evt.newRect.height * 0.6f + outlineWidth);
 
+            if (isInitialized && !hud) return;
             if (passiveChatNotificationsContainer == null)
             {
                 passiveChatNotificationsContainer = (ToastContainer)UIManager.Spawn("UI/Toast/ToastContainer", parent ?? this);
@@ -74,8 +74,8 @@ public partial class ChatWindow : VectorFillShape
                 passiveChatNotificationsContainer.Initialize("passive-chat-notifications", NotificationType.ChatMessage, 5f);
             }
 
-            passiveChatNotificationsContainer.style.width = messagesContainer.resolvedStyle.width;
-            passiveChatNotificationsContainer.style.height = messagesContainer.style.height;
+            passiveChatNotificationsContainer.style.width = evt.newRect.width;
+            passiveChatNotificationsContainer.style.height = evt.newRect.height * 0.6f;
         });
     }
 
@@ -83,6 +83,8 @@ public partial class ChatWindow : VectorFillShape
     {
         Color lineColor = resolvedColors.GetValueOrDefault(s_VectorLineColor.name, Color.clear);
         Color fillColor = resolvedColors.GetValueOrDefault(s_VectorFillColor.name, Color.clear);
+
+        if (lineColor.a <= 0f) return;
 
         List<Vector2> points = new()
         {
@@ -129,7 +131,14 @@ public partial class ChatWindow : VectorFillShape
 
         NotificationManager.Instance.newNotificationReceivedEvent.AddListener(OnNewMessageReceived);
 
-        EnableInClassList("active-menu", false);
+        EnableInClassList("active-menu", !hud);
+        if (!hud)
+        {
+            passiveChatNotificationsContainer?.RemoveFromHierarchy();
+            EnableInClassList("always-active", true);
+            style.paddingLeft = 0;
+            style.paddingBottom = 0;
+        }
 
         this.hud = hud;
         isInitialized = true;
@@ -144,16 +153,18 @@ public partial class ChatWindow : VectorFillShape
         {
             NotificationManager.Instance.newNotificationReceivedEvent.RemoveListener(OnNewMessageReceived);
         }
-        if (passiveChatNotificationsContainer != null) passiveChatNotificationsContainer.RemoveFromHierarchy();
+        passiveChatNotificationsContainer?.RemoveFromHierarchy();
         hud = null;
     }
 
     public bool ToggleMenu()
     {
+        if (!hud) return true;
+
         isMenuActive = !isMenuActive;
         EnableInClassList("active-menu", isMenuActive);
         pickingMode = isMenuActive ? PickingMode.Position : PickingMode.Ignore;
-        passiveChatNotificationsContainer.EnableInClassList("active-menu", isMenuActive);
+        passiveChatNotificationsContainer?.EnableInClassList("active-menu", isMenuActive);
         if (isMenuActive)
         {
             BringToFront();
@@ -178,9 +189,9 @@ public partial class ChatWindow : VectorFillShape
         ChatMessage newMessage = (ChatMessage)UIManager.Spawn("UI/Chat/ChatMessage", messagesScrollView.contentContainer);
         newMessage.Initialize(messageData, Color.clear);
         if (!isPointerInMessageList)
-        schedule.Execute(
-            () => messagesScrollView.verticalScroller.value = messagesScrollView.verticalScroller.highValue
-        ).StartingIn(100);
+            schedule.Execute(
+                () => messagesScrollView.verticalScroller.value = messagesScrollView.verticalScroller.highValue
+            ).StartingIn(100);
     }
 
     private void OnChatInputSubmit(NavigationSubmitEvent evt)

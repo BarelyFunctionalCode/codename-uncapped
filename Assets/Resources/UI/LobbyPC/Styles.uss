@@ -27,3 +27,148 @@ LobbyPC {
 .unity-tab__header-label {
     font-size: 30px;
 }
+
+#content {
+    flex-direction: row;
+    flex-shrink: 0;
+    flex-grow: 0;
+    height: 100%;
+    width: 100%;
+    position: relative;
+}
+
+#match-configuration {
+    padding-top: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    background-color: var(--Secondary);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    flex-shrink: 0;
+    height: 100%;
+    flex-grow: 0;
+}
+
+#options-lists {
+    flex-grow: 0;
+    border-bottom-color: var(--Primary);
+    border-bottom-width: 5px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+}
+
+#options-lists > * {
+    margin-bottom: 10px;
+}
+
+#match-info {
+    flex-grow: 0;
+    flex-shrink: 1;
+    border-bottom-color: var(--Primary);
+    border-bottom-width: 5px;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.title {
+    font-size: 30px;
+    border-bottom-color: var(--Primary);
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 3px;
+    border-left-width: 0;
+    margin-top: 0;
+    color: var(--Primary-Text);
+    margin-bottom: 10px;
+}
+
+.description {
+    color: var(--Primary-Text);
+    flex-grow: 0;
+    font-size: 20px;
+    white-space: normal;
+}
+
+#buttons {
+    align-items: center;
+    width: 30%;
+    align-self: center;
+    justify-content: flex-end;
+}
+
+#player-section {
+    flex-grow: 0;
+    flex-shrink: 1;
+    margin-left: 20px;
+    background-color: var(--Secondary);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    padding-top: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    height: 100%;
+    justify-content: space-between;
+    flex-basis: 100%;
+}
+
+#player-list {
+    flex-grow: 1;
+    flex-direction: row;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+}
+
+#player-list-entry {
+    flex-grow: 0;
+    height: 50px;
+    background-color: var(--Primary);
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    width: 31.33%;
+    margin-top: 1%;
+    margin-right: 1%;
+    margin-bottom: 1%;
+    margin-left: 1%;
+    flex-shrink: 0;
+}
+
+#player-name {
+    flex-shrink: 0;
+    flex-grow: 1;
+    padding-top: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    -unity-text-auto-size: best-fit 10px 100px;
+    -unity-text-align: middle-center;
+    color: var(--Secondary-Text);
+    -unity-text-generator: advanced;
+}
+
+#chat-container {
+    flex-shrink: 0;
+    flex-grow: 0;
+    height: 500px;
+    align-items: center;
+}
+
+#chat-container > ChatWindow {
+    --vector-line-color: rgba(0, 0, 0, 0);
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    flex-shrink: 0;
+    flex-grow: 0;
+    width: 100%;
+    height: 100%;
+}

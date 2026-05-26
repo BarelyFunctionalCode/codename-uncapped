@@ -2,19 +2,27 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Cinemachine;
+using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
 using UnityEngine.UIElements;
 
 
 [UxmlElement(libraryPath = "LobbyPC")]
 public partial class LobbyPC : CustomUIElementBase
 {
+    private LobbyPCController lobbyPCController;
     private VisualElement interactPrompt;
     private VisualElement autoStartNotice;
     private VisualElement optionsListsContainer;
+    private Label levelNameLabel;
+    private Label levelDescriptionLabel;
+    private Label gameModeNameLabel;
+    private Label gameModeDescriptionLabel;
+    private Button startMatchButton;
+    private VisualElement playerListContainer;
+    private VisualElement chatContainer;
 
     private struct OptionListData
     {
@@ -27,11 +35,22 @@ public partial class LobbyPC : CustomUIElementBase
         new OptionListData { listName = "GAME MODE", items = () => GameModeHandler.availableGameModes.Values.Select(gm => gm.displayName).ToList() },
     };
 
-    public void Initialize()
+    public void Initialize(LobbyPCController lobbyPCController)
     {
+        this.lobbyPCController = lobbyPCController;
         interactPrompt = this.Q("interact-prompt");
         autoStartNotice = this.Q("auto-start-notice");
         optionsListsContainer = this.Q("options-lists");
+        levelNameLabel = this.Q<Label>("level-name");
+        levelDescriptionLabel = this.Q<Label>("level-description");
+        gameModeNameLabel = this.Q<Label>("game-mode-name");
+        gameModeDescriptionLabel = this.Q<Label>("game-mode-description");
+        startMatchButton = this.Q<Button>("start-button");
+        playerListContainer = this.Q<VisualElement>("player-list");
+        chatContainer = this.Q<VisualElement>("chat-container");
+
+        ChatWindow chatWindow = (ChatWindow)UIManager.Spawn("UI/Chat/ChatWindow", chatContainer);
+        chatWindow.Initialize(null);
 
         ToggleInteractPrompt(false);
         ToggleAutoStartNotice(false);
@@ -63,62 +82,79 @@ public partial class LobbyPC : CustomUIElementBase
         }
     }
 
-    private void OnListItemSelected(string listName, string itemValue)
+    public void OnListItemSelected(string listName, string itemValue)
     {
-        
+        if (listName == "LEVEL")
+        {
+            LevelSO levelInfo = LevelManager.availableLevels.FirstOrDefault(level => level.displayName == itemValue);
+            if (levelInfo != null)
+            {
+                levelNameLabel.text = levelInfo.displayName;
+                levelDescriptionLabel.text = levelInfo.description;
+            }
+            lobbyPCController.SetSelectedLevel(itemValue);
+        }
+        else if (listName == "GAME MODE")
+        {
+            GameModeSO gameModeInfo = GameModeHandler.availableGameModes.Values.FirstOrDefault(gm => gm.displayName == itemValue);
+            if (gameModeInfo != null)
+            {
+                gameModeNameLabel.text = gameModeInfo.displayName;
+                gameModeDescriptionLabel.text = gameModeInfo.description;
+            }
+            lobbyPCController.SetSelectedGameMode(itemValue);
+        }
+    }
+
+    public void AddPlayerToList(string playerName)
+    {
+        Label newPlayerLabel = new Label(playerName);
+        playerListContainer.Add(newPlayerLabel);
     }
 }
 
 
-public class LobbyPCOld : NetworkBehaviour
+public class LobbyPCController : NetworkBehaviour
 {
     [SerializeField] private UIDocument uiDocument;
     private LobbyPC lobbyPC;
-    // private Canvas canvas;
+
     [SerializeField] private CinemachineCamera pcCam;
     [SerializeField] private LayerMask noPlayerMask;
-
-    // [SerializeField] private GameObject interactPromptObj;
-    // [SerializeField] private GameObject autoStartObj;
-
-    // [SerializeField] private GameObject cursorObj;
     [SerializeField] public AudioSource musicSource;
 
-    // private float camToCanvasDistance;
+    private NetworkVariable<FixedString64Bytes> selectedLevelName = new();
+    private NetworkVariable<FixedString64Bytes> selectedGameModeName = new();
+
+
+
+    private List<LobbyCharacter> lobbyPlayers = new();
+
+
+
+
     private bool showInteractPrompt = false;
     private bool isActive = false;
     private bool autoInteract = true;
     private bool autoStart = false;
-
-    // [SerializeField] private Button activeTabButton;
-    // [SerializeField] private GameObject matchConfigurationContainerObj;
-    // [SerializeField] private GameObject lobbiesListContainerObj;
-
-    // private float activeTabButtonAlpha = 0.4f;
-    // private float inactiveTabButtonAlpha;
-
     private bool isInitialized = false;
 
 
-    void Awake()
+    public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         GameManager.Instance.OnLevelLoadedEvent.AddListener(OnLevelLoadedEvent);
 
         lobbyPC = uiDocument.rootVisualElement.Q<LobbyPC>();
-        lobbyPC.Initialize();
+        lobbyPC.Initialize(this);
+
+        selectedLevelName.OnValueChanged += OnSelectedLevelNameChanged;
+        selectedGameModeName.OnValueChanged += OnSelectedGameModeNameChanged;
+        OnSelectedLevelNameChanged(string.Empty, selectedLevelName.Value);
+        OnSelectedGameModeNameChanged(string.Empty, selectedGameModeName.Value);
         
-        // canvas = GetComponentInChildren<Canvas>();
-        // camToCanvasDistance = pcCam.GetComponent<CinemachinePositionComposer>().CameraDistance;
-
         lobbyPC.ToggleInteractPrompt(true);
-        // cursorObj.SetActive(false);
-        // matchConfigurationContainerObj.SetActive(true);
-        // lobbiesListContainerObj.SetActive(false);
-
-        // Color tabColor = activeTabButton.image.color;
-        // inactiveTabButtonAlpha = tabColor.a;
-        // tabColor.a = activeTabButtonAlpha;
-        // activeTabButton.image.color = tabColor;
 
         DevNetworkManager possibleDevNetworkManager = FindAnyObjectByType<DevNetworkManager>();
         if (possibleDevNetworkManager != null && possibleDevNetworkManager.doAutoStart)
@@ -153,13 +189,6 @@ public class LobbyPCOld : NetworkBehaviour
 
         musicSource.spatialBlend = Mathf.Lerp(musicSource.spatialBlend, isActive ? 0f : 1f, Time.deltaTime);
 
-        // if (Camera.main != null && cursorObj != null && isActive)
-        // {
-        //     Vector2 mousePosition = Mouse.current.position.ReadValue();
-        //     Vector3 cursorPosition = Camera.main.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, camToCanvasDistance));
-        //     cursorObj.transform.position = cursorPosition;
-        // }
-
         if (Keyboard.current.fKey.wasPressedThisFrame && showInteractPrompt && !isActive)
         {
             Interact();
@@ -168,6 +197,7 @@ public class LobbyPCOld : NetworkBehaviour
 
     private void FixedUpdate()
     {
+        if (lobbyPC == null) return;
         lobbyPC.ToggleInteractPrompt(showInteractPrompt && !isActive);
         showInteractPrompt = false;
     }
@@ -194,8 +224,7 @@ public class LobbyPCOld : NetworkBehaviour
         // Sets priority to PC Cam and then unlocks the cursor
         Camera.main.cullingMask = noPlayerMask;
         pcCam.Priority.Value = 99;
-        Player.Instance.playerHUD.SetCursorState(true, true);
-        // cursorObj.SetActive(true);
+        Player.Instance.playerHUD.SetCursorState(true, false);
         isActive = true;
         autoInteract = false;
     }
@@ -205,7 +234,6 @@ public class LobbyPCOld : NetworkBehaviour
         if (!isActive) return;
         // Resets priority to PC Cam and then locks the cursor
         isActive = false;
-        // cursorObj.SetActive(false);
         if (Camera.main != null) Camera.main.cullingMask = -1;
         pcCam.Priority.Value = 0;
 
@@ -229,8 +257,58 @@ public class LobbyPCOld : NetworkBehaviour
         CharacterPuppet characterPuppet = other.GetComponentInParent<CharacterPuppet>();
         if ((character != null && character == localPlayerCharacter) || characterPuppet != null)
         {
+            if (lobbyPC == null) return;
             lobbyPC.ToggleInteractPrompt(true);
             showInteractPrompt = true;
         }
+    }
+
+    public void SetSelectedLevel(string levelName)
+    {
+        if (!IsHost) return;
+        selectedLevelName.Value = levelName;
+    }
+
+    public void SetSelectedGameMode(string gameModeName)
+    {
+        if (!IsHost) return;
+        selectedGameModeName.Value = gameModeName;
+    }
+
+    private void OnSelectedLevelNameChanged(FixedString64Bytes oldLevelName, FixedString64Bytes newLevelName)
+    {
+        if (IsHost) return;
+        lobbyPC.OnListItemSelected("LEVEL", newLevelName.ToString());
+    }
+
+    private void OnSelectedGameModeNameChanged(FixedString64Bytes oldGameModeName, FixedString64Bytes newGameModeName)
+    {
+        if (IsHost) return;
+        lobbyPC.OnListItemSelected("GAME MODE", newGameModeName.ToString());
+    }
+
+
+
+
+
+    private void AddCharacter(ulong characterId)
+    {
+        if (!IsHost) return;
+
+        LobbyCharacter lobbyPlayerToRemove = lobbyPlayers.Find(lp => lp.GetComponent<LobbyCharacter>().characterId == characterId);
+        if (lobbyPlayerToRemove != null) return;
+
+        Character character = CharacterManager.Instance.GetCharacterByEntityId(characterId);
+        if (!character.isInitialized) return;
+
+        Identification entityIdentification = character.identification;
+
+        string playerName = entityIdentification.FetchEntityName();
+        // int teamId = (selectedGameMode.teamBasedType == TeamBasedType.TEAM) ? (int)entityIdentification.FetchTeamId() : -1;
+
+        // GameObject lobbyPlayerObj = Instantiate(lobbyPlayerPrefabObj, parentColumn);
+        // LobbyCharacter lobbyPlayer = lobbyPlayerObj.GetComponent<LobbyCharacter>();
+        // lobbyPlayer.Initialize(this, characterId, playerName, teamId, IsHost);
+        // lobbyPlayers.Add(lobbyPlayer);
     }
 }
