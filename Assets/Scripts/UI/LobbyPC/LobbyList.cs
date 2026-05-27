@@ -6,8 +6,12 @@ using UnityEngine.UIElements;
 [UxmlElement(libraryPath = "LobbyPC")]
 public partial class LobbyList : CustomUIElementBase
 {
+    VisualElement lobbyListContainer;
+
+
     public void Initialize()
     {
+        lobbyListContainer = this.Q("lobby-list-container");
         if (GameManager.Instance.usingSteam) schedule.Execute(RefreshLobbyListUI).Every(5000);
     }
 
@@ -18,16 +22,13 @@ public partial class LobbyList : CustomUIElementBase
         List<Lobby> Lobbies = GameManager.Instance.Lobbies;
 
         // Clear the lobby list
-        foreach (var element in Children())
-        {
-            element.RemoveFromHierarchy();
-        }
+        lobbyListContainer.Clear();
 
         // Create a new lobby list
         foreach (var lobby in Lobbies)
         {
-            LobbyListEntry lobbyListEntry = (LobbyListEntry)UIManager.Spawn("UI/LobbyPC/LobbyListEntry", this);
-            lobbyListEntry.Initialize(lobby.GetData("name"), lobby.Id, lobby.MemberCount, lobby.MaxMembers);
+            LobbyListEntry lobbyListEntry = (LobbyListEntry)UIManager.Spawn("UI/LobbyPC/LobbyListEntry", lobbyListContainer);
+            lobbyListEntry.Initialize(lobby);
         }
     }
 }

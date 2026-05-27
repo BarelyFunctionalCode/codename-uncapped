@@ -47,36 +47,6 @@ ChatWindow.active-menu {
     flex-grow: 1;
 }
 
-.unity-scroll-view {
-    flex-shrink: 1;
-}
-
-.unity-scroll-view__content-and-vertical-scroll-container {
-    flex-grow: 1;
-    flex-direction: row;
-}
-
-.unity-scroll-view__content-viewport {
-    flex: auto;
-    overflow: hidden;
-}
-
-.unity-scroll-view--vertical > .unity-scroll-view__content-and-vertical-scroll-container > .unity-scroll-view__content-viewport {
-    flex-direction: column;
-}
-
-.unity-scroll-view__content-container {
-    flex-shrink: 0;
-}
-
-.unity-scroll-view--vertical > .unity-scroll-view__content-and-vertical-scroll-container > .unity-scroll-view__content-viewport > .unity-scroll-view__content-container {
-    flex-direction: column;
-}
-
-.unity-scroll-view--vertical.unity-scroll-view--scroll > .unity-scroll-view__content-and-vertical-scroll-container > .unity-scroll-view__content-viewport > .unity-scroll-view__content-container {
-    overflow: scroll;
-}
-
 ChatMessage {
     flex-shrink: 0;
     min-height: 100px;
@@ -98,31 +68,6 @@ ChatMessage > Label {
 ChatMessage > #sender-label {
     font-size: 14px;
     -unity-font-style: bold;
-}
-
-.unity-base-text-field__input {
-    flex: 1 1 auto;
-}
-
-.unity-scroll-view--inner-input-field-component {
-    flex-grow: 1;
-}
-
-.unity-scroll-view__content-viewport--inner-input-field-component.unity-scroll-view__content-viewport--vertical {
-    flex-grow: 1;
-}
-
-.unity-scroll-view__content-container--vertical.unity-scroll-view__content-container--inner-input-field-component {
-    min-height: 100%;
-}
-
-.unity-text-element--inner-input-field-component--vertical {
-    min-height: 100%;
-}
-
-.unity-text-element--inner-input-field-component--scroll-view {
-    flex-shrink: 0;
-    min-width: 100%;
 }
 
 #passive-chat-notifications {

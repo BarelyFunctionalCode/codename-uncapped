@@ -1,3 +1,4 @@
+using Steamworks.Data;
 using UnityEngine.UIElements;
 
 
@@ -11,15 +12,15 @@ public partial class LobbyListEntry : CustomUIElementBase
     private ulong lobbyId;
 
 
-    public void Initialize(string lobbyName, ulong lobbyId, int playerCount, int maxPlayers)
+    public void Initialize(Lobby lobby)
     {
         lobbyNameLabel = this.Q<Label>("lobby-name");
         playerCountLabel = this.Q<Label>("player-count");
         joinButton = this.Q<Button>("join-button");
         
-        lobbyNameLabel.text = lobbyName;
-        playerCountLabel.text = $"{playerCount}/{maxPlayers}";
-        this.lobbyId = lobbyId;
+        lobbyNameLabel.text = lobby.GetData("name");
+        playerCountLabel.text = $"{lobby.MemberCount}/{lobby.MaxMembers}";
+        lobbyId = lobby.Id;
 
         joinButton.clicked += JoinLobby;
     }
