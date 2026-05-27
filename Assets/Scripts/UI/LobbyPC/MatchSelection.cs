@@ -1,294 +1,193 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UIElements;
 
-public class MatchSelection : NetworkBehaviour
+
+[UxmlElement(libraryPath = "LobbyPC")]
+public partial class MatchSelection : CustomUIElementBase
 {
-    [SerializeField] private TMP_Dropdown levelSelectDropdown;
-    [SerializeField] private TMP_Dropdown gameModeSelectDropdown;
-    [SerializeField] private TMP_Dropdown maxPlayersSelectDropdown;
-    [SerializeField] private TMP_Dropdown timeLimitSelectDropdown;
-    [SerializeField] private TMP_Text winConditionNameText;
-    [SerializeField] private TMP_Text winConditionValueText;
-    [SerializeField] private GameObject winConditionValueIncrementButtonContainer;
-    [SerializeField] private GameObject winConditionValueDecrementButtonContainer;
+    private LobbyPCController lobbyPCController;
 
-    [SerializeField] private TMP_Text selectedLevelTitleText;
-    [SerializeField] private TMP_Text selectedLevelDescriptionText;
+    private VisualElement levelSelectContainer;
+    private VisualElement gameModeSelectContainer;
+    private VisualElement otherOptionsContainer;
+    private Label levelDescriptionLabel;
+    private Label gameModeDescriptionLabel;
+    private Button startMatchButton;
+    private VisualElement playerListContainer;
+    private VisualElement chatContainer;
 
-    [SerializeField] private TMP_Text selectedGameModeTitleText;
-    [SerializeField] private TMP_Text selectedGameModeDescriptionText;
-
-    [SerializeField] private GameObject playerListTeamSeparatorObj;
-    [SerializeField] private Transform playerListColumn0;
-    [SerializeField] private Transform playerListColumn1;
-    [SerializeField] private GameObject lobbyPlayerPrefabObj;
-    private List<LobbyCharacter> lobbyPlayers = new();
-
-    private LevelSO selectedLevel;
-    public GameModeSO selectedGameMode;
-    private int selectedMaxPlayers;
-    private int selectedTimeLimit;
-    private int selectedWinConditionValue;
-
-    [SerializeField] private LobbyPCController lobbyPC;
-
-    public sealed override void OnNetworkSpawn()
+    private struct OptionListData
     {
-        base.OnNetworkSpawn();
-
-        if (IsHost)
-        {
-            CharacterManager.Instance.OnCharacterAdded.AddListener(AddCharacter);
-            GameManager.Instance.OnClientDisconnectedEvent.AddListener(RemoveCharacter);
-        }
-
-        InitializeMenu();
+        public string listName;
+        public Func<object, List<string>> items;
     }
-
-    private void InitializeMenu()
+    private readonly List<OptionListData> staticOptionsListsData = new()
     {
-        if (levelSelectDropdown.options.Count == 0)
-        {
-            selectedLevel = LevelManager.availableLevels[0];
-            selectedLevelTitleText.text = selectedLevel.displayName;
-            selectedLevelDescriptionText.text = selectedLevel.description;
-            List<string> levelNames = LevelManager.availableLevels.Select(level => level.displayName).ToList();
-            levelSelectDropdown.AddOptions(levelNames);
-        }
-
-        if (gameModeSelectDropdown.options.Count == 0)
-        {
-            List<string> gameModeNames = GameModeHandler.availableGameModes.Values.Select(gm => gm.displayName).ToList();
-            selectedGameMode = GameModeHandler.availableGameModes[(GameModes)1];
-            selectedGameModeTitleText.text = selectedGameMode.displayName;
-            selectedGameModeDescriptionText.text = selectedGameMode.description;
-            gameModeSelectDropdown.AddOptions(gameModeNames);
-        }
-
-        maxPlayersSelectDropdown.ClearOptions();
-        MaxAllowedPlayersOptions maxPlayersOptionDefault = selectedGameMode.maxAllowedPlayers;
-        List<string> maxPlayerOptions = System.Enum.GetValues(typeof(MaxAllowedPlayersOptions))
-            .Cast<MaxAllowedPlayersOptions>()
-            .Where(option => option <= maxPlayersOptionDefault)
-            .Select(option => ((int)option).ToString())
-            .ToList();
-        selectedMaxPlayers = int.Parse(maxPlayerOptions[^1]);
-        maxPlayersSelectDropdown.AddOptions(maxPlayerOptions);
-        maxPlayersSelectDropdown.value = maxPlayerOptions.IndexOf(selectedMaxPlayers.ToString());
-
-        timeLimitSelectDropdown.ClearOptions();
-        MaxAllowedTimeLimitOptions timeLimitOptionDefault = selectedGameMode.maxAllowedTimeLimitMinutes;
-        List<string> timeLimitOptions = System.Enum.GetValues(typeof(MaxAllowedTimeLimitOptions))
-            .Cast<MaxAllowedTimeLimitOptions>()
-            .Where(option => option <= timeLimitOptionDefault)
-            .Select(option => ((int)option).ToString())
-            .ToList();
-        selectedTimeLimit = int.Parse(timeLimitOptions[^1]);
-        timeLimitSelectDropdown.AddOptions(timeLimitOptions);
-        timeLimitSelectDropdown.value = timeLimitOptions.IndexOf(selectedTimeLimit.ToString());
-
-        winConditionNameText.text = selectedGameMode.winConditionReaderFriendlyName + " Limit";
-        winConditionValueText.text = selectedGameMode.winConditionDefaultValue.ToString();
-        selectedWinConditionValue = (int)selectedGameMode.winConditionDefaultValue;
-
-        if (!IsHost)
-        {
-            levelSelectDropdown.interactable = false;
-            gameModeSelectDropdown.interactable = false;
-            maxPlayersSelectDropdown.interactable = false;
-            timeLimitSelectDropdown.interactable = false;
-            winConditionValueIncrementButtonContainer.SetActive(false);
-            winConditionValueDecrementButtonContainer.SetActive(false);
-        }
-
-        playerListTeamSeparatorObj.SetActive(selectedGameMode.teamBasedType == TeamBasedType.TEAM);
-        if (IsHost)
-        {
-            foreach (Character character in CharacterManager.Instance.characters)
-            {
-                AddCharacter(character.identification.FetchEntityId());
+        new OptionListData { listName = "LEVEL", items = (object _) => LevelManager.availableLevels.Select(level => level.displayName).ToList() },
+        new OptionListData { listName = "GAME MODE", items = (object _) => GameModeHandler.availableGameModes.Values.Select(gm => gm.displayName).ToList() },
+    };
+    private readonly List<OptionListData> dynamicOptionsListsData = new()
+    {
+        new OptionListData { listName = "MAX PLAYERS", items = (object gameMode) => {
+                MaxAllowedPlayersOptions maxPlayersOptionDefault = ((GameModeSO)gameMode).maxAllowedPlayers;
+                List<string> maxPlayerOptions = Enum.GetValues(typeof(MaxAllowedPlayersOptions))
+                    .Cast<MaxAllowedPlayersOptions>()
+                    .Where(option => option <= maxPlayersOptionDefault)
+                    .Select(option => ((int)option).ToString())
+                    .ToList();
+                return maxPlayerOptions;
             }
-        }
+        },
+        new OptionListData { listName = "TIME LIMIT", items = (object gameMode) => {
+                MaxAllowedTimeLimitOptions timeLimitOptionDefault = ((GameModeSO)gameMode).maxAllowedTimeLimitMinutes;
+                List<string> timeLimitOptions = System.Enum.GetValues(typeof(MaxAllowedTimeLimitOptions))
+                    .Cast<MaxAllowedTimeLimitOptions>()
+                    .Where(option => option <= timeLimitOptionDefault)
+                    .Select(option => ((int)option).ToString())
+                    .ToList();
+                return timeLimitOptions;
+            }
+        },
+    };
+    private Dictionary<string, ExpandableList> staticOptionsLists = new();
+    private Dictionary<string, ExpandableList> dynamicOptionsLists = new();
+    private NumberSelect winConditionValueSelect;
+
+
+    public void Initialize(LobbyPCController lobbyPCController)
+    {
+        this.lobbyPCController = lobbyPCController;
+        levelSelectContainer = this.Q("level-select");
+        gameModeSelectContainer = this.Q("game-mode-select");
+        otherOptionsContainer = this.Q("other-options");
+        levelDescriptionLabel = this.Q<Label>("level-description");
+        gameModeDescriptionLabel = this.Q<Label>("game-mode-description");
+        startMatchButton = this.Q<Button>("start-button");
+        playerListContainer = this.Q<VisualElement>("player-list");
+        chatContainer = this.Q<VisualElement>("chat-container");
+
+        ChatWindow chatWindow = (ChatWindow)UIManager.Spawn("UI/Chat/ChatWindow", chatContainer);
+        chatWindow.Initialize(null);
+
+        startMatchButton.clicked += OnStartMatchButtonPressed; // TODO: Is clicked really the correct event to use here?
+
+        BuildStaticOptionsLists();
     }
 
-    public void OnLevelSelectValueChanged(TMP_Dropdown dropdown)
+    private void BuildStaticOptionsLists()
     {
-        if (!IsHost) return;
-        OnLevelSelectValueChangedRpc(dropdown.value);
-    }
-    [Rpc(SendTo.Everyone)]
-    private void OnLevelSelectValueChangedRpc(int index)
-    {
-        selectedLevel = LevelManager.availableLevels[index];
-        selectedLevelTitleText.text = selectedLevel.displayName;
-        selectedLevelDescriptionText.text = selectedLevel.description;
-
-        InitializeMenu();
-        if (IsHost) return;
-        levelSelectDropdown.value = index;
-    }
-
-    public void OnGameModeSelectValueChanged(TMP_Dropdown dropdown)
-    {
-        if (!IsHost) return;
-        OnGameModeSelectValueChangedRpc(dropdown.value);
-    }
-    [Rpc(SendTo.Everyone)]
-    private void OnGameModeSelectValueChangedRpc(int index)
-    {
-        selectedGameMode = GameModeHandler.availableGameModes.Values.ToList()[index];
-        selectedGameModeTitleText.text = selectedGameMode.displayName;
-        selectedGameModeDescriptionText.text = selectedGameMode.description;
-        playerListTeamSeparatorObj.SetActive(selectedGameMode.teamBasedType == TeamBasedType.TEAM);
-
-        foreach (LobbyCharacter lobbyPlayer in lobbyPlayers)
+        for (int i = 0; i < staticOptionsListsData.Count; i++)
         {
-            lobbyPlayer.UpdateTeamButtons(selectedGameMode.teamBasedType == TeamBasedType.TEAM);
+            string listName = staticOptionsListsData[i].listName;
+            ExpandableList newExpandableList = (ExpandableList)UIManager.Spawn("UI/ExpandableList/ExpandableList", listName == "LEVEL" ? levelSelectContainer : gameModeSelectContainer);
+            newExpandableList.Initialize(listName, OnListItemSelected, true);
+
+            foreach (string item in staticOptionsListsData[i].items(null))
+            {
+                newExpandableList.AddListItem(item, item, true);
+            }
+
+            string firstItemValue = staticOptionsListsData[i].items(null).FirstOrDefault();
+            schedule.Execute(() => newExpandableList.SetSelectedItem(firstItemValue)).StartingIn(200);
+            staticOptionsLists.Add(listName, newExpandableList);
         }
-
-        InitializeMenu();
-        if (IsHost) return;
-        gameModeSelectDropdown.value = index;
     }
 
-    public void OnMaxPlayersSelectValueChanged(TMP_Dropdown dropdown)
+    private void BuildDynamicOptionsLists(GameModeSO gameMode)
     {
-        if (!IsHost) return;
-        OnMaxPlayersSelectValueChangedRpc(dropdown.value);
-    }
-    [Rpc(SendTo.Everyone)]
-    private void OnMaxPlayersSelectValueChangedRpc(int index)
-    {
-        selectedMaxPlayers = int.Parse(maxPlayersSelectDropdown.options[index].text);
+        dynamicOptionsLists.Values.ToList().ForEach(list => list.RemoveFromHierarchy());
+        dynamicOptionsLists.Clear();
+        winConditionValueSelect?.RemoveFromHierarchy();
 
-        if (IsHost) return;
-        maxPlayersSelectDropdown.value = index;
-    }
-
-    public void OnTimeLimitSelectValueChanged(TMP_Dropdown dropdown)
-    {
-        if (!IsHost) return;
-        OnTimeLimitSelectValueChangedRpc(dropdown.value);
-    }
-    [Rpc(SendTo.Everyone)]
-    private void OnTimeLimitSelectValueChangedRpc(int index)
-    {
-        selectedTimeLimit = int.Parse(timeLimitSelectDropdown.options[index].text);
-
-        if (IsHost) return;
-        timeLimitSelectDropdown.value = index;
-    }
-
-    public void OnObjectiveLimitSelectIncremented()
-    {
-        if (!IsHost) return;
-
-        selectedWinConditionValue = Mathf.Min(666, selectedWinConditionValue + 1);
-        OnObjectiveLimitSelectValueChangedRpc(selectedWinConditionValue);
-    }
-
-    public void OnObjectiveLimitSelectDecremented()
-    {       
-        if (!IsHost) return;
-
-        selectedWinConditionValue = Mathf.Max(1, selectedWinConditionValue - 1);
-        OnObjectiveLimitSelectValueChangedRpc(selectedWinConditionValue);
-    }
-
-    [Rpc(SendTo.Everyone)]
-    private void OnObjectiveLimitSelectValueChangedRpc(int value)
-    {
-        selectedWinConditionValue = value;
-        winConditionValueText.text = selectedWinConditionValue.ToString();
-    }
-
-    public void OnStartMatchButtonPressed()
-    {
-        if (!IsHost) return;
-
-        lobbyPC.Reset();
-        GameManager.Instance.SetLevel(selectedLevel.sceneName);
-
-        GameModeData gameModeData = selectedGameMode.GetGameModeData(
-            selectedMaxPlayers,
-            selectedTimeLimit,
-            selectedWinConditionValue
-        );
-        GameManager.Instance.SetGameModeData(gameModeData);
-        GameManager.Instance.LoadLevel();
-    }
-
-
-    private void AddCharacter(ulong characterId)
-    {
-        if (!IsHost) return;
-
-        LobbyCharacter lobbyPlayerToRemove = lobbyPlayers.Find(lp => lp.GetComponent<LobbyCharacter>().characterId == characterId);
-        if (lobbyPlayerToRemove != null) return;
-
-        Character character = CharacterManager.Instance.GetCharacterByEntityId(characterId);
-        if (!character.isInitialized) return;
-
-        Identification entityIdentification = character.identification;
-
-        string playerName = entityIdentification.FetchEntityName();
-        int teamId = (selectedGameMode.teamBasedType == TeamBasedType.TEAM) ? (int)entityIdentification.FetchTeamId() : -1;
-
-        AddCharacterRpc(characterId, playerName, teamId);
-    }
-
-    [Rpc(SendTo.Everyone)]
-    private void AddCharacterRpc(ulong characterId, string playerName, int teamId)
-    {
-        Transform parentColumn = teamId == 0 ? playerListColumn0 : playerListColumn1;
-        if (selectedGameMode.teamBasedType != TeamBasedType.TEAM)
+        for (int i = 0; i < dynamicOptionsListsData.Count; i++)
         {
-            parentColumn = playerListColumn0.childCount <= playerListColumn1.childCount ? playerListColumn0 : playerListColumn1;
-            teamId = parentColumn == playerListColumn0 ? 0 : 1;
+            ExpandableList newExpandableList = (ExpandableList)UIManager.Spawn("UI/ExpandableList/ExpandableList", otherOptionsContainer);
+            newExpandableList.Initialize(dynamicOptionsListsData[i].listName, OnListItemSelected, true);
+
+            foreach (string item in dynamicOptionsListsData[i].items(gameMode))
+            {
+                newExpandableList.AddListItem(item, item, true);
+            }
+
+            string firstItemValue = dynamicOptionsListsData[i].items(gameMode).LastOrDefault();
+            schedule.Execute(() => newExpandableList.SetSelectedItem(firstItemValue)).StartingIn(200);
+            dynamicOptionsLists.Add(dynamicOptionsListsData[i].listName, newExpandableList);
         }
 
-        GameObject lobbyPlayerObj = Instantiate(lobbyPlayerPrefabObj, parentColumn);
-        LobbyCharacter lobbyPlayer = lobbyPlayerObj.GetComponent<LobbyCharacter>();
-        lobbyPlayer.Initialize(this, characterId, playerName, teamId, IsHost);
-        lobbyPlayers.Add(lobbyPlayer);
+        winConditionValueSelect = (NumberSelect)UIManager.Spawn("UI/NumberSelect/NumberSelect", otherOptionsContainer);
+        winConditionValueSelect.Initialize(gameMode.winConditionReaderFriendlyName + " Limit", (int)gameMode.winConditionDefaultValue, OnWinConditionValueChanged, 0, 666);
     }
 
-    private void RemoveCharacter(ulong characterId)
+    public void OnListItemSelected(string listName, string itemValue)
     {
-        if (!NetworkManager.IsListening || !IsHost) return;
-        RemoveCharacterRpc(characterId);
-    }
-
-    [Rpc(SendTo.Everyone)]
-    private void RemoveCharacterRpc(ulong characterId)
-    {
-        LobbyCharacter lobbyPlayerToRemove = lobbyPlayers.Find(lp => lp.GetComponent<LobbyCharacter>().characterId == characterId);
-        if (lobbyPlayerToRemove != null)
+        if (listName == "LEVEL")
         {
-            lobbyPlayers.Remove(lobbyPlayerToRemove);
-            Destroy(lobbyPlayerToRemove.gameObject);
+            LevelSO levelInfo = LevelManager.availableLevels.FirstOrDefault(level => level.displayName == itemValue);
+            if (levelInfo != null)
+            {
+                levelDescriptionLabel.text = levelInfo.description;
+            }
+            lobbyPCController.SetSelectedLevel(itemValue);
         }
-    }
-
-    public void TryChangeCharacterTeam(ulong characterId, int newTeam)
-    {
-        if (!IsHost) return;
-        if (selectedGameMode.teamBasedType != TeamBasedType.TEAM) return;
-        if ((newTeam == 0 ? playerListColumn0 : playerListColumn1).childCount >= selectedMaxPlayers / 2) return;
-        ChangeCharacterTeamRpc(characterId, newTeam);
-    }
-
-    [Rpc(SendTo.Everyone)]
-    private void ChangeCharacterTeamRpc(ulong characterId, int newTeam)
-    {
-        LobbyCharacter lobbyPlayer = lobbyPlayers.Find(lp => lp.GetComponent<LobbyCharacter>().characterId == characterId);
-        if (lobbyPlayer != null)
+        else if (listName == "GAME MODE")
         {
-            lobbyPlayer.transform.SetParent(newTeam == 0 ? playerListColumn0 : playerListColumn1);
-            lobbyPlayer.OnTeamChange(newTeam);
+            GameModeSO gameModeInfo = GameModeHandler.availableGameModes.Values.FirstOrDefault(gm => gm.displayName == itemValue);
+            if (gameModeInfo != null)
+            {
+                gameModeDescriptionLabel.text = gameModeInfo.description;
+                BuildDynamicOptionsLists(gameModeInfo);
+            }
+            lobbyPCController.SetSelectedGameMode(itemValue);
         }
+        else if (listName == "MAX PLAYERS")
+        {
+            lobbyPCController.SetSelectedMaxPlayers(int.Parse(itemValue));
+        }
+        else if (listName == "TIME LIMIT")
+        {
+            lobbyPCController.SetSelectedTimeLimit(int.Parse(itemValue));
+        }
+    }
+
+    private void OnWinConditionValueChanged(int newValue)
+    {
+        lobbyPCController.SetSelectedWinConditionValue(newValue);
+    }
+
+    public void SetClientOptionValue(string optionName, string value)
+    {
+        
+        if (staticOptionsLists.TryGetValue(optionName, out ExpandableList list))
+        {
+            list.SetSelectedItem(value);
+        }
+        else if (dynamicOptionsLists.TryGetValue(optionName, out list))
+        {
+            list.SetSelectedItem(value);
+        }
+        else
+        {
+            winConditionValueSelect.SetValue(int.Parse(value));
+        }
+        
+    }
+
+    private void OnStartMatchButtonPressed()
+    {
+        lobbyPCController.OnStartMatchButtonPressed();
+    }
+
+    public void AddCharacter(Character character)
+    {
+        LobbyCharacterEntry existingEntry = playerListContainer.Children().OfType<LobbyCharacterEntry>().FirstOrDefault(entry => entry.Character == character);
+        if (existingEntry != null) return;
+
+        LobbyCharacterEntry newEntry = (LobbyCharacterEntry)UIManager.Spawn("UI/LobbyPC/LobbyCharacterEntry", playerListContainer);
+        newEntry.Initialize(character);
     }
 }
