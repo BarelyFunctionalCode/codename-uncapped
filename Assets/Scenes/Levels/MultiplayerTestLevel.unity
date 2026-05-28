@@ -3300,7 +3300,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4031944517337735888, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
       propertyPath: doAutoStart
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4078005235194836088, guid: 728f18a1adcf740deb2c820670f993f1, type: 3}
       propertyPath: m_Cameras.Array.size

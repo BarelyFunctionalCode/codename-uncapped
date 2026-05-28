@@ -1,0 +1,6 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Resources/UI/DeathScreen/Styles.uss?fileID=7433441132597879392&amp;guid=2495c538929bd41ccad663dabe74b2d8&amp;type=3#Styles"/>
+    <DeathScreen>
+        <ui:Label text="- CONNECTION TERMINATED -" name="death-message" class="active"/>
+    </DeathScreen>
+</ui:UXML>

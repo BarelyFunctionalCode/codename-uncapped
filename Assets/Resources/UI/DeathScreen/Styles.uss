@@ -1,0 +1,31 @@
+:root {
+}
+
+DeathScreen {
+    opacity: 0;
+    background-color: var(--Health);
+    flex-shrink: 0;
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+}
+
+DeathScreen.active {
+    opacity: 1;
+    transition-property: opacity;
+    transition-duration: 1s;
+}
+
+#death-message {
+    font-size: 80px;
+    color: var(--Caution-Text);
+    -unity-font-style: normal;
+    opacity: 0;
+    transition-property: opacity;
+    transition-duration: 0.5s;
+    transition-timing-function: ease-in-out-bounce;
+}
+
+#death-message.active {
+    opacity: 1;
+}
