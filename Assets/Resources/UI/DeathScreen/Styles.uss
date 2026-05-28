@@ -1,5 +1,4 @@
-:root {
-}
+
 
 DeathScreen {
     opacity: 0;

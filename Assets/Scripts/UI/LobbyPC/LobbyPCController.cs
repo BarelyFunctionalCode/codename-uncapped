@@ -84,7 +84,7 @@ public class LobbyPCController : NetworkBehaviour
             {
                 autoInteract = false;
                 Interact();
-                Intro possibleIntro = FindAnyObjectByType<Intro>();
+                IntroController possibleIntro = FindAnyObjectByType<IntroController>();
                 if (possibleIntro != null) possibleIntro.IsLoaded();
             }
             isInitialized = true;
