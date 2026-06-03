@@ -2,6 +2,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+public enum HUDMenu
+{
+    None,
+    Chat,
+    LoadoutMenu,
+    PauseMenu
+}
+
 [RequireComponent(typeof(UIDocument))]
 public class HUDController : MonoBehaviour
 {
