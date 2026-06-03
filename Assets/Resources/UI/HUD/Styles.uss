@@ -118,3 +118,10 @@ HUDObjectiveContainer > #center-objective-container {
 #reticle-container.hit-marker > #reticle-r {
     rotate: 15deg;
 }
+
+#screen-glitch-effect {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -unity-material: url("project://database/Assets/Shaders/ScreenGlitchEffect.shadergraph?fileID=-876546973899608171&guid=fded752687aee43f68f96f2597db17c5&type=3#ScreenGlitchEffect");
+}
