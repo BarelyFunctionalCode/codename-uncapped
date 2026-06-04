@@ -237,15 +237,15 @@ public class HUDController : MonoBehaviour
 
     private void OnHealthChanged(float healthDeltaRatio)
     {
-        if (healthDeltaRatio < 0) TriggerScreenGlitchEffect(Color.red, Mathf.Clamp(-healthDeltaRatio, 0.2f, 0.8f));
-        else if (healthDeltaRatio > 0) TriggerScreenGlitchEffect(Color.green, Mathf.Clamp(healthDeltaRatio, 0.2f, 0.5f));
+        if (healthDeltaRatio < 0) TriggerScreenGlitchEffect(Color.red, 1f - Mathf.Clamp(-healthDeltaRatio, 0.2f, 0.8f));
+        else if (healthDeltaRatio > 0) TriggerScreenGlitchEffect(Color.green, 1f - Mathf.Clamp(healthDeltaRatio, 0.2f, 0.5f));
     }
 
-    private void TriggerScreenGlitchEffect(Color color, float startIntensity, int pixelSize = 32, float duration = 1.0f)
+    private void TriggerScreenGlitchEffect(Color color, float fadeFactor, int pixelSize = 32, float duration = 1.0f)
     {
         screenGlitchEffect.resolvedStyle.unityMaterial.material.SetFloat("_EffectRatio", 0);
         screenGlitchEffect.resolvedStyle.unityMaterial.material.SetColor("_Color", color);
-        screenGlitchEffect.resolvedStyle.unityMaterial.material.SetFloat("_StartIntensity", startIntensity);
+        screenGlitchEffect.resolvedStyle.unityMaterial.material.SetFloat("_FadeFactor", fadeFactor);
         screenGlitchEffect.resolvedStyle.unityMaterial.material.SetFloat("_PixelSize", pixelSize);
         if (currentGlitchEffect != null) currentGlitchEffect.Pause();
         currentGlitchEffect = screenGlitchEffect.schedule.Execute(ScreenGlitchEffectTick)
