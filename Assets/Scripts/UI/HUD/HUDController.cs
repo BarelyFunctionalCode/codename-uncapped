@@ -23,8 +23,6 @@ public class HUDController : MonoBehaviour
     private HUDRightSide rightSideContainer;
     private Label currentPhaseText;
     private VisualElement reticleContainer;
-    private VisualElement screenGlitchEffect;
-    private IVisualElementScheduledItem currentGlitchEffect;
 
     private Dictionary<Phase, string> phaseColors = new()
     {
@@ -42,6 +40,7 @@ public class HUDController : MonoBehaviour
     private ChatWindow chatWindow;
     private Leaderboard leaderboard;
     private LoadoutMenu loadoutMenu;
+    private GlitchScreenEffect healthScreenEffect;
 
     // Player References
     private Character character;
@@ -77,7 +76,6 @@ public class HUDController : MonoBehaviour
 
         currentPhaseText = hudRoot.Q<Label>("current-phase");
         reticleContainer = hudRoot.Q<VisualElement>("reticle-container");
-        screenGlitchEffect = hudRoot.Q<VisualElement>("screen-glitch-effect");
     }
 
     private void Update()
@@ -110,6 +108,7 @@ public class HUDController : MonoBehaviour
         leaderboard = (Leaderboard)UIManager.Spawn("UI/Leaderboard/Leaderboard", hudUIDocument.rootVisualElement);
         loadoutMenu = (LoadoutMenu)UIManager.Spawn("UI/LoadoutMenu/LoadoutMenu", hudUIDocument.rootVisualElement);
         killFeed = (ToastContainer)UIManager.Spawn("UI/Toast/ToastContainer", hudUIDocument.rootVisualElement);
+        healthScreenEffect = (GlitchScreenEffect)UIManager.Spawn("UI/HUD/GlitchScreenEffect/GlitchScreenEffect", hudUIDocument.rootVisualElement);
 
         playerControls.UI.PauseMenu.performed += ctx => ToggleMenu(HUDMenu.PauseMenu);
         playerControls.UI.LoadoutMenu.performed += ctx => ToggleMenu(HUDMenu.LoadoutMenu);
@@ -126,10 +125,10 @@ public class HUDController : MonoBehaviour
         loadoutMenu.Initialize(character.GetComponent<CharacterLoadoutManager>(), this);
         leaderboard.Initialize();
         killFeed.Initialize("kill-feed", NotificationType.KillFeed, 5f);
+        healthScreenEffect.Initialize();
 
         character.health.onAppliedDamage.AddListener(SetHitMarker);
         character.health.onHealthChanged.AddListener(OnHealthChanged);
-        screenGlitchEffect.resolvedStyle.unityMaterial.material.SetFloat("_EffectRatio", -1);
         reticleContainer.EnableInClassList("hit-marker", false);
         
         GameModeHandler.Instance.OnStatUpdated.AddListener(SetObjectiveData);
@@ -237,31 +236,11 @@ public class HUDController : MonoBehaviour
 
     private void OnHealthChanged(float healthDeltaRatio)
     {
-        if (healthDeltaRatio < 0) TriggerScreenGlitchEffect(Color.red, 1f - Mathf.Clamp(-healthDeltaRatio, 0.2f, 0.8f));
-        else if (healthDeltaRatio > 0) TriggerScreenGlitchEffect(Color.green, 1f - Mathf.Clamp(healthDeltaRatio, 0.2f, 0.5f));
-    }
-
-    private void TriggerScreenGlitchEffect(Color color, float fadeFactor, int pixelSize = 32, float duration = 1.0f)
-    {
-        screenGlitchEffect.resolvedStyle.unityMaterial.material.SetFloat("_EffectRatio", 0);
-        screenGlitchEffect.resolvedStyle.unityMaterial.material.SetColor("_Color", color);
-        screenGlitchEffect.resolvedStyle.unityMaterial.material.SetFloat("_FadeFactor", fadeFactor);
-        screenGlitchEffect.resolvedStyle.unityMaterial.material.SetFloat("_PixelSize", pixelSize);
-        if (currentGlitchEffect != null) currentGlitchEffect.Pause();
-        currentGlitchEffect = screenGlitchEffect.schedule.Execute(ScreenGlitchEffectTick)
-                                    .Every(Mathf.RoundToInt(1000 * duration * 0.05f));
-    }
-
-    private void ScreenGlitchEffectTick()
-    {
-        float currentValue = screenGlitchEffect.resolvedStyle.unityMaterial.material.GetFloat("_EffectRatio");
-        if (currentValue >= 1)
-        {
-            currentGlitchEffect.Pause();
-            screenGlitchEffect.resolvedStyle.unityMaterial.material.SetFloat("_EffectRatio", -1);
-            return;
-        }
-        screenGlitchEffect.resolvedStyle.unityMaterial.material.SetFloat("_EffectRatio", Mathf.Min(1, currentValue + 0.05f));
+        GlitchEffectData effectData = healthDeltaRatio < 0
+            ? new GlitchEffectData(effectRatio: -healthDeltaRatio, fadeFactor: 0.5f, effectColor: Color.red)
+            : new GlitchEffectData(effectRatio: healthDeltaRatio, fadeFactor: 0.5f, effectColor: Color.green);
+        
+        healthScreenEffect.SetGlitchEffect(effectData);
     }
 
     public DriveUI SetDrive(Drive drive)

@@ -269,7 +269,7 @@ public class Projectile : NetworkBehaviour, IGravityModifiable
 
     protected void ApplyDamage(GameObject target, float damage)
     {
-        if (!IsServer) return;
+        if (!IsServer || damage <= 0) return;
         // print("Applying " + damage + " damage to " + target.name);
         //if (target.GetComponent<Entity>() != null) target.GetComponent<Entity>().TakeDamage(damage);
         if (target.GetComponentInParent<IDamageable>() != null) target.GetComponentInParent<IDamageable>().TakeDamage(damage, ownerRef, weaponRef);
