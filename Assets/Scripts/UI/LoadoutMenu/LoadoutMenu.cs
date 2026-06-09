@@ -1,191 +1,172 @@
-using TMPro;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
-public class LoadoutMenu : MonoBehaviour
+[UxmlElement(libraryPath = "LoadoutMenu")]
+public partial class LoadoutMenu : CustomUIElementBase
 {
-    [SerializeField] private GameObject showcasePrefabObj;
+    // Used to display a 3D preview of the currently selected item.
+    static private GameObject showcasePrefabObj;
     private Showcase showcaseInstance;
-    [SerializeField] private ExpandableList armorClassesList;
-    [SerializeField] private ExpandableList weapons1List;
-    [SerializeField] private ExpandableList weapons2List;
-    [SerializeField] private ExpandableList heavyWeaponsList;
-    [SerializeField] private ExpandableList throwablesList;
-    [SerializeField] private ExpandableList gearList;
-    [SerializeField] private ExpandableList drivesList;
 
-    [SerializeField] private TMP_Text itemDetailsPanelTitle;
-    [SerializeField] private TMP_Text itemDetailsPanelDescription;
+    private VisualElement optionsListsContainer;
+    private Label selectedItemNameLabel;
+    private Label selectedItemDescriptionLabel;
 
+    // Data used to populate the loadout option lists.
+    private struct LoadoutListData
+    {
+        public LoadoutItemType itemType;
+        public string listName;
+        public Func<List<LoadoutItemSO>> items;
+    }
+    private readonly List<LoadoutListData> loadoutListsData = new()
+    {
+        new LoadoutListData { itemType = LoadoutItemType.Weapon, listName = "PRIMARY WEAPON", items = () => CharacterLoadout.WeaponLoadoutItems },
+        new LoadoutListData { itemType = LoadoutItemType.Weapon, listName = "SECONDARY WEAPON", items = () => CharacterLoadout.WeaponLoadoutItems },
+        new LoadoutListData { itemType = LoadoutItemType.Throwable, listName = "THROWABLE", items = () => CharacterLoadout.ThrowableLoadoutItems },
+        new LoadoutListData { itemType = LoadoutItemType.Gear, listName = "GEAR", items = () => CharacterLoadout.GearLoadoutItems },
+        new LoadoutListData { itemType = LoadoutItemType.Drive, listName = "DRIVE", items = () => CharacterLoadout.DriveLoadoutItems }
+    };
+
+    // References to the player using the loadout menu.
     private CharacterLoadoutManager playerLoadoutManager;
     private CharacterLoadout tempLoadout;
-    private LoadoutArmorClass selectedArmorClass = LoadoutArmorClass.Any;
-
-    private HUD hud;
+    private HUDController hud;
 
     private bool isInitialized = false;
+    private bool isMenuActive = false;
 
-    private void Awake()
-    {
-        gameObject.SetActive(false);
-        BuildLoadoutLists();
-        armorClassesList.ToggleList();
-    }
 
-    public void Initialize(CharacterLoadoutManager playerLoadoutManager, HUD hud)
+    // Set references to the player's loadout and HUD
+    public void Initialize(CharacterLoadoutManager playerLoadoutManager, HUDController hud)
     {
         if (isInitialized) return;
 
+        if (showcasePrefabObj == null) showcasePrefabObj = Resources.Load<GameObject>("UI/LoadoutMenu/Showcase");
+
+        optionsListsContainer = this.Q("options-lists");
+        selectedItemNameLabel = this.Query("item-info").Children<Label>("item-name").First();
+        selectedItemDescriptionLabel = this.Query("item-info").Children<Label>("item-description").First();
+
         this.playerLoadoutManager = playerLoadoutManager;
         this.hud = hud;
+
+        // Initialize menu and showcase instance.
+        BuildLoadoutLists();
+        EnableInClassList("active-menu", isMenuActive);
+
+        // Register callbacks for confirm and cancel buttons.
+        this.Q<Button>("confirm-button").clicked += OnConfirmClicked;
+        this.Q<Button>("cancel-button").clicked += OnCancelClicked;
+
         isInitialized = true;
     }
 
+    // Clear references to player loadout and HUD
     public void Deinitialize()
     {
         if (!isInitialized) return;
         isInitialized = false;
 
+        if (showcaseInstance != null) UnityEngine.Object.Destroy(showcaseInstance.gameObject);
+        showcaseInstance = null;
+
         playerLoadoutManager = null;
         hud = null;
     }
 
+    // Toggle the visibility of the loadout menu
     public bool ToggleMenu()
     {
-        gameObject.SetActive(!gameObject.activeSelf);
-        if (gameObject.activeSelf)
+        isMenuActive = !isMenuActive;
+        EnableInClassList("active-menu", isMenuActive);
+        if (isMenuActive)
         {
             tempLoadout = new CharacterLoadout(playerLoadoutManager.currentLoadout.Value);
-            selectedArmorClass = tempLoadout.armorClass;
-            BuildLoadoutLists();
-            if (showcaseInstance == null) showcaseInstance = Instantiate(showcasePrefabObj).GetComponent<Showcase>();
+            if (showcaseInstance == null) showcaseInstance = UnityEngine.Object.Instantiate(showcasePrefabObj).GetComponent<Showcase>();
             else showcaseInstance.Clear();
             if (tempLoadout.weapon1SO != null) showcaseInstance.AddObject(
-                                                    tempLoadout.weapon1SO.showcaseItemPrefab != null ?
-                                                    tempLoadout.weapon1SO.showcaseItemPrefab :
-                                                    tempLoadout.weapon1SO.itemPrefab,
-                                                    tempLoadout.weapon1SO.showcaseAdditionalCameraDistance
-                                                );
+                tempLoadout.weapon1SO.showcaseItemPrefab != null ?
+                tempLoadout.weapon1SO.showcaseItemPrefab :
+                tempLoadout.weapon1SO.itemPrefab,
+                tempLoadout.weapon1SO.showcaseAdditionalCameraDistance
+            );
         }
         else
         {
-            if (showcaseInstance != null) Destroy(showcaseInstance.gameObject);
+            if (showcaseInstance != null) UnityEngine.Object.Destroy(showcaseInstance.gameObject);
             showcaseInstance = null;
         }
-        return gameObject.activeSelf;
+        return isMenuActive;
     }
 
+    // Iterate through the lists of loadout items, spawning a list for each category, and populating each list with the category's respective items.
     private void BuildLoadoutLists()
     {
-        if (armorClassesList.itemCount == 0)
+        for (int i = 0; i < loadoutListsData.Count; i++)
         {
-            foreach (LoadoutItemSO item in CharacterLoadout.ArmorClassLoadoutItems)
+            ExpandableList newExpandableList = (ExpandableList)UIManager.Spawn("UI/ExpandableList/ExpandableList", optionsListsContainer);
+            newExpandableList.Initialize(loadoutListsData[i].listName, OnListItemSelected);
+
+            foreach (LoadoutItemSO item in loadoutListsData[i].items())
             {
-                armorClassesList.AddListItem(item.itemName, item.isAvailable, item).AddListener((itemSO) => OnLoadoutItemSelected(itemSO, "ArmorClasses"));
+                newExpandableList.AddListItem(item.itemName, item.itemName, item.isAvailable);
             }
         }
+    }
 
-        weapons1List.ClearList();
-        weapons2List.ClearList();
-        heavyWeaponsList.ClearList();
-        throwablesList.ClearList();
-        gearList.ClearList();
-        drivesList.ClearList();
-
-        foreach (LoadoutItemSO item in CharacterLoadout.WeaponLoadoutItems)
-        {
-            if (item.applicableArmorClasses.Contains(selectedArmorClass) || item.applicableArmorClasses.Contains(LoadoutArmorClass.Any))
-            {
-                weapons1List.AddListItem(item.itemName, item.isAvailable, item).AddListener((itemSO) => OnLoadoutItemSelected(itemSO, "Weapons1"));
-                weapons2List.AddListItem(item.itemName, item.isAvailable, item).AddListener((itemSO) => OnLoadoutItemSelected(itemSO, "Weapons2"));
-            }
-        }
-
-        heavyWeaponsList.gameObject.SetActive(selectedArmorClass == LoadoutArmorClass.Heavy);
-        if (selectedArmorClass == LoadoutArmorClass.Heavy)
-        {
-            foreach (LoadoutItemSO item in CharacterLoadout.HeavyWeaponLoadoutItems)
-            {
-                heavyWeaponsList.AddListItem(item.itemName, item.isAvailable, item).AddListener((itemSO) => OnLoadoutItemSelected(itemSO, "HeavyWeapons"));
-            }
-        }
-
-        foreach (LoadoutItemSO item in CharacterLoadout.ThrowableLoadoutItems)
-        {
-            if (item.applicableArmorClasses.Contains(selectedArmorClass) || item.applicableArmorClasses.Contains(LoadoutArmorClass.Any))
-            {
-                throwablesList.AddListItem(item.itemName, item.isAvailable, item).AddListener((itemSO) => OnLoadoutItemSelected(itemSO, "Throwables"));
-            }
-        }
-
-        foreach (LoadoutItemSO item in CharacterLoadout.GearLoadoutItems)
-        {
-            if (item.applicableArmorClasses.Contains(selectedArmorClass) || item.applicableArmorClasses.Contains(LoadoutArmorClass.Any))
-            {
-                gearList.AddListItem(item.itemName, item.isAvailable, item).AddListener((itemSO) => OnLoadoutItemSelected(itemSO, "Gear"));
-            }
-        }
-
-        foreach (LoadoutItemSO item in CharacterLoadout.DriveLoadoutItems)
-        {
-            if (item.applicableArmorClasses.Contains(selectedArmorClass) || item.applicableArmorClasses.Contains(LoadoutArmorClass.Any))
-            {
-                drivesList.AddListItem(item.itemName, item.isAvailable, item).AddListener((itemSO) => OnLoadoutItemSelected(itemSO, "Drives"));
-            }
-        }
-    }   
-
-    private void OnLoadoutItemSelected(ScriptableObject itemSO, string listName)
+    // Update player's loadout based on the selected item, and update the showcase preview and item description accordingly.
+    private void OnListItemSelected(string listName, string itemValue)
     {
-        LoadoutItemSO loadoutItem = itemSO as LoadoutItemSO;
-        itemDetailsPanelTitle.text = loadoutItem.itemName;
-        itemDetailsPanelDescription.text = loadoutItem.itemDescription;
-
-        if (loadoutItem.itemType == LoadoutItemType.ArmorClass)
-        {
-            selectedArmorClass = (LoadoutArmorClass)System.Enum.Parse(typeof(LoadoutArmorClass), loadoutItem.itemName);
-            tempLoadout.armorClass = selectedArmorClass;
-            BuildLoadoutLists();
-        }
-        else if (loadoutItem.itemType == LoadoutItemType.Weapon)
-        {
-            if (listName == "Weapons1") tempLoadout.weapon1SO = loadoutItem;
-            else if (listName == "Weapons2") tempLoadout.weapon2SO = loadoutItem;
-        }
-        else if (loadoutItem.itemType == LoadoutItemType.HeavyWeapon && tempLoadout.armorClass == LoadoutArmorClass.Heavy)
-        {
-            tempLoadout.heavyWeaponSO = loadoutItem;
-        }
-        else if (loadoutItem.itemType == LoadoutItemType.Throwable)
-        {
-            tempLoadout.throwableSO = loadoutItem;
-        }
-        else if (loadoutItem.itemType == LoadoutItemType.Gear)
-        {
-            tempLoadout.gearSO = loadoutItem;
-        }
-        else if (loadoutItem.itemType == LoadoutItemType.Drive)
-        {
-            tempLoadout.driveSO = loadoutItem;
-        }
+        LoadoutItemType itemType = loadoutListsData.Find(data => data.listName == listName).itemType;
+        LoadoutItemSO selectedItem = CharacterLoadout.LoadoutItemsByType[itemType].Find(item => item.itemName == itemValue);
+        selectedItemNameLabel.text = selectedItem.itemName;
+        selectedItemDescriptionLabel.text = selectedItem.itemDescription;
 
         if (showcaseInstance != null)
         {
             showcaseInstance.Clear();
             showcaseInstance.AddObject(
-                loadoutItem.showcaseItemPrefab != null ? loadoutItem.showcaseItemPrefab : loadoutItem.itemPrefab,
-                loadoutItem.showcaseAdditionalCameraDistance
+                selectedItem.showcaseItemPrefab != null ? selectedItem.showcaseItemPrefab : selectedItem.itemPrefab,
+                selectedItem.showcaseAdditionalCameraDistance
             );
         }
+
+        if (tempLoadout == null) return;
+        switch (itemType)
+        {
+            case LoadoutItemType.Weapon:
+                if (listName == "PRIMARY WEAPON") tempLoadout.weapon1SO = selectedItem;
+                else if (listName == "SECONDARY WEAPON") tempLoadout.weapon2SO = selectedItem;
+                break;
+            case LoadoutItemType.HeavyWeapon when tempLoadout.armorClass == LoadoutArmorClass.Heavy:
+                tempLoadout.heavyWeaponSO = selectedItem;
+                break;
+            case LoadoutItemType.Throwable:
+                tempLoadout.throwableSO = selectedItem;
+                break;
+            case LoadoutItemType.Gear:
+                tempLoadout.gearSO = selectedItem;
+                break;
+            case LoadoutItemType.Drive:
+                tempLoadout.driveSO = selectedItem;
+                break;
+        }
+        
     }
 
-    public void OnConfirmClicked()
+    // Apply the changes to the player's loadout and close the menu
+    private void OnConfirmClicked()
     {
         bool applyImmediately = GameModeHandler.Instance.currentPhase.Value != Phase.ACTIVE;
         playerLoadoutManager.UpdateLoadoutRpc(tempLoadout, applyImmediately);
         hud.ToggleMenu(HUDMenu.LoadoutMenu);
     }
 
-    public void OnCancelClicked()
+    // Close the menu without applying changes
+    private void OnCancelClicked()
     {
         hud.ToggleMenu(HUDMenu.LoadoutMenu);
     }

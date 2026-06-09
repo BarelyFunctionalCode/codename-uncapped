@@ -1,19 +1,36 @@
 using UnityEngine;
+using System.Collections.Generic;
+using UnityEngine.UIElements;
 
-public class ToastContainer : MonoBehaviour
+
+[UxmlElement(libraryPath = "Toast")]
+public partial class ToastContainer : CustomUIElementBase
 {
-    [SerializeField] private NotificationType type;
-    [SerializeField] private float notificationDuration = 5f;
-    [SerializeField] private GameObject toastNotificationPrefabObj;
-    [SerializeField] private Transform toastNotificationContainerObj;
+    private List<Toast> activeToasts = new();
+    private int maxToasts;
+    private NotificationType type;
+    private float hideTime;
+    private float updateTime;
+    private bool isActive = false;
 
-    public void Initialize()
+
+
+    public void Initialize(string name, NotificationType type, float hideTime, int maxToasts = 5)
     {
+        this.name = name;
+        this.type = type;
+        this.hideTime = hideTime;
+        this.maxToasts = maxToasts;
+        
+        if (NotificationManager.Instance == null) return;
         NotificationManager.Instance.newNotificationReceivedEvent.AddListener(OnNewToastNotification);
+        isActive = true;
+        Update();
     }
 
     public void Deinitialize()
     {
+        isActive = false;
         if (NotificationManager.Instance != null)
         {
             NotificationManager.Instance.newNotificationReceivedEvent.RemoveListener(OnNewToastNotification);
@@ -23,7 +40,27 @@ public class ToastContainer : MonoBehaviour
     private void OnNewToastNotification(NotificationData data)
     {
         if (data.type != type) return;
-        ToastNotification toast = Instantiate(toastNotificationPrefabObj, toastNotificationContainerObj).GetComponent<ToastNotification>();
-        toast.Initialize(data, notificationDuration);
+
+        CreateToast(data, hideTime);
+    }
+
+    public void CreateToast(NotificationData data, float hideTime)
+    {
+        Toast newToast = (Toast)UIManager.Spawn("UI/Toast/Toast", this);
+        newToast.Initialize(data, hideTime);
+        activeToasts.Add(newToast);
+    }
+
+    public void Update()
+    {
+        if (!isActive) return;
+        if (activeToasts.Count > maxToasts) activeToasts[0].RemoveFromHierarchy();
+        for (int i = activeToasts.Count - 1; i >= 0; i--)
+        {
+            if (activeToasts[i].Update(Time.time - updateTime)) activeToasts.RemoveAt(i);
+        }
+
+        updateTime = Time.time;
+        schedule.Execute(Update).ExecuteLater(20);
     }
 }

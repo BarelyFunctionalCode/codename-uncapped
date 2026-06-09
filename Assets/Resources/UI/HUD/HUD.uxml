@@ -1,0 +1,16 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Template name="GlitchScreenEffect" src="project://database/Assets/Resources/UI/HUD/GlitchScreenEffect/GlitchScreenEffect.uxml?fileID=9197481963319205126&amp;guid=7130bedf60cc746e79c4ae81af136dd6&amp;type=3#GlitchScreenEffect"/>
+    <Style src="project://database/Assets/Resources/UI/HUD/Styles.uss?fileID=7433441132597879392&amp;guid=61a9ca0707946bd25b7d3797c7163225&amp;type=3"/>
+    <Style src="project://database/Assets/Resources/UI/HUD/DriveUI/Styles.uss?fileID=7433441132597879392&amp;guid=f2a984b2feb8949ad8deea9732db4512&amp;type=3"/>
+    <Style src="project://database/Assets/Resources/UI/HUD/LoadoutItemUI/Styles.uss?fileID=7433441132597879392&amp;guid=4dfaca5321eed4d2c9943c23ee9de104&amp;type=3"/>
+    <ui:Label text="" name="current-phase" picking-mode="Ignore" style="position: absolute; top: 100px; align-self: center; -unity-text-align: middle-center; font-size: 20px;"/>
+    <ui:VisualElement name="reticle-container" class="hit-marker">
+        <ui:VisualElement picking-mode="Ignore" name="VelocityVisualizer" style="flex-grow: 0; width: 20px; height: 20px; align-self: center; flex-shrink: 0; background-color: rgba(0, 0, 0, 0.4); border-top-left-radius: 50%; border-top-right-radius: 50%; border-bottom-right-radius: 50%; border-bottom-left-radius: 50%; position: absolute;"/>
+        <ui:VisualElement picking-mode="Ignore" name="reticle-l" class="reticle"/>
+        <ui:VisualElement picking-mode="Ignore" name="reticle-r" class="reticle" style="rotate: -15deg;"/>
+    </ui:VisualElement>
+    <HUDObjectiveContainer picking-mode="Ignore"/>
+    <HUDLeftSide picking-mode="Ignore" class="container" style="position: absolute; left: 0; bottom: 0; height: 60%; max-width: 25%; aspect-ratio: 0.5; width: auto; align-items: center; flex-direction: row; flex-grow: 0;"/>
+    <HUDRightSide picking-mode="Ignore" class="container" style="position: absolute; right: 0; bottom: 0; height: 60%; max-width: 25%; aspect-ratio: 0.5; width: auto; flex-direction: row; align-items: center;"/>
+    <HUDCenter energy-ratio="0.13" health-ratio="0.69" picking-mode="Ignore"/>
+</ui:UXML>

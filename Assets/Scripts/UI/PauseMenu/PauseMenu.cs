@@ -1,89 +1,64 @@
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.InputSystem;
 using System;
-using Unity.Netcode;
-using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 using System.Reflection;
+using Unity.Netcode;
+using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
-public class PauseMenu : MonoBehaviour
+[UxmlElement(libraryPath = "PauseMenu")]
+public partial class PauseMenu : CustomUIElementBase
 {
-    public static PauseMenu Instance { get; private set; }
+    private Button leaveButton;
+    private Button quitButton;
 
-    public bool devMode { get; private set; } = true;
-    [SerializeField] private Button quitButton;
-    [SerializeField] private Button leaveButton;
-    // [SerializeField] private Button testLevelButton;
+    private VisualElement controlsContentContainer;
+    private VisualElement debugContentContainer;
 
-    [SerializeField] private Button optionsTabButton;
-    [SerializeField] private Transform optionsListObj;
-    [SerializeField] private GameObject optionsContainerObj;
-    [SerializeField] private GameObject optionPrefabObj;
-    private List<PauseMenuOption> optionsList = new List<PauseMenuOption>();
+    private bool isMenuActive = false;
 
-    [SerializeField] private Button controlsTabButton;
-    [SerializeField] private Transform controlsListObj;
-    [SerializeField] private GameObject controlsContainerObj;
-    [SerializeField] private GameObject controlPrefabObj;
-    private List<PauseMenuControl> controlsList = new List<PauseMenuControl>();
-
-    [SerializeField] private Button debugTabButton;
-    [SerializeField] private Transform debugListObj;
-    [SerializeField] private GameObject debugContainerObj;
-    [SerializeField] private GameObject debugPrefabObj;
-    private List<PauseMenuDebug> debugList = new List<PauseMenuDebug>();
-
-
-    private void Awake() 
-    { 
-        if (Instance != null && Instance != this) 
-        { 
-            Destroy(this); 
-        } 
-        else 
-        { 
-            Instance = this; 
-        } 
-
-        quitButton.onClick.AddListener( delegate { OnQuitButtonClicked(); } );
-        leaveButton.onClick.AddListener( delegate { OnLeaveButtonClicked(); } );
-        // testLevelButton.onClick.AddListener( delegate { OnTestLevelButtonClicked(); } );
-        optionsTabButton.onClick.AddListener( delegate { OnOptionsTabButtonClicked(); } );
-        controlsTabButton.onClick.AddListener( delegate { OnControlsTabButtonClicked(); } );
-        debugTabButton.onClick.AddListener( delegate { OnDebugTabButtonClicked(); } );
-        optionsContainerObj.SetActive(false);
-        controlsContainerObj.SetActive(false);
-        debugContainerObj.SetActive(false);
-        gameObject.SetActive(false);
-
-        debugTabButton.gameObject.SetActive(devMode);
-        leaveButton.gameObject.SetActive(!NetworkManager.Singleton.IsHost);
-        // testLevelButton.gameObject.SetActive(NetworkManager.Singleton.IsHost);
-    }
 
     public void Initialize(Player player, Character character)
     {
+        // Debug build or playing in editor
+        bool devMode = Debug.isDebugBuild || Application.isEditor;
+        bool isHost = NetworkManager.Singleton.IsHost;
+
+        leaveButton = this.Q<Button>("LeaveButton");
+        quitButton = this.Q<Button>("QuitButton");
+        controlsContentContainer = this.Query<VisualElement>("Controls").Children<VisualElement>("Content").First();
+        debugContentContainer = this.Query<VisualElement>("Debug").Children<VisualElement>("Content").First();
+        // if (!devMode) this.Q<Tab>("Debug").RemoveFromHierarchy();
+        // else debugContentContainer = this.Query<VisualElement>("Debug").Children<VisualElement>("Content").First();
+
+        if (!isHost) leaveButton.RegisterCallback<ClickEvent>(Leave);
+        else leaveButton.style.display = DisplayStyle.None;
+        quitButton.RegisterCallback<ClickEvent>(Quit);
+        
+        
+        EnableInClassList("active-menu", false);
+
+
         PlayerControls playerControls = player.playerControls;
 
         // Initialize player options in pause menu
         FieldInfo[] fields = character.GetType().GetFields();
-        foreach (var field in fields)
-        {
-            PauseMenuOptionAttribute[] attribute = (PauseMenuOptionAttribute[])field.GetCustomAttributes(typeof(PauseMenuOptionAttribute), true);
+        // foreach (var field in fields)
+        // {
+        //     PauseMenuOptionAttribute[] attribute = (PauseMenuOptionAttribute[])field.GetCustomAttributes(typeof(PauseMenuOptionAttribute), true);
 
-            if (attribute.Length > 0)
-            {
-                if (!devMode && attribute[0].GetType() == typeof(PauseMenuDevOptionAttribute)) continue;
-                AddOption(
-                    attribute[0].GetType() == typeof(PauseMenuDevOptionAttribute) ? "dev - " + attribute[0].label : attribute[0].label,
-                    (float)field.GetValue(character),
-                    attribute[0].minValue,
-                    attribute[0].maxValue,
-                    (float value) => { field.SetValue(character, value); }
-                );
-            }
-        }
+        //     if (attribute.Length > 0)
+        //     {
+        //         if (!devMode && attribute[0].GetType() == typeof(PauseMenuDevOptionAttribute)) continue;
+        //         AddOption(
+        //             attribute[0].GetType() == typeof(PauseMenuDevOptionAttribute) ? "dev - " + attribute[0].label : attribute[0].label,
+        //             (float)field.GetValue(character),
+        //             attribute[0].minValue,
+        //             attribute[0].maxValue,
+        //             (float value) => { field.SetValue(character, value); }
+        //         );
+        //     }
+        // }
 
         // Initialize player controls in pause menu
         List<string> controlIgnoreList = new() { "Pause", "Move", "Look" };
@@ -106,8 +81,7 @@ public class PauseMenu : MonoBehaviour
 
             if (attribute.Length > 0)
             {
-                AddDebug(
-                    field.Name,
+                AddDebugOption(
                     attribute[0].label,
                     (bool)field.GetValue(character.characterTelemetry),
                     value => { field.SetValue(character.characterTelemetry, value); }
@@ -118,91 +92,37 @@ public class PauseMenu : MonoBehaviour
 
     public void Deinitialize()
     {
-        foreach (PauseMenuOption option in optionsList)
-        {
-            Destroy(option.gameObject);
-        }
-        optionsList.Clear();
+        leaveButton.UnregisterCallback<ClickEvent>(Leave);
+        quitButton.UnregisterCallback<ClickEvent>(Quit);
 
-        foreach (PauseMenuControl control in controlsList)
-        {
-            Destroy(control.gameObject);
-        }
-        controlsList.Clear();
+        controlsContentContainer.Clear();
 
-        foreach (PauseMenuDebug debug in debugList)
-        {
-            Destroy(debug.gameObject);
-        }
-        debugList.Clear();
+        if (debugContentContainer == null) return;
+        debugContentContainer.Clear();
     }
 
     public bool ToggleMenu()
     {
-        gameObject.SetActive(!gameObject.activeSelf);
-        return gameObject.activeSelf;
-    }
-
-    private void OnQuitButtonClicked() { Application.Quit(); }
-
-    private void OnLeaveButtonClicked() { if (!NetworkManager.Singleton.IsHost) GameManager.Instance.PrepGoToOwnLobby(); }
-
-    // private void OnTestLevelButtonClicked()
-    // {
-    //     testLevelButton.gameObject.SetActive(false);
-    //     if (NetworkManager.Singleton.IsHost)
-    //     {
-    //         GameManager.Instance.SetLevel("MultiplayerTestLevel");
-    //         GameManager.Instance.SetGameMode(GameModes.DEATHMATCH);
-    //         GameManager.Instance.LoadLevel();
-    //     }
-    // }
-
-    private void OnOptionsTabButtonClicked()
-    {
-        optionsContainerObj.SetActive(true);
-        controlsContainerObj.SetActive(false);
-        debugContainerObj.SetActive(false);
-    }
-
-    private void OnControlsTabButtonClicked()
-    {
-        optionsContainerObj.SetActive(false);
-        controlsContainerObj.SetActive(true);
-        debugContainerObj.SetActive(false);
-    }
-
-    private void OnDebugTabButtonClicked()
-    {
-        optionsContainerObj.SetActive(false);
-        controlsContainerObj.SetActive(false);
-        debugContainerObj.SetActive(true);
-    }
-
-    public void AddOption(string label, float value, float minValue, float maxValue, Action<float> updater)
-    {
-        GameObject optionObj = Instantiate(optionPrefabObj, optionsListObj);
-        optionObj.transform.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -optionsList.Count * optionObj.GetComponent<RectTransform>().rect.height);
-        PauseMenuOption option = optionObj.GetComponent<PauseMenuOption>();
-        option.Initialize(label, value, minValue, maxValue, updater);
-        optionsList.Add(option);
+        isMenuActive = !isMenuActive;
+        EnableInClassList("active-menu", isMenuActive);
+        pickingMode = isMenuActive ? PickingMode.Position : PickingMode.Ignore;
+        if (isMenuActive) BringToFront();
+        return isMenuActive;
     }
 
     public void AddControl(InputAction action)
     {
-        GameObject controlObj = Instantiate(controlPrefabObj, controlsListObj);
-        controlObj.transform.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -controlsList.Count * controlObj.GetComponent<RectTransform>().rect.height);
-        PauseMenuControl control = controlObj.GetComponent<PauseMenuControl>();
-        control.Initialize(action);
-        controlsList.Add(control);
+        PauseMenuControl newcontrol = (PauseMenuControl)UIManager.Spawn("UI/PauseMenu/PauseMenuControl", controlsContentContainer);
+        newcontrol.Initialize(action);
     }
 
-    public void AddDebug(string name, string label, bool value, Action<bool> updater)
+    public void AddDebugOption(string name, bool value, Action<bool> onValueChanged)
     {
-        GameObject debugObj = Instantiate(debugPrefabObj, debugListObj);
-        debugObj.transform.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -debugList.Count * debugObj.GetComponent<RectTransform>().rect.height);
-        PauseMenuDebug debug = debugObj.GetComponent<PauseMenuDebug>();
-        debug.Initialize(name, label, value, updater);
-        debugList.Add(debug);
+        if (debugContentContainer == null) return;
+        PauseMenuDebug newOption = (PauseMenuDebug)UIManager.Spawn("UI/PauseMenu/PauseMenuDebug", debugContentContainer);
+        newOption.Initialize(name, value, onValueChanged);
     }
+
+    private void Leave(ClickEvent evt) => GameManager.Instance.PrepGoToOwnLobby();
+    private void Quit(ClickEvent evt) => Application.Quit();
 }

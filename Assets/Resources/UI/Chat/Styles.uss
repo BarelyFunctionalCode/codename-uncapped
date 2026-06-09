@@ -1,0 +1,99 @@
+ChatWindow {
+    width: 25%;
+    height: 60%;
+    position: absolute;
+    top: 0;
+    right: -100%;
+    --vector-line-color: var(--Secondary-Text);
+    --vector-fill-color: var(--Secondary);
+    flex-shrink: 0;
+    transition-property: opacity, right;
+    transition-duration: 0.3s, 0.3s;
+    opacity: 0;
+    flex-grow: 0;
+}
+
+ChatWindow.active-menu {
+    opacity: 1;
+    right: 0%;
+}
+
+#messages-container {
+    flex-shrink: 0;
+    padding-top: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    flex-grow: 0;
+}
+
+#text-input-container {
+    padding-top: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    flex-shrink: 0;
+    flex-grow: 1;
+}
+
+#text-input {
+    color: var(--Primary-Text);
+    font-size: 14px;
+    -unity-text-align: upper-left;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    flex-shrink: 0;
+    flex-grow: 1;
+}
+
+ChatMessage {
+    flex-shrink: 0;
+    min-height: 100px;
+    --vector-line-color: var(--Primary-Text);
+    --vector-fill-color: var(--Primary);
+    margin-top: 5px;
+    margin-right: 5px;
+    margin-left: 5px;
+}
+
+ChatMessage > Label {
+    white-space: normal;
+    margin-top: 5px;
+    margin-right: 5px;
+    margin-left: 5px;
+    color: var(--Secondary-Text);
+}
+
+ChatMessage > #sender-label {
+    font-size: 14px;
+    -unity-font-style: bold;
+}
+
+#passive-chat-notifications {
+    position: absolute;
+    top: 0;
+    right: 0;
+    opacity: 1;
+    transition-property: opacity;
+    transition-duration: 0.3s;
+}
+
+#passive-chat-notifications.active-menu {
+    opacity: 0;
+}
+
+ChatWindow.always-active > VisualElement {
+    border-top-color: var(--Primary);
+    border-right-color: var(--Primary);
+    border-bottom-color: var(--Primary);
+    border-left-color: var(--Primary);
+    border-top-width: 3px;
+    border-right-width: 3px;
+    border-bottom-width: 3px;
+    border-left-width: 3px;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+}

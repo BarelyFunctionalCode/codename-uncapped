@@ -1,0 +1,120 @@
+:root {
+    --HUD-Outline: rgb(91, 91, 91);
+    justify-content: center;
+}
+
+.container {
+    --vector-fill-color: var(--Secondary);
+    flex-shrink: 0;
+    flex-grow: 1;
+    --vector-line-color: var(--HUD-Outline);
+}
+
+HUDCenter {
+    position: absolute;
+    bottom: 0;
+    width: 45%;
+    height: 150px;
+    align-self: center;
+    --vector-line-color: var(--HUD-Outline);
+    --vector-fill-color: var(--Secondary);
+    --energy-fill-color: var(--Energy);
+    --health-fill-color: var(--Health);
+    justify-content: flex-end;
+}
+
+HUDObjectiveContainer {
+    position: absolute;
+    width: 30%;
+    height: 50px;
+    align-self: center;
+    --vector-line-color: var(--HUD-Outline);
+    --vector-fill-color: var(--Secondary);
+    top: 0;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 2.5px;
+    padding-bottom: 2.5px;
+    color: rgb(210, 210, 210);
+}
+
+HUDObjectiveContainer > .subcontainer {
+    height: auto;
+    min-width: 100px;
+    margin-top: 5px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    margin-left: 5px;
+    position: relative;
+    align-items: center;
+}
+
+HUDObjectiveContainer > #left-objective-container {
+}
+
+HUDObjectiveContainer > #right-objective-container {
+}
+
+HUDObjectiveContainer > #center-objective-container {
+    align-items: center;
+    flex-grow: 1;
+}
+
+#kill-feed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 25%;
+    height: 35%;
+}
+
+#reticle-container {
+    flex-grow: 0;
+    width: 90%;
+    align-self: center;
+    aspect-ratio: 1;
+    border-top-left-radius: 50%;
+    border-top-right-radius: 50%;
+    border-bottom-right-radius: 50%;
+    border-bottom-left-radius: 50%;
+    border-top-width: 0;
+    border-right-width: 4px;
+    border-bottom-width: 0;
+    border-left-width: 4px;
+    border-left-color: var(--Background);
+    border-right-color: var(--Background);
+    border-top-color: rgba(0, 0, 0, 0);
+    justify-content: center;
+}
+
+.reticle {
+    flex-grow: 0;
+    width: 10px;
+    height: 10px;
+    align-self: center;
+    flex-shrink: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    border-top-left-radius: 50%;
+    border-top-right-radius: 50%;
+    border-bottom-right-radius: 50%;
+    border-bottom-left-radius: 50%;
+    position: absolute;
+    transition-property: width, height, rotate, background-color;
+    transition-duration: 0.1s, 0.1s, 0.1s, 0.1s;
+}
+
+#reticle-container.hit-marker > .reticle {
+    width: 70px;
+    height: 3px;
+    background-color: rgb(255, 97, 97);
+}
+
+#reticle-container.hit-marker > #reticle-l {
+    rotate: 15deg;
+}
+
+#reticle-container.hit-marker > #reticle-r {
+    rotate: 15deg;
+}

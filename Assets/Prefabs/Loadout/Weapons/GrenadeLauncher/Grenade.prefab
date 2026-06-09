@@ -10128,6 +10128,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -4716467150064823922, guid: c93af6d41f327d143b05637a13d76ff2, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -4716467150064823922, guid: c93af6d41f327d143b05637a13d76ff2, type: 3}
+      propertyPath: m_DynamicOccludee
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: c93af6d41f327d143b05637a13d76ff2, type: 3}
       propertyPath: m_Name
       value: Grenade

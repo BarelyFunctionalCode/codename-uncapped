@@ -1,41 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
+using UnityEngine.UIElements;
 using System;
 
-public class PauseMenuDebug : MonoBehaviour
+[UxmlElement(libraryPath = "PauseMenu")]
+public partial class PauseMenuDebug : CustomUIElementBase
 {
-    [SerializeField] private new string name;
-    [SerializeField] private TMP_Text nameText;
-    [SerializeField] private Toggle toggle;
-
-    private Action<bool> updater;
-
-    private bool initialized = false;
+    private Toggle toggle;
 
 
-    public void Initialize(string name, string label, bool value, Action<bool> updater)
+    public void Initialize(string name, bool value, Action<bool> onValueChanged)
     {
-        if (initialized)
-        {
-            Debug.LogError("PauseMenuOption already initialized");
-            return;
-        }
-        
-        this.nameText.text = label;
-        this.name = name;
-        this.updater = updater;
+        toggle = this.Q<Toggle>();
 
-        toggle.isOn = value;
-        toggle.onValueChanged.AddListener(delegate { UpdateValue(); });
+        toggle.value = value;
+        toggle.label = name;
 
-        initialized = true;
-    }
-
-    public void UpdateValue()
-    {
-        this.updater(toggle.isOn);
+        toggle.RegisterValueChangedCallback(evt => onValueChanged(evt.newValue));
     }
 }

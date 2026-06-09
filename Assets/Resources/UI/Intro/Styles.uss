@@ -1,0 +1,104 @@
+Intro {
+    flex-shrink: 0;
+    flex-grow: 1;
+    -unity-material: none;
+    background-color: rgb(0, 0, 0);
+    opacity: 1;
+    transition-property: opacity;
+    transition-delay: 1s;
+    transition-duration: 0.5s;
+}
+
+Intro.fade {
+    opacity: 0;
+}
+
+#static {
+    -unity-material: url("project://database/Assets/Shaders/RetroStaticUI.shadergraph?fileID=-876546973899608171&guid=69700b1ae33124c94ba8dda5b7003190&type=3#RetroStaticUI");
+    filter: opacity(0.5);
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition-property: scale;
+    transition-duration: 0.5s;
+    flex-shrink: 0;
+    flex-grow: 1;
+    scale: 1 0;
+    transition-timing-function: ease-out-elastic;
+    transition-delay: 0.5s;
+    background-color: var(--Secondary);
+}
+
+Intro.active #static {
+    scale: 1 1;
+}
+
+#text-container {
+    flex-shrink: 1;
+    flex-grow: 0;
+    padding-bottom: 100px;
+}
+
+#title {
+    -unity-text-align: middle-center;
+    -unity-font-definition: url("project://database/Assets/Fonts/Uzilmo-Regular.ttf?fileID=12800000&guid=107fe2fe8c634534fbc6711b0d581c8c&type=3#Uzilmo-Regular");
+    font-size: 180px;
+    -unity-font-style: normal;
+    transition-property: scale;
+    transition-duration: 0.3s;
+    transition-delay: 1s;
+    transition-timing-function: ease-out-cubic;
+    scale: 1 0;
+    color: var(--Primary-Text);
+}
+
+Intro.active #title {
+    scale: 1 1;
+}
+
+#subtitle {
+    -unity-text-align: middle-center;
+    font-size: 30px;
+    opacity: 0;
+    transition-property: opacity;
+    transition-duration: 2s;
+    transition-delay: 4s;
+    transition-timing-function: ease;
+    color: var(--Primary-Text);
+}
+
+Intro.active #subtitle {
+    opacity: 1;
+}
+
+#discord {
+    position: absolute;
+    right: 50px;
+    bottom: 20px;
+    opacity: 0;
+    flex-grow: 0;
+    width: 50px;
+    transition-property: opacity;
+    transition-duration: 0s;
+    transition-delay: 0s;
+    aspect-ratio: 0.9;
+}
+
+#discord > Image {
+}
+
+#discord > Label {
+    -unity-text-align: middle-center;
+    font-size: 16px;
+    letter-spacing: 5px;
+    -unity-font-definition: url("project://database/Assets/Fonts/VCR_OSD_MONO%20SDF-internal.asset?fileID=11400000&guid=19aad70f333df446fa14a26603c1ab70&type=2#VCR_OSD_MONO SDF-internal");
+    margin-top: -10px;
+    color: var(--Primary-Text);
+}
+
+Intro.active #discord {
+    opacity: 0.35;
+    transition-property: opacity;
+    transition-duration: 0.3s;
+    transition-delay: 2s;
+}

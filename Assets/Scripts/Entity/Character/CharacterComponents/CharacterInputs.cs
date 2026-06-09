@@ -53,8 +53,8 @@ public class CharacterInputs : EntityComponent
     {
         ControlsDisabledCount += enabled ? -1 : 1;
         ControlsDisabledCount = Mathf.Max(0, ControlsDisabledCount);
-        if (character.IsPlayerCharacter.Value) SetLocalPlayerCharacterControlsRpc(ControlsDisabledCount == 0);
-        // else Whatever way to disable AI controls
+        if (character.IsPlayerCharacter) SetLocalPlayerCharacterControlsRpc(ControlsDisabledCount == 0);
+        else AI.List[character.identification.FetchEntityId()].SetControls(enabled);
     }
     [Rpc(SendTo.Owner)]
     private void SetLocalPlayerCharacterControlsRpc(bool enabled)

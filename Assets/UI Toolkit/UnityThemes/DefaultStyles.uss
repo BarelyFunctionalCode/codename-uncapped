@@ -1,0 +1,395 @@
+UIDocumentRootElement {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+:root {
+    -unity-font-definition: url("project://database/Assets/Fonts/welbutrin/Welbut__%20Bitmap.asset?fileID=11400000&guid=7a29126173bc1b4fba9bdcf432284dfb&type=2#Welbut__ Bitmap");
+    -unity-material: url("project://database/Assets/Shaders/RetroStaticUI.shadergraph?fileID=-876546973899608171&guid=69700b1ae33124c94ba8dda5b7003190&type=3#RetroStaticUI");
+    --Background: rgba(39, 33, 60, 0.5);
+    --Primary: rgba(34, 237, 230, 0.7);
+    --Primary-Text: rgba(34, 237, 230, 0.95);
+    --Secondary: rgba(138, 0, 62, 0.7);
+    --Secondary-Text: rgba(137, 0, 61, 0.95);
+    --Caution: rgba(198, 224, 46, 0.7);
+    --Caution-Text: rgba(198, 224, 46, 0.95);
+    --Active-Color: rgba(46, 207, 202, 0.95);
+    --Cooldown-Color: rgba(188, 59, 59, 0.75);
+    --Energy: rgba(46, 207, 202, 0.95);
+    --Health: rgba(188, 59, 59, 0.75);
+    --Red: rgb(229, 61, 83);
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    flex-shrink: 0;
+    flex-grow: 1;
+    white-space: nowrap;
+    -unity-text-align: middle-left;
+    -unity-font-style: normal;
+    -unity-text-generator: advanced;
+}
+
+:disabled {
+    filter: grayscale(1) blur(1);
+}
+
+Button {
+    transition-duration: 0.3s;
+    -unity-text-generator: advanced;
+    -unity-text-auto-size: best-fit 10px 100px;
+    -unity-text-align: middle-center;
+    padding: 3px;
+    aspect-ratio: 4;
+    margin: 10px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+Button:hover {
+    filter: grayscale(0.6);
+    translate: 0 5px;
+    scale: 1 0.95;
+}
+
+.primary {
+    background-color: var(--Primary);
+    color: var(--Primary-Text);
+}
+
+Button.primary {
+    background-color: var(--Primary);
+    color: var(--Secondary-Text);
+}
+
+Label.primary {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+Image.primary {
+    -unity-background-image-tint-color: var(--Primary-Text);
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.primary > Label {
+    color: var(--Secondary-Text);
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.primary > Image {
+    -unity-background-image-tint-color: var(--Secondary-Text);
+}
+
+.secondary {
+    background-color: var(--Secondary);
+    color: var(--Secondary-Text);
+}
+
+Button.secondary {
+    background-color: var(--Secondary);
+    color: var(--Primary-Text);
+}
+
+Label.secondary {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.secondary > Label {
+    background-color: rgba(0, 0, 0, 0);
+    color: var(--Primary-Text);
+}
+
+.caution {
+    background-color: var(--Caution);
+    color: var(--Caution-Text);
+}
+
+Label.caution {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.background {
+    background-color: var(--Background);
+}
+
+Label.title {
+    -unity-font-style: bold;
+    align-self: flex-start;
+}
+
+Label.description {
+    -unity-text-align: upper-left;
+    white-space: normal;
+    text-overflow: ellipsis;
+    flex-grow: 1;
+    overflow: hidden;
+    align-self: flex-start;
+}
+
+.dangerButton {
+    background-color: var(--Red);
+    color: rgb(255, 255, 255);
+}
+
+.dangerButton:hover {
+}
+
+.verticalBorder {
+    width: 10px;
+    margin-right: 20px;
+    margin-left: 20px;
+    flex-shrink: 0;
+}
+
+RetroNumber {
+    -unity-font-definition: url("project://database/Assets/Fonts/fonts-DSEG_v046/DSEG14ClassicMini-Regular%20Bitmap.asset?fileID=11400000&guid=62189914401de4eea99cba59a0b7c712&type=2#DSEG14ClassicMini-Regular Bitmap");
+    justify-content: center;
+}
+
+RetroNumber > #BackgroundLabel {
+    position: absolute;
+    -unity-text-generator: advanced;
+    -unity-text-auto-size: best-fit 10px 100px;
+    color: rgba(36, 36, 36, 0.8);
+}
+
+RetroNumber > #Text {
+    -unity-text-generator: advanced;
+    -unity-text-auto-size: best-fit 10px 100px;
+}
+
+.unity-tab-view {
+    flex-shrink: 0;
+    flex-grow: 1;
+}
+
+.unity-tab-view__header-container {
+    flex-direction: row;
+    flex-shrink: 0;
+    background-color: var(--Secondary);
+    padding-top: 2px;
+    padding-left: 2px;
+}
+
+.unity-tab__header {
+    align-items: center;
+    align-self: flex-start;
+    flex-direction: row;
+    padding-left: 20px;
+    padding-right: 20px;
+    min-height: 24px;
+    flex-shrink: 0;
+    background-color: var(--Primary);
+    margin-top: 0;
+}
+
+.unity-tab__header-label {
+    transition-property: color;
+    transition-duration: 0.3s;
+    color: rgba(229, 229, 229, 0.95);
+}
+
+.unity-tab__header-underline {
+    position: absolute;
+    left: 2px;
+    bottom: auto;
+    height: 5px;
+    width: 5px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    transition-property: background-color, height, width, border-radius;
+    transition-duration: 0.3s, 0.3s, 0.3s, 0.3s;
+    background-color: rgba(207, 207, 207, 0.2);
+    top: 2px;
+}
+
+.unity-tab__header:hover > .unity-tab__header-label {
+    color: var(--Background);
+}
+
+.unity-tab__header:hover > .unity-tab__header-underline {
+    background-color: var(--Background);
+}
+
+.unity-tab__header:checked > .unity-tab__header-label {
+    color: var(--Secondary-Text);
+}
+
+.unity-tab__header:checked > .unity-tab__header-underline {
+    background-color: var(--Secondary-Text);
+    width: 8px;
+    height: 8px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+#unity-tab-view__content-container {
+    flex-grow: 1;
+    flex-shrink: 0;
+}
+
+.unity-tab-view .unity-tab {
+    display: none;
+    background-color: var(--Background);
+    flex-grow: 1;
+    flex-shrink: 0;
+}
+
+.unity-tab-view .unity-tab:checked {
+    display: flex;
+}
+
+#unity-tab__content-container {
+    flex-shrink: 0;
+    flex-grow: 1;
+    justify-content: center;
+    align-items: center;
+}
+
+.tab-content {
+    flex-shrink: 0;
+    align-self: center;
+    align-items: flex-start;
+    align-content: flex-start;
+    justify-content: center;
+    flex-grow: 1;
+}
+
+.unity-base-field {
+    overflow: hidden;
+    flex-direction: row;
+    flex-shrink: 1;
+    align-self: flex-start;
+}
+
+.unity-toggle {
+    color: var(--Primary-Text);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-left-color: var(--Secondary);
+    border-right-color: var(--Secondary);
+    border-top-color: var(--Secondary);
+    border-bottom-color: var(--Secondary);
+    padding-top: 3px;
+    padding-right: 3px;
+    padding-bottom: 3px;
+    padding-left: 3px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    transition-property: border-color;
+    transition-duration: 0.3s;
+    flex-direction: row;
+    flex-grow: 1;
+    flex-shrink: 0;
+    justify-content: center;
+}
+
+.unity-toggle:checked {
+    border-top-color: var(--Primary);
+    border-right-color: var(--Primary);
+    border-bottom-color: var(--Primary);
+    border-left-color: var(--Primary);
+}
+
+.unity-toggle__label {
+    margin-right: 5px;
+    color: var(--Secondary-Text);
+    -unity-font-style: italic;
+    transition-property: color;
+    transition-duration: 0.3s;
+}
+
+.unity-toggle:checked > .unity-toggle__label {
+    color: var(--Primary-Text);
+    -unity-font-style: normal;
+}
+
+.unity-toggle__input {
+    flex-direction: row;
+    align-self: center;
+}
+
+.unity-toggle__checkmark {
+    width: 14px;
+    height: 14px;
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-background-image-tint-color: rgba(0, 0, 0, 0);
+    transition-property: -unity-background-image-tint-color;
+    transition-duration: 0.3s;
+}
+
+.unity-toggle > .unity-toggle__input:checked > .unity-toggle__checkmark {
+    -unity-background-image-tint-color: var(--Primary-Text);
+    background-image: url("project://database/Assets/UI%20Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss?fileID=7433338533053954386&guid=f44cb77a187664828a3f3648ad4e40b2&type=3#check@2x");
+}
+
+
+.unity-scroll-view {
+    flex-shrink: 1;
+}
+
+.unity-scroll-view__content-and-vertical-scroll-container {
+    flex-grow: 1;
+    flex-direction: row;
+}
+
+.unity-scroll-view__content-viewport {
+    flex: auto;
+    overflow: hidden;
+}
+
+.unity-scroll-view--vertical > .unity-scroll-view__content-and-vertical-scroll-container > .unity-scroll-view__content-viewport {
+    flex-direction: column;
+}
+
+.unity-scroll-view__content-container {
+    flex-shrink: 0;
+}
+
+.unity-scroll-view--vertical > .unity-scroll-view__content-and-vertical-scroll-container > .unity-scroll-view__content-viewport > .unity-scroll-view__content-container {
+    flex-direction: column;
+}
+
+.unity-scroll-view--vertical.unity-scroll-view--scroll > .unity-scroll-view__content-and-vertical-scroll-container > .unity-scroll-view__content-viewport > .unity-scroll-view__content-container {
+    overflow: scroll;
+}
+
+.unity-base-text-field__input {
+    flex: 1 1 auto;
+}
+
+.unity-scroll-view--inner-input-field-component {
+    flex-grow: 1;
+}
+
+.unity-scroll-view__content-viewport--inner-input-field-component.unity-scroll-view__content-viewport--vertical {
+    flex-grow: 1;
+}
+
+.unity-scroll-view__content-container--vertical.unity-scroll-view__content-container--inner-input-field-component {
+    min-height: 100%;
+}
+
+.unity-text-element--inner-input-field-component--vertical {
+    min-height: 100%;
+}
+
+.unity-text-element--inner-input-field-component--scroll-view {
+    flex-shrink: 0;
+    min-width: 100%;
+}

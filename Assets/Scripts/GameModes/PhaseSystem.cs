@@ -46,8 +46,8 @@ public class PhaseSystem : NetworkBehaviour
 
     public Dictionary<Phase, float> countdowns = new()
     {
-        { Phase.PRELOAD,    15.0f  },
-        { Phase.WARMUP,     15.0f  },
+        { Phase.PRELOAD,    2.0f  },
+        { Phase.WARMUP,     1.0f  },
         { Phase.ACTIVE,     600.0f },
         { Phase.ENDGAME,    15.0f  },
     };

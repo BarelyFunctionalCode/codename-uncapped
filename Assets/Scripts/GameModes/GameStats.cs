@@ -75,7 +75,7 @@ public class GameStats : MonoBehaviour
         statGroup[characterId].AddToStat(s.StatType, s.Value);
 
         // Debugging
-        statGroup[characterId].PrettyPrint();
+        // statGroup[characterId].PrettyPrint();
 
         // Create StatEvent with updated value
         StatEvent updatedStatEvent = new(

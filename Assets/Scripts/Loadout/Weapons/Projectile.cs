@@ -214,6 +214,7 @@ public class Projectile : NetworkBehaviour, IGravityModifiable
             );
             foreach (Collider c in damagedReceivers.ToList())
             {
+                if (c == null) continue;
                 IDamageable cDamageable = c.gameObject.GetComponentInParent<IDamageable>();
                 Rigidbody cRb = c.gameObject.GetComponentInParent<Rigidbody>();
 
@@ -268,7 +269,7 @@ public class Projectile : NetworkBehaviour, IGravityModifiable
 
     protected void ApplyDamage(GameObject target, float damage)
     {
-        if (!IsServer) return;
+        if (!IsServer || damage <= 0) return;
         // print("Applying " + damage + " damage to " + target.name);
         //if (target.GetComponent<Entity>() != null) target.GetComponent<Entity>().TakeDamage(damage);
         if (target.GetComponentInParent<IDamageable>() != null) target.GetComponentInParent<IDamageable>().TakeDamage(damage, ownerRef, weaponRef);

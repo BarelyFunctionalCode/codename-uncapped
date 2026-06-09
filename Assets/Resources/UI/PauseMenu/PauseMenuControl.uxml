@@ -1,0 +1,10 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Resources/UI/PauseMenu/Styles.uss?fileID=7433441132597879392&amp;guid=0fd13de09c2014e8eae7e58a68d3048a&amp;type=3#Styles"/>
+    <PauseMenuControl>
+        <ui:VisualElement style="flex-direction: row; flex-shrink: 0; flex-grow: 1;">
+            <ui:Label text="XXXXXXXXXXXXXXXXXXXXXX" name="ControlName" class="primary" style="margin-right: 10px; font-size: 18px; -unity-font-style: normal;"/>
+            <ui:Label text="XXXXXXXXXXXXX" name="ControlValue" class="primary" style="margin-right: 10px; font-size: 14px; -unity-font-style: normal; min-width: 150px;"/>
+        </ui:VisualElement>
+        <ui:Button text="Remap" name="RemapButton" class="primary" style="height: 30px; aspect-ratio: 3; margin-bottom: 0; margin-right: 0; margin-top: 0; margin-left: 0;"/>
+    </PauseMenuControl>
+</ui:UXML>

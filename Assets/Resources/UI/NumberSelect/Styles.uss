@@ -1,0 +1,75 @@
+:root {
+}
+
+NumberSelect {
+    height: 60px;
+    flex-direction: row;
+    padding-top: 10px;
+    padding-right: 12px;
+    padding-bottom: 10px;
+    padding-left: 12px;
+    align-items: center;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+#name-label {
+    flex-shrink: 0;
+    flex-grow: 1;
+    font-size: 28px;
+}
+
+#left-arrow {
+    height: 32px;
+    width: 32px;
+    aspect-ratio: 1;
+    rotate: -90deg;
+    background-image: url("project://database/Assets/Images/HUD/TriangleIcon.png?fileID=2800000&guid=8f9c29442f01da7da8cc4ce9c2155acc&type=3#TriangleIcon");
+    flex-shrink: 0;
+    -unity-background-image-tint-color: var(--Secondary);
+}
+
+#left-arrow:hover {
+    translate: 0;
+    scale: 1.1;
+}
+
+#right-arrow {
+    height: 32px;
+    width: 32px;
+    aspect-ratio: 1;
+    rotate: 90deg;
+    background-image: url("project://database/Assets/Images/HUD/TriangleIcon.png?fileID=2800000&guid=8f9c29442f01da7da8cc4ce9c2155acc&type=3#TriangleIcon");
+    flex-shrink: 0;
+    -unity-background-image-tint-color: var(--Secondary);
+}
+
+#right-arrow:hover {
+    translate: 0;
+    scale: 1.1;
+}
+
+#value-field {
+    align-self: center;
+    padding-top: 10px;
+    padding-right: 20px;
+    padding-bottom: 10px;
+    padding-left: 20px;
+    border-top-width: 3px;
+    border-right-width: 3px;
+    border-bottom-width: 3px;
+    border-left-width: 3px;
+    border-top-color: var(--Secondary);
+    border-right-color: var(--Secondary);
+    border-bottom-color: var(--Secondary);
+    border-left-color: var(--Secondary);
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    flex-shrink: 0;
+    font-size: 24px;
+    color: var(--Secondary-Text);
+}

@@ -1,62 +1,38 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
-public class PauseMenuControl : MonoBehaviour
+[UxmlElement(libraryPath = "PauseMenu")]
+public partial class PauseMenuControl : CustomUIElementBase
 {
-    private InputAction action;
-
-    [SerializeField] private new string name;
-    [SerializeField] private TMP_Text nameText;
-    [SerializeField] private TMP_Text valueText;
-
-    [SerializeField] private GameObject messageObj;
-    [SerializeField] private Button remapButton;
-
-    private bool initialized = false;
+    private Label nameLabel;
+    private Label valueLabel;
+    private Button remapButton;
 
 
     public void Initialize(InputAction action)
     {
-        if (initialized)
-        {
-            Debug.LogError("PauseMenuControl already initialized");
-            return;
-        }
+        nameLabel = this.Q<Label>("ControlName");
+        valueLabel = this.Q<Label>("ControlValue");
+        remapButton = this.Q<Button>("RemapButton");
 
-        messageObj.SetActive(false);
-        
-        this.action = action;
-        this.nameText.text = action.name;
-        this.valueText.text = action.GetBindingDisplayString();
+        nameLabel.text = action.name;
+        valueLabel.text = action.bindings[0].ToDisplayString();
 
-        remapButton.onClick.AddListener( delegate { OnRemapButtonClicked(); } );
-
-        initialized = true;
+        remapButton.clicked += () => OnRemapButtonClicked(action);
     }
 
-    private void OnRemapButtonClicked()
+    private void OnRemapButtonClicked(InputAction action)
     {
-        messageObj.SetActive(true);
-        valueText.gameObject.SetActive(false);
+        valueLabel.text = "Press a key...";
 
         action.PerformInteractiveRebinding()
             .OnMatchWaitForAnother(0.1f)
             .OnComplete(operation =>
             {
                 operation.Dispose();
-                UpdateValue();
+                valueLabel.text = action.bindings[0].ToDisplayString();
             })
             .Start();
-    }
-
-    private void UpdateValue()
-    {
-        messageObj.SetActive(false);
-        valueText.gameObject.SetActive(true);
-        this.valueText.text = action.GetBindingDisplayString();
     }
 }

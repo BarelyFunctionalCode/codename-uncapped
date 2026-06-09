@@ -1,0 +1,238 @@
+:root {
+}
+
+.notice-container {
+    flex-grow: 1;
+    position: absolute;
+    flex-shrink: 0;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+.notice-text {
+    font-size: 100px;
+    white-space: normal;
+    -unity-text-align: middle-center;
+}
+
+LobbyPC {
+    flex-grow: 1;
+    flex-shrink: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.unity-tab__header-label {
+    font-size: 30px;
+}
+
+.tab-content {
+    flex-direction: row;
+    flex-shrink: 0;
+    flex-grow: 0;
+    height: 100%;
+    width: 100%;
+    position: relative;
+    padding-top: 20px;
+    padding-right: 20px;
+    padding-bottom: 20px;
+    padding-left: 20px;
+}
+
+#match-configuration {
+    padding-top: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    background-color: var(--Secondary);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    flex-shrink: 0;
+    height: 100%;
+    flex-grow: 0;
+}
+
+#match-info {
+    flex-grow: 0;
+    flex-shrink: 1;
+    margin-bottom: 10px;
+}
+
+.option-container {
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+
+.description {
+    color: var(--Primary-Text);
+    flex-grow: 0;
+    font-size: 20px;
+    white-space: normal;
+    padding-left: 15px;
+}
+
+#buttons {
+    align-items: center;
+    width: 30%;
+    align-self: center;
+    justify-content: flex-end;
+}
+
+#player-section {
+    flex-grow: 0;
+    flex-shrink: 1;
+    margin-left: 20px;
+    background-color: var(--Secondary);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    padding-top: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    height: 100%;
+    justify-content: space-between;
+    flex-basis: 100%;
+}
+
+#player-list {
+    flex-grow: 1;
+    flex-direction: row;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+}
+
+LobbyCharacterEntry {
+    flex-grow: 0;
+    height: 50px;
+    background-color: var(--Primary);
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    width: 31.33%;
+    margin-top: 1%;
+    margin-right: 1%;
+    margin-bottom: 1%;
+    margin-left: 1%;
+    flex-shrink: 0;
+}
+
+LobbyCharacterEntry > #character-name {
+    flex-shrink: 0;
+    flex-grow: 1;
+    padding-top: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    -unity-text-auto-size: best-fit 10px 100px;
+    -unity-text-align: middle-center;
+    color: var(--Secondary-Text);
+    -unity-text-generator: advanced;
+}
+
+#chat-container {
+    flex-shrink: 0;
+    flex-grow: 0;
+    height: 600px;
+    align-items: center;
+}
+
+#chat-container > ChatWindow {
+    --vector-line-color: rgba(0, 0, 0, 0);
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    flex-shrink: 0;
+    flex-grow: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#chat-container Label {
+    font-size: 18px;
+}
+
+#chat-container #sender-label {
+    font-size: 20px;
+}
+
+#chat-container #text-input {
+    font-size: 16px;
+}
+
+#lobby-list-container {
+    flex-grow: 0;
+}
+
+#lobby-list-container > #unity-tab__content-container {
+    flex-grow: 0;
+}
+
+LobbyList.tab-content {
+    flex-shrink: 0;
+    flex-grow: 0;
+    align-items: center;
+}
+
+LobbyList > ScrollView {
+    height: 800px;
+    align-items: center;
+    width: 50%;
+    border-top-width: 5px;
+    border-right-width: 5px;
+    border-bottom-width: 5px;
+    border-left-width: 5px;
+    border-top-color: var(--Secondary);
+    border-right-color: var(--Secondary);
+    border-bottom-color: var(--Secondary);
+    border-left-color: var(--Secondary);
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+}
+
+LobbyListEntry {
+    height: 60px;
+    width: 700px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    flex-direction: row;
+    align-items: center;
+    padding-top: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    margin-bottom: 30px;
+}
+
+LobbyListEntry > #lobby-name {
+    font-size: 28px;
+    flex-shrink: 0;
+    flex-grow: 1;
+}
+
+LobbyListEntry > #player-count {
+    font-size: 16px;
+    flex-shrink: 0;
+    flex-grow: 0;
+    filter: opacity(0.6);
+}
+
+LobbyListEntry > #join-button {
+    height: 100%;
+    flex-shrink: 0;
+    flex-grow: 0;
+}

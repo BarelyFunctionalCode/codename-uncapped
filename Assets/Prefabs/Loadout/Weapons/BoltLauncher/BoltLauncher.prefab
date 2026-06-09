@@ -48,23 +48,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  iconSprite: {fileID: 0}
+  cooldown: 0.5
+  cooldownTimer:
+    m_InternalValue: 0
+  maxAmmo: 30
+  ammo:
+    m_InternalValue: 0
   projectileSpawnPoint: {fileID: 4534575583122789439}
   modelObj: {fileID: 7384721675247837030}
   projectilePrefabObj: {fileID: 7010367226232836467, guid: f2e8a42573e63f940a1233b05f6133de, type: 3}
-  iconSprite: {fileID: 0}
   reticleSprite: {fileID: -3566423398835944392, guid: 5e75c7684fd2d7e4583401670492a249, type: 3}
   fireSound: {fileID: 0}
-  maxAmmo: 10000
   damage: 20
-  fireRate: 1
+  spinupTime: -1
   ignoreLayers:
     serializedVersion: 2
     m_Bits: 776
-  canFire: 1
   isEquiped:
     m_InternalValue: 1
-  ammoCount:
-    m_InternalValue: 0
 --- !u!114 &897064932959402891
 MonoBehaviour:
   m_ObjectHideFlags: 0

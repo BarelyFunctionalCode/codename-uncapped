@@ -11,6 +11,8 @@ public class CharacterManager : NetworkBehaviour
 
     private NetworkList<NetworkBehaviourReference> _characters = new();
     public List<Character> characters = new();
+    public UnityEvent<ulong> OnCharacterAdded = new();
+    public UnityEvent<ulong> OnCharacterRemoved = new();
     public UnityEvent<NetworkBehaviourReference> OnCharacterChangedTeam = new();
 
 
@@ -101,9 +103,9 @@ public class CharacterManager : NetworkBehaviour
         }
     }
     [Rpc(SendTo.Server)]
-    public void CompletedPlayerInitializationRpc(ulong clientId)
+    public void CompletedPlayerInitializationRpc(ulong characterId)
     {
-        GameManager.Instance.OnClientConnectedEvent.Invoke(clientId);
+        OnCharacterAdded.Invoke(characterId);
     }
 
     public void HandlePlayerDisconnect(ulong clientId)
@@ -115,6 +117,27 @@ public class CharacterManager : NetworkBehaviour
             character.NetworkObject.ChangeOwnership(NetworkManager.ServerClientId);
         }
         GameManager.Instance.OnClientDisconnectedEvent.Invoke(clientId);
+    }
+
+    public void RegisterAI(AI newAI)
+    {
+        if (!IsServer) return;
+
+        GameObject newCharacterObj = SpawnManager.Instance.Spawn(
+            characterPrefabObj,
+            null
+        );
+        Character newCharacter = newCharacterObj.GetComponent<Character>();
+        ulong characterId = newCharacter.NetworkObjectId + 1;
+        newAI.Add(newCharacter, characterId);
+        characters.Add(newCharacter);
+        _characters.Add(newCharacter);
+        _characters.SetDirty(true);
+        newCharacter.Initialize(defaultPlayerCharacterTypePrefabObj, characterId, false);
+    }
+    public void CompletedAIInitialization(ulong characterId)
+    {
+        OnCharacterAdded.Invoke(characterId);
     }
 
     public Character GetCharacterByClientId(ulong clientId)

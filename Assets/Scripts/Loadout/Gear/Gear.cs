@@ -1,26 +1,31 @@
 using Unity.Netcode;
 using UnityEngine;
 
-public class Gear : NetworkBehaviour
+public class Gear : LoadoutItem
 {
     private NetworkVariable<NetworkBehaviourReference> characterRef = new();
     protected Character character;
 
-    [SerializeField] public Sprite iconSprite;
+    [SerializeField] private GameObject modelObj;
 
-    protected float cooldown = 0f;
-    public NetworkVariable<float> cooldownTimer = new();
+    private LoadoutItemUI gearUI;
+
     private NetworkVariable<bool> canUse = new();
-
-    public int MaxAmmo { get; protected set; }
-    public NetworkVariable<int> ammo = new();
 
     protected float rechargeRate = -1f;
     private float rechargeTimer = 0f;
     private NetworkVariable<float> rechargeRatio = new();
 
-    private bool isActive = false;
-    private bool isInitialized = false;
+    [SerializeField] private bool isInitialized = false;
+    protected bool IsActive { get; private set; }
+
+    [SerializeField] private bool useHeld = false;
+    [SerializeField] private float heldTime = 0f;
+    private float buttonHoldThresholdTime = 0.2f;
+    [SerializeField] private bool firstButtonUp = true;
+    [SerializeField] private float maxIdleUseTime = 5f;
+    [SerializeField] private float idleUseTimer = 0f;
+
 
     public override void OnNetworkSpawn()
     {
@@ -57,6 +62,18 @@ public class Gear : NetworkBehaviour
             }
             rechargeRatio.Value = rechargeTimer / rechargeRate;
         }
+ 
+        if (!IsActive) return;
+        if (useHeld)
+        {
+            heldTime += Time.deltaTime;
+            if (heldTime >= buttonHoldThresholdTime) HeldUse(Time.deltaTime, heldTime);
+        }
+        else
+        {
+            idleUseTimer += Time.deltaTime;
+            if (idleUseTimer >= maxIdleUseTime) StopUse();
+        }
     }
 
     public float GetRechargeRatio()
@@ -76,41 +93,80 @@ public class Gear : NetworkBehaviour
         if (!IsServer) return;
 
         characterRef.Value = new NetworkBehaviourReference(character);
-        if (character.IsPlayerCharacter.Value) SetGearUIClientRpc();
+        InitializeRpc(characterRef.Value);
+        isEquiped.Value = true;
+        OnInitialize(character);
         isInitialized = true;
     }
+    [Rpc(SendTo.Everyone)]
+    private void InitializeRpc(NetworkBehaviourReference characterRef)
+    {
+        characterRef.TryGet(out Character character);
+        this.character = character;
+
+        if (modelObj != null)
+        {
+            modelObj.transform.parent = character.localCharacterType.gearMountPoint;
+            modelObj.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+        }
+        if (IsOwner && character.IsPlayerCharacter)
+        {
+            gearUI = Player.Instance.playerHUD.SetGearUI(this);
+        }
+        isInitialized = true;
+    }
+    protected virtual void OnInitialize(Character character) {}
 
     public void Deinitialize()
     {
         if (!IsServer) return;
 
         characterRef.Value = null;
+        DeinitializeRpc();
+        OnDeinitialize();
         isInitialized = false;
     }
-
-    [Rpc(SendTo.Owner)]
-    private void SetGearUIClientRpc()
+    [Rpc(SendTo.Everyone)]
+    public void DeinitializeRpc()
     {
-        Player.Instance.playerHUD.SetGearUI(this);
+        gearUI?.Deinitialize();
+        if (modelObj != null) modelObj.transform.parent = transform;
+        isEquiped.Value = false;
+        isInitialized = false;
     }
+    protected virtual void OnDeinitialize() {}
 
-    public void Use()
+    public void Use(bool isButtonDown)
     {
-        if (!IsServer || ammo.Value <= 0 || !canUse.Value || isActive) return;
+        useHeld = isButtonDown;
+        if (!isButtonDown)
+        {
+            if (IsActive && !firstButtonUp && heldTime < buttonHoldThresholdTime) StopUse();
+            else firstButtonUp = false;
+            return;
+        }
+        else heldTime = 0f;
 
-        isActive = true;
+        if (!IsServer || ammo.Value <= 0 || !canUse.Value || IsActive) return;
+
+        IsActive = true;
         bool isFinished = OnUse();
         ammo.Value = Mathf.Max(0, ammo.Value - 1);
-        cooldownTimer.Value = cooldown;
+        cooldownTimer.Value = Cooldown;
         if (isFinished) StopUse();
     }
     protected virtual bool OnUse() { return true; }
+    private void HeldUse(float deltaTime, float heldDuration) => OnHeldUse(deltaTime, heldDuration);
+    protected virtual void OnHeldUse(float deltaTime, float heldDuration) {}
 
     public void StopUse()
     {
-        if (!IsServer || !isActive) return;
+        if (!IsServer || !IsActive) return;
 
-        isActive = false;
+        IsActive = false;
+        firstButtonUp = true;
+        heldTime = 0f;
+        idleUseTimer = 0f;
         canUse.Value = false;
         OnStopUse();
     }

@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Resources/UI/Toast/Styles.uss?fileID=7433441132597879392&amp;guid=e623e13a53a93112a918d0de08db896c&amp;type=3#Styles"/>
+    <Toast name="Toast" class="secondary">
+        <ui:Label text="XXXXXXXXXXXXX" name="Title" enabled="true" class="title"/>
+        <ui:Label text="Xxxxxxxxxxxx xxxxxxxxx xxxxxxxxxxx xxx xxxxxxxxx xxxxxxxx xxxxx" name="Message"/>
+    </Toast>
+</ui:UXML>

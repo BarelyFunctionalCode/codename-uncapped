@@ -1,10 +1,10 @@
-using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class CharacterDeath : MonoBehaviour
 {
     [SerializeField] private GameObject deathCam;
-    [SerializeField] private GameObject deathUI;
+    [SerializeField] private UIDocument deathUI;
 
     public void Initialize(bool isLocalPlayerCharacter, Vector3 inheritedVelocity)
     {
@@ -18,6 +18,7 @@ public class CharacterDeath : MonoBehaviour
         if (!isLocalPlayerCharacter) return;
 
         deathCam.SetActive(true);
-        deathUI.SetActive(true);
+        deathUI.gameObject.SetActive(true);
+        deathUI.rootVisualElement.Q<DeathScreen>().Initialize();
     }
 }

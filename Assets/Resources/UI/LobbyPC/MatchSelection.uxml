@@ -1,0 +1,21 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Resources/UI/LobbyPC/Styles.uss?fileID=7433441132597879392&amp;guid=c7dd7fdb3dda24da3ac88ec87a79dbef&amp;type=3#Styles"/>
+    <MatchSelection class="tab-content">
+        <ui:VisualElement name="match-configuration" style="width: 40%;">
+            <ui:VisualElement name="match-info">
+                <ui:VisualElement name="level-select" class="option-container" style="flex-grow: 1; margin-top: 0;"/>
+                <ui:Label text="level description level description level description level description level description level description level description level description level description level description level description level description level description level description level description level description level description level description level description level description level description level description level description level description level description level description level description level description " name="level-description" class="description"/>
+                <ui:VisualElement name="game-mode-select" class="option-container" style="flex-grow: 1;"/>
+                <ui:Label text="game mode description game mode description game mode description game mode description game mode description game mode description game mode description game mode description game mode description game mode description game mode description game mode description game mode description game mode description game mode description game mode description game mode description game mode description game mode description " name="game-mode-description" class="description"/>
+                <ui:VisualElement name="other-options" class="option-container" style="flex-grow: 1;"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="buttons" style="flex-grow: 1; width: 50%;">
+                <ui:Button text="Start Match" name="start-button" class="primary"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="player-section">
+            <ui:VisualElement name="player-list"/>
+            <ui:VisualElement name="chat-container"/>
+        </ui:VisualElement>
+    </MatchSelection>
+</ui:UXML>

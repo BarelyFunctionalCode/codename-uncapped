@@ -1,0 +1,36 @@
+#ToastContainer {
+    overflow: hidden;
+    left: 0;
+    top: 0;
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-bottom: 10px;
+    padding-right: 10px;
+    flex-grow: 0;
+}
+
+#Toast {
+    padding-left: 5px;
+    padding-top: 5px;
+    padding-right: 5px;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+    transition-property: opacity, margin-top, padding;
+    transition-duration: 0.25s, 0.5s, 0.5s;
+    transition-timing-function: ease, ease-out-cubic, ease-in-out-bounce;
+    transition-delay: 0s, 0s, 1s;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+#Title {
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+#Message {
+    font-size: 20px;
+    white-space: normal;
+}

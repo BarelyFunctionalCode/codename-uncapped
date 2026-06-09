@@ -1,180 +1,46 @@
-using Unity.Cinemachine;
-using Unity.Netcode;
-using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 
-public class LobbyPC : MonoBehaviour
+
+[UxmlElement(libraryPath = "LobbyPC")]
+public partial class LobbyPC : CustomUIElementBase
 {
-    private Canvas canvas;
-    [SerializeField] private CinemachineCamera pcCam;
-    [SerializeField] private LayerMask noPlayerMask;
+    private LobbyPCController lobbyPCController;
 
-    [SerializeField] private GameObject interactPromptObj;
-    [SerializeField] private GameObject autoStartObj;
+    private VisualElement interactPrompt;
+    private VisualElement autoStartNotice;
 
-    [SerializeField] private GameObject cursorObj;
-    [SerializeField] public AudioSource musicSource;
+    private VisualElement matchSelectionContainer;
+    public MatchSelection MatchSelection { get; private set; }
 
-    private float camToCanvasDistance;
-    private bool showInteractPrompt = false;
-    private bool isActive = false;
-    private bool autoInteract = true;
-
-    [SerializeField] private Button activeTabButton;
-    [SerializeField] private GameObject matchConfigurationContainerObj;
-    [SerializeField] private GameObject lobbiesListContainerObj;
-
-    private float activeTabButtonAlpha = 0.4f;
-    private float inactiveTabButtonAlpha;
-
-    private bool isInitialized = false;
+    private VisualElement lobbyListContainer;
 
 
-    void Awake()
+    public void Initialize(LobbyPCController lobbyPCController)
     {
-        GameManager.Instance.OnLevelLoadedEvent.AddListener(OnLevelLoadedEvent);
+        this.lobbyPCController = lobbyPCController;
+        interactPrompt = this.Q("interact-prompt");
+        autoStartNotice = this.Q("auto-start-notice");
+        matchSelectionContainer = this.Q("match-selection-container");
+        lobbyListContainer = this.Q("lobby-list-container");
 
-        canvas = GetComponentInChildren<Canvas>();
-        camToCanvasDistance = pcCam.GetComponent<CinemachinePositionComposer>().CameraDistance;
+        MatchSelection = (MatchSelection)UIManager.Spawn("UI/LobbyPC/MatchSelection", matchSelectionContainer);
+        MatchSelection.Initialize(lobbyPCController);
 
-        interactPromptObj.SetActive(true);
-        cursorObj.SetActive(false);
-        matchConfigurationContainerObj.SetActive(true);
-        lobbiesListContainerObj.SetActive(false);
-
-        Color tabColor = activeTabButton.image.color;
-        inactiveTabButtonAlpha = tabColor.a;
-        tabColor.a = activeTabButtonAlpha;
-        activeTabButton.image.color = tabColor;
-
-        DevNetworkManager possibleDevNetworkManager = FindAnyObjectByType<DevNetworkManager>();
-        if (possibleDevNetworkManager != null && possibleDevNetworkManager.doAutoStart)
-        {
-            autoStartObj.SetActive(true);
-        }
+        LobbyList lobbyList = (LobbyList)UIManager.Spawn("UI/LobbyPC/LobbyList", lobbyListContainer);
+        lobbyList.Initialize();
+    
+        ToggleInteractPrompt(false);
+        ToggleAutoStartNotice(false);
     }
 
-    void OnDestroy()
+    public void ToggleInteractPrompt(bool show)
     {
-        Reset();
-        if (GameManager.Instance) GameManager.Instance.OnLevelLoadedEvent.RemoveListener(OnLevelLoadedEvent);
+        interactPrompt.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
     }
 
-    void Update()
+    public void ToggleAutoStartNotice(bool show)
     {
-        if (!isInitialized && NetworkManager.Singleton != null && NetworkManager.Singleton.IsHost)
-        {
-            if (autoInteract)
-            {
-                autoInteract = false;
-                Interact();
-                Intro possibleIntro = FindAnyObjectByType<Intro>();
-                if (possibleIntro != null) possibleIntro.IsLoaded();
-            }
-            isInitialized = true;
-        }
-
-        musicSource.spatialBlend = Mathf.Lerp(musicSource.spatialBlend, isActive ? 0f : 1f, Time.deltaTime);
-
-        if (Camera.main != null && cursorObj != null && isActive)
-        {
-            Vector2 mousePosition = Mouse.current.position.ReadValue();
-            Vector3 cursorPosition = Camera.main.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, camToCanvasDistance));
-            cursorObj.transform.position = cursorPosition;
-        }
-
-        if (Keyboard.current.fKey.wasPressedThisFrame && showInteractPrompt && !isActive)
-        {
-            Interact();
-        }
+        autoStartNotice.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
     }
 
-    private void FixedUpdate()
-    {
-        interactPromptObj.SetActive(showInteractPrompt && !isActive);
-        showInteractPrompt = false;
-    }
-
-    private void OnLevelLoadedEvent(string levelName)
-    {
-        if (levelName == gameObject.scene.name)
-        {
-            foreach (Character character in CharacterManager.Instance.characters)
-            {
-                if (character == null) continue;
-                
-                character.characterInputs.SetHUDActiveRpc(false);
-                character.Teleport(Vector3.zero, Quaternion.identity);
-            }
-        }
-    }
-
-    private void Interact()
-    {
-        if (isActive) return;
-        Player.Instance.DisableControls();
-
-        // Sets priority to PC Cam and then unlocks the cursor
-        Camera.main.cullingMask = noPlayerMask;
-        pcCam.Priority.Value = 99;
-        Player.Instance.playerHUD.SetCursorState(true, true);
-        cursorObj.SetActive(true);
-        isActive = true;
-        autoInteract = false;
-    }
-
-    public void Reset()
-    {
-        if (!isActive) return;
-        // Resets priority to PC Cam and then locks the cursor
-        isActive = false;
-        cursorObj.SetActive(false);
-        Camera.main.cullingMask = -1;
-        pcCam.Priority.Value = 0;
-        Player.Instance.playerHUD.SetCursorState(false);
-        Player.Instance.EnableControls();
-    }
-
-    public void OnTabButtonSelect(Button button)
-    {
-        if (button.name == "MatchConfiguration")
-        {
-            matchConfigurationContainerObj.SetActive(true);
-            lobbiesListContainerObj.SetActive(false);
-        }
-        else if (button.name == "LobbiesList")
-        {
-            matchConfigurationContainerObj.SetActive(false);
-            lobbiesListContainerObj.SetActive(true);
-        }
-        Color tabColor = activeTabButton.image.color;
-        tabColor.a = inactiveTabButtonAlpha;
-        activeTabButton.image.color = tabColor;
-
-        activeTabButton = button;
-        tabColor = activeTabButton.image.color;
-        tabColor.a = activeTabButtonAlpha;
-        activeTabButton.image.color = tabColor;
-    }
-
-    public void OnExitButtonSelect()
-    {
-        Reset();
-    }
-
-    void OnTriggerStay(Collider other)
-    {
-        if (isActive) return;
-
-        Character localPlayerCharacter = Player.Instance.Character;
-        if (localPlayerCharacter == null) return;
-        Character character = other.GetComponentInParent<Character>();
-        CharacterPuppet characterPuppet = other.GetComponentInParent<CharacterPuppet>();
-        if ((character != null && character == localPlayerCharacter) || characterPuppet != null)
-        {
-            interactPromptObj.SetActive(true);
-            showInteractPrompt = true;
-        }
-    }
 }

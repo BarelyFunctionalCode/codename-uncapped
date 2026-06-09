@@ -15,6 +15,8 @@ MonoBehaviour:
   itemName: Grappler
   itemDescription: GET OVER HERE
   itemType: 4
-  itemPrefab: {fileID: 0}
+  itemPrefab: {fileID: 5602239687821368574, guid: 4992cf769d96f4f08b207353e4078a1b, type: 3}
+  showcaseItemPrefab: {fileID: 0}
+  showcaseAdditionalCameraDistance: 0
   applicableArmorClasses: 00000000
-  isAvailable: 0
+  isAvailable: 1

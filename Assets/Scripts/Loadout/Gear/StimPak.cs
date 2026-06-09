@@ -15,7 +15,7 @@ public class StimPak : Gear
 
     public sealed override void OnNetworkSpawn()
     {
-        cooldown = 10f;
+        Cooldown = 10f;
         rechargeRate = 60f;
         MaxAmmo = 2;
         base.OnNetworkSpawn();

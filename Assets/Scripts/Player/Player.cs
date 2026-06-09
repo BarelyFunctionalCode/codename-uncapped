@@ -11,7 +11,7 @@ public class Player : MonoBehaviour, PlayerControls.ICharacterActions
     public PlayerControls playerControls;
     public PlayerCamera thirdPersonCamera;
     public PlayerCamera firstPersonCamera;
-    public HUD playerHUD;
+    public HUDController playerHUD;
 
     public Character Character { get; private set; }
 
@@ -56,7 +56,7 @@ public class Player : MonoBehaviour, PlayerControls.ICharacterActions
         firstPersonCamera.SetFollowTarget(character.localCharacterType.firstPersonCameraFollowTarget);
         thirdPersonCamera.SetState(true);
         RegisterCharacterInputs();
-        CharacterManager.Instance.CompletedPlayerInitializationRpc(NetworkManager.Singleton.LocalClientId);
+        CharacterManager.Instance.CompletedPlayerInitializationRpc(playerId);
     }
 
     public void Deinitialize()
@@ -127,7 +127,8 @@ public class Player : MonoBehaviour, PlayerControls.ICharacterActions
 
     public void OnUseGear(InputAction.CallbackContext context)
     {
-        if (context.started) Character.characterLoadout.UseGearRpc();
+        if (context.started) Character.characterLoadout.UseGearRpc(true);
+        else if (context.canceled) Character.characterLoadout.UseGearRpc(false);
     }
 
     public void OnPreviousWeapon(InputAction.CallbackContext context)

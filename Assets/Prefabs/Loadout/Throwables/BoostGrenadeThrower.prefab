@@ -103,11 +103,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  iconSprite: {fileID: 21300000, guid: d2de1d98924054a71933f5b8123f5ab8, type: 3}
+  cooldown: 2
+  cooldownTimer:
+    m_InternalValue: 0
+  maxAmmo: 5
+  ammo:
+    m_InternalValue: 0
   ignoreLayers:
     serializedVersion: 2
     m_Bits: 776
   throwablePrefabObj: {fileID: 8182502780126453879, guid: 76389706857f1da4d8fe12645b8e07c9, type: 3}
-  iconSprite: {fileID: 21300000, guid: d2de1d98924054a71933f5b8123f5ab8, type: 3}
-  maxAmmo: 5
-  ammoCount:
-    m_InternalValue: 0
