@@ -57,6 +57,8 @@ MonoBehaviour:
   maxAmmo: 25
   ammo:
     m_InternalValue: 0
+  isEquiped:
+    m_InternalValue: 0
   projectileSpawnPoint: {fileID: 7053101878330708289}
   modelObj: {fileID: 809033310396754321}
   projectilePrefabObj: {fileID: 7666252333429008558, guid: 73e8b5ed4afdf3e4a824bff50d465bcc, type: 3}
@@ -67,8 +69,6 @@ MonoBehaviour:
   ignoreLayers:
     serializedVersion: 2
     m_Bits: 776
-  isEquiped:
-    m_InternalValue: 0
   animator: {fileID: 631072955746057078}
   shellEjectPoint: {fileID: 1518291778265757106}
   grenadeShellPrefab: {fileID: 7911883938864016753, guid: d3327f7daa3cbbd488a7419e8a99858f, type: 3}
@@ -458,9 +458,25 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: -4684600263410887734, guid: 048d7ecbc2544a1449b0034e64959fd6, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -4684600263410887734, guid: 048d7ecbc2544a1449b0034e64959fd6, type: 3}
+      propertyPath: m_DynamicOccludee
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: -3170237001655809445, guid: 048d7ecbc2544a1449b0034e64959fd6, type: 3}
       propertyPath: m_Layer
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 188907106821900258, guid: 048d7ecbc2544a1449b0034e64959fd6, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 188907106821900258, guid: 048d7ecbc2544a1449b0034e64959fd6, type: 3}
+      propertyPath: m_DynamicOccludee
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 048d7ecbc2544a1449b0034e64959fd6, type: 3}
       propertyPath: m_Name
@@ -470,9 +486,25 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 2449689925171085408, guid: 048d7ecbc2544a1449b0034e64959fd6, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2449689925171085408, guid: 048d7ecbc2544a1449b0034e64959fd6, type: 3}
+      propertyPath: m_DynamicOccludee
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4101161180453605438, guid: 048d7ecbc2544a1449b0034e64959fd6, type: 3}
       propertyPath: m_Layer
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7644178007985531426, guid: 048d7ecbc2544a1449b0034e64959fd6, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7644178007985531426, guid: 048d7ecbc2544a1449b0034e64959fd6, type: 3}
+      propertyPath: m_DynamicOccludee
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -562,6 +594,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -4716467150064823922, guid: c93af6d41f327d143b05637a13d76ff2, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -4716467150064823922, guid: c93af6d41f327d143b05637a13d76ff2, type: 3}
+      propertyPath: m_DynamicOccludee
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: c93af6d41f327d143b05637a13d76ff2, type: 3}
       propertyPath: m_Name
       value: Grenade
@@ -573,6 +613,14 @@ PrefabInstance:
     - target: {fileID: 3665872839099263342, guid: c93af6d41f327d143b05637a13d76ff2, type: 3}
       propertyPath: m_Layer
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7826791052257336528, guid: c93af6d41f327d143b05637a13d76ff2, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7826791052257336528, guid: c93af6d41f327d143b05637a13d76ff2, type: 3}
+      propertyPath: m_DynamicOccludee
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

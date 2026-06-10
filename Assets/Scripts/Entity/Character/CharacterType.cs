@@ -52,6 +52,12 @@ public class CharacterType : NetworkBehaviour, IIdentifiable
         {
             this.character = character;
             character.OnCharacterTypeObjectSpawned(this);
+
+            if (!IsOwner || !character.IsPlayerCharacter)
+            {
+                // Delete local audio and UI components for non-owned characters.
+                if (windAudioSource) Destroy(windAudioSource);
+            }
         }
     }
 
@@ -87,7 +93,7 @@ public class CharacterType : NetworkBehaviour, IIdentifiable
             windAudioSource.volume = Mathf.Lerp(windAudioSource.volume, targetVolume, Time.fixedDeltaTime * 20f);
             windAudioSource.pitch = Mathf.Lerp(windAudioSource.pitch, targetPitch, Time.fixedDeltaTime * 20f);
         }
-        if (NetworkObject.IsSpawned) HandleAudioRpc(hoverVolume, hoverPitch);
+        // if (NetworkObject.IsSpawned) HandleAudioRpc(hoverVolume, hoverPitch); TODO: This is causing performance issues
     }
     [Rpc(SendTo.Everyone)]
     private void HandleAudioRpc(float hoverVolume, float hoverPitch)
@@ -138,6 +144,18 @@ public class CharacterType : NetworkBehaviour, IIdentifiable
         float emmissionRate = isHovering ? hoverParticleMaxEmissionRate : 0f;
         var leftEmission = hoverEffectLeftFootParticleSystem.emission;
         var rightEmission = hoverEffectRightFootParticleSystem.emission;
+
+        if (emmissionRate == 0f)
+        {
+            hoverEffectLeftFootParticleSystem.Stop();
+            hoverEffectRightFootParticleSystem.Stop();
+        }
+        else
+        {
+            if (!hoverEffectLeftFootParticleSystem.isPlaying) hoverEffectLeftFootParticleSystem.Play();
+            if (!hoverEffectRightFootParticleSystem.isPlaying) hoverEffectRightFootParticleSystem.Play();
+        }
+
         leftEmission.rateOverTime = Mathf.Lerp(leftEmission.rateOverTime.constant, emmissionRate, Time.deltaTime * 5f);
         rightEmission.rateOverTime = Mathf.Lerp(rightEmission.rateOverTime.constant, emmissionRate, Time.deltaTime * 5f);
 
@@ -160,6 +178,18 @@ public class CharacterType : NetworkBehaviour, IIdentifiable
         float emmissionRate = isHovering ? hoverParticleMaxEmissionRate : 0f;
         var leftEmission = hoverEffectLeftFootParticleSystem.emission;
         var rightEmission = hoverEffectRightFootParticleSystem.emission;
+
+        if (emmissionRate == 0f)
+        {
+            hoverEffectLeftFootParticleSystem.Stop();
+            hoverEffectRightFootParticleSystem.Stop();
+        }
+        else
+        {
+            if (!hoverEffectLeftFootParticleSystem.isPlaying) hoverEffectLeftFootParticleSystem.Play();
+            if (!hoverEffectRightFootParticleSystem.isPlaying) hoverEffectRightFootParticleSystem.Play();
+        }
+        
         leftEmission.rateOverTime = Mathf.Lerp(leftEmission.rateOverTime.constant, emmissionRate, Time.deltaTime * 5f);
         rightEmission.rateOverTime = Mathf.Lerp(rightEmission.rateOverTime.constant, emmissionRate, Time.deltaTime * 5f);
     }
@@ -168,7 +198,7 @@ public class CharacterType : NetworkBehaviour, IIdentifiable
     {
         Vector3 animMovementDirectionNewY = Vector3.up * (isDownJetting ? -1f : (isUpJetting ? 1f : 0f));
         animMovementDirection = Vector3.Lerp(animMovementDirection, movement.normalized + animMovementDirectionNewY, Time.fixedDeltaTime * 10f);
-        characterAnimator.SetFloat("xDir", animMovementDirection.x);
+        characterAnimator.SetFloat("xDir", animMovementDirection.x); // TODO: Combine floats for performance
         characterAnimator.SetFloat("yDir", animMovementDirection.y);
         characterAnimator.SetFloat("zDir", animMovementDirection.z);
         characterAnimator.SetFloat("yVel", velocity.normalized.y);

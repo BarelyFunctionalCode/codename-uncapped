@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/Levels/MultiplayerTestLevel.unity
+    guid: 2f0067bc0173094d18c87931fba66362
+  - enabled: 1
     path: Assets/Scenes/Transitions/StartScreen.unity
     guid: f6ff1381d23cacbb69e0c43647a864c0
   - enabled: 0
@@ -17,9 +20,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Transitions/Lobby.unity
     guid: 093d7852b0e0a5b9dbec9fde7c140977
-  - enabled: 1
-    path: Assets/Scenes/Levels/MultiplayerTestLevel.unity
-    guid: 2f0067bc0173094d18c87931fba66362
   - enabled: 0
     path: Assets/Scenes/Levels/Eden.unity
     guid: 4387c7abae366953aa2b6c9b90ed81ee

@@ -339,11 +339,12 @@ public class CharacterMovement : EntityComponent, IGravityModifiable
                 }
 
                 // Directional Control while Jetting/Skiing
+                float energyDrain = 0f;
                 if (movementDirection.magnitude > 0.01f && entity.energy.CurrentEnergy > 0.0f)
                 {
                     float lateralForce = jetDirectionalForceXY / characterRb.mass * accelScale * Time.fixedDeltaTime;
                     desiredAcc += movementDirection * lateralForce;
-                    entity.energy.ApplyEnergyDelta(-jetSkateEnergyDrain * accelScale * Time.fixedDeltaTime);
+                    energyDrain += jetSkateEnergyDrain * accelScale * Time.fixedDeltaTime;
                 }
 
                 // Up Jetting
@@ -365,8 +366,9 @@ public class CharacterMovement : EntityComponent, IGravityModifiable
                     }
 
                     desiredVerticalAcc = force;
-                    entity.energy.ApplyEnergyDelta(- (isUpJetting ? upJettingEnergyDrain : downJettingEnergyDrain) * accelScale * Time.fixedDeltaTime);
+                    energyDrain += (isUpJetting ? upJettingEnergyDrain : downJettingEnergyDrain) * accelScale * Time.fixedDeltaTime;
                 }
+                entity.energy.ApplyEnergyDelta(-energyDrain);
             }
         }
 

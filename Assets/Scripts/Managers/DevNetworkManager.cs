@@ -32,7 +32,7 @@ public class DevNetworkManager : MonoBehaviour
         if (NetworkManager.Singleton && NetworkManager.Singleton.IsListening &&
             GameManager.Instance && GameManager.Instance.isInitialized)
         {
-            if (Unity.Multiplayer.PlayMode.CurrentPlayer.Tags.ToList().Contains("Host"))
+            if (Unity.Multiplayer.PlayMode.CurrentPlayer.Tags.ToList().Contains("Host") || !Application.isEditor)
             {
                 // Wait for all players are joined.
                 if (playerWaitTimer <= 0f)

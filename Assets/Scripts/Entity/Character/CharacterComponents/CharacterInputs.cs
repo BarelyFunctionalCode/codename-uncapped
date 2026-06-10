@@ -94,7 +94,7 @@ public class CharacterInputs : EntityComponent
     public void MoveInput(Vector2 rawMovementInput)
     {
         MovementInput = new(rawMovementInput.x, 0f, rawMovementInput.y);
-        MoveInputRpc(MovementInput);
+        if (!IsServer) MoveInputRpc(MovementInput);
     }
     [Rpc(SendTo.Server)]
     private void MoveInputRpc(Vector3 movementInput)
@@ -105,7 +105,7 @@ public class CharacterInputs : EntityComponent
     {
         rawRotationInputX += lookInput.x;
         RotationInputY -= lookInput.y;
-        LookInputRpc(lookInput);
+        if (!IsServer) LookInputRpc(lookInput);
     }
     [Rpc(SendTo.Server)]
     private void LookInputRpc(Vector2 lookInput)
@@ -116,7 +116,7 @@ public class CharacterInputs : EntityComponent
     public void SkiInput(float skiInput)
     {
         IsSkiing = skiInput > 0.0f;
-        SkiInputRpc(skiInput);
+        if (!IsServer) SkiInputRpc(skiInput);
     }
     [Rpc(SendTo.Server)]
     private void SkiInputRpc(float skiInput)
@@ -126,7 +126,7 @@ public class CharacterInputs : EntityComponent
     public void JetInput(float jetInput)
     {
         upJettingInput = jetInput > 0.0f;
-        JetInputRpc(jetInput);
+        if (!IsServer) JetInputRpc(jetInput);
     }
     [Rpc(SendTo.Server)]
     private void JetInputRpc(float jetInput)
@@ -136,7 +136,7 @@ public class CharacterInputs : EntityComponent
     public void DownJetInput(float downJetInput)
     {
         downJettingInput = downJetInput > 0.0f;
-        DownJetInputRpc(downJetInput);
+        if (!IsServer) DownJetInputRpc(downJetInput);
     }
     [Rpc(SendTo.Server)]
     private void DownJetInputRpc(float downJetInput)
@@ -146,7 +146,7 @@ public class CharacterInputs : EntityComponent
     public void JumpInput()
     {
         IsJumping = true;
-        JumpInputRpc();
+        if (!IsServer) JumpInputRpc();
     }
     [Rpc(SendTo.Server)]
     private void JumpInputRpc()

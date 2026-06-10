@@ -83,9 +83,9 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3205144342741990980}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
+  m_DynamicOccludee: 0
   m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
@@ -409,11 +409,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Grappler
   ShowTopMostFoldoutHeaderGroup: 1
   iconSprite: {fileID: 21300000, guid: d1efba12694ee49d5867682705158ff9, type: 3}
-  modelObj: {fileID: 1628717950668920450}
+  cooldown: 0
   cooldownTimer:
     m_InternalValue: 0
+  maxAmmo: 0
   ammo:
     m_InternalValue: 0
+  isEquiped:
+    m_InternalValue: 0
+  modelObj: {fileID: 1628717950668920450}
   isInitialized: 0
   useHeld: 0
   heldTime: 0
@@ -471,9 +475,9 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5617955475681345779}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
+  m_DynamicOccludee: 0
   m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
@@ -553,7 +557,7 @@ LineRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6416476653926829312}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
