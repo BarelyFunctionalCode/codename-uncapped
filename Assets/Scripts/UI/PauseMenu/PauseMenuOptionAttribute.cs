@@ -5,6 +5,8 @@ using UnityEngine;
 public class PauseMenuOptionAttribute : PropertyAttribute
 {
   public string label;
+  public string tabName;
+  public string categoryName;
   public float minValue;
   public float maxValue;
 
@@ -12,9 +14,11 @@ public class PauseMenuOptionAttribute : PropertyAttribute
   {
   }
 
-  public PauseMenuOptionAttribute(string label, float minValue = -1.0f, float maxValue = -1.0f)
+  public PauseMenuOptionAttribute(string label, string tabName = "", string categoryName = "", float minValue = -1.0f, float maxValue = -1.0f)
   {
     this.label = label;
+    this.tabName = tabName;
+    this.categoryName = categoryName;
     this.minValue = minValue;
     this.maxValue = maxValue;
   }

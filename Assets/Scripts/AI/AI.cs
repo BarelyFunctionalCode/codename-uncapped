@@ -6,6 +6,8 @@ public class AI : MonoBehaviour
     private static Dictionary<ulong, AI> _list = new();
     public static IReadOnlyDictionary<ulong, AI> List => _list;
 
+    public PlayerSettings settings;
+
     public Character Character { get; protected set; }
     protected bool controlsEnabled = false;
 
@@ -17,6 +19,7 @@ public class AI : MonoBehaviour
 
     public void Initialize()
     {
+        settings = new PlayerSettings("filepath/to/settings/file"); // TODO: Load settings from file
         OnInitialized();
         CharacterManager.Instance.CompletedAIInitialization(Character.identification.FetchEntityId());
     }

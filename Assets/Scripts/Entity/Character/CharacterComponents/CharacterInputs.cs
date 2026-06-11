@@ -5,9 +5,7 @@ public class CharacterInputs : EntityComponent
 {
     private Character character;
     private CharacterLoadoutManager characterLoadout;
-    
-    [PauseMenuOption("Horizontal Look", 0f, 100f)]
-    public float horizontalRotationSpeed = 20f;
+
     public readonly float horizontalRotationLimit = 100f;
     public float RotationInputX { get; private set; } = 0f;
     public float RotationInputY { get; private set; } = 0f;
@@ -169,9 +167,8 @@ public class CharacterInputs : EntityComponent
     public void HandleInputs()
     {
         // Get rotation input
-        float rotationYaw = rawRotationInputX;
+        float rotationYaw = rawRotationInputX * Time.fixedDeltaTime;
         rawRotationInputX = 0f;
-        rotationYaw *= horizontalRotationSpeed * Time.fixedDeltaTime;
         RotationInputX = Mathf.Clamp(rotationYaw, -horizontalRotationLimit, horizontalRotationLimit);
 
         // Get direction of movement relative to player rotation

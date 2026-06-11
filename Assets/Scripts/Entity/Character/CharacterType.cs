@@ -20,8 +20,6 @@ public class CharacterType : NetworkBehaviour, IIdentifiable
     public AudioSource windAudioSource;
     public Transform FFIdentifierTargetTransform;
 
-    [PauseMenuOption("Vertical Look", 0f, 100f)]
-    public float verticalRotationSpeed = 24f;
     public float verticalRotationLimit = 100f;
     
     public float mass = 1f;
@@ -65,7 +63,7 @@ public class CharacterType : NetworkBehaviour, IIdentifiable
     {
         // Get pitch rotation from inputs and rotate the camera look target
         Vector3 rotationPitch = new(rotationInputY, 0f, 0f);
-        rotationPitch *= verticalRotationSpeed * Time.deltaTime;
+        rotationPitch *= Time.deltaTime;
         Vector3 rotationDeltaPitch = Vector3.ClampMagnitude(rotationPitch, verticalRotationLimit);
         float currentXRotation = cameraLookAtTarget.eulerAngles.x < 180f ? cameraLookAtTarget.eulerAngles.x : cameraLookAtTarget.eulerAngles.x - 360f;
         rotationDeltaPitch.x = Mathf.Clamp(currentXRotation + rotationDeltaPitch.x, -83.0f, 83.0f) - currentXRotation;

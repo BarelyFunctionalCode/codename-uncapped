@@ -5415,6 +5415,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
   playerId: 0
+  settings: {fileID: 0}
   thirdPersonCamera: {fileID: 2440025182864434715}
   firstPersonCamera: {fileID: 2079970016785224302}
   playerHUD: {fileID: 7669622781518137402}

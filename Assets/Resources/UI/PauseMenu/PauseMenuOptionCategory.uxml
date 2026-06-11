@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Resources/UI/PauseMenu/Styles.uss?fileID=7433441132597879392&amp;guid=0fd13de09c2014e8eae7e58a68d3048a&amp;type=3#Styles"/>
+    <PauseMenuOptionCategory/>
+</ui:UXML>

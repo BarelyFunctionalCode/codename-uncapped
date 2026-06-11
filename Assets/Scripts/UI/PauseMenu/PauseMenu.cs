@@ -12,8 +12,8 @@ public partial class PauseMenu : CustomUIElementBase
     private Button leaveButton;
     private Button quitButton;
 
-    private VisualElement controlsContentContainer;
-    private VisualElement debugContentContainer;
+    private Dictionary<string, VisualElement> tabContainers = new();
+    private Dictionary<string, VisualElement> tabCategoryContainers = new();
 
     private bool isMenuActive = false;
 
@@ -26,8 +26,11 @@ public partial class PauseMenu : CustomUIElementBase
 
         leaveButton = this.Q<Button>("LeaveButton");
         quitButton = this.Q<Button>("QuitButton");
-        controlsContentContainer = this.Query<VisualElement>("Controls").Children<VisualElement>("Content").First();
-        debugContentContainer = this.Query<VisualElement>("Debug").Children<VisualElement>("Content").First();
+        tabContainers["Gameplay"] = this.Query<VisualElement>("Gameplay").Children<VisualElement>("Content").First();;
+        tabContainers["Video"] = this.Query<VisualElement>("Video").Children<VisualElement>("Content").First();;
+        tabContainers["Audio"] = this.Query<VisualElement>("Audio").Children<VisualElement>("Content").First();;
+        tabContainers["Controls"] = this.Query<VisualElement>("Controls").Children<VisualElement>("Content").First();;
+        tabContainers["Debug"] = this.Query<VisualElement>("Debug").Children<VisualElement>("Content").First();;
         // if (!devMode) this.Q<Tab>("Debug").RemoveFromHierarchy();
         // else debugContentContainer = this.Query<VisualElement>("Debug").Children<VisualElement>("Content").First();
 
@@ -42,23 +45,38 @@ public partial class PauseMenu : CustomUIElementBase
         PlayerControls playerControls = player.playerControls;
 
         // Initialize player options in pause menu
-        FieldInfo[] fields = character.GetType().GetFields();
-        // foreach (var field in fields)
-        // {
-        //     PauseMenuOptionAttribute[] attribute = (PauseMenuOptionAttribute[])field.GetCustomAttributes(typeof(PauseMenuOptionAttribute), true);
+        FieldInfo[] fields = player.settings.GetType().GetFields();
+        foreach (var field in fields)
+        {
+            PauseMenuOptionAttribute[] attribute = (PauseMenuOptionAttribute[])field.GetCustomAttributes(typeof(PauseMenuOptionAttribute), true);
 
-        //     if (attribute.Length > 0)
-        //     {
-        //         if (!devMode && attribute[0].GetType() == typeof(PauseMenuDevOptionAttribute)) continue;
-        //         AddOption(
-        //             attribute[0].GetType() == typeof(PauseMenuDevOptionAttribute) ? "dev - " + attribute[0].label : attribute[0].label,
-        //             (float)field.GetValue(character),
-        //             attribute[0].minValue,
-        //             attribute[0].maxValue,
-        //             (float value) => { field.SetValue(character, value); }
-        //         );
-        //     }
-        // }
+            if (attribute.Length > 0)
+            {
+                if (!devMode && attribute[0].GetType() == typeof(PauseMenuDevOptionAttribute)) continue;
+                if (field.FieldType == typeof(bool))
+                {
+                    AddOption(
+                        attribute[0].label,
+                        attribute[0].tabName,
+                        attribute[0].categoryName,
+                        (bool)field.GetValue(player.settings),
+                        value => { field.SetValue(player.settings, value); }
+                    );
+                }
+                else
+                {
+                    AddOption(
+                        attribute[0].label,
+                        attribute[0].tabName,
+                        attribute[0].categoryName,
+                        (float)field.GetValue(player.settings),
+                        value => { field.SetValue(player.settings, value); },
+                        attribute[0].minValue,
+                        attribute[0].maxValue
+                    );
+                }
+            }
+        }
 
         // Initialize player controls in pause menu
         List<string> controlIgnoreList = new() { "Pause", "Move", "Look" };
@@ -95,10 +113,11 @@ public partial class PauseMenu : CustomUIElementBase
         leaveButton.UnregisterCallback<ClickEvent>(Leave);
         quitButton.UnregisterCallback<ClickEvent>(Quit);
 
-        controlsContentContainer.Clear();
-
-        if (debugContentContainer == null) return;
-        debugContentContainer.Clear();
+        foreach (var container in tabContainers.Values)
+        {
+            if (container == null) continue;
+            container.Clear();
+        }
     }
 
     public bool ToggleMenu()
@@ -112,14 +131,45 @@ public partial class PauseMenu : CustomUIElementBase
 
     public void AddControl(InputAction action)
     {
-        PauseMenuControl newcontrol = (PauseMenuControl)UIManager.Spawn("UI/PauseMenu/PauseMenuControl", controlsContentContainer);
+        PauseMenuControl newcontrol = (PauseMenuControl)UIManager.Spawn("UI/PauseMenu/PauseMenuControl", tabContainers["Controls"]);
         newcontrol.Initialize(action);
+    }
+
+
+    private VisualElement GetOptionContainer(string tabName, string categoryName)
+    {
+        if (!tabContainers.ContainsKey(tabName)) return null;
+        VisualElement container = tabContainers[tabName];
+        if (container == null) return null;
+
+        if (!tabCategoryContainers.ContainsKey($"{tabName}_{categoryName}"))
+        {
+            PauseMenuOptionCategory newCategory = (PauseMenuOptionCategory)UIManager.Spawn("UI/PauseMenu/PauseMenuOptionCategory", container);
+            newCategory.Initialize(categoryName);
+            tabCategoryContainers[$"{tabName}_{categoryName}"] = newCategory;
+        }
+        VisualElement category = tabCategoryContainers[$"{tabName}_{categoryName}"];
+        return category;
+    }
+
+    public void AddOption(string name, string tabName, string categoryName, float value, Action<float> onValueChanged, float minValue = -1f, float maxValue = -1f)
+    {
+        VisualElement category = GetOptionContainer(tabName, categoryName);
+        PauseMenuOptionSlider newOption = (PauseMenuOptionSlider)UIManager.Spawn("UI/PauseMenu/PauseMenuOptionSlider", category);
+        newOption.Initialize(name, value, onValueChanged, minValue, maxValue);
+    }
+
+    public void AddOption(string name, string tabName, string categoryName, bool value, Action<bool> onValueChanged)
+    {
+        VisualElement category = GetOptionContainer(tabName, categoryName);
+        PauseMenuOptionToggle newOption = (PauseMenuOptionToggle)UIManager.Spawn("UI/PauseMenu/PauseMenuOptionToggle", category);
+        newOption.Initialize(name, value, onValueChanged);
     }
 
     public void AddDebugOption(string name, bool value, Action<bool> onValueChanged)
     {
-        if (debugContentContainer == null) return;
-        PauseMenuDebug newOption = (PauseMenuDebug)UIManager.Spawn("UI/PauseMenu/PauseMenuDebug", debugContentContainer);
+        if (!tabContainers.ContainsKey("Debug")) return;
+        PauseMenuDebug newOption = (PauseMenuDebug)UIManager.Spawn("UI/PauseMenu/PauseMenuDebug", tabContainers["Debug"]);
         newOption.Initialize(name, value, onValueChanged);
     }
 

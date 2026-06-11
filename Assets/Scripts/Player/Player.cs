@@ -8,6 +8,7 @@ public class Player : MonoBehaviour, PlayerControls.ICharacterActions
     public static Player Instance { get; private set; } = null;
 
     public ulong playerId;
+    public PlayerSettings settings;
     public PlayerControls playerControls;
     public PlayerCamera thirdPersonCamera;
     public PlayerCamera firstPersonCamera;
@@ -48,6 +49,7 @@ public class Player : MonoBehaviour, PlayerControls.ICharacterActions
 
     public void Initialize(Character character)
     {
+        settings = new PlayerSettings("filepath/to/settings/file"); // TODO: Load settings from file
         playerControls = new PlayerControls();
         Character = character;
         playerHUD.Initialize(this, character);
@@ -99,6 +101,8 @@ public class Player : MonoBehaviour, PlayerControls.ICharacterActions
         if (context.performed || context.canceled)
         {
             Vector2 lookInput = context.ReadValue<Vector2>();
+            lookInput.x *= settings.horizontalRotationSpeed;
+            lookInput.y *= settings.verticalRotationSpeed;
             Character.characterInputs.LookInput(lookInput);
         }
     }

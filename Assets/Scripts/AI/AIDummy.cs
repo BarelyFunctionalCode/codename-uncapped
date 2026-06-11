@@ -101,6 +101,9 @@ public class AIDummy : AI
     public void OnLook(Vector2 lookInput)
     {
         if (!controlsEnabled) return;
+
+        lookInput.x *= settings.horizontalRotationSpeed;
+        lookInput.y *= settings.verticalRotationSpeed;
         Character.characterInputs.LookInput(lookInput);
     }
 
