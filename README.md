@@ -5,6 +5,10 @@ This means that we are taking the core game mechanics (movement, weapons, game m
 [Currently Under Development](https://github.com/users/BarelyFunctionalCode/projects/2/views/1)
 
 ## How to run
+
+### WARNING
+The latest version of this project is built for being on Steam. If you attempt to run this game outside of steam, you must at the very least have Steam running before starting the game executable. This way, the game will attempt to bootstrap the running Steam client when starting up.
+
 ### Just run the damn game
 Go to the latest release found [here](https://github.com/BarelyFunctionalCode/codename-uncapped/releases) and download the zip file. Extract it and run the executable.
 
