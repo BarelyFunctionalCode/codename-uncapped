@@ -55,22 +55,22 @@ public partial class PauseMenu : CustomUIElementBase
                 if (!devMode && attribute[0].GetType() == typeof(PauseMenuDevOptionAttribute)) continue;
                 if (field.FieldType == typeof(bool))
                 {
-                    AddOption(
+                    AddBoolOption(
                         attribute[0].label,
                         attribute[0].tabName,
                         attribute[0].categoryName,
                         (bool)field.GetValue(player.settings),
-                        value => { field.SetValue(player.settings, value); }
+                        value => { player.settings.UpdateSetting(field.Name, value); }
                     );
                 }
                 else
                 {
-                    AddOption(
+                    AddFloatOption(
                         attribute[0].label,
                         attribute[0].tabName,
                         attribute[0].categoryName,
                         (float)field.GetValue(player.settings),
-                        value => { field.SetValue(player.settings, value); },
+                        value => { player.settings.UpdateSetting(field.Name, value); },
                         attribute[0].minValue,
                         attribute[0].maxValue
                     );
@@ -152,14 +152,14 @@ public partial class PauseMenu : CustomUIElementBase
         return category;
     }
 
-    public void AddOption(string name, string tabName, string categoryName, float value, Action<float> onValueChanged, float minValue = -1f, float maxValue = -1f)
+    public void AddFloatOption(string name, string tabName, string categoryName, float value, Action<float> onValueChanged, float minValue = -1f, float maxValue = -1f)
     {
         VisualElement category = GetOptionContainer(tabName, categoryName);
         PauseMenuOptionSlider newOption = (PauseMenuOptionSlider)UIManager.Spawn("UI/PauseMenu/PauseMenuOptionSlider", category);
         newOption.Initialize(name, value, onValueChanged, minValue, maxValue);
     }
 
-    public void AddOption(string name, string tabName, string categoryName, bool value, Action<bool> onValueChanged)
+    public void AddBoolOption(string name, string tabName, string categoryName, bool value, Action<bool> onValueChanged)
     {
         VisualElement category = GetOptionContainer(tabName, categoryName);
         PauseMenuOptionToggle newOption = (PauseMenuOptionToggle)UIManager.Spawn("UI/PauseMenu/PauseMenuOptionToggle", category);

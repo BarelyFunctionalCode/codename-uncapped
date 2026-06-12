@@ -19,7 +19,7 @@ public class AI : MonoBehaviour
 
     public void Initialize()
     {
-        settings = new PlayerSettings("filepath/to/settings/file"); // TODO: Load settings from file
+        settings = new PlayerSettings();
         OnInitialized();
         CharacterManager.Instance.CompletedAIInitialization(Character.identification.FetchEntityId());
     }

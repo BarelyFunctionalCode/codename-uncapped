@@ -49,7 +49,7 @@ public class Player : MonoBehaviour, PlayerControls.ICharacterActions
 
     public void Initialize(Character character)
     {
-        settings = new PlayerSettings("filepath/to/settings/file"); // TODO: Load settings from file
+        settings = new PlayerSettings(true);
         playerControls = new PlayerControls();
         Character = character;
         playerHUD.Initialize(this, character);
