@@ -9,18 +9,20 @@ public class PauseMenuOptionAttribute : PropertyAttribute
   public string categoryName;
   public float minValue;
   public float maxValue;
+  public string listOptionsVariableName;
 
   public PauseMenuOptionAttribute()
   {
   }
 
-  public PauseMenuOptionAttribute(string label, string tabName = "", string categoryName = "", float minValue = -1.0f, float maxValue = -1.0f)
+  public PauseMenuOptionAttribute(string label, string tabName = "", string categoryName = "", float minValue = -1.0f, float maxValue = -1.0f, string listOptionsVariableName = "")
   {
     this.label = label;
     this.tabName = tabName;
     this.categoryName = categoryName;
     this.minValue = minValue;
     this.maxValue = maxValue;
+    this.listOptionsVariableName = listOptionsVariableName;
   }
 }
 

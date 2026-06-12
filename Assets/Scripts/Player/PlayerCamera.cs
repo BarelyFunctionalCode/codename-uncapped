@@ -34,7 +34,6 @@ public class PlayerCamera : MonoBehaviour
 
     void Awake()
     {
-        cam.Lens.FieldOfView = defaultFOV;
 
         noise = cam.GetComponent<CinemachineBasicMultiChannelPerlin>();
         CinemachineVolumeSettings volumeSettings = cam.GetComponent<CinemachineVolumeSettings>();
@@ -42,6 +41,17 @@ public class PlayerCamera : MonoBehaviour
         volumeSettings.Profile.TryGet(out lensDistortion);
 
         Player.Instance.Character.health.onHealthChanged.AddListener(DamageScreenshake);
+
+
+        Player.Instance.settings.OnSettingChanged.AddListener(OnSettingsChanged);
+
+        defaultFOV = Player.Instance.settings.fieldOfView;
+        
+        Resolution res = Screen.resolutions[Player.Instance.settings.resolutionIndex];
+        Screen.SetResolution(res.width, res.height, Screen.fullScreenMode, res.refreshRateRatio);
+
+
+        cam.Lens.FieldOfView = defaultFOV;
     }
 
     void OnDestroy()
@@ -56,6 +66,21 @@ public class PlayerCamera : MonoBehaviour
         noise.FrequencyGain = Mathf.Lerp(noise.FrequencyGain, minShakeValue, Time.deltaTime * 5);
         if (noise.FrequencyGain < 0.01f) noise.FrequencyGain = 0;
     }
+
+    private void OnSettingsChanged(string settingName, object value)
+    {
+        if (settingName == nameof(PlayerSettings.fieldOfView))
+        {
+            defaultFOV = (float)value;
+            cam.Lens.FieldOfView = defaultFOV;
+        }
+        if (settingName == nameof(PlayerSettings.resolutionIndex))
+        {
+            Resolution res = Screen.resolutions[Player.Instance.settings.resolutionIndex];
+            Screen.SetResolution(res.width, res.height, Screen.fullScreenMode, res.refreshRateRatio);
+        }
+    }
+
 
     public void SetState(bool enabled) => cam.Priority.Value = enabled ? 1 : 0;
 

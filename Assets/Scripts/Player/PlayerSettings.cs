@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -15,8 +16,19 @@ public class PlayerSettings
     [PauseMenuOption("test-gameplay", "Gameplay", "Huh")]
     public bool testGameplayOption = true;
 
+
+
     [PauseMenuOption("test-video", "Video", "Huh")]
     public bool testVideoOption = true;
+
+    [PauseMenuOption("FOV", "Video", "Camera", 60f, 120f)]
+    public float fieldOfView = 90f;
+
+    public List<string> resolutionOptions = Screen.resolutions != null ? new List<string>(Array.ConvertAll(Screen.resolutions, res => $"{res.width} x {res.height} @ {res.refreshRateRatio}Hz")) : new List<string>();
+    [PauseMenuOption("Resolution", "Video", "Display", listOptionsVariableName = nameof(resolutionOptions))]
+    public int resolutionIndex = 0;
+
+
 
     [PauseMenuOption("test-audio", "Audio", "Huh")]
     public bool testAudioOption = true;

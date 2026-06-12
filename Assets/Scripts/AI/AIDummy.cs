@@ -31,11 +31,23 @@ public class AIDummy : AI
 
     void Update()
     {
-        if (Character == null) return;
-        if (!controlsEnabled) return;
+        if (Character == null || !controlsEnabled)
+        {
+            OnMove(Vector2.zero);
+            OnLook(Vector2.zero);
+            OnPrimaryFire(false);
+            OnSki(false);
+            OnJumpJet(false);
+            return;
+        }
 
         if (targetCharacter == null || targetCharacter.state.IsDead)
         {
+            OnMove(Vector2.zero);
+            OnLook(Vector2.zero);
+            OnPrimaryFire(false);
+            OnSki(false);
+            OnJumpJet(false);
             int randomTargetIndex = Random.Range(0, CharacterManager.Instance.characters.Count);
             targetCharacter = CharacterManager.Instance.characters[randomTargetIndex];
         }

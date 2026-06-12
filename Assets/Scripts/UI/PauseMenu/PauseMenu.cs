@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Unity.Netcode;
 using UnityEngine;
@@ -61,6 +62,18 @@ public partial class PauseMenu : CustomUIElementBase
                         attribute[0].categoryName,
                         (bool)field.GetValue(player.settings),
                         value => { player.settings.UpdateSetting(field.Name, value); }
+                    );
+                }
+                else if (field.Name.EndsWith("Index") && field.FieldType == typeof(int))
+                {
+                    List<string> options = fields.FirstOrDefault(f => f.Name == attribute[0].listOptionsVariableName)?.GetValue(player.settings) as List<string>;
+                    AddListOption(
+                        attribute[0].label,
+                        attribute[0].tabName,
+                        attribute[0].categoryName,
+                        (int)field.GetValue(player.settings),
+                        value => { player.settings.UpdateSetting(field.Name, value); },
+                        options
                     );
                 }
                 else
@@ -164,6 +177,22 @@ public partial class PauseMenu : CustomUIElementBase
         VisualElement category = GetOptionContainer(tabName, categoryName);
         PauseMenuOptionToggle newOption = (PauseMenuOptionToggle)UIManager.Spawn("UI/PauseMenu/PauseMenuOptionToggle", category);
         newOption.Initialize(name, value, onValueChanged);
+    }
+
+    public void AddListOption(string name, string tabName, string categoryName, int value, Action<int> onValueChanged, List<string> options)
+    {
+        VisualElement category = GetOptionContainer(tabName, categoryName);
+        ExpandableList newExpandableList = (ExpandableList)UIManager.Spawn("UI/ExpandableList/ExpandableList", category);
+        newExpandableList.Initialize(name, (listName, itemValue) => { onValueChanged(int.Parse(itemValue)); }, true);
+
+        for (int i = 0; i < options.Count; i++)
+        {
+            string option = options[i];
+            newExpandableList.AddListItem(option, i.ToString(), true);
+            Debug.Log($"Added list option: {option} with value {i}");
+        }
+
+        newExpandableList.SetSelectedItem(value.ToString());
     }
 
     public void AddDebugOption(string name, bool value, Action<bool> onValueChanged)
