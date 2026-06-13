@@ -68,7 +68,13 @@ public partial class ExpandableList : CustomUIElementBase
     }
     private void OnItemSelected(string itemValue)
     {
-        selectedItemLabel.text = itemValue;
+        foreach (var item in listOptionsContainer.Children())
+        {
+            if (item is ExpandableListItem listItem && listItem.ItemValue == itemValue)
+            {
+                selectedItemLabel.text = listItem.ItemName;
+            }
+        }
         OnListItemSelected.Invoke(nameLabel.text, itemValue);
         if (closeOnSelect) CloseList();
     }

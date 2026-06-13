@@ -41,17 +41,7 @@ public class PlayerCamera : MonoBehaviour
         volumeSettings.Profile.TryGet(out lensDistortion);
 
         Player.Instance.Character.health.onHealthChanged.AddListener(DamageScreenshake);
-
-
-        Player.Instance.settings.OnSettingChanged.AddListener(OnSettingsChanged);
-
-        defaultFOV = Player.Instance.settings.fieldOfView;
-        
-        Resolution res = Screen.resolutions[Player.Instance.settings.resolutionIndex];
-        Screen.SetResolution(res.width, res.height, Screen.fullScreenMode, res.refreshRateRatio);
-
-
-        cam.Lens.FieldOfView = defaultFOV;
+        Player.Instance.settings.SubscribeToChanges(OnSettingsChanged);
     }
 
     void OnDestroy()
@@ -73,6 +63,12 @@ public class PlayerCamera : MonoBehaviour
         {
             defaultFOV = (float)value;
             cam.Lens.FieldOfView = defaultFOV;
+        }
+        if (settingName == nameof(PlayerSettings.displayModeIndex))
+        {
+            int displayModeIndex = (int)value;
+            if (displayModeIndex == 0) Screen.fullScreenMode = FullScreenMode.Windowed;
+            else if (displayModeIndex == 1) Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
         }
         if (settingName == nameof(PlayerSettings.resolutionIndex))
         {

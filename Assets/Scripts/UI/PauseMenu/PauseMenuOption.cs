@@ -43,11 +43,11 @@ public partial class PauseMenuOptionSlider : CustomUIElementBase
     {
         slider = this.Q<Slider>();
 
-        slider.value = value;
-        slider.label = name;
-
         if (minValue != -1f) slider.lowValue = minValue;
         if (maxValue != -1f) slider.highValue = maxValue;
+
+        slider.value = value;
+        slider.label = name;
 
         slider.RegisterValueChangedCallback(evt => onValueChanged(evt.newValue));
     }

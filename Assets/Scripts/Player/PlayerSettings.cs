@@ -7,39 +7,47 @@ public class PlayerSettings
 {
     public UnityEvent<string, object> OnSettingChanged = new();
 
+    [PauseMenuOption("FOV", "Gameplay", "Camera", 60f, 120f)]
+    public float fieldOfView = 90f;
     [PauseMenuOption("Horizontal Look", "Gameplay", "Controls", 0f, 100f)]
     public float horizontalRotationSpeed = 20f;
 
     [PauseMenuOption("Vertical Look", "Gameplay", "Controls", 0f, 100f)]
     public float verticalRotationSpeed = 24f;
 
-    [PauseMenuOption("test-gameplay", "Gameplay", "Huh")]
-    public bool testGameplayOption = true;
 
+    public List<string> displayModeOptions = new() { "Windowed", "Borderless Fullscreen" };
+    [PauseMenuOption("Display Mode", "Graphics", "Display", listOptionsVariableName = nameof(displayModeOptions))]
+    public int displayModeIndex = 0;
 
-
-    [PauseMenuOption("test-video", "Video", "Huh")]
-    public bool testVideoOption = true;
-
-    [PauseMenuOption("FOV", "Video", "Camera", 60f, 120f)]
-    public float fieldOfView = 90f;
-
-    public List<string> resolutionOptions = Screen.resolutions != null ? new List<string>(Array.ConvertAll(Screen.resolutions, res => $"{res.width} x {res.height} @ {res.refreshRateRatio}Hz")) : new List<string>();
-    [PauseMenuOption("Resolution", "Video", "Display", listOptionsVariableName = nameof(resolutionOptions))]
+    public List<string> resolutionOptions = Screen.resolutions != null ?
+        new List<string>(
+            Array.ConvertAll(Screen.resolutions, res => $"{res.width} x {res.height} @ {res.refreshRateRatio.value:0.##}Hz")
+        ) :
+        new List<string>();
+    [PauseMenuOption("Resolution", "Graphics", "Display", listOptionsVariableName = nameof(resolutionOptions))]
     public int resolutionIndex = 0;
 
 
-
-    [PauseMenuOption("test-audio", "Audio", "Huh")]
-    public bool testAudioOption = true;
-
-
     private bool isPlayerOwned;
+
 
     public PlayerSettings(bool isPlayerOwned = false)
     {
         this.isPlayerOwned = isPlayerOwned;
         LoadSettings();
+    }
+
+    public void SubscribeToChanges(UnityAction<string, object> listener)
+    {
+        OnSettingChanged.AddListener(listener);
+
+        foreach (var field in GetType().GetFields())
+        {
+            string settingName = field.Name;
+            object value = field.GetValue(this);
+            OnSettingChanged.Invoke(settingName, value);
+        }
     }
 
     public void UpdateSetting(string settingName, object value)

@@ -160,10 +160,10 @@ PauseMenuOptionSlider Slider {
 }
 
 PauseMenuOptionSlider TextField {
-    padding-top: 5px;
-    padding-right: 0;
-    padding-bottom: 5px;
-    padding-left: 10px;
+    padding-top: 2px;
+    padding-right: 2px;
+    padding-bottom: 2px;
+    padding-left: 2px;
     border-top-width: 3px;
     border-right-width: 3px;
     border-bottom-width: 3px;
@@ -172,19 +172,23 @@ PauseMenuOptionSlider TextField {
     border-top-right-radius: 20px;
     border-bottom-right-radius: 20px;
     border-bottom-left-radius: 20px;
-    font-size: 16px;
+    font-size: 12px;
     color: var(--Primary-Text);
     border-top-color: var(--Primary);
     border-right-color: var(--Primary);
     border-bottom-color: var(--Primary);
     border-left-color: var(--Primary);
+    -unity-text-align: middle-center;
+    -unity-font-style: normal;
+    -unity-text-auto-size: best-fit 10px 15px;
+    -unity-text-generator: advanced;
 }
 
 #Gameplay .tab-content {
     width: 50%;
 }
 
-#Video .tab-content {
+#Graphics .tab-content {
     width: 50%;
 }
 

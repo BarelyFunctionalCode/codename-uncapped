@@ -28,7 +28,7 @@ public partial class PauseMenu : CustomUIElementBase
         leaveButton = this.Q<Button>("LeaveButton");
         quitButton = this.Q<Button>("QuitButton");
         tabContainers["Gameplay"] = this.Query<VisualElement>("Gameplay").Children<VisualElement>("Content").First();;
-        tabContainers["Video"] = this.Query<VisualElement>("Video").Children<VisualElement>("Content").First();;
+        tabContainers["Graphics"] = this.Query<VisualElement>("Graphics").Children<VisualElement>("Content").First();;
         tabContainers["Audio"] = this.Query<VisualElement>("Audio").Children<VisualElement>("Content").First();;
         tabContainers["Controls"] = this.Query<VisualElement>("Controls").Children<VisualElement>("Content").First();;
         tabContainers["Debug"] = this.Query<VisualElement>("Debug").Children<VisualElement>("Content").First();;
@@ -189,7 +189,6 @@ public partial class PauseMenu : CustomUIElementBase
         {
             string option = options[i];
             newExpandableList.AddListItem(option, i.ToString(), true);
-            Debug.Log($"Added list option: {option} with value {i}");
         }
 
         newExpandableList.SetSelectedItem(value.ToString());

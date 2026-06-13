@@ -11,7 +11,7 @@
             <ui:Tab label="Gameplay" name="Gameplay" tabindex="1">
                 <ui:VisualElement name="Content" class="tab-content"/>
             </ui:Tab>
-            <ui:Tab label="Video" name="Video" tabindex="2">
+            <ui:Tab label="Graphics" name="Graphics" tabindex="2">
                 <ui:VisualElement name="Content" class="tab-content"/>
             </ui:Tab>
             <ui:Tab label="Audio" name="Audio" tabindex="3">
