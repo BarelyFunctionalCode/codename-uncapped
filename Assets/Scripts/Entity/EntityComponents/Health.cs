@@ -49,7 +49,7 @@ public class DamageTracker
 public class Health : EntityComponent, IDamageable
 {
     public UnityEvent<float> onHealthChanged = new();
-    public UnityEvent<float> onAppliedDamage = new();
+    public UnityEvent<float, NetworkBehaviourReference, bool, bool> onAppliedDamage = new();
 
     [SerializeField] private NetworkVariable<float> _health = new(0.0f);
     [SerializeField] private float _maxHealth;
@@ -57,6 +57,10 @@ public class Health : EntityComponent, IDamageable
     public float CurrentHealth => _health.Value;
     public float MaxHealth => _maxHealth;
     public float HealthPercentage => MaxHealth > 0f ? CurrentHealth / MaxHealth : 0f;
+
+    private float midairHitDistanceThreshold = 15f;
+    private float midairHitDamageThreshold = 10f;
+    private bool isInvincible = false;
 
     List<DamageTracker> damageTrackers = new();
 
@@ -88,6 +92,13 @@ public class Health : EntityComponent, IDamageable
             case EntityStates.RESPAWN:
                 _health.Value = _maxHealth;
                 break;
+            case EntityStates.INVINCIBLE:
+                _health.Value = 1;
+                isInvincible = true;
+                break;
+            case EntityStates.ALIVE:
+                isInvincible = false;
+                break;
             default:
                 break;
         }
@@ -95,6 +106,7 @@ public class Health : EntityComponent, IDamageable
 
     public void TakeDamage(
         float damage,
+        bool directHit = false,
         NetworkBehaviourReference attackerRef = default,
         NetworkBehaviourReference weaponRef = default
     ) {
@@ -105,6 +117,14 @@ public class Health : EntityComponent, IDamageable
         attackerRef.TryGet(out Character attacker);
         if (attacker != null) attacker.gameObject.TryGetComponent(out attackerIdentification);
         ulong attackerEntityId = attackerIdentification != null ? attackerIdentification.FetchEntityId() : ulong.MaxValue;
+
+        bool isMidairHit = directHit && 
+                        Vector3.Distance(transform.position, attacker.transform.position) > midairHitDistanceThreshold &&
+                        !entity.state.IsGrounded &&
+                        damage > midairHitDamageThreshold;
+
+        bool isLethal = damage >= CurrentHealth;
+
 
         if (!entityId.Equals(attackerEntityId))
         {
@@ -119,7 +139,7 @@ public class Health : EntityComponent, IDamageable
             if (doStatUpdates)
             {
                 attacker.TryGetComponent(out Health attackerHealth);
-                if (attackerHealth != null) attackerHealth.OnAppliedDamageRpc(damage);
+                if (attackerHealth != null) attackerHealth.OnAppliedDamageRpc(damage, entity, isLethal, isMidairHit);
                 GameModeHandler.Instance.StatEventReceiver(new StatEvent(
                     StatEventType.DAMAGE_DEALT,
                     damage,
@@ -145,13 +165,15 @@ public class Health : EntityComponent, IDamageable
 
         float healthDeltaRatio = (_health.Value - oldHealth) / _maxHealth;
 
+        if (isInvincible) _health.Value = oldHealth;
+
         ApplyhealthDeltaRpc(healthDeltaRatio);
     }
 
     [Rpc(SendTo.Owner)]
     public void ApplyhealthDeltaRpc(float ratio) => onHealthChanged.Invoke(ratio);
     [Rpc(SendTo.Owner)]
-    private void OnAppliedDamageRpc(float damage) => onAppliedDamage.Invoke(damage);
+    private void OnAppliedDamageRpc(float damage, NetworkBehaviourReference targetCharacterRef, bool isLethal, bool isMidairHit) => onAppliedDamage.Invoke(damage, targetCharacterRef, isLethal, isMidairHit);
 
     private void Die() {
         if (!IsServer || entity.state.IsDead) return;

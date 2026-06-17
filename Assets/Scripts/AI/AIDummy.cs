@@ -8,6 +8,8 @@ public class AIDummy : AI
     CharacterMovement movementData;
     Transform aiCharacterTransform;
 
+    [SerializeField] private bool frozenDummy = false;
+
     bool targetInSight = false;
     float targetLostTime = 5f;
     float targetLostTimer = 0f;
@@ -31,6 +33,18 @@ public class AIDummy : AI
 
     void Update()
     {
+        if (frozenDummy)
+        {
+            if (aiCharacterTransform == null) return;
+            if (Vector3.Distance(transform.position, aiCharacterTransform.position) > 1f)
+            {
+                FrozenState();
+            }
+            return;
+        }
+
+
+
         if (Character == null || !controlsEnabled)
         {
             OnMove(Vector2.zero);
@@ -108,6 +122,17 @@ public class AIDummy : AI
         movementData = Character.characterMovement;
         aiCharacterTransform = Character.localCharacterType.transform;
     }
+
+    private void FrozenState()
+    {
+        Character.state.ChangeState(EntityStates.INVINCIBLE);
+
+        Character.Teleport(transform.position);
+
+        SetControls(false);
+        Character.GetComponent<Rigidbody>().isKinematic = true;
+    }
+
 
     #region Input Callbacks
     public void OnLook(Vector2 lookInput)

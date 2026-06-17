@@ -9,6 +9,7 @@ public enum EntityStates
     ALIVE,
     GROUNDED,
     UNGROUNDED,
+    INVINCIBLE
 }
 
 public class State : EntityComponent

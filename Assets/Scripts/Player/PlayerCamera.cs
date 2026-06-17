@@ -10,6 +10,7 @@ public class PlayerCamera : MonoBehaviour
     // FOV: preset --- +20
 
     [SerializeField] private CinemachineCamera cam;
+    [SerializeField] private Camera impactFrameCamera;
     private float defaultFOV = 90f;
     private CinemachineBasicMultiChannelPerlin noise;
     private Vignette vignette;
@@ -63,6 +64,8 @@ public class PlayerCamera : MonoBehaviour
         {
             defaultFOV = (float)value;
             cam.Lens.FieldOfView = defaultFOV;
+            if (impactFrameCamera != null)
+                impactFrameCamera.fieldOfView = defaultFOV;
         }
         if (settingName == nameof(PlayerSettings.displayModeIndex))
         {

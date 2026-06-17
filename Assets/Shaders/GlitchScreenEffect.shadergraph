@@ -4745,8 +4745,8 @@
     "m_ObjectId": "8bf67f1c28804f9cbbdc25d970f03eba",
     "m_Title": "Split Screen Into Grid of Squares",
     "m_Position": {
-        "x": -754.0000610351563,
-        "y": -228.50001525878907
+        "x": -754.0,
+        "y": -228.5
     }
 }
 
@@ -5247,8 +5247,8 @@
     "m_ObjectId": "a68b445af55d4cac9f882fbdf0300d34",
     "m_Title": "Square Alpha Calculation",
     "m_Position": {
-        "x": -65.3619384765625,
-        "y": 1028.974609375
+        "x": -65.5,
+        "y": 1029.0
     }
 }
 
@@ -7104,8 +7104,8 @@
     "m_ObjectId": "f2e4830c8bca49b6b08775bda66d801a",
     "m_Title": "Randomness for Square Selection",
     "m_Position": {
-        "x": -560.65283203125,
-        "y": 358.257568359375
+        "x": -560.5,
+        "y": 358.5
     }
 }
 
@@ -7180,8 +7180,8 @@
     "m_ObjectId": "f437704d02f34413af51c1f6767c255d",
     "m_Title": "Draw Square Based on Effect Ratio",
     "m_Position": {
-        "x": 473.49993896484377,
-        "y": 167.50001525878907
+        "x": 473.5,
+        "y": 167.5
     }
 }
 

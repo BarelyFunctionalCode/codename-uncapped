@@ -207,7 +207,7 @@ public class Projectile : NetworkBehaviour, IGravityModifiable
         {
             IDamageable damageable = directImpactCollider.gameObject.GetComponentInParent<IDamageable>();
             Rigidbody rb = directImpactCollider.gameObject.GetComponentInParent<Rigidbody>();
-            ApplyDamage(directImpactCollider.gameObject, maxDamage);
+            ApplyDamage(directImpactCollider.gameObject, maxDamage, true);
             if (rb != null) rb.AddForce(
                 transform.forward * maxImpactForce,
                 ForceMode.Impulse
@@ -267,11 +267,11 @@ public class Projectile : NetworkBehaviour, IGravityModifiable
 
     protected virtual void OnImpact() {}
 
-    protected void ApplyDamage(GameObject target, float damage)
+    protected void ApplyDamage(GameObject target, float damage, bool directHit = false)
     {
         if (!IsServer || damage <= 0) return;
         // print("Applying " + damage + " damage to " + target.name);
         //if (target.GetComponent<Entity>() != null) target.GetComponent<Entity>().TakeDamage(damage);
-        if (target.GetComponentInParent<IDamageable>() != null) target.GetComponentInParent<IDamageable>().TakeDamage(damage, ownerRef, weaponRef);
+        if (target.GetComponentInParent<IDamageable>() != null) target.GetComponentInParent<IDamageable>().TakeDamage(damage, directHit, ownerRef, weaponRef);
     }
 }

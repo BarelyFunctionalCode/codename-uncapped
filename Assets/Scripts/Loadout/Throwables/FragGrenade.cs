@@ -60,7 +60,7 @@ public class FragGrenade : Throwable
 
 
         if (receiverTransform.GetComponentInParent<IDamageable>() != null)
-            receiverTransform.GetComponentInParent<IDamageable>().TakeDamage(damage, ownerRef, throwerRef);
+            receiverTransform.GetComponentInParent<IDamageable>().TakeDamage(damage, false, ownerRef, throwerRef);
     }
 
     protected override void OnDetonate()

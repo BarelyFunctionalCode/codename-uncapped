@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -13,6 +14,8 @@ public enum HUDMenu
 [RequireComponent(typeof(UIDocument))]
 public class HUDController : MonoBehaviour
 {
+    [SerializeField] private ImpactFrameEffectController impactFrameEffectController;
+
     // Main HUD Document
     private UIDocument hudUIDocument;
 
@@ -228,8 +231,22 @@ public class HUDController : MonoBehaviour
         else currentPhaseText.style.display = DisplayStyle.Flex;
     }
 
-    private void SetHitMarker(float damage)
+    private void SetHitMarker(float damage, NetworkBehaviourReference targetCharacterRef, bool isLethal, bool isMidairHit)
     {
+        targetCharacterRef.TryGet(out Character targetCharacter);
+        Debug.Log($"Hit marker triggered: damage={damage}, isLethal={isLethal}, isMidairHit={isMidairHit}");
+
+        if (isLethal)
+        {
+            Debug.Log("Lethal hit marker triggered");
+
+            if (isMidairHit)
+            {
+                Debug.Log("Lethal midair hit marker triggered");
+                impactFrameEffectController.Trigger(targetCharacter.transform);
+            }
+        }
+
         reticleContainer.EnableInClassList("hit-marker", true);
         reticleContainer.schedule.Execute(() => reticleContainer.EnableInClassList("hit-marker", false)).ExecuteLater(100);
     }
