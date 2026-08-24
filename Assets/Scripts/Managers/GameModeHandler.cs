@@ -78,7 +78,7 @@ public class GameModeHandler : NetworkBehaviour
                 var gamemodeSOs = Resources.LoadAll<GameModeSO>("GameModeSOs");
                 availableGameModes = new Dictionary<GameModes, GameModeSO>(gamemodeSOs.Length);
                 
-                foreach (GameModeSO obj in gamemodeSOs) availableGameModes.Add(obj.gameModeName, obj);
+                foreach (GameModeSO obj in gamemodeSOs) if (obj.isAvailable) availableGameModes.Add(obj.gameModeName, obj);
             }
         }
     }

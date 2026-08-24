@@ -186,6 +186,7 @@ public class HUDController : MonoBehaviour
 
     public void SetHUDActive(bool isActive)
     {
+        Debug.Log("Setting HUD active: " + isActive);
         this.isActive = isActive;
         hudUIDocument.rootVisualElement.style.display = isActive ? DisplayStyle.Flex : DisplayStyle.None;
     }

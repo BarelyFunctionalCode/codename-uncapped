@@ -6,6 +6,6 @@
             <ui:Label text="XXXXXXXXXXXX" name="list-selected-item" style="font-size: 20px; filter: opacity(0.6); margin-right: 20px;"/>
             <ui:Image source="" name="arrow"/>
         </ui:VisualElement>
-        <ui:VisualElement name="options-container" class="background"/>
+        <ui:ScrollView name="options-container" vertical-scroller-visibility="Hidden" horizontal-scroller-visibility="Hidden"/>
     </ExpandableList>
 </ui:UXML>

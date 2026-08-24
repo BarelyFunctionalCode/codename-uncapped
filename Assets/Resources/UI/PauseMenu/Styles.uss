@@ -190,6 +190,10 @@ PauseMenuOptionSlider TextField {
 
 #Graphics .tab-content {
     width: 50%;
+    flex-grow: 0;
+    height: 100%;
+
+    overflow: scroll;
 }
 
 #Audio .tab-content {

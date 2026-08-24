@@ -2,6 +2,7 @@ ExpandableList {
     flex-shrink: 0;
     height: 60px;
     min-height: 60px;
+    max-height: 460px;
     margin-bottom: 10px;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
@@ -43,6 +44,7 @@ ExpandableList:focus #header {
     padding-bottom: 10px;
     padding-left: 10px;
     flex-shrink: 0;
+    max-height: 400px;
 }
 
 #options-container > * {

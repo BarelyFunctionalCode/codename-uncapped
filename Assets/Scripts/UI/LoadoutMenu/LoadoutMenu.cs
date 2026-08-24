@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -105,6 +106,7 @@ public partial class LoadoutMenu : CustomUIElementBase
     // Iterate through the lists of loadout items, spawning a list for each category, and populating each list with the category's respective items.
     private void BuildLoadoutLists()
     {
+        string weapon1Name = "";
         for (int i = 0; i < loadoutListsData.Count; i++)
         {
             ExpandableList newExpandableList = (ExpandableList)UIManager.Spawn("UI/ExpandableList/ExpandableList", optionsListsContainer);
@@ -114,6 +116,10 @@ public partial class LoadoutMenu : CustomUIElementBase
             {
                 newExpandableList.AddListItem(item.itemName, item.itemName, item.isAvailable);
             }
+
+            string firstItemValue = playerLoadoutManager.currentLoadout.Value.GetAllItems().FirstOrDefault(item => item.itemType == loadoutListsData[i].itemType && item.itemName != weapon1Name)?.itemName;
+            if (loadoutListsData[i].itemType == LoadoutItemType.Weapon && firstItemValue != null) weapon1Name = firstItemValue;
+            schedule.Execute(() => newExpandableList.SetSelectedItem(firstItemValue)).StartingIn(200);
         }
     }
 

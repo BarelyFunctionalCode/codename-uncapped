@@ -25,3 +25,4 @@ MonoBehaviour:
   defaultTeamNames:
   - Red
   - Blue
+  isAvailable: 1

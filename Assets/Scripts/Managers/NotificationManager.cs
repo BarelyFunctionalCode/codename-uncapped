@@ -103,4 +103,15 @@ public class NotificationManager : NetworkBehaviour
         );
         SendNotificationRpc(notificationData);
     }
+
+    [Rpc(SendTo.Server)]
+    public void SendCaptureNotificationRpc(int teamId, string capturerName)
+    {
+        string teamName = GameModeHandler.Instance.currentGameMode.TeamStructure.GetTeamByIndex(teamId);
+        NotificationData notificationData = new(
+            NotificationType.KillFeed,
+            $"Team {teamName} captured the flag! ({capturerName})"
+        );
+        SendNotificationRpc(notificationData);
+    }
 }

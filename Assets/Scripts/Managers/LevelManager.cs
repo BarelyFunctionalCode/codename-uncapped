@@ -60,6 +60,7 @@ public class LevelManager : NetworkBehaviour
         Identification entityIdentification = character.identification;
 
         GameModeHandler.Instance.OnCharacterJoined(entityIdentification.FetchEntityId());
+        if (GameManager.Instance.debugMode) Debug.Log("LevelManager: New character added to Level: " + entityIdentification.FetchEntityName() + " (ID: " + entityIdentification.FetchEntityId() + ")");
         
         Transform spawnPoint = GetSpawnPoint(entityIdentification.FetchTeamId());
         if (spawnPoint == null) return;
@@ -88,7 +89,7 @@ public class LevelManager : NetworkBehaviour
     // Called after all the players have loaded into the scene
     private void OnPlayersLoaded()
     {
-        if (!NetworkManager.Singleton.IsHost || isInitialized) return;
+        if (!IsServer || isInitialized) return;
         playersLoaded = true;
 
         OnLevelInitialized();
@@ -97,7 +98,7 @@ public class LevelManager : NetworkBehaviour
     // Called after any runtime generation for the scene has finished
     public void OnStageGenerated()
     {
-        if (!NetworkManager.Singleton.IsHost || isInitialized) return;
+        if (!IsServer || isInitialized) return;
         stageGenerated = true;
 
         OnStageGenerationRpc(GameModeHandler.Instance.gameModesTeamTypes[GameModeHandler.Instance.currentGameMode.GameModeId] == TeamBasedType.SOLO);
@@ -126,6 +127,17 @@ public class LevelManager : NetworkBehaviour
                 if (character == null || character.state == null) continue;
                 character.state.Die();
             }
+
+
+            if (!IsServer) return;
+
+            GameObject[] powerCores = GameObject.FindGameObjectsWithTag("PowerCore");
+            foreach (var powerCore in powerCores)
+            {
+                PowerCorePickup pickup = powerCore.GetComponent<PowerCorePickup>();
+                if (pickup == null) continue;
+                pickup.CanBePickedUp.Value = true;
+            }
         }
 
         if (previousPhase == Phase.ENDGAME)
@@ -139,6 +151,7 @@ public class LevelManager : NetworkBehaviour
 
     private void OnLevelInitialized()
     {
+        if (GameManager.Instance.debugMode) Debug.Log("LevelManager: OnLevelInitialized() called. PlayersLoaded: " + playersLoaded + ", StageGenerated: " + stageGenerated);
         if (!playersLoaded || !stageGenerated) return;
 
         spawnPoints.Clear();
@@ -151,6 +164,7 @@ public class LevelManager : NetworkBehaviour
             spawnPoints[teamId].Add(spawnPointObj.transform);
         }
 
+        if (GameManager.Instance.debugMode) Debug.Log("LevelManager: OnLevelInitialized() called. Characters in scene: " + CharacterManager.Instance.characters.Count);
         foreach (Character character in CharacterManager.Instance.characters)
         {
             if (character == null) continue;
@@ -160,7 +174,7 @@ public class LevelManager : NetworkBehaviour
             GameModeHandler.Instance.OnCharacterJoined(entityIdentification.FetchEntityId());
             
             Transform spawnPoint = GetSpawnPoint(entityIdentification.FetchTeamId());
-            if (spawnPoint == null) continue;
+            if (spawnPoint == null) spawnPoint = transform; // If no spawn point is found, just use the LevelManager's position as a fallback
             
             character.Teleport(spawnPoint.position, spawnPoint.rotation);
             character.characterInputs.SetHUDActiveRpc(true);

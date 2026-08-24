@@ -64,7 +64,7 @@ LoadoutMenu.active-menu {
 #preview {
     flex-grow: 0;
     margin-right: 20px;
-    width: 40%;
+    width: 30%;
     align-items: center;
     overflow: hidden;
 }
@@ -97,7 +97,7 @@ LoadoutMenu.active-menu {
 }
 
 #options-lists {
-    width: 40%;
+    width: 50%;
 }
 
 #item-info {

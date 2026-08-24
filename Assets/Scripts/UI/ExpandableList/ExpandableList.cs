@@ -51,6 +51,7 @@ public partial class ExpandableList : CustomUIElementBase
         isOpen = true;
         float targetHeight = listOptionsContainer.resolvedStyle.height;
         style.height = targetHeight + buttonHeight;
+        listOptionsContainer.Focus();
     }
     private void CloseList()
     {

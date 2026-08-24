@@ -30,6 +30,7 @@ public class GameModeSO : ScriptableObject
     public float winConditionDefaultValue;
     public TeamBasedType teamBasedType;
     public List<string> defaultTeamNames;
+    public bool isAvailable = true;
 
     public GameModeData GetGameModeData(int maxPlayers = -1, int timeLimitMinutes = -1, float winConditionValue = -1)
     {

@@ -9,6 +9,7 @@ TagManager:
   - Projectile
   - Throwable
   - TeamBase
+  - PowerCore
   layers:
   - Default
   - TransparentFX

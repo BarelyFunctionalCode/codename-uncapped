@@ -165,6 +165,7 @@ public class CharacterLoadout : INetworkSerializable, IEquatable<CharacterLoadou
     public LoadoutItemSO gearSO;
     public LoadoutItemSO driveSO;
 
+
     public CharacterLoadout()
     {
         armorClass = LoadoutArmorClass.Any;
@@ -196,5 +197,10 @@ public class CharacterLoadout : INetworkSerializable, IEquatable<CharacterLoadou
         throwableSO = loadoutSO.throwable;
         gearSO = loadoutSO.gear;
         driveSO = loadoutSO.drive;
-    }   
+    }
+
+    public List<LoadoutItemSO> GetAllItems()
+    {
+        return new List<LoadoutItemSO> { weapon1SO, weapon2SO, heavyWeaponSO, throwableSO, gearSO, driveSO }.Where(item => item != null).ToList();
+    }
 }

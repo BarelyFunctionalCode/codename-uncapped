@@ -15,9 +15,9 @@ TerrainLayer:
   m_Specular: {r: 0, g: 0, b: 0, a: 0}
   m_Metallic: 0
   m_Smoothness: 0
-  m_NormalScale: 2
+  m_NormalScale: 1
   m_DiffuseRemapMin: {x: 0, y: 0, z: 0, w: 0}
   m_DiffuseRemapMax: {x: 0.057457905, y: 0.21698111, z: 0.03172837, w: 1}
-  m_MaskMapRemapMin: {x: 0, y: 0.8044854, z: 0, w: 0}
-  m_MaskMapRemapMax: {x: 0.098445535, y: 0.9858326, z: 1, w: 0.099137515}
+  m_MaskMapRemapMin: {x: 0, y: 0.81865275, z: 0, w: 0}
+  m_MaskMapRemapMax: {x: 0.098445594, y: 1, z: 1, w: 0.09913744}
   m_SmoothnessSource: 0

@@ -21,7 +21,7 @@ public class DevNetworkManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         desiredSceneName = SceneManager.GetActiveScene().name;
-        desiredGameMode = GameModes.DEATHMATCH;
+        desiredGameMode = GameModes.POWERSTRUGGLE;
 
         if (FindFirstObjectByType<NetworkManager>() == null) Instantiate(networkManagerPrefab);
         else Destroy(gameObject);

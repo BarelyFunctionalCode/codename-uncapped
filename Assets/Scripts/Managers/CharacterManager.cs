@@ -140,6 +140,20 @@ public class CharacterManager : NetworkBehaviour
         OnCharacterAdded.Invoke(characterId);
     }
 
+    public bool IsLocalPlayerCharacter(NetworkObjectReference objRef)
+    {
+        if (!objRef.TryGet(out NetworkObject netObj)) return false;
+        if (!netObj.TryGetComponent(out Character character)) return false;
+        return IsLocalPlayerCharacter(character);
+    }
+
+    public bool IsLocalPlayerCharacter(Character character)
+    {
+        return character != null &&
+                character.IsPlayerCharacter &&
+                Player.Instance.Character.identification.FetchEntityId() == character.identification.FetchEntityId();
+    }
+
     public Character GetCharacterByClientId(ulong clientId)
     {
         return characters.Find(c => c.OwnerClientId == clientId);

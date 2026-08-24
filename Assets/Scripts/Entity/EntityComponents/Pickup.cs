@@ -14,14 +14,14 @@ public class Pickup : EntityComponent
     protected bool isOneHanded = true;
     protected Vector3 targetHoldRotation = Vector3.zero;
     public bool isPickedUp = false;
-    protected PickupContainer pickerUpper;
+    public PickupContainer pickerUpper;
 
     public Rigidbody Rb { get; private set; }
-    public CollisionDetectionMode PreviousCollisionMode { get; private set; }
-    public bool PreviousIsKinematic { get; private set; }
-    public bool PreviousUseGravity { get; private set; }
+    public CollisionDetectionMode PreviousCollisionMode { get; protected set; }
+    public bool PreviousIsKinematic { get; protected set; }
+    public bool PreviousUseGravity { get; protected set; }
 
-    private void Awake()
+    protected virtual void Awake()
     {
         Rb = GetComponent<Rigidbody>();
         if (Rb != null)
@@ -54,10 +54,16 @@ public class Pickup : EntityComponent
         }
 
         // Set the picker upper so that we can reference it in derived classes and run derived class specific code in PickUpState()
+        PickupContainer currentPickerUpper = this.pickerUpper;
         this.pickerUpper = pickerUpper;
 
         // Run derived class specific code
-        PickUpState();
+        bool success = PickUpState();
+        if (!success)
+        {
+            this.pickerUpper = currentPickerUpper;
+            return false;
+        }
 
         // Stop here if the pickup is consumable
         if (isConsumable)
@@ -83,7 +89,7 @@ public class Pickup : EntityComponent
         return true;
     }
 
-    protected virtual void PickUpState() { }
+    protected virtual bool PickUpState() { return true; }
 
     public void PutDown(Vector3 throwVector = default)
     {
@@ -128,7 +134,7 @@ public class Pickup : EntityComponent
 
         PickupContainer pickupContainer = other.GetComponentInParent<PickupContainer>();
         if (pickupContainer == null) return;
-        
+
         pickupContainer.TryPickUp(this);
     }
 }
